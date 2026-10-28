@@ -2917,7 +2917,9 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             err = "not enough VRAM left for the hybrid experts' buffers and slots (" + std::to_string((need >> 20)) +
                   " MiB needed, " + std::to_string(fr >> 20) + " MiB free after the weights, the context and the sessions): use "
                   "fewer slots (\"parallel\" / --batch), a shorter --max-context" +
-                  (slots > 0 ? ", or fewer --expert-slots" : "");
+                  (slots > 0 ? ", or fewer --expert-slots" : "") +
+                  (m.has_mtp ? ", --mtp 0 (the MTP block's weights and buffers take VRAM)" : "") +
+                  (E.use_mmq ? ", or STRATA_MMQ_KQ=0 (the streamed-prompt staging becomes slots)" : "");
             return false;
         }
     }
