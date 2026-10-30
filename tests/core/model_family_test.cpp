@@ -51,6 +51,8 @@ struct Dims {
 };
 // Qwen3.6-35B-A3B (unsloth/Qwen3.6-35B-A3B-MTP-GGUF, every quant) and Qwen3.8-Flash-Next, as their files say
 const Dims kQwen36 = {41, 2048, 16, 2, 256, 256, 8, 512, 512, 4, 128, 16, 32, 4096, 4, 1, 0, 0, 0, 0};
+// the same model as a conversion that drops the draft block (HauhauCS, llmfan46's merges): 40 blocks, no MTP key
+const Dims kQwen36NoMtp = {40, 2048, 16, 2, 256, 256, 8, 512, 512, 4, 128, 16, 32, 4096, 4, 0, 0, 0, 0, 0};
 const Dims kFlashNext = {48, 2560, 24, 2, 256, 512, 10, 640, 640, 4, 128, 16, 48, 6144, 4, 0, 4, 320, 4, 128};
 // tiny models of each family for the layout checks (every tensor F32, a few KB)
 const Dims kTiny36 = {5, 64, 2, 1, 16, 4, 2, 32, 32, 4, 8, 2, 4, 32, 4, 1, 0, 0, 0, 0};
@@ -216,6 +218,20 @@ int main(int argc, char** argv) {
         fixture::write(miss, kv, {});
         check(strata::check_architecture(strata::GgufFile(miss.string())).find("ssm.time_step_rank") != std::string::npos,
               "a qwen35moe file without ssm.time_step_rank is refused, naming the key");
+        // and one that simply has no draft block: the MTP key is its own, optional part of the geometry
+        std::vector<Kv> nomtp = metadata("qwen35moe", kQwen36NoMtp, 8);
+        for (auto it = nomtp.begin(); it != nomtp.end(); ++it)
+            if (it->key == "qwen35moe.nextn_predict_layers") { nomtp.erase(it); break; }
+        const fs::path no_mtp = d.path / "no_mtp.gguf";
+        fixture::write(no_mtp, nomtp, {});
+        check(strata::check_architecture(strata::GgufFile(no_mtp.string())).empty(),
+              "the guard accepts a qwen35moe file with no MTP key");
+        strata::core::ModelGeometry ng;
+        int64_t nk = 0;
+        std::string nerr;
+        check(geometry_of(no_mtp, ng, nk, nerr) && ng.n_mtp_layers == 0 && ng.n_layers == 40,
+              "without the key the geometry is 40 trunk layers and no MTP block" +
+                  (nerr.empty() ? std::string() : ": " + nerr));
     }
     {
         // the geometry of the real models, from their metadata values
