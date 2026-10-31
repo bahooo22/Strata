@@ -2803,7 +2803,8 @@ struct Engine {
 /// The routed experts after the engine's buffers: all in VRAM when they fit in `vram_gib` (< 0: the free VRAM less a
 /// reserve), else the hybrid mode - every expert in host memory, the same number of VRAM slots per layer, a decode
 /// batch's other experts on the CPU pool and a prompt chunk's streamed through two staging buffers.
-bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid_t, int slots, std::string& err) {
+bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid_t, int slots, size_t reserve,
+                   std::string& err) {
     const auto t0 = Clock::now();
     const auto& g = m.g;
     const int64_t ne = g.n_expert;
@@ -2818,7 +2819,6 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     }
     size_t fr = 0, tot = 0;
     CK(cudaMemGetInfo(&fr, &tot));
-    const size_t reserve = (size_t) 768 << 20;
     const size_t budget = vram_gib >= 0 ? (size_t) (vram_gib * (double) (1ull << 30))
                                         : (fr > reserve ? fr - reserve : 0);
     // every expert fits once the packed Q8_0 decode copies are given back (a file a few GiB larger than the card's
@@ -2857,7 +2857,7 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     bool mtp_only = false;
     if (slots <= 0 && vram_gib < 0 && m.has_mtp && total > budget2 && std::getenv("STRATA_Q36_NO_MTP_CPU") == nullptr) {
         const size_t att_save = (E.kAttScoreFloats - ((size_t) 16 << 20)) * 6;   // att_s (4 B) + att_p16 (2 B)
-        const size_t small_reserve = (size_t) 256 << 20;
+        const size_t small_reserve = std::min(reserve, (size_t) 256 << 20);
         const size_t room = fr + att_save > small_reserve ? fr + att_save - small_reserve : 0;
         if (total_main + ((size_t) 64 << 20) <= budget2) {
             mtp_only = true;
@@ -3738,7 +3738,7 @@ int strata::qwen35::run(int argc, char** argv) {
     int ctx = 32768, chunk = 0, n_gen = 64, bench_pp = 0, bench_tg = 0, mtp_d = 0, cpu_threads = 0, hybrid_rows = 128;
     double expert_vram = -1.0;
     bool warm = true;
-    int expert_slots = 0, batch = 0, draft_vocab = -1;
+    int expert_slots = 0, batch = 0, draft_vocab = -1, vram_reserve_mib = 768;
     bool serve_mode = false, graph = true, vision = false, batch_mtp = false;
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -3777,6 +3777,7 @@ int strata::qwen35::run(int argc, char** argv) {
         else if (a == "--batch" || a == "--slots") batch = std::atoi(next().c_str());   // sessions decoding together
         else if (a == "--batch-mtp") batch_mtp = true;                                  // ... each verifying an MTP proposal
         else if (a == "--expert-vram") expert_vram = std::atof(next().c_str());   // GiB for the routed experts
+        else if (a == "--vram-reserve-mib") vram_reserve_mib = std::atoi(next().c_str());   // MiB kept free beside the experts
         else if (a == "--cpu-threads") cpu_threads = std::atoi(next().c_str());
         else if (a == "--expert-slots") expert_slots = std::atoi(next().c_str());
         else if (a == "--hybrid-rows") hybrid_rows = std::atoi(next().c_str());
@@ -3806,6 +3807,7 @@ int strata::qwen35::run(int argc, char** argv) {
     if (std::getenv("CUDA_MODULE_LOADING") == nullptr) _putenv_s("CUDA_MODULE_LOADING", "EAGER");
 #endif
     if (mtp_d < 0 || mtp_d > 7) { std::fprintf(stderr, "strata-q36: --mtp takes 0 .. 7 drafts\n"); return 2; }
+    if (vram_reserve_mib < 16 || vram_reserve_mib > 8192) { std::fprintf(stderr, "strata-q36: --vram-reserve-mib takes 16 .. 8192\n"); return 2; }
     if (chunk < 0 || chunk > 4096 || ctx < 256) { std::fprintf(stderr, "strata-q36: bad --chunk / --max-context\n"); return 2; }
     Model m;
     std::string err;
@@ -3862,7 +3864,7 @@ int strata::qwen35::run(int argc, char** argv) {
                          fr / 1073741824.0, fr_raw / 1073741824.0, packed / 1073741824.0, experts / 1073741824.0, chunk);
     }
     E.init(m, ctx, chunk, batch, vision);
-    if (!place_experts(m, E, expert_vram, cpu_threads, hybrid_rows, expert_slots, err)) {
+    if (!place_experts(m, E, expert_vram, cpu_threads, hybrid_rows, expert_slots, (size_t) vram_reserve_mib << 20, err)) {
         std::fprintf(stderr, "strata-q36: %s\n", err.c_str());
         return 1;
     }
