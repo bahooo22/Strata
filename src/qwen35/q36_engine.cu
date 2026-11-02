@@ -3255,14 +3255,29 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     CK(cudaHostAlloc((void**) &E.h_ids, T * Kp * 4, cudaHostAllocDefault));
     CK(cudaHostAlloc((void**) &E.h_miss, T * Kp * 4, cudaHostAllocDefault));
     CK(cudaHostAlloc((void**) &E.h_cnt, all.size() * (size_t) ne * 4, cudaHostAllocDefault));
-    CK(cudaMalloc(&E.ecpu, T * Kp * N * 4));
-    CK(cudaMalloc(&E.d_miss, T * Kp * 4));
+    auto alloc_vram = [&](void** p, size_t bytes, const char* what) -> bool {
+        const cudaError_t e = cudaMalloc(p, bytes);
+        if (e == cudaSuccess) return true;
+        size_t free_b = 0, total_b = 0;
+        cudaMemGetInfo(&free_b, &total_b);
+        std::fprintf(stderr, "strata-q36: %s allocation failed: need %.1f MiB, free %.1f MiB "
+                     "(ctx %zu, top_k %lld, n_embd %lld): %s; try a smaller --max-context, --mtp 0, "
+                     "fewer --parallel slots or more free VRAM\n",
+                     what, (double) bytes / 1048576.0, (double) free_b / 1048576.0, T,
+                     (long long) m.top_k, (long long) g.n_embd, cudaGetErrorString(e));
+        err = std::string("out of memory: ") + what + " needs " + std::to_string(bytes / 1048576) +
+              " MiB, " + std::to_string(free_b / 1048576) + " MiB free";
+        return false;
+    };
+    if (!alloc_vram((void**) &E.ecpu, T * Kp * N * 4, "expert scratch (E.ecpu)")) return false;
+    if (!alloc_vram((void**) &E.d_miss, T * Kp * 4, "expert misses (E.d_miss)")) return false;
     E.acts = (uint8_t*) std::malloc(T * C::kNativeActBytes + 64);
     CK(cudaEventCreateWithFlags(&E.ev_route, cudaEventDisableTiming));
     if (staging) {
         CK(cudaStreamCreateWithFlags(&E.cst, cudaStreamNonBlocking));
         for (int b = 0; b < 2; ++b) {
-            CK(cudaMalloc(&E.stage[b], max_layer + kMmqTail));
+            if (!alloc_vram((void**) &E.stage[b], max_layer + kMmqTail,
+                            b == 0 ? "prompt staging (E.stage[0])" : "prompt staging (E.stage[1])")) return false;
             CK(cudaMemset(E.stage[b], 0, max_layer + kMmqTail));
             CK(cudaEventCreateWithFlags(&E.ev_copy[b], cudaEventDisableTiming));
             CK(cudaEventCreateWithFlags(&E.ev_used[b], cudaEventDisableTiming));
