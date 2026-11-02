@@ -1315,6 +1315,12 @@ bool Verifier::init(const WeightTable& wt, const ModelGeometry& g, SessionState&
         }
         if (!ok2) { cudaGetLastError(); all_resident_ = false; device_plan_ = false; }
     }
+    const float route_prior = g_route_prior();
+    const char* const route_prior_env = std::getenv("STRATA_ROUTE_PRIOR");
+    std::fprintf(stderr, "strata verify: residency prior %s (STRATA_ROUTE_PRIOR=%s%s)\n",
+                 route_prior > 0.0f ? "on" : "off",
+                 route_prior_env != nullptr ? route_prior_env : "unset",
+                 route_prior > 0.0f ? "" : "; 1.5 may be faster on <=8 GiB cards, see #5000");
     std::fprintf(stderr, "strata verify: window up to %d tokens, %.1f MiB of device buffers%s\n", max_t,
                  (double) count.used / 1048576.0,
                  all_resident_ ? " (100% VRAM resident: zero-doorbell graph)" : "");
