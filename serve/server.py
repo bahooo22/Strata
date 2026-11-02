@@ -530,9 +530,9 @@ DRAFT_HEAD_HINT = ("a smaller draft vocabulary needs less VRAM: --draft-vocab cy
 
 
 def start_failure_hint(log: str | None, offset: int) -> str:
-    """#474: what to change when the engine stopped at the start because the MTP draft head did not fit the VRAM
-    left: the engine's own `strata mtp:` lines after that failure (0.1.36+: what it needs, what is free, the smaller
-    subsets), else the same advice in words for an older engine.  "" for any other failure: the log says why."""
+    """What to change when the engine stopped at the start: the MTP draft head (#474), VRAM/OOM, CUDA
+    visibility, a GGUF layout mismatch, an ignored memory flag, or a native crash.  "" when the tail has
+    none of them: the log's last lines already say why."""
     if not log:
         return ""
     try:
@@ -541,11 +541,28 @@ def start_failure_hint(log: str | None, offset: int) -> str:
             text = f.read().decode("utf-8", "replace")
     except (OSError, ValueError):
         return ""
-    if DRAFT_HEAD_FAIL not in text:
-        return ""
-    said = [x.strip()[len("strata mtp: "):] for x in text.splitlines()
-            if x.strip().startswith("strata mtp: ") and ("draft head over" in x or "hint:" in x)]
-    return ". mtp: " + DRAFT_HEAD_FAIL + ". " + (" ".join(said) if said else "Hint: " + DRAFT_HEAD_HINT)
+    low = text.lower()
+    hints: list[str] = []
+    if DRAFT_HEAD_FAIL in text:
+        said = [x.strip()[len("strata mtp: "):] for x in text.splitlines()
+                if x.strip().startswith("strata mtp: ") and ("draft head over" in x or "hint:" in x)]
+        hints.append("mtp: " + DRAFT_HEAD_FAIL + ". " + (" ".join(said) if said else "Hint: " + DRAFT_HEAD_HINT))
+    if any(k in low for k in ("out of memory", "cudamalloc", "not enough vram", "cuda error 2",
+                              "failed to allocate")):
+        hints.append("VRAM: the engine ran out of GPU memory. Try a smaller --max-context, --mtp 0, "
+                     "fewer --parallel slots, --vram-reserve-mib 0/64, or a smaller quant.")
+    if any(k in low for k in ("no cuda-capable device", "failed to initialize cuda",
+                              "cuda driver version", "busy or unavailable")):
+        hints.append("CUDA: the engine sees no usable GPU. Check the NVIDIA driver, that the card is not "
+                     "disabled, and that the engine build matches the driver/CUDA.")
+    if any(k in low for k in ("layout wants", "not in the layout", "is not in the", "missing tensor")):
+        hints.append("Model: the GGUF does not match this engine's layout (wrong architecture/quant or a "
+                     "sharded set without all shards). Check the model path and quant.")
+    if any(k in low for k in ("ignoring --vram-reserve-mib", "ignoring --resident-budget-gib")):
+        hints.append("Flags: the engine ignored a VRAM budget flag; the value was not applied to this model.")
+    if any(k in low for k in ("stack buffer overrun", "access violation", "code 134", "k_size+31480")):
+        hints.append("Crash: the engine crashed natively (not a model/format error); attach the full log.")
+    return (". " + " ".join(hints)) if hints else ""
 
 
 def start_log_text(log: str | None, offset: int, limit: int = 1 << 20) -> str:
