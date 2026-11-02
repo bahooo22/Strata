@@ -1401,6 +1401,10 @@ struct Engine {
     __half* x16 = nullptr;
     bool use_graph = true;
     int mtp_d = 0;   // MTP drafts per speculative step (0: none; greedy requests only)
+    // STRATA_Q36_PROFILE=1: time the mixer (attention / GDN) and MoE blocks per layer; off by default
+    bool profile = false;
+    cudaEvent_t prof_a = nullptr, prof_b = nullptr;
+    double t_attn = 0, t_gdn = 0, t_moe = 0;
 
     // ---- sessions: the conversation states.  One for a single-request engine; --batch N keeps N, each with its own
     // recurrent state and KV cache, so N requests run at once: their rows share one decode window (forward_rows).  The
@@ -1583,6 +1587,11 @@ struct Engine {
         const size_t T = (size_t) tmax, N = (size_t) g.n_embd, Kp = (size_t) m->top_k, FF = (size_t) g.n_ff;
         const size_t C = (size_t) g.ssm_conv_channels;
         CK(cudaStreamCreateWithFlags(&st, cudaStreamNonBlocking));
+        profile = std::getenv("STRATA_Q36_PROFILE") != nullptr;
+        if (profile) {
+            CK(cudaEventCreate(&prof_a));
+            CK(cudaEventCreate(&prof_b));
+        }
         x = dalloc(T * N); h = dalloc(T * N); y = dalloc(T * N); hmain = dalloc(T * N);
         qkv = dalloc(T * C); hc = dalloc(T * C); z = dalloc(T * g.ssm_value_dim);
         alpha = dalloc(T * g.ssm_v_heads); beta = dalloc(T * g.ssm_v_heads); gdn_y = dalloc(T * g.ssm_value_dim);
@@ -2130,6 +2139,8 @@ struct Engine {
         const int HK = (int) g.ssm_k_heads, HV = (int) g.ssm_v_heads, D = (int) g.ssm_state_size;
         const int C = (int) g.ssm_conv_channels;
         const int H = (int) g.n_head, HKV = (int) g.n_head_kv, HD = (int) g.head_dim;
+        const bool pf = profile;
+        if (pf) cudaEventRecord(prof_a, st);
         if (!L.attn) {
             float* qkv_b = verify ? v_qkv[li] : qkv;
             float* hc_b = verify ? v_hc[li] : hc;
@@ -2270,6 +2281,14 @@ struct Engine {
             }
             mm(L.wo, att, y, T);
         }
+        if (pf) {
+            cudaEventRecord(prof_b, st);
+            cudaEventSynchronize(prof_b);
+            float ms = 0.0f;
+            cudaEventElapsedTime(&ms, prof_a, prof_b);
+            (L.attn ? t_attn : t_gdn) += (double) ms;
+            cudaEventRecord(prof_a, st);
+        }
         add_rms_post(L, T);
         // routed experts (one token: the router and the shared expert's gate in one product, the gate its last row)
         const bool one = T == 1;
@@ -2344,6 +2363,13 @@ struct Engine {
         if (hy_rows) moe_hybrid_cpu(li, T);   // the CPU pool's experts (while the GPU runs the rest), merged
         // the combine, the shared expert's gate, the residual add and the next norm in one launch
         moe_end(T, prow, sy, ext ? logits_r + g.n_expert : sgate, wn, hout, ext ? (int) g.n_expert + 1 : 1);
+        if (pf) {
+            cudaEventRecord(prof_b, st);
+            cudaEventSynchronize(prof_b);
+            float ms = 0.0f;
+            cudaEventElapsedTime(&ms, prof_a, prof_b);
+            t_moe += (double) ms;
+        }
     }
 
     /// The main model over T rows (device `tok`, positions p0 .. p0 + T - 1, also at *pos0): hmain gets every row's
@@ -4205,6 +4231,10 @@ int strata::qwen35::run(int argc, char** argv) {
             std::printf("bench %d: pp%d %.1f tok/s, tg%d %.1f tok/s\n", rep, (int) toks.size(),
                         (double) toks.size() / (pp_ms / 1000.0), bench_tg,
                         bench_tg > 0 ? (double) bench_tg / (tg_ms / 1000.0) : 0.0);
+            if (E.profile)
+                std::fprintf(stderr, "profile: attn %.1f ms, gdn %.1f ms, moe %.1f ms\n", E.t_attn, E.t_gdn,
+                             E.t_moe);
+            E.t_attn = E.t_gdn = E.t_moe = 0;
             std::fflush(stdout);
         }
         return 0;
