@@ -24,6 +24,11 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `aea22e2f` | serve: тест флага `strata_deterministic` в `sampling_keys` |
 | `efec68e7` | q36: размер attention-буфера — env-флаг `STRATA_Q36_ATT_MB` |
 | `c9ca876d` | q36: профиль запроса в serve-DONE; заметки форка на двух языках |
+| `a00ab004` | q36: флаг `--att-mb` — размер attention-буфера без пересборки |
+| `a445ad22` | q36: pacc под T≤8 и L2-порядок split-K — 96k tg +28 % |
+| `b562b41e` | q36: профиль запроса — total, голова, quant и фазы MTP |
+| `c052f16f` | q36: pinned host-арена экспертов по слоям — 96k pp +73 % |
+| `60a1f761` | q36: доля pinned-арены — флаг `STRATA_Q36_PINNED_LAYERS` |
 
 ## Сборка
 

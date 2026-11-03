@@ -24,6 +24,11 @@ The fork's branch is `main`. Local commits on top of upstream:
 | `aea22e2f` | serve: a test of the `strata_deterministic` flag in `sampling_keys` |
 | `efec68e7` | q36: the attention buffer size is the `STRATA_Q36_ATT_MB` env flag |
 | `c9ca876d` | q36: the request profile in serve-DONE; fork notes in two languages |
+| `a00ab004` | q36: the `--att-mb` flag — the attention buffer size without a rebuild |
+| `a445ad22` | q36: pacc for T ≤ 8 and L2-ordered split-K — 96k tg +28 % |
+| `b562b41e` | q36: the request profile — total, head, quant and the MTP phases |
+| `c052f16f` | q36: per-layer pinned expert arena — 96k pp +73 % |
+| `60a1f761` | q36: the pinned-arena share is the `STRATA_Q36_PINNED_LAYERS` flag |
 
 ## Build
 
