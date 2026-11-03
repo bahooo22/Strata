@@ -79,7 +79,7 @@ using Clock = std::chrono::steady_clock;
 double ms_since(Clock::time_point t) { return std::chrono::duration<double, std::milli>(Clock::now() - t).count(); }
 
 constexpr int kThreads = 256;
-constexpr int kChunkCells = 256;   // attention split-K chunk
+constexpr int kChunkCells = 256;   // attention split-K chunk; the kernel's block must stay == HD (qs/pacc are indexed by tid)
 constexpr int kConvTile = 16;     // tokens per block of the prompt conv (k_conv_seq tile mode)
 
 // ------------------------------------------------------------------------------------------------ small kernels
@@ -1589,6 +1589,8 @@ struct Engine {
         const size_t C = (size_t) g.ssm_conv_channels;
         CK(cudaStreamCreateWithFlags(&st, cudaStreamNonBlocking));
         profile = std::getenv("STRATA_Q36_PROFILE") != nullptr;
+        if (const char* v = std::getenv("STRATA_Q36_ATT_MB"))   // the scores buffer, MiB of att_s (default 256): 128 frees VRAM for experts
+            kAttScoreFloats = (size_t) std::max(64, std::min(512, std::atoi(v))) << 18;
         if (profile) {
             CK(cudaEventCreate(&prof_a));
             CK(cudaEventCreate(&prof_b));
