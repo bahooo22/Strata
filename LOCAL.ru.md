@@ -28,6 +28,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `bbc034d4` | q36: pacc под T≤8 и L2-порядок split-K — 96k tg +28 % |
 | `227ba006` | q36: профиль запроса — total, голова, quant и фазы MTP |
 | `4b679a76` | q36: pinned host-арена экспертов по слоям — 96k pp +73 % |
+| `53a8f8ca` | q36: доля pinned-арены — флаг `STRATA_Q36_PINNED_LAYERS` |
 
 ## Сборка
 

@@ -673,21 +673,27 @@ __global__ void k_put_rows(float* x, const float* img, const int32_t* map, int n
 /// The prompt's routed entries sorted by expert for MMQ: bounds[x] .. bounds[x + 1] are expert x's rows; sorted row r
 /// holds entry dst[r] (= t * K + k, the row of the per-slot outputs) of token src[r].  The order inside an expert is the
 /// atomics' (no output depends on it: every row's products are its own).  cnt / cur: n_expert ints of scratch.
-__global__ void k_route_count(const int32_t* ids, int n_ent, int32_t* cnt) {
-    const int e = blockIdx.x * blockDim.x + threadIdx.x;
-    if (e < n_ent) atomicAdd(&cnt[ids[e]], 1);
-}
-__global__ void k_route_scan(const int32_t* cnt, int n_expert, int32_t* bounds, int32_t* cur, int32_t* max_rows) {
-    if (threadIdx.x != 0) return;
-    int pos = 0, mx = 0;
-    for (int x = 0; x < n_expert; ++x) {
-        bounds[x] = pos;
-        cur[x] = pos;
-        pos += cnt[x];
-        mx = max(mx, cnt[x]);
+/// The prompt's routed entries counted by expert and the prefix sums in one block (one launch less than count + scan):
+/// cnt[x] is kept for the hybrid score; bounds[x] .. bounds[x + 1] are expert x's rows; max_rows the widest expert.
+__global__ void k_route_count_scan(const int32_t* ids, int n_ent, int n_expert, int32_t* cnt, int32_t* bounds,
+                                   int32_t* cur, int32_t* max_rows) {
+    __shared__ int c[512];
+    for (int x = threadIdx.x; x < n_expert; x += blockDim.x) c[x] = 0;
+    __syncthreads();
+    for (int e = threadIdx.x; e < n_ent; e += blockDim.x) atomicAdd(&c[ids[e]], 1);
+    __syncthreads();
+    for (int x = threadIdx.x; x < n_expert; x += blockDim.x) cnt[x] = c[x];
+    if (threadIdx.x == 0) {
+        int pos = 0, mx = 0;
+        for (int x = 0; x < n_expert; ++x) {
+            bounds[x] = pos;
+            cur[x] = pos;
+            pos += c[x];
+            mx = max(mx, c[x]);
+        }
+        bounds[n_expert] = pos;
+        *max_rows = mx;
     }
-    bounds[n_expert] = pos;
-    *max_rows = mx;
 }
 __global__ void k_route_scatter(const int32_t* ids, int n_ent, int K_, int32_t* cur, int32_t* dst, int32_t* src,
                                 int32_t* inv) {
@@ -2328,9 +2334,7 @@ struct Engine {
             // sorted by expert on the device, gate+up as one [2 FF] product per expert, SwiGLU, down into rows the
             // combine reads through entry -> sorted row
             const int ne = (int) g.n_expert;
-            CK(cudaMemsetAsync(rcnt, 0, (size_t) ne * 4, st));
-            k_route_count<<<grid1(n_ent), kThreads, 0, st>>>(ids, (int) n_ent, rcnt);
-            k_route_scan<<<1, 32, 0, st>>>(rcnt, ne, rbounds, rcur, rmax);
+            k_route_count_scan<<<1, kThreads, 0, st>>>(ids, (int) n_ent, ne, rcnt, rbounds, rcur, rmax);
             k_route_scatter<<<grid1(n_ent), kThreads, 0, st>>>(ids, (int) n_ent, Kp, rcur, ent_dst, ent_tok, rinv);
             CK(cudaMemcpyAsync(hpin + 10, rmax, 4, cudaMemcpyDeviceToHost, st));
             if (lhy(li)) CK(cudaMemcpyAsync(h_cnt + li * g.n_expert, rcnt, (size_t) ne * 4, cudaMemcpyDeviceToHost, st));
