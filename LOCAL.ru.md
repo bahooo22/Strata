@@ -1,22 +1,42 @@
 # Локальные изменения этого форка
 
-Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.8, engine 0.1.54).
-Ветка форка — `q8-kv`; локальные коммиты поверх 0.2.8:
+Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `ffa80d73`).
+Ветка форка — `main`. Локальные коммиты поверх апстрима:
 
 | Коммит | Что |
 | --- | --- |
-| `30ecea71` | подсказка `--mtp 0` и `STRATA_MMQ_KQ=0` в ошибке нехватки VRAM |
-| `16d4a122` | страж `qwen35moe` не требует MTP-ключ: сторонние GGUF читаются |
-| `a1589144` | загрузчик q36 принимает IQ4_XS в `ssm_alpha/beta` |
-| `ea60ce21` | резерв VRAM стал флагом `--vram-reserve-mib` |
-| `83f02fea` | квантованный q8_0 KV-кэш флагом `--kv-type` |
-| `5fa0f445` | KV-типы q4_0, q5_0, q5_1 (раскладки ggml, единый байтовый буфер) |
+| `86200712` | подсказка `--mtp 0` и `STRATA_MMQ_KQ=0` в ошибке нехватки VRAM |
+| `b8d4b58d` | страж `qwen35moe` не требует MTP-ключ: сторонние GGUF читаются |
+| `143d5be4` | загрузчик q36 принимает IQ4_XS в `ssm_alpha/beta` |
+| `414b9cde` | резерв VRAM стал флагом `--vram-reserve-mib` |
+| `91725ec7` | квантованный q8_0 KV-кэш флагом `--kv-type` |
+| `28f39156` | KV-типы q4_0, q5_0, q5_1 (раскладки ggml, единый байтовый буфер) |
+| `912ea835` | заметки форка: ветка `q8-kv`, сборка с `STRATA_GGML_DIR`, `build-verify.bat` |
+| `4af27c19` | `strata verify` логирует residency prior при старте |
+| `8852b327` | `/v1/models` отдаёт `chat_template_caps` в meta |
+| `976226a9` | serve: подсказки при старте — VRAM, CUDA, layout, флаги, краш |
+| `2e1c2a04` | q36: диагностика OOM при экспертных буферах |
+| `2fe24691` | serve: отказ batch-допуска — ошибка, а не завершённый запрос (#3040) |
+| `2033a9dc` | q36: диагностика OOM для слотов экспертов и staging |
+| `4f0b1248` | serve: читать вывод движка с `errors="replace"` |
+| `59855142` | q36: профилировщик attention/GDN/MoE и отчёт (пул, reserve, hybrid-rows, attention-буфер) |
+| `3ae7d409` | q36: per-request детерминизм — снимок размещения экспертов (#4604) |
+| `aea22e2f` | serve: тест флага `strata_deterministic` в `sampling_keys` |
+| `efec68e7` | q36: размер attention-буфера — env-флаг `STRATA_Q36_ATT_MB` |
 
 ## Сборка
 
 `..\harness\scripts\build_strata.bat` собирает `strata` и `strata-q36` в `build\`, `ggml` берётся
 из соседнего git-клона `..\llama.cpp` (`-DSTRATA_GGML_DIR`). Для проверки переноса —
-`build-verify.bat`.
+`build-verify.bat` (25 целей).
+
+## Python и `.venv`
+
+Один интерпретатор для сборки, тестов и `setup.py` — системный `C:\Program Files\Python314`
+(Python 3.14.5); `.venv` в корне движка создан только на нём (пакеты из `requirements.txt`
+и `requirements-build.txt`, cmake 4.4.3 и ninja 1.13.2 внутри). Тесты —
+`.venv\Scripts\python.exe -m unittest`. Рантайм Qoder (3.15) и PyManager в проекте
+не используются.
 
 ## Две копии llama.cpp
 
@@ -31,5 +51,11 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.8, engine 0.1.5
 - `--kv-type fp32|q8_0|q5_1|q5_0|q4_0`; на 48k q4_0 даёт +72 % к fp32 (20.5 → 35.3 tok/s);
 - `--mtp 2 --draft-vocab 8192` — лучший профиль MTP (42.1 tok/s на 16k, 38.9 на 48k);
 - Q5-файл с `ssm` в Q5_K требует перепаковки в Q8_0 (`harness\..\artifacts\glm\scripts\repack_ssm_q8.py`).
+
+## Замеры и профили запуска
+
+Итоговые профили 16/64/80/96/128k (Страта и llama.cpp), сетка `ncmoe`, `--prefill/--ub`,
+профиль q36 и сравнение KV — `..\docs\measurements\` и `..\harness\reports\`.
+Быстрый каталог документации — `..\docs\index.html` (открывается локально, без сервера).
 
 Детали — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.

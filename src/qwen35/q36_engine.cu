@@ -4007,6 +4007,11 @@ struct Serve {
         std::printf("DONE %lld %zu %.1f %.1f %s %lld %lld %zu 0 0 0 0 0.0 %lld 0\n", produced, ids.size(), prompt_ms,
                     decode_ms, finish, accepted, offered, reuse, (long long) fresh);
         std::fflush(stdout);
+        if (E.profile) {   // STRATA_Q36_PROFILE=1: the request's own share, reset for the next DONE; stderr reaches the engine log
+            std::fprintf(stderr, "profile: attn %.1f ms, gdn %.1f ms, moe %.1f ms\n", E.t_attn, E.t_gdn, E.t_moe);
+            std::fflush(stderr);
+            E.t_attn = E.t_gdn = E.t_moe = 0.0;
+        }
         std::fprintf(stderr, "strata serve: session %d: prompt %zu tokens = %zu reused + %lld read in %.0f ms (%.1f tok/s), "
                      "%lld generated in %.0f ms (%.1f tok/s), drafts accepted %lld of %lld (%s)\n", s, ids.size(), reuse,
                      (long long) fresh, prompt_ms, prompt_ms > 0 ? 1000.0 * (double) fresh / prompt_ms : 0.0, produced,

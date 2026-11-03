@@ -6,7 +6,10 @@
 </p>
 
 > **Локальные заметки этого форка:** ветка `q8-kv`, коммиты, сборка с `STRATA_GGML_DIR`,
-> KV-типы и MTP — [`LOCAL.ru.md`](LOCAL.ru.md).
+> KV-типы и MTP — [`LOCAL.ru.md`](LOCAL.ru.md). По-английски — [`LOCAL.en.md`](LOCAL.en.md).
+>
+> **Fork notes:** commits, the `STRATA_GGML_DIR` build, KV types and MTP — [`LOCAL.en.md`](LOCAL.en.md)
+> (in Russian — [`LOCAL.ru.md`](LOCAL.ru.md)).
 
 <h3 align="center">Run powerful AI on your own computer.</h3>
 <p align="center">Chat, code and work with images, locally.</p>
