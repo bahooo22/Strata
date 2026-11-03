@@ -3295,20 +3295,11 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             return false;
         }
     }
-    // host memory: every expert, pinned where the driver allows it (the prompt's stream and the slot copies)
+    // host memory: every expert, pinned per layer where the driver allows it (the prompt's stream and the slot copies)
     size_t host = 0;
     for (Layer* L : all)
         if (!mtp_only || L == &m.mtp) host += L->stride * (size_t) ne + kMmqTail;
-    uint8_t* arena = nullptr;
-    bool pinned = cudaHostAlloc((void**) &arena, host, cudaHostAllocDefault) == cudaSuccess;
-    if (!pinned) {
-        (void) cudaGetLastError();
-        arena = (uint8_t*) std::malloc(host);
-        if (!arena) {
-            err = "no host memory for the experts (" + std::to_string(host >> 20) + " MiB)";
-            return false;
-        }
-    }
+    int pinned_layers = 0, arena_layers = 0;
     size_t off = 0;
     const size_t T = (size_t) E.tmax, N = (size_t) g.n_embd, Kp = (size_t) m.top_k;
     auto alloc_vram = [&](void** p, size_t bytes, const char* what) -> bool {
@@ -3340,9 +3331,18 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             L.n_slots = (int) ne;
             continue;
         }
-        L.hblobs = arena + off;
-        off += L.stride * (size_t) ne + kMmqTail;
-        std::memset(L.hblobs, 0, L.stride * (size_t) ne + kMmqTail);
+        const size_t hbytes = L.stride * (size_t) ne + kMmqTail;
+        ++arena_layers;
+        if (cudaHostAlloc((void**) &L.hblobs, hbytes, cudaHostAllocDefault) == cudaSuccess) ++pinned_layers;
+        else {
+            (void) cudaGetLastError();   // one 16 GiB request fails where a layer's few hundred MiB works
+            L.hblobs = (uint8_t*) std::malloc(hbytes);
+            if (!L.hblobs) {
+                err = "no host memory for a layer's experts (" + std::to_string(hbytes >> 20) + " MiB)";
+                return false;
+            }
+        }
+        std::memset(L.hblobs, 0, hbytes);
         for (int64_t e = 0; e < ne; ++e) expert_blob(L, e, L.hblobs + (size_t) e * L.stride);
         L.n_slots = S;
         if (S > 0) {
@@ -3397,11 +3397,13 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
                      "%lld in VRAM, the rest on the CPU pool (its drafts only)\n", (double) total_main / (1 << 30), S,
                      (long long) ne);
     else
-    std::fprintf(stderr, "strata-q36: hybrid experts: %d of %lld per layer in VRAM (%.2f GiB), all %.2f GiB in %s host "
+    std::fprintf(stderr, "strata-q36: hybrid experts: %d of %lld per layer in VRAM (%.2f GiB), all %.2f GiB in host "
                  "memory, the rest of a batch of <= %d rows on %d CPU threads, bigger prompt chunks streamed (%.2f GiB "
                  "staging); %.1f s\n", S, (long long) ne, (double) S * per_slot / (1 << 30), (double) host / (1 << 30),
-                 pinned ? "pinned" : "pageable", E.hybrid_t, E.pool->workers() + (E.pool->host_works() ? 1 : 0),
+                 E.hybrid_t, E.pool->workers() + (E.pool->host_works() ? 1 : 0),
                  (double) staging / (1 << 30), ms_since(t0) / 1000.0);
+    if (arena_layers > 0)
+        std::fprintf(stderr, "strata-q36: expert host memory: %d of %d layers pinned\n", pinned_layers, arena_layers);
     return true;
 #endif
 }
