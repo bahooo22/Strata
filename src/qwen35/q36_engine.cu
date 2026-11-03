@@ -1403,6 +1403,7 @@ struct Engine {
     int mtp_d = 0;   // MTP drafts per speculative step (0: none; greedy requests only)
     // STRATA_Q36_PROFILE=1: time the mixer (attention / GDN) and MoE blocks per layer; off by default
     bool profile = false;
+    int att_mb = 0;   // the scores buffer, MiB of att_s: --att-mb, the STRATA_Q36_ATT_MB env is the fallback
     cudaEvent_t prof_a = nullptr, prof_b = nullptr;
     double t_attn = 0, t_gdn = 0, t_moe = 0;
 
@@ -1589,8 +1590,9 @@ struct Engine {
         const size_t C = (size_t) g.ssm_conv_channels;
         CK(cudaStreamCreateWithFlags(&st, cudaStreamNonBlocking));
         profile = std::getenv("STRATA_Q36_PROFILE") != nullptr;
-        if (const char* v = std::getenv("STRATA_Q36_ATT_MB"))   // the scores buffer, MiB of att_s (default 256): 128 frees VRAM for experts
-            kAttScoreFloats = (size_t) std::max(64, std::min(512, std::atoi(v))) << 18;
+        if (att_mb == 0)   // the scores buffer, MiB of att_s (default 256): 128 frees VRAM for experts
+            if (const char* v = std::getenv("STRATA_Q36_ATT_MB")) att_mb = std::atoi(v);
+        if (att_mb != 0) kAttScoreFloats = (size_t) std::max(64, std::min(512, att_mb)) << 18;
         if (profile) {
             CK(cudaEventCreate(&prof_a));
             CK(cudaEventCreate(&prof_b));
@@ -4078,6 +4080,7 @@ int serve(Engine& E) {
 int strata::qwen35::run(int argc, char** argv) {
     std::string model, tokens, force, dump_full, emb_file;
     int ctx = 32768, chunk = 0, n_gen = 64, bench_pp = 0, bench_tg = 0, mtp_d = 0, cpu_threads = 0, hybrid_rows = 128;
+    int att_mb = 0;
     double expert_vram = -1.0;
     bool warm = true;
     int expert_slots = 0, batch = 0, draft_vocab = -1, vram_reserve_mib = 768;
@@ -4094,6 +4097,7 @@ int strata::qwen35::run(int argc, char** argv) {
         else if (a == "--max-new") n_gen = std::atoi(next().c_str());
         else if (a == "--no-token-graph") graph = false;
         else if (a == "--pool-workers") cpu_threads = std::atoi(next().c_str());
+        else if (a == "--att-mb") att_mb = std::atoi(next().c_str());
         else if (a == "--gpu") (void) next();   // applied by strata before the switch (CUDA/HIP_VISIBLE_DEVICES)
         else if (a == "--greedy") {}            // --tokens decodes greedily here anyway
         else if (a == "--serve") serve_mode = true;
@@ -4160,6 +4164,7 @@ int strata::qwen35::run(int argc, char** argv) {
 #endif
     if (mtp_d < 0 || mtp_d > 7) { std::fprintf(stderr, "strata-q36: --mtp takes 0 .. 7 drafts\n"); return 2; }
     if (vram_reserve_mib < 16 || vram_reserve_mib > 8192) { std::fprintf(stderr, "strata-q36: --vram-reserve-mib takes 16 .. 8192\n"); return 2; }
+    if (att_mb != 0 && (att_mb < 64 || att_mb > 512)) { std::fprintf(stderr, "strata-q36: --att-mb takes 64 .. 512\n"); return 2; }
     if (chunk < 0 || chunk > 4096 || ctx < 256) { std::fprintf(stderr, "strata-q36: bad --chunk / --max-context\n"); return 2; }
     Model m;
     std::string err;
@@ -4170,6 +4175,7 @@ int strata::qwen35::run(int argc, char** argv) {
         return 1;
     }
     Engine E;
+    E.att_mb = att_mb;
     E.use_graph = graph;
     if (chunk == 0) {
         // auto: the largest chunk (4096 .. 1024) that fits beside every expert in VRAM; 2048 when they will not all fit (a prompt chunk streams every layer's

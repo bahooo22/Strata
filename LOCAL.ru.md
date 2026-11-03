@@ -23,6 +23,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `3ae7d409` | q36: per-request детерминизм — снимок размещения экспертов (#4604) |
 | `aea22e2f` | serve: тест флага `strata_deterministic` в `sampling_keys` |
 | `efec68e7` | q36: размер attention-буфера — env-флаг `STRATA_Q36_ATT_MB` |
+| `c9ca876d` | q36: профиль запроса в serve-DONE; заметки форка на двух языках |
 
 ## Сборка
 
