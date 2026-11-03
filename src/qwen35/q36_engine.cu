@@ -3300,6 +3300,10 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     for (Layer* L : all)
         if (!mtp_only || L == &m.mtp) host += L->stride * (size_t) ne + kMmqTail;
     int pinned_layers = 0, arena_layers = 0;
+    static const int pinned_limit = [] {   // STRATA_Q36_PINNED_LAYERS=N: pin at most N layers (0: all, -1: none)
+        const char* e = std::getenv("STRATA_Q36_PINNED_LAYERS");
+        return e != nullptr ? std::atoi(e) : 0;
+    }();
     size_t off = 0;
     const size_t T = (size_t) E.tmax, N = (size_t) g.n_embd, Kp = (size_t) m.top_k;
     auto alloc_vram = [&](void** p, size_t bytes, const char* what) -> bool {
@@ -3333,7 +3337,8 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
         }
         const size_t hbytes = L.stride * (size_t) ne + kMmqTail;
         ++arena_layers;
-        if (cudaHostAlloc((void**) &L.hblobs, hbytes, cudaHostAllocDefault) == cudaSuccess) ++pinned_layers;
+        const bool may_pin = pinned_limit == 0 || (pinned_limit > 0 && pinned_layers < pinned_limit);
+        if (may_pin && cudaHostAlloc((void**) &L.hblobs, hbytes, cudaHostAllocDefault) == cudaSuccess) ++pinned_layers;
         else {
             (void) cudaGetLastError();   // one 16 GiB request fails where a layer's few hundred MiB works
             L.hblobs = (uint8_t*) std::malloc(hbytes);
