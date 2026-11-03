@@ -1599,6 +1599,8 @@ class StrataEngine:
         seed = sampling.get("seed")
         if isinstance(seed, int) and seed > 0:
             keys += f" seed={seed}"
+        if sampling.get("strata_deterministic") is True:   # #4604: restore the expert placement for this request
+            keys += " deterministic=1"
         # setup's calibration (tools/calibrate.py): engine settings for this request only, measured without a restart
         tune = sampling.get("strata_tune")
         if isinstance(tune, dict):

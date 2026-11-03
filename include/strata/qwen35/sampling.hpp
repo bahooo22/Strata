@@ -14,6 +14,7 @@ struct Sampling {
     float temperature = 0.f, top_p = 1.f, min_p = 0.f, repeat = 1.f, freq = 0.f, present = 0.f;
     int top_k = 20, last_n = 0;
     unsigned long long seed = 0;
+    bool deterministic = false;   // restore the expert placement before the request (strata_deterministic)
     bool needs_logits() const { return temperature > 0.f || repeat != 1.f || freq != 0.f || present != 0.f; }
 };
 

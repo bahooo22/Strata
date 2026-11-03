@@ -1452,6 +1452,7 @@ struct Engine {
     // side; a bigger prompt chunk streams each layer's experts into a staging buffer for MMQ (two, double-buffered)
     struct Hy {
         std::vector<int> slot_of, exp_in_slot;
+        std::vector<int> init_slot_of, init_exp_in_slot;   // the placement after load: restored for a deterministic request
         std::vector<double> score;   // routing counts, halved at each rebalance
         int32_t* slot_of_d = nullptr;
 #if defined(STRATA_Q36_CPU_POOL)
@@ -2642,6 +2643,27 @@ struct Engine {
         CK(cudaStreamSynchronize(st));   // slot_of's host copy is pageable: the upload is done before it changes
     }
 
+    /// Put the expert slots back where they were after load (a deterministic request): the blobs, the slot table and
+    /// the routing scores.  Costs S copies per hybrid layer on the engine's stream; no-op when every expert is resident.
+    void restore_placement() {
+        for (size_t li = 0; li < hy.size(); ++li) {
+            Hy& H = hy[li];
+            const Layer& L = layer_at((int) li);
+            const int S = L.n_slots;
+            if (S <= 0 || (int) H.init_exp_in_slot.size() != S) continue;
+            H.slot_of = H.init_slot_of;
+            H.exp_in_slot = H.init_exp_in_slot;
+            for (int s = 0; s < S; ++s) {
+                const int x = H.exp_in_slot[(size_t) s];
+                CK(cudaMemcpyAsync(L.blobs + (size_t) s * L.stride, L.hblobs + (size_t) x * L.stride, L.L.bytes,
+                                   cudaMemcpyHostToDevice, st));
+            }
+            CK(cudaMemcpyAsync(H.slot_of_d, H.slot_of.data(), H.slot_of.size() * 4, cudaMemcpyHostToDevice, st));
+            std::fill(H.score.begin(), H.score.end(), 0.0);
+        }
+        CK(cudaStreamSynchronize(st));
+    }
+
     void shrink_att(size_t floats) {
         CK(cudaDeviceSynchronize());
         CK(cudaFree(att_s));
@@ -3284,6 +3306,8 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             H.slot_of[(size_t) s] = s;
             H.exp_in_slot[(size_t) s] = s;
         }
+        H.init_slot_of = H.slot_of;
+        H.init_exp_in_slot = H.exp_in_slot;
         H.score.assign((size_t) ne, 0.0);
         if (!alloc_vram((void**) &H.slot_of_d, (size_t) ne * 4, "expert slot table (H.slot_of_d)")) return false;
         CK(cudaMemcpy(H.slot_of_d, H.slot_of.data(), (size_t) ne * 4, cudaMemcpyHostToDevice));
@@ -3777,6 +3801,7 @@ struct Serve {
             else if (key == "penalty_freq") smp.freq = std::strtof(v, nullptr);
             else if (key == "penalty_present") smp.present = std::strtof(v, nullptr);
             else if (key == "seed") smp.seed = std::strtoull(v, nullptr, 10);
+            else if (key == "deterministic") smp.deterministic = std::atoi(v) != 0;
             else if (key == "img_keys") {
                 const char* q = v;
                 img_keys.clear();
@@ -3846,6 +3871,7 @@ struct Serve {
             ss.live.clear();
             ss.imgs.clear();
         }
+        if (smp.deterministic) E.restore_placement();   // #4604: the same placement as after load
         if (geni) E.set_images(ir.rows, ir.cell_row, ir.mrope, (int64_t) ids.size(), ir.delta);
         else E.clear_images();
         const auto t0 = Clock::now();
