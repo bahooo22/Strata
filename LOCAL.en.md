@@ -24,6 +24,7 @@ The fork's branch is `main`. Local commits on top of upstream:
 | `aea22e2f` | serve: a test of the `strata_deterministic` flag in `sampling_keys` |
 | `efec68e7` | q36: the attention buffer size is the `STRATA_Q36_ATT_MB` env flag |
 | `c9ca876d` | q36: the request profile in serve-DONE; fork notes in two languages |
+| `a00ab004` | q36: the `--att-mb` flag — the attention buffer size without a rebuild |
 
 ## Build
 
