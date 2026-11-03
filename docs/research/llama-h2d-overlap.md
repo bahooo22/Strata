@@ -53,6 +53,28 @@ With `GGML_MOE_TRACE=1` on a 128k run (fill 117 753, pinned, `-ub 8192`, `ncmoe 
 **27–32 s of H2D inside a 142 s prefill (~20 %)**. A full overlap can therefore return at
 most about 20 % pp; a realistic target for the design above is +8–15 %.
 
+## Scheduler n_copies is not viable on 8 GB (04.11)
+
+The first implementation used the scheduler's own multi-copy support:
+`GGML_SCHED_COPIES=2` plus a dedicated `GGML_CUDA_UPLOAD_STREAM` and a ring of 64 events.
+The context failed to allocate before the first request:
+
+```
+allocating 26000.79 MiB on device 0: cudaMalloc failed: out of memory
+failed to allocate CUDA0 buffer of size 27263803904
+```
+
+With `n_copies > 1` the MoE weight copies are graph leafs whose lifetime spans the whole
+graph, so all 26 layers × (gate+up+down) × 2 copies are live at once. A ring buffer inside
+the CUDA backend, not the scheduler, is required; the measured ceiling stays 831.7 pp.
+
+## Expert skew (04.11)
+
+`GGML_MOE_HIST=1`, 128k, 26 layers: the top-16 of 256 experts take **36.9 %** of all
+choices (per layer 30–47 %, per ubatch 28–61 %). A top-16 cache would cut at most ~37 % of
+the H2D traffic (~+7 % pp) and needs ~0.65 GiB of VRAM, which 128k does not have; on 96k it
+is a research option, not a fix.
+
 ## Verification
 
 - `bench_dialog.py` 128k (pinned): first pass pp/TTFT, passes 2–4 tg; compare with the
