@@ -27,6 +27,7 @@ The fork's branch is `main`. Local commits on top of upstream:
 | `a00ab004` | q36: the `--att-mb` flag — the attention buffer size without a rebuild |
 | `bbc034d4` | q36: pacc for T ≤ 8 and L2-ordered split-K — 96k tg +28 % |
 | `227ba006` | q36: the request profile — total, head, quant and the MTP phases |
+| `4b679a76` | q36: per-layer pinned expert arena — 96k pp +73 % |
 
 ## Build
 

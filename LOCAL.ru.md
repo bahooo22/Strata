@@ -27,6 +27,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `a00ab004` | q36: флаг `--att-mb` — размер attention-буфера без пересборки |
 | `bbc034d4` | q36: pacc под T≤8 и L2-порядок split-K — 96k tg +28 % |
 | `227ba006` | q36: профиль запроса — total, голова, quant и фазы MTP |
+| `4b679a76` | q36: pinned host-арена экспертов по слоям — 96k pp +73 % |
 
 ## Сборка
 
