@@ -65,3 +65,7 @@ the q36 profile and the KV comparison live in `..\docs\measurements\` and `..\ha
 The quick documentation catalog is `..\docs\index.html` (opens locally, no server).
 
 Details — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.
+
+Research notes (EN/RU) — `docs\research\`: ideas that do not apply to 8 GB
+(`rmax` sync, MTP-only prompt), the H2D overlap design for llama.cpp, and a table of
+rejected levers with numbers.

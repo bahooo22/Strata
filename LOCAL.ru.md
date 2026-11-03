@@ -65,3 +65,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 Быстрый каталог документации — `..\docs\index.html` (открывается локально, без сервера).
 
 Детали — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.
+
+Исследовательские заметки (EN/RU) — `docs\research\`: идеи, не применимые к 8 ГБ
+(sync `rmax`, MTP-only промпт), дизайн overlap H2D для llama.cpp и таблица
+отклонённых рычагов с числами.
