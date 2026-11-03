@@ -1405,7 +1405,11 @@ struct Engine {
     bool profile = false;
     int att_mb = 0;   // the scores buffer, MiB of att_s: --att-mb, the STRATA_Q36_ATT_MB env is the fallback
     cudaEvent_t prof_a = nullptr, prof_b = nullptr;
-    double t_attn = 0, t_gdn = 0, t_moe = 0;
+    cudaEvent_t prof_c = nullptr, prof_d = nullptr;   // the whole forward pass
+    cudaEvent_t prof_e = nullptr, prof_f = nullptr;   // MMQ quantize / SwiGLU staging copies
+    cudaEvent_t prof_g = nullptr, prof_h = nullptr;   // the output head (mm + argmax)
+    double t_attn = 0, t_gdn = 0, t_moe = 0, t_total = 0, t_quant = 0, t_head = 0;
+    double t_draft = 0, t_verify = 0, t_commit = 0;   // spec_step phases (host side, syncs included)
 
     // ---- sessions: the conversation states.  One for a single-request engine; --batch N keeps N, each with its own
     // recurrent state and KV cache, so N requests run at once: their rows share one decode window (forward_rows).  The
@@ -1590,12 +1594,19 @@ struct Engine {
         const size_t C = (size_t) g.ssm_conv_channels;
         CK(cudaStreamCreateWithFlags(&st, cudaStreamNonBlocking));
         profile = std::getenv("STRATA_Q36_PROFILE") != nullptr;
+        if (profile) use_graph = false;   // cudaEventRecord inside a CUDA graph capture is not allowed
         if (att_mb == 0)   // the scores buffer, MiB of att_s (default 256): 128 frees VRAM for experts
             if (const char* v = std::getenv("STRATA_Q36_ATT_MB")) att_mb = std::atoi(v);
         if (att_mb != 0) kAttScoreFloats = (size_t) std::max(64, std::min(512, att_mb)) << 18;
         if (profile) {
             CK(cudaEventCreate(&prof_a));
             CK(cudaEventCreate(&prof_b));
+            CK(cudaEventCreate(&prof_c));
+            CK(cudaEventCreate(&prof_d));
+            CK(cudaEventCreate(&prof_e));
+            CK(cudaEventCreate(&prof_f));
+            CK(cudaEventCreate(&prof_g));
+            CK(cudaEventCreate(&prof_h));
         }
         x = dalloc(T * N); h = dalloc(T * N); y = dalloc(T * N); hmain = dalloc(T * N);
         qkv = dalloc(T * C); hc = dalloc(T * C); z = dalloc(T * g.ssm_value_dim);
@@ -2328,14 +2339,30 @@ struct Engine {
                 for (int x = 0; x < ne; ++x) hy[li].score[(size_t) x] += h_cnt[li * g.n_expert + x];
             const int64_t maxr = hpin[10];
             const uint8_t* wbase = lhy(li) ? stream_take((int) li) : L.blobs;
+            if (profile) cudaEventRecord(prof_e, st);
             MMQ::quantize(h, ent_tok, mq_x, L.L.gu_type, N, N, n_ent, st);
+            if (profile) {
+                cudaEventRecord(prof_f, st);
+                cudaEventSynchronize(prof_f);
+                float qms = 0.f;
+                cudaEventElapsedTime(&qms, prof_e, prof_f);
+                t_quant += (double) qms;
+            }
             MMQ::Product gu;
             gu.w = wbase; gu.type = L.L.gu_type; gu.w_rows = 2 * FF; gu.w_cols = N; gu.expert_bytes = L.stride;
             gu.n = ne; gu.xq = mq_x; gu.bounds = rbounds; gu.ids = ident; gu.total_rows = n_ent; gu.max_rows = maxr;
             gu.dst = mq_gu; gu.ld_dst = 2 * FF;
             mctx->run(gu, st);
             MMQ::swiglu(mq_gu, mq_h, n_ent, FF, false, st);
+            if (profile) cudaEventRecord(prof_e, st);
             MMQ::quantize(mq_h, nullptr, mq_hq, L.L.d_type, FF, FF, n_ent, st);
+            if (profile) {
+                cudaEventRecord(prof_f, st);
+                cudaEventSynchronize(prof_f);
+                float qms = 0.f;
+                cudaEventElapsedTime(&qms, prof_e, prof_f);
+                t_quant += (double) qms;
+            }
             MMQ::Product dn;
             dn.w = wbase + L.L.down_off; dn.type = L.L.d_type; dn.w_rows = N; dn.w_cols = FF;
             dn.expert_bytes = L.stride; dn.n = ne; dn.xq = mq_hq; dn.bounds = rbounds; dn.ids = ident;
@@ -2383,6 +2410,7 @@ struct Engine {
     void forward(int T, int64_t p0, int heads, bool graph_mode, bool verify) {
         const auto& g = m->g;
         const int N = (int) g.n_embd;
+        if (profile) cudaEventRecord(prof_c, st);
         if (main_hybrid && T > hybrid_t && use_mmq) {
             std::vector<int> seq;
             for (size_t l = 0; l < m->layers.size(); ++l)
@@ -2398,13 +2426,28 @@ struct Engine {
                   last ? hmain : h);
         }
         if (heads > 0) head_rows(hmain + (size_t) (T - heads) * N, heads, logits, pick);
+        if (profile) {
+            cudaEventRecord(prof_d, st);
+            cudaEventSynchronize(prof_d);
+            float ms = 0.f;
+            cudaEventElapsedTime(&ms, prof_c, prof_d);
+            t_total += (double) ms;
+        }
     }
     /// logits [n][V] = W_out hn rows, and each row's greedy pick.
     void head_rows(const float* hn, int n, float* lg, int32_t* pk) {
         const auto& g = m->g;
+        if (profile) cudaEventRecord(prof_g, st);
         mm(m->head, hn, lg, n);
         k_argmax<<<dim3(kArgBlocks, n), kThreads, 0, st>>>(lg, (int) g.n_vocab, pk, amv, ami, false);
         k_argmax<<<dim3(1, n), kThreads, 0, st>>>(lg, kArgBlocks, pk, amv, ami, true);
+        if (profile) {
+            cudaEventRecord(prof_h, st);
+            cudaEventSynchronize(prof_h);
+            float ms = 0.f;
+            cudaEventElapsedTime(&ms, prof_g, prof_h);
+            t_head += (double) ms;
+        }
     }
 
     /// The draft head: the MTP block's pick over the first `draft_n` rows of the output matrix only (the lowest token ids are
@@ -3037,6 +3080,7 @@ struct Engine {
             drafts[0] = hpin[2];
         }
         int last_row = T0 - 1;   // the row of the previous MTP call whose output seeds the next draft
+        const auto td0 = Clock::now();
         for (int d = 1; d < D; ++d) {   // chained: (the block's own output, the last draft) at the next position
             hpin[0] = drafts[(size_t) d - 1];
             hpin[1] = (int32_t) (pos + d);
@@ -3050,7 +3094,9 @@ struct Engine {
             CK(cudaStreamSynchronize(st));
             drafts[(size_t) d] = hpin[2];
         }
+        t_draft += ms_since(td0);
         // the verify window
+        const auto tv0 = Clock::now();
         const int T = D + 1;
         hpin[16] = x_tok;
         for (int d = 0; d < D; ++d) hpin[17 + d] = drafts[(size_t) d];
@@ -3065,11 +3111,14 @@ struct Engine {
         int a = 0;
         while (a < D && hpin[2 + a] == drafts[(size_t) a]) ++a;
         if (cancel != nullptr && cancel->load()) a = 0;
+        t_verify += ms_since(tv0);
+        const auto tc0 = Clock::now();
         for (int i = 0; i <= a; ++i) picks[i] = hpin[2 + i];
         commit(a + 1);
         CK(cudaMemcpyAsync(hlast, hmain + (size_t) a * N, (size_t) N * 4, cudaMemcpyDeviceToDevice, st));
         pos += a + 1;
         after_rows(a + 1);
+        t_commit += ms_since(tc0);
         return a;
     }
 
@@ -4010,9 +4059,11 @@ struct Serve {
                     decode_ms, finish, accepted, offered, reuse, (long long) fresh);
         std::fflush(stdout);
         if (E.profile) {   // STRATA_Q36_PROFILE=1: the request's own share, reset for the next DONE; stderr reaches the engine log
-            std::fprintf(stderr, "profile: attn %.1f ms, gdn %.1f ms, moe %.1f ms\n", E.t_attn, E.t_gdn, E.t_moe);
+            std::fprintf(stderr, "profile: total %.1f ms, head %.1f ms, quant %.1f ms, attn %.1f ms, gdn %.1f ms, "
+                                 "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms\n",
+                         E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify, E.t_commit);
             std::fflush(stderr);
-            E.t_attn = E.t_gdn = E.t_moe = 0.0;
+            E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0.0;
         }
         std::fprintf(stderr, "strata serve: session %d: prompt %zu tokens = %zu reused + %lld read in %.0f ms (%.1f tok/s), "
                      "%lld generated in %.0f ms (%.1f tok/s), drafts accepted %lld of %lld (%s)\n", s, ids.size(), reuse,
@@ -4271,9 +4322,11 @@ int strata::qwen35::run(int argc, char** argv) {
                         (double) toks.size() / (pp_ms / 1000.0), bench_tg,
                         bench_tg > 0 ? (double) bench_tg / (tg_ms / 1000.0) : 0.0);
             if (E.profile)
-                std::fprintf(stderr, "profile: attn %.1f ms, gdn %.1f ms, moe %.1f ms\n", E.t_attn, E.t_gdn,
-                             E.t_moe);
-            E.t_attn = E.t_gdn = E.t_moe = 0;
+                std::fprintf(stderr, "profile: total %.1f ms, head %.1f ms, quant %.1f ms, attn %.1f ms, gdn %.1f ms, "
+                                     "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms\n",
+                             E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify,
+                             E.t_commit);
+            E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0;
             std::fflush(stdout);
         }
         return 0;

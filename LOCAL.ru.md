@@ -25,6 +25,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `efec68e7` | q36: размер attention-буфера — env-флаг `STRATA_Q36_ATT_MB` |
 | `c9ca876d` | q36: профиль запроса в serve-DONE; заметки форка на двух языках |
 | `a00ab004` | q36: флаг `--att-mb` — размер attention-буфера без пересборки |
+| `bbc034d4` | q36: pacc под T≤8 и L2-порядок split-K — 96k tg +28 % |
 
 ## Сборка
 
