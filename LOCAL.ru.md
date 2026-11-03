@@ -29,6 +29,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `227ba006` | q36: профиль запроса — total, голова, quant и фазы MTP |
 | `4b679a76` | q36: pinned host-арена экспертов по слоям — 96k pp +73 % |
 | `53a8f8ca` | q36: доля pinned-арены — флаг `STRATA_Q36_PINNED_LAYERS` |
+| `4569b243` | q36: count+scan маршрутизации в одном блоке — 96k pp 567–569 |
 
 ## Сборка
 
@@ -65,3 +66,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 Быстрый каталог документации — `..\docs\index.html` (открывается локально, без сервера).
 
 Детали — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.
+
+Исследовательские заметки (EN/RU) — `docs\research\`: идеи, не применимые к 8 ГБ
+(sync `rmax`, MTP-only промпт), дизайн overlap H2D для llama.cpp и таблица
+отклонённых рычагов с числами.
