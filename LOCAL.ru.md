@@ -31,6 +31,7 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 | `53a8f8ca` | q36: доля pinned-арены — флаг `STRATA_Q36_PINNED_LAYERS` |
 | `4569b243` | q36: count+scan маршрутизации в одном блоке — 96k pp 567–569 |
 | `ff66d1d7` | docs: research-заметки — идеи под другие конфигурации и отклонённые рычаги |
+| `cf747de6` | docs: research-заметки — n_copies не влезает, перекос экспертов 37 % |
 
 ## Сборка
 

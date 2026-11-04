@@ -9,7 +9,8 @@
 | --- | --- | --- | --- |
 | [routing-sync.ru.md](routing-sync.ru.md) | идея | Убрать `cudaStreamSynchronize` на слое ради `rmax` | Помогает только когда все эксперты в VRAM; при hybrid тот же sync несёт `rcnt` для score слотов |
 | [mtp-only-prompt.ru.md](mtp-only-prompt.ru.md) | идея | Промпт MTP-блока через MMQ + staging вместо CPU-пула | Нужны основные слои целиком в VRAM, то есть модель, чьи эксперты влезают; с 16.34 ГиБ в 8 ГБ недостижимо |
-| [llama-h2d-overlap.ru.md](llama-h2d-overlap.ru.md) | дизайн | Перекрыть H2D экспертов с вычислениями в llama.cpp | Требует правки планировщика (двойная буферизация split'ов); дни работы, не параметр |
+| [llama-h2d-overlap.ru.md](llama-h2d-overlap.ru.md) | дизайн + замер | Перекрыть H2D экспертов с вычислениями в llama.cpp | Измерено 27–32 с из 142 с (660.8 ГиБ); `n_copies` планировщика даёт OOM 26 ГиБ — нужен ring buffer в CUDA-бэкенде; дни работы, не параметр |
+| [mmvq-crossover.ru.md](mmvq-crossover.ru.md) | замер | MMVQ против MMQ на батчах MoE n=8..32 | Чистая сборка: MMVQ n=8 в 1.6-1.8 раза быстрее MMQ n=9; не применяется — в профиле нет батчей 9-32 |
 | [rejected-levers.ru.md](rejected-levers.ru.md) | замеры | Флаги и ядра, которые пробовали и стало медленнее | Числа, чтобы никто не повторял |
 
 Применённые оптимизации — в `engine/docs/profile-q36.md` и в истории коммитов

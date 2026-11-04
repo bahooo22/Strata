@@ -31,6 +31,7 @@ The fork's branch is `main`. Local commits on top of upstream:
 | `53a8f8ca` | q36: the pinned-arena share is the `STRATA_Q36_PINNED_LAYERS` flag |
 | `4569b243` | q36: routing count and scan in one block — 96k pp 567–569 |
 | `ff66d1d7` | docs: research notes — ideas for other configurations and rejected levers |
+| `cf747de6` | docs: research — n_copies does not fit, 37 % expert skew |
 
 ## Build
 
