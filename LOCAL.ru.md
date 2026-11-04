@@ -68,5 +68,5 @@ Upstream: `https://github.com/Niko1221/Strata` (версия 0.2.10, база `f
 Детали — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.
 
 Исследовательские заметки (EN/RU) — `docs\research\`: идеи, не применимые к 8 ГБ
-(sync `rmax`, MTP-only промпт), дизайн overlap H2D для llama.cpp и таблица
+(sync `rmax`, MTP-only промпт), итог overlap H2D для llama.cpp (закрыто: upstream master даёт +7.2–8.5 %) и таблица
 отклонённых рычагов с числами.

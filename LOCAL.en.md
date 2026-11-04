@@ -68,5 +68,5 @@ The quick documentation catalog is `..\docs\index.html` (opens locally, no serve
 Details — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.
 
 Research notes (EN/RU) — `docs\research\`: ideas that do not apply to 8 GB
-(`rmax` sync, MTP-only prompt), the H2D overlap design for llama.cpp, and a table of
+(`rmax` sync, MTP-only prompt), the H2D overlap outcome for llama.cpp (closed: upstream master gives +7.2-8.5 %), and a table of
 rejected levers with numbers.
