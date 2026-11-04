@@ -12,6 +12,7 @@
 | [llama-h2d-overlap.ru.md](llama-h2d-overlap.ru.md) | закрыто | Перекрыть H2D экспертов с вычислениями в llama.cpp | Потолок +3-7 % pp (заглядывания на слой нет); upstream master уже даёт +7.2-8.5 %/+7.1 %, а на 128k нет VRAM под второй staging-слот |
 | [mmvq-crossover.ru.md](mmvq-crossover.ru.md) | закрыто | Crossover MMVQ/MMQ для `MUL_MAT_ID` на 9-32 токена | На n=9 время в 1.63-1.81 раза больше, чем на n=8, но профиль работает на n=1 (decode) и n=2048/8192 (prefill), поэтому порог не тронут; `test-crossover.patch` рядом |
 | [rejected-levers.ru.md](rejected-levers.ru.md) | замеры | Флаги и ядра, которые пробовали и стало медленнее | Числа, чтобы никто не повторял |
+| [audit-fork-2026-11-04.ru.md](audit-fork-2026-11-04.ru.md) | аудит | Где теряется время в форке: доставка весов экспертов, а не GPU-ядра | Измеренный рычаг — размер чанка prefill (96k: 573.8 -> 1094.3 pp на 2048); переход движка на upstream master — no-go |
 
 Применённые оптимизации — в `engine/docs/profile-q36.md` и в истории коммитов
 (`pacc` при T ≤ 8, L2-порядок split-K, per-layer pinned арена, `--att-mb`,

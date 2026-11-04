@@ -13,6 +13,7 @@ wants to finish them.
 | [llama-h2d-overlap.md](llama-h2d-overlap.md) | closed | Overlap expert H2D copies with compute in llama.cpp | Ceiling +3-7 % pp (no layer look-ahead); upstream master already gives +7.2-8.5 %/+7.1 %, and 128k has no VRAM for a second staging slot |
 | [mmvq-crossover.md](mmvq-crossover.md) | closed | MMVQ/MMQ crossover for `MUL_MAT_ID` at 9-32 tokens | n=9 takes 1.63-1.81x the n=8 time, but the profile runs n=1 (decode) and n=2048/8192 (prefill), so the threshold is untouched; `test-crossover.patch` is next to it |
 | [rejected-levers.md](rejected-levers.md) | measurement | Flags and kernels that were tried and were slower | Numbers so nobody repeats them |
+| [audit-fork-2026-11-04.md](audit-fork-2026-11-04.md) | audit | Where the time goes in the fork: expert weight delivery, not GPU kernels | The measured lever is the prefill chunk size (96k: 573.8 -> 1094.3 pp at 2048); moving the engine to upstream master is a no-go |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
 (`pacc` under T ≤ 8, L2-ordered split-K, per-layer pinned arena, `--att-mb`,
