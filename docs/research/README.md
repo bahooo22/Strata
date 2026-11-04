@@ -10,7 +10,8 @@ wants to finish them.
 | --- | --- | --- | --- |
 | [routing-sync.md](routing-sync.md) | idea | Remove the per-layer `cudaStreamSynchronize` that reads `rmax` | Only helps when every expert fits in VRAM; on a hybrid placement the same sync also carries `rcnt` for the slot score |
 | [mtp-only-prompt.md](mtp-only-prompt.md) | idea | Run the MTP block's prompt through MMQ + staging instead of the CPU pool | Needs main layers fully in VRAM, i.e. a model whose experts fit; not reachable with 16.34 GiB of experts in 8 GB |
-| [llama-h2d-overlap.md](llama-h2d-overlap.md) | closed | Overlap expert H2D copies with compute in llama.cpp | Ceiling +3-7 % pp (no layer look-ahead); upstream master already gives +8.5 %/+5.5 %, and 128k has no VRAM for a second staging slot |
+| [llama-h2d-overlap.md](llama-h2d-overlap.md) | closed | Overlap expert H2D copies with compute in llama.cpp | Ceiling +3-7 % pp (no layer look-ahead); upstream master already gives +7.2-8.5 %/+7.1 %, and 128k has no VRAM for a second staging slot |
+| [mmvq-crossover.md](mmvq-crossover.md) | closed | MMVQ/MMQ crossover for `MUL_MAT_ID` at 9-32 tokens | n=9 takes 1.63-1.81x the n=8 time, but the profile runs n=1 (decode) and n=2048/8192 (prefill), so the threshold is untouched; `test-crossover.patch` is next to it |
 | [rejected-levers.md](rejected-levers.md) | measurement | Flags and kernels that were tried and were slower | Numbers so nobody repeats them |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history

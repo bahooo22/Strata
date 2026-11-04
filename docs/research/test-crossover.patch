@@ -1,0 +1,32 @@
+diff --git a/tests/test-backend-ops.cpp b/tests/test-backend-ops.cpp
+index e4af4299e..660cc95ea 100644
+--- a/tests/test-backend-ops.cpp
++++ b/tests/test-backend-ops.cpp
+@@ -10008,6 +10008,14 @@ static std::vector<std::unique_ptr<test_case>> make_test_cases_eval() {
+         test_cases.emplace_back(new test_mul_mat_id(type_a, GGML_TYPE_F32, 8, 1, false, 512, 1, 256));
+     }
+ 
++    // research: MoE crossover for IQ4_XS/Q4_0 at small batch sizes (gate/up and down)
++    fprintf(stderr, "research crossover cases: building\n");
++    for (ggml_type type_a : {GGML_TYPE_IQ4_XS, GGML_TYPE_Q4_0}) {
++        for (int n : {8, 9, 12, 16, 24, 32}) {
++            test_cases.emplace_back(new test_mul_mat_id(type_a, GGML_TYPE_F32, 256, 8, false, 512, n, 2048));
++        }
++    }
++
+     for (ggml_type type_a : other_types) {
+         for (ggml_type type_b : {GGML_TYPE_F32}) {
+             if (ggml_blck_size(type_a) != 256) {
+@@ -11512,6 +11520,12 @@ static std::vector<std::unique_ptr<test_case>> make_test_cases_perf() {
+         test_cases.emplace_back(new test_l2_norm_batch(GGML_TYPE_F32, { n, 16, 16, 1 }, 4, 1e-12f, true));
+     }
+ 
++    // research: MoE crossover for IQ4_XS/Q4_0 at small batch sizes (gate/up and down)
++    for (ggml_type type_a : {GGML_TYPE_IQ4_XS, GGML_TYPE_Q4_0}) {
++        for (int n : {8, 9, 12, 16, 24, 32}) {
++            test_cases.emplace_back(new test_mul_mat_id(type_a, GGML_TYPE_F32, 256, 8, false, 512, n, 2048));
++        }
++    }
+ 
+     return test_cases;
+ }
