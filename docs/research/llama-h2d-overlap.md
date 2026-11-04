@@ -67,3 +67,24 @@ most about 20 % pp; a realistic target for the design above is +8–15 %.
 - CUDA graphs capture streams and events; the patched path may need graph capture support
   or must run without graphs.
 - Extra VRAM can push a tight placement into OOM; keep the fallback.
+
+## Outcome 04.11.2026: closed as research
+
+Measured on upstream master `149f5641b` with the same flags (`--load-mode none`,
+`-ub 4096` at 96k, `-ub 8192` at 128k, `ncmoe 30`, pinned):
+
+| lever | result |
+|---|---|
+| upstream master, no code | pp **923.7-934.7** at 96k (+7.2...+8.5 % over 861.8), **890.7-890.9** at 128k (+7.1 % over 831.7), tg in the noise; output SHA is identical with and without the upload-stream patch |
+| `GGML_SCHED_COPIES=2` | `n_copies>1` marks every input copy `OUTPUT` and adds it to the graph leafs (`ggml-backend.cpp:1787-1797`, 1971-1996), so all MoE staging buffers live for the whole graph: 26 000 MiB requested at 128k and 25 777 MiB at 96k (measured on master, 04.11) |
+| second staging buffer | ~0.4-0.9 GiB; 128k has ~0.5 GiB free, 96k ~1 GiB |
+| `--moe-cache-mib` | measured worse on 8 GB: pp/tg 913/15.4-16.3 (64 MiB), 912/15.4-16.1 (128 MiB) at 96k, tg 15.0-15.4 at 128k |
+
+Why the ceiling is lower than this document first assumed: the ids of layer L+1 are
+produced by the router of layer L, so no layer look-ahead exists. Only the down-expert
+copy (about one third of a layer's H2D) can overlap with the gate/up MMQ. With 27-32 s
+of H2D in a 142 s 128k prefill, that is **+3-7 % pp**, below the +8.5 % already obtained
+by updating the tree, and it needs VRAM that 128k does not have plus disabled CUDA
+graphs for the MoE splits. Decision: do not build the ring buffer; run on upstream
+master, keep the upload-stream and `GGML_SCHED_COPIES` patches as diagnostics only
+(`h2d-hooks` branch, env-off is the old path).

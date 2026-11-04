@@ -9,7 +9,7 @@
 | --- | --- | --- | --- |
 | [routing-sync.ru.md](routing-sync.ru.md) | идея | Убрать `cudaStreamSynchronize` на слое ради `rmax` | Помогает только когда все эксперты в VRAM; при hybrid тот же sync несёт `rcnt` для score слотов |
 | [mtp-only-prompt.ru.md](mtp-only-prompt.ru.md) | идея | Промпт MTP-блока через MMQ + staging вместо CPU-пула | Нужны основные слои целиком в VRAM, то есть модель, чьи эксперты влезают; с 16.34 ГиБ в 8 ГБ недостижимо |
-| [llama-h2d-overlap.ru.md](llama-h2d-overlap.ru.md) | дизайн | Перекрыть H2D экспертов с вычислениями в llama.cpp | Требует правки планировщика (двойная буферизация split'ов); дни работы, не параметр |
+| [llama-h2d-overlap.ru.md](llama-h2d-overlap.ru.md) | закрыто | Перекрыть H2D экспертов с вычислениями в llama.cpp | Потолок +3-7 % pp (заглядывания на слой нет); upstream master уже даёт +8.5 %/+5.5 %, а на 128k нет VRAM под второй staging-слот |
 | [rejected-levers.ru.md](rejected-levers.ru.md) | замеры | Флаги и ядра, которые пробовали и стало медленнее | Числа, чтобы никто не повторял |
 
 Применённые оптимизации — в `engine/docs/profile-q36.md` и в истории коммитов
