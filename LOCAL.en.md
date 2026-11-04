@@ -68,5 +68,6 @@ The quick documentation catalog is `..\docs\index.html` (opens locally, no serve
 Details — `..\harness\docs\kv-quantization.md`, `..\harness\docs\mtp-vs-not.md`.
 
 Research notes (EN/RU) — `docs\research\`: ideas that do not apply to 8 GB
-(`rmax` sync, MTP-only prompt), the H2D overlap outcome for llama.cpp (closed: upstream master gives +7.2-8.5 %), the MMVQ/MMQ crossover (closed: threshold 8 unchanged), and a table of
+(`rmax` sync, MTP-only prompt), the H2D overlap outcome for llama.cpp (closed: upstream master gives +7.2-8.5 %), the MMVQ/MMQ crossover (closed: threshold 8 unchanged), the fork audit
+of 2026-11-04 (the lever is the prefill chunk; engine-on-master is a no-go), and a table of
 rejected levers with numbers.
