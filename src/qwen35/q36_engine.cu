@@ -1418,7 +1418,7 @@ struct Engine {
     cudaEvent_t prof_c = nullptr, prof_d = nullptr;   // the whole forward pass
     cudaEvent_t prof_e = nullptr, prof_f = nullptr;   // MMQ quantize / SwiGLU staging copies
     cudaEvent_t prof_g = nullptr, prof_h = nullptr;   // the output head (mm + argmax)
-    double t_attn = 0, t_gdn = 0, t_moe = 0, t_total = 0, t_quant = 0, t_head = 0;
+    double t_attn = 0, t_gdn = 0, t_gdn_scan = 0, t_moe = 0, t_total = 0, t_quant = 0, t_head = 0;
     double t_draft = 0, t_verify = 0, t_commit = 0;   // spec_step phases (host side, syncs included)
 
     // ---- sessions: the conversation states.  One for a single-request engine; --batch N keeps N, each with its own
@@ -2212,9 +2212,18 @@ struct Engine {
                 const int tiles = (fast_k && T > kGemmT && !verify) ? (T + kConvTile - 1) / kConvTile : 1;
                 k_conv_seq<<<dim3(C / 128, tiles), 128, 0, st>>>(conv[li], qkv_b, L.conv, hc_b, C, 2 * HK, m->eps, T, !verify);
                 if (T > kGemmT && !verify) {   // a prompt chunk: the column-split delta rule, then the norm
+                    if (profile) cudaEventRecord(prof_e, st);
                     k_gdn_seq_cols<<<dim3(HV, kGdnColGroups), dim3(128 / kGdnColGroups, 16), 0, st>>>(S[li], hc_b, C, al_b,
                                                                                                       be_b, gdn_y, HK, HV, T);
+                    CK(cudaGetLastError());
                     k_gdn_norm<<<dim3(HV, T), 128, 0, st>>>(gdn_y, z, L.ssm_norm, m->eps, gdn_y, HV);
+                    if (profile) {
+                        cudaEventRecord(prof_f, st);
+                        cudaEventSynchronize(prof_f);
+                        float ms = 0.f;
+                        cudaEventElapsedTime(&ms, prof_e, prof_f);
+                        t_gdn_scan += (double) ms;
+                    }
                 } else {   // decode, verify windows and commits: one kernel, so a window's rows are a decode step's rows
                     k_gdn_seq<<<HV, dim3(128, 4), 0, st>>>(S[li], hc_b, C, al_b, be_b, z, L.ssm_norm, m->eps, gdn_y, HK, HV,
                                                            T, !verify);
@@ -4171,10 +4180,11 @@ struct Serve {
         std::fflush(stdout);
         if (E.profile) {   // STRATA_Q36_PROFILE=1: the request's own share, reset for the next DONE; stderr reaches the engine log
             std::fprintf(stderr, "profile: total %.1f ms, head %.1f ms, quant %.1f ms, attn %.1f ms, gdn %.1f ms, "
-                                 "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms\n",
-                         E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify, E.t_commit);
+                                 "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms, gdn_scan %.1f ms\n",
+                         E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify,
+                         E.t_commit, E.t_gdn_scan);
             std::fflush(stderr);
-            E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0.0;
+            E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_gdn_scan = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0.0;
         }
         std::fprintf(stderr, "strata serve: session %d: prompt %zu tokens = %zu reused + %lld read in %.0f ms (%.1f tok/s), "
                      "%lld generated in %.0f ms (%.1f tok/s), drafts accepted %lld of %lld (%s)\n", s, ids.size(), reuse,
@@ -4434,10 +4444,10 @@ int strata::qwen35::run(int argc, char** argv) {
                         bench_tg > 0 ? (double) bench_tg / (tg_ms / 1000.0) : 0.0);
             if (E.profile)
                 std::fprintf(stderr, "profile: total %.1f ms, head %.1f ms, quant %.1f ms, attn %.1f ms, gdn %.1f ms, "
-                                     "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms\n",
-                             E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify,
-                             E.t_commit);
-            E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0;
+                                     "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms, gdn_scan %.1f ms\n",
+                             E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft,
+                             E.t_verify, E.t_commit, E.t_gdn_scan);
+            E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_gdn_scan = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0;
             std::fflush(stdout);
         }
         return 0;
