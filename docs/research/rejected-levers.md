@@ -17,6 +17,9 @@ Reference machine: RTX 3060 Ti 8 GB, 32 GiB RAM, KAT IQ4_XS (qwen35moe), memory 
 | attention buffer 32M floats (q36) | smaller scores buffer for more expert slots | pp 243–308, tg 17.3–22.7 vs 289–312 / 19.0–20.4 | keep 64M (now `--att-mb 256`) |
 | `STRATA_Q36_ATT_MB=128` after `pacc` (q36) | +3 slots at 96k before the `pacc` fix | 20 slots, pp 289–301, tg 17.9–19.1; after `pacc` the slot count is set by the arena, not this buffer | re-measure only when slots are the limit |
 
+| RoPE cos/sin table per step (q36 patch B2) | fill a `[T][3][half]` table once per step instead of `powf`/`sincosf` per element | SHA diverges (tokens `198 220 220…` vs `1020 198 220…`), 96k pp 743.8/tg 17.3 vs 800.9/16.7, 128k 673.3/14.8 vs 673.0/15.5 | rejected: not bit-identical and slower |
+| CUDA graphs (llama, `GGML_CUDA_GRAPH_NODES` counter) | count graph nodes/chunks to see if the decode graph is split | the counter never fires: `ggml_cuda_graph_check_compability` disables CUDA graphs whenever `MUL_MAT_ID` needs a stream sync, which is the case with `--n-cpu-moe` (PR #18958) | lever unavailable with CPU-offloaded MoE |
+
 Rule of thumb from these runs: on a hybrid MoE placement, moving bytes over PCIe or
 reordering work inside the CPU pool rarely pays; removing VRAM waste (slots) and making
 host memory pinned paid the most.
