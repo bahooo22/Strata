@@ -13,11 +13,13 @@ wants to finish them.
 | [llama-h2d-overlap.md](llama-h2d-overlap.md) | closed | Overlap expert H2D copies with compute in llama.cpp | Ceiling +3-7 % pp (no layer look-ahead); upstream master already gives +7.2-8.5 %/+7.1 %, and 128k has no VRAM for a second staging slot |
 | [mmvq-crossover.md](mmvq-crossover.md) | closed | MMVQ/MMQ crossover for `MUL_MAT_ID` at 9-32 tokens | n=9 takes 1.63-1.81x the n=8 time, but the profile runs n=1 (decode) and n=2048/8192 (prefill), so the threshold is untouched; `test-crossover.patch` is next to it |
 | [rejected-levers.md](rejected-levers.md) | measurement | Flags and kernels that were tried and were slower | Numbers so nobody repeats them |
+| [super-chunk.md](super-chunk.md) | applied | Layer-major prefill: stage each layer's experts once per N chunks | N=4 gives +25/+28/+21 % pp at 64k/96k/128k; bit-identical at N=1 |
 | [audit-fork-2026-11-04.md](audit-fork-2026-11-04.md) | audit | Where the time goes in the fork: expert weight delivery, not GPU kernels | The measured lever is the prefill chunk size (96k: 573.8 -> 1094.3 pp at 2048); moving the engine to upstream master is a no-go |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
 (`pacc` under T ≤ 8, L2-ordered split-K, per-layer pinned arena, `--att-mb`,
-profiler, route count+scan, llama pinned/expert profile).
+profiler, route count+scan, llama pinned/expert profile; super-chunk in
+[super-chunk.md](super-chunk.md)).
 
 Measurement conventions used in every note: one GPU run at a time, full GGUF (KAT IQ4_XS),
 memory clock +1003 MHz, medians of three bench passes, first pass of a series discarded
