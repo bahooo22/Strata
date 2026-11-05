@@ -953,9 +953,20 @@ __global__ void __launch_bounds__(512) k_gdn_seq(float* state, const float* h, i
 /// each with 16 row groups of 8 rows (512 threads, 8 state values per thread in registers).  Writes the raw outputs
 /// o (T, HV * 128); k_gdn_norm applies the SiLU-gated RMS norm.  grid (HV, kGdnColGroups), block (32, 16).
 constexpr int kGdnColGroups = 4;
-__global__ void __launch_bounds__(512) k_gdn_seq_cols(float* state, const float* h, int C, const float* gate,
-                                                      const float* beta, float* o_raw, int h_k, int h_v, int T) {
-    constexpr int S = 128, NC = S / kGdnColGroups, RG = 16, RPG = S / RG;
+// Two levers on the prompt scan, both compiled-in, both at today's values by default (bit for bit the old kernel):
+//   kGdnRowGroups 16 -> 8 halves the block to 256 threads, so the scan needs 32 768 threads instead of 65 536 and
+//     fits the card at once (38 SM * 1536 = 58 368): the second wave - 14 blocks that only start after the first
+//     114 have run all 2048 steps - is gone.  The row reduction re-associates (8 groups of 16 rows), so this one is
+//     not bit exact and goes through the gdn_y / S[li] gates.
+//   kGdnPrefetch 1 -> 2 keeps two input sets live and issues each token's loads two steps ahead.  Same values, same
+//     operations, same order: this one must come back bit for bit, and any difference is a bug in the restructure.
+constexpr int kGdnRowGroups = 8;
+constexpr int kGdnPrefetch = 1;
+template <int RG, int PF>
+__global__ void __launch_bounds__((128 / kGdnColGroups) * RG, RG == 8 ? 4 : 2)
+    k_gdn_seq_cols(float* state, const float* h, int C, const float* gate,
+                   const float* beta, float* o_raw, int h_k, int h_v, int T) {
+    constexpr int S = 128, NC = S / kGdnColGroups, RPG = S / RG;
     // two barriers per token (was three): sk / sq are double-buffered, and the output sum of token t is done after token t + 1's first
     // barrier, off the chain of the recurrence (red_o is read between that barrier and the next one, written after it)
     __shared__ float sk[2][S], sq[2][S];
@@ -969,21 +980,36 @@ __global__ void __launch_bounds__(512) k_gdn_seq_cols(float* state, const float*
     const size_t row_stride = (size_t) h_v * S;
 #pragma unroll
     for (int r = 0; r < RPG; ++r) sv[r] = base[r * row_stride];
-    // the next token's inputs are loaded while this one is computed (the loads were the head of every iteration)
-    float nsk = 0.0f, nsq = 0.0f, nvv = 0.0f, ngate = 0.0f, nbeta = 0.0f;
-    auto load = [&](int t) {
-        const float* ht = h + (size_t) t * C;
-        if (tid < S) { nsk = ht[h_k * S + qh * S + tid]; nsq = ht[qh * S + tid]; }
-        nvv = ht[2 * h_k * S + head * S + col];
-        ngate = gate[(size_t) t * h_v + head];
-        nbeta = beta[(size_t) t * h_v + head];
+    // The token's inputs, PF sets deep: token t + PF is loaded while t is computed, so one load round trip is
+    // covered by PF steps of work instead of one.  The outer loop steps by PF and the inner one is unrolled, which
+    // is what keeps pf[j]'s index a compile-time constant (a dynamic index into a local array would spill to local
+    // memory and defeat the whole point).
+    struct Tok {
+        float k, q, v, g, b;
     };
-    if (T > 0) load(0);
-    for (int t = 0; t < T; ++t) {
-        const int par = t & 1;
-        if (tid < S) { sk[par][tid] = nsk; sq[par][tid] = nsq; }
-        const float vcur = nvv, gcur = ngate, bcur = nbeta;
-        if (t + 1 < T) load(t + 1);
+    auto load = [&](int t) -> Tok {
+        const float* ht = h + (size_t) t * C;
+        Tok d;
+        d.k = tid < S ? ht[h_k * S + qh * S + tid] : 0.0f;
+        d.q = tid < S ? ht[qh * S + tid] : 0.0f;
+        d.v = ht[2 * h_k * S + head * S + col];
+        d.g = gate[(size_t) t * h_v + head];
+        d.b = beta[(size_t) t * h_v + head];
+        return d;
+    };
+    Tok pf[PF];
+#pragma unroll
+    for (int j = 0; j < PF; ++j) pf[j] = j < T ? load(j) : Tok{0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    for (int base = 0; base < T; base += PF) {
+#pragma unroll
+        for (int j = 0; j < PF; ++j) {
+            const int t = base + j;
+            if (t >= T) break;   // uniform: t is the same in every thread of the block, no barrier is skipped
+            const int par = t & 1;
+            const Tok cur = pf[j];
+            if (tid < S) { sk[par][tid] = cur.k; sq[par][tid] = cur.q; }
+            const float vcur = cur.v, gcur = cur.g, bcur = cur.b;
+            if (t + PF < T) pf[j] = load(t + PF);
         __syncthreads();
         if (t > 0 && rg == 0) {   // token t - 1's output
             float oc = 0.0f;
@@ -1007,7 +1033,8 @@ __global__ void __launch_bounds__(512) k_gdn_seq_cols(float* state, const float*
             sv[r] = fmaf(g, sv[r], sk[par][rg * RPG + r] * delta);
             o = fmaf(sv[r], sq[par][rg * RPG + r], o);
         }
-        red_o[rg][cl] = o;
+            red_o[rg][cl] = o;
+        }
     }
     __syncthreads();
     if (T > 0 && rg == 0) {   // the last token's output
@@ -1019,6 +1046,14 @@ __global__ void __launch_bounds__(512) k_gdn_seq_cols(float* state, const float*
 #pragma unroll
     for (int r = 0; r < RPG; ++r) base[r * row_stride] = sv[r];
 }
+// The scan with today's call shape, so the only thing a caller has to pick is the (RG, PF) pair.
+template <int RG, int PF>
+static void gdn_scan_launch(cudaStream_t st, float* state, const float* h, int C, const float* gate,
+                            const float* beta, float* o_raw, int h_k, int h_v, int T) {
+    k_gdn_seq_cols<RG, PF><<<dim3((unsigned) h_v, kGdnColGroups), dim3(128 / kGdnColGroups, RG), 0, st>>>(
+        state, h, C, gate, beta, o_raw, h_k, h_v, T);
+}
+
 /// y = rms(o) * gamma * SiLU(z) per (token, V head): grid (HV, T), block 128.
 __global__ void __launch_bounds__(128) k_gdn_norm(const float* o_raw, const float* z, const float* gamma, float eps,
                                                   float* y, int h_v) {
@@ -2213,8 +2248,7 @@ struct Engine {
                 k_conv_seq<<<dim3(C / 128, tiles), 128, 0, st>>>(conv[li], qkv_b, L.conv, hc_b, C, 2 * HK, m->eps, T, !verify);
                 if (T > kGemmT && !verify) {   // a prompt chunk: the column-split delta rule, then the norm
                     if (profile) cudaEventRecord(prof_e, st);
-                    k_gdn_seq_cols<<<dim3(HV, kGdnColGroups), dim3(128 / kGdnColGroups, 16), 0, st>>>(S[li], hc_b, C, al_b,
-                                                                                                      be_b, gdn_y, HK, HV, T);
+                    gdn_scan_launch<kGdnRowGroups, kGdnPrefetch>(st, S[li], hc_b, C, al_b, be_b, gdn_y, HK, HV, T);
                     CK(cudaGetLastError());
                     k_gdn_norm<<<dim3(HV, T), 128, 0, st>>>(gdn_y, z, L.ssm_norm, m->eps, gdn_y, HV);
                     if (profile) {
