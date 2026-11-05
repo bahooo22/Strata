@@ -14,6 +14,7 @@ wants to finish them.
 | [mmvq-crossover.md](mmvq-crossover.md) | closed | MMVQ/MMQ crossover for `MUL_MAT_ID` at 9-32 tokens | n=9 takes 1.63-1.81x the n=8 time, but the profile runs n=1 (decode) and n=2048/8192 (prefill), so the threshold is untouched; `test-crossover.patch` is next to it |
 | [rejected-levers.md](rejected-levers.md) | measurement | Flags and kernels that were tried and were slower | Numbers so nobody repeats them |
 | [super-chunk.md](super-chunk.md) | applied | Layer-major prefill: stage each layer's experts once per N chunks | N=4 gives +25/+28/+21 % pp at 64k/96k/128k; bit-identical at N=1 |
+| [fa-attention.md](fa-attention.md) | pilot | Prompt attention on mma.m16n8k16: no score buffer, one launch per layer per chunk | Replaces ~45 000 cuBLAS launches at 96k; gated by G1-G5 |
 | [audit-fork-2026-11-04.md](audit-fork-2026-11-04.md) | audit | Where the time goes in the fork: expert weight delivery, not GPU kernels | The measured lever is the prefill chunk size (96k: 573.8 -> 1094.3 pp at 2048); moving the engine to upstream master is a no-go |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
