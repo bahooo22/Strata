@@ -26,7 +26,9 @@ super-chunk and walks the model **layer-major**:
 
 The only change inside `layer` is a new parameter `stream_base`: when set, the experts
 of the layer are already staged by the caller and `stream_take`/`stream_done` are not
-called. Buffers stay chunk-sized; only `hsuper` grows by 16 MiB per 2048 tokens.
+called (armed only when the expert stream is active: `main_hybrid && use_mmq`). Buffers
+stay chunk-sized; `xsuper` + `hsuper` grow by 32 MiB per 2048 tokens (both hold T×N
+floats), so `super_n` is capped at 8 (256 MiB) and the chosen size is logged.
 
 ## Gates
 
@@ -35,6 +37,7 @@ called. Buffers stay chunk-sized; only `hsuper` grows by 16 MiB per 2048 tokens.
 | Compile | `build-sc`, 0 errors |
 | N=1 bit-identical (4k, 100..900 tokens × 8, full logits) | `fc /b` against base `sha_base2.logits` → **fc_rc=0**, 7 946 240 bytes; `gen: 1020 198 220 16 15 15 15 15` |
 | MTP 0 vs MTP 2, 96k N=4 | MTP path works; greedy output matches, 911.1 pp / 18.4 tg |
+| MTP 0 vs MTP 2, 3008-token prompt, super N=4 | full logits are identical (`fc /b` → fc_rc=0): the speculative block does not change the main model's output |
 | Quality at the window | needle on the base build: q4_0 finds the fact at 96k (1/1) and 128k (3/3) |
 
 ## Measurements
@@ -68,10 +71,13 @@ lever.
 ## Costs and limits
 
 - Cancel and window changes are deferred to a super-chunk boundary: up to ~36 s at
-  96k, N=4.
-- Memory: `hsuper` +16 MiB per 2048 tokens; at 128k the slot count drops 7 → 5.
+  96k, N=4; with several parallel sessions their decode windows are served only at
+  those boundaries.
+- Memory: `xsuper` + `hsuper` take 32 MiB per 2048 tokens (`super_n` capped at 8); at
+  128k the slot count drops 7 → 5.
 - MTP on a super-chunk costs ~11 % pp (1024 → 911 at 96k): the MTP block runs over all
-  rows. Prefer MTP 0 when prefill speed matters.
+  rows, and its hybrid layer is staged per sub-chunk, so the H2D saving is 3.73× at N=4
+  instead of 4×.
 - The design expected 2130–3020 pp at N=4; measured is 1024. The copy share of prefill
   is lower than the model assumed (p≈0.25), and the CPU matmul and attention dominate.
 
