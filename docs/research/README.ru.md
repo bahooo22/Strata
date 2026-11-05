@@ -13,6 +13,7 @@
 | [mmvq-crossover.ru.md](mmvq-crossover.ru.md) | закрыто | Crossover MMVQ/MMQ для `MUL_MAT_ID` на 9-32 токена | На n=9 время в 1.63-1.81 раза больше, чем на n=8, но профиль работает на n=1 (decode) и n=2048/8192 (prefill), поэтому порог не тронут; `test-crossover.patch` рядом |
 | [rejected-levers.ru.md](rejected-levers.ru.md) | замеры | Флаги и ядра, которые пробовали и стало медленнее | Числа, чтобы никто не повторял |
 | [super-chunk.ru.md](super-chunk.ru.md) | применено | Слой-мажорный prefill: эксперты слоя стейджатся один раз на N чанков | N=4 даёт +25/+28/+21 % pp на 64k/96k/128k; при N=1 бит-в-бит |
+| [fa-attention.ru.md](fa-attention.ru.md) | пилот | Attention промпта на mma.m16n8k16: без буфера скоров, один запуск на слой на чанк | Заменяет ~45 000 запусков cuBLAS на 96k; гейты G1–G5 |
 | [audit-fork-2026-11-04.ru.md](audit-fork-2026-11-04.ru.md) | аудит | Где теряется время в форке: доставка весов экспертов, а не GPU-ядра | Измеренный рычаг — размер чанка prefill (96k: 573.8 -> 1094.3 pp на 2048); переход движка на upstream master — no-go |
 
 Применённые оптимизации — в `engine/docs/profile-q36.md` и в истории коммитов
