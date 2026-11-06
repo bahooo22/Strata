@@ -106,3 +106,21 @@ The answer SHAs are bit-identical in both pairs: the rebase changed neither the 
 difference is within jitter) nor the output. `GGML_CUDA_UPLOAD_STREAM` (variable present =
 on) still has no effect on the result, which matches the 04.11 measurements. Issue #222 is
 closed: rebase, build, smoke and the SHA check are done.
+
+### Second rebase, 07.11.2026 (10 new commits)
+
+The branch was rebased onto `origin/master 6c01da62` (10 more upstream commits): 4/4 commits
+applied without conflicts. Smoke on the new `build-master` (prompt `master.txt`, 86,568 tokens
+for both windows, temperature 0):
+
+| window | env | pp | tg | answer SHA |
+| --- | --- | ---: | ---: | --- |
+| 96k | off | 987.3 | 23.3 | `a672c953fac1c6a3` |
+| 96k | `GGML_CUDA_UPLOAD_STREAM=1` | 985.9 | 23.2 | `a672c953fac1c6a3` |
+| 128k | off | 979.3 | 23.5 | `a672c953fac1c6a3` |
+| 128k | on | 986.7 | 23.8 | `a672c953fac1c6a3` |
+
+The SHA is identical at all four points: the ten upstream commits changed neither the output,
+and upload-stream has no effect on the result. At 128k the prompt here is shorter than in the
+previous run (86,568 versus 121,787), so the SHA `a672c953` is not comparable with `696f484e` —
+only pairs within this run can be compared.
