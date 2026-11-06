@@ -40,6 +40,31 @@ floats), so `super_n` is capped at 8 (256 MiB) and the chosen size is logged.
 | MTP 0 vs MTP 2, 3008-token prompt, super N=4 | full logits are identical (`fc /b` → fc_rc=0): the speculative block does not change the main model's output |
 | Quality at the window | needle on the base build: q4_0 finds the fact at 96k (1/1) and 128k (3/3) |
 
+## Decode step 1 after a super-chunk (#202)
+
+Check: the state after the prompt and the first decode step at N=1 and N=4. Setup: `main` bedae61d + the dump
+patch, KAT IQ4_XS, q4_0 KV, prompt T=4600 at ctx 8192. The context headroom matters: the earlier 4096+2
+measurement at ctx 4096 wrote step 1 past the buffer and could itself produce the difference. Scripts:
+`dump_super_4k.py` (state dumps and full logits), `compare_state_dump.py` (block SHA/cos), `gen_compare.py`
+(per-step logits).
+
+| Check | Result |
+| --- | --- |
+| `S`/`conv` of all 30 GDN layers after the prompt | SHA equal, cos 1.000000 |
+| `hlast` | equal |
+| KV (`kq`/`vq`) | bit-identical |
+| N=4 vs N=4 (two runs) | logits of step 0 and step 1: max_abs 0.0 |
+| N=1 vs N=4, step 0 | max_abs 0.0 |
+| N=1 vs N=4, step 1 | max_abs **0.181–0.231**, argmax equal: **0.181** with `STRATA_Q36_FIXED_SLOTS=1`, **0.231** without |
+| Needle on super (96k/78k) | 3/4 |
+
+Conclusion: the state after the prompt is identical (H1 — S/conv — is ruled out), decode is deterministic
+(N=4 vs N=4 — 0.0). The remaining N=1/N=4 difference is only the summation order at step 1: different expert
+staging paths add in a different order, while argmax stays the same. H2 (expert placement) does not explain it:
+with a fixed placement (`STRATA_Q36_FIXED_SLOTS=1`) the difference is 0.181, not 0. This is not a super-chunk
+defect and needs no separate fix. Bit-for-bit equality between N=1 and N=4 is not a goal (the summation order is
+intentionally different); quality is backed by the needle result, 3/4.
+
 ## Measurements
 
 Prompt 86 589 tokens at 96k (ctx 98 304), 111 831 at 128k (ctx 131 072), prefill 2048,
