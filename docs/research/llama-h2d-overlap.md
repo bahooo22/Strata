@@ -88,3 +88,21 @@ by updating the tree, and it needs VRAM that 128k does not have plus disabled CU
 graphs for the MoE splits. Decision: do not build the ring buffer; run on upstream
 master, keep the upload-stream and `GGML_SCHED_COPIES` patches as diagnostics only
 (`h2d-hooks` branch, env-off is the old path).
+
+## Rebase and smoke 07.11.2026: gate closed
+
+The `h2d-hooks-head` branch was rebased onto `origin/master 240d68fc`: 4/4 commits applied
+without conflicts, the delta against the base is 4 files, +113/−1. Smoke was run on the
+resulting build (`build-master/bin/llama-server.exe`, prompt `master.txt`, temperature 0):
+
+| window | env | prompt_tokens | pp | tg | answer SHA |
+| --- | --- | ---: | ---: | ---: | --- |
+| 96k | off | 86 568 | 962.3 | 23.2 | `a672c953fac1c6a3` |
+| 96k | `GGML_CUDA_UPLOAD_STREAM=1` | 86 568 | 967.9 | 23.4 | `a672c953fac1c6a3` |
+| 128k | off | 121 787 | 913.1 | 21.1 | `696f484e03549a0e` |
+| 128k | on | 121 787 | 909.1 | 20.7 | `696f484e03549a0e` |
+
+The answer SHAs are bit-identical in both pairs: the rebase changed neither the speed (the
+difference is within jitter) nor the output. `GGML_CUDA_UPLOAD_STREAM` (variable present =
+on) still has no effect on the result, which matches the 04.11 measurements. Issue #222 is
+closed: rebase, build, smoke and the SHA check are done.
