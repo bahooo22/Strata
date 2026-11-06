@@ -2551,6 +2551,59 @@ struct Engine {
             t_total += (double) ms;
         }
     }
+    /// STRATA_Q36_DUMP_STATE=<file>: after the prompt, write the state the decode will read, so two runs can be
+    /// compared byte for byte (S/conv of every GDN layer, hlast, and the KV rows [0, pos) of one attention layer).
+    /// Off unless the env is set; host-side, ordered by a stream sync, and it changes no device buffer.
+    void dump_state_if_asked(int64_t pos_now, const char* where) {
+        const char* path = std::getenv("STRATA_Q36_DUMP_STATE");
+        if (!path || !*path) return;
+        const auto& g = m->g;
+        const int N = (int) g.n_embd, C = (int) g.ssm_conv_channels, HV = (int) g.ssm_v_heads,
+                  D = (int) g.ssm_state_size, HKV = (int) g.n_head_kv, HD = (int) g.head_dim;
+        const size_t s_elems = (size_t) HV * D * D;              // 32*128*128 = 524 288 floats = 2 MiB per layer
+        const size_t c_elems = (size_t) C * (g.ssm_d_conv - 1);   // 8192*3 = 24 576 floats = 96 KiB per layer
+        int attn_li = -1, n_gdn = 0;
+        for (size_t l = 0; l < m->layers.size(); ++l) {
+            if (m->layers[l].attn) { if (attn_li < 0) attn_li = (int) l; }
+            else ++n_gdn;
+        }
+        const size_t kv_step = kv_type != KV_F32 ? (size_t) (HD / 32) * kv_block_bytes(kv_type)   // q4_0: 8*18 = 144 B
+                                                  : (size_t) HD * 4;                              // f32: 256*4 = 1 KiB
+        const size_t kv_rows = (size_t) pos_now;                 // only the rows the prompt wrote: [0, pos)
+        CK(cudaStreamSynchronize(st));
+        std::FILE* f = std::fopen(path, "wb");
+        if (!f) { std::fprintf(stderr, "strata-q36: state dump: cannot open %s\n", path); return; }
+        const int32_t hdr[13] = {0x53544154, 1, (int32_t) m->layers.size(), n_gdn, attn_li, N,
+                                 (int32_t) s_elems, (int32_t) c_elems, (int32_t) pos_now, (int32_t) kv_type,
+                                 (int32_t) kv_rows, (int32_t) kv_step, HKV};
+        std::fwrite(hdr, 4, 13, f);
+        std::vector<float> buf(s_elems > c_elems ? s_elems : c_elems);
+        for (size_t l = 0; l < m->layers.size(); ++l) {
+            if (m->layers[l].attn) continue;
+            CK(cudaMemcpy(buf.data(), S[l], s_elems * 4, cudaMemcpyDeviceToHost));
+            std::fwrite(buf.data(), 4, s_elems, f);
+            CK(cudaMemcpy(buf.data(), conv[l], c_elems * 4, cudaMemcpyDeviceToHost));
+            std::fwrite(buf.data(), 4, c_elems, f);
+        }
+        CK(cudaMemcpy(buf.data(), hlast, (size_t) N * 4, cudaMemcpyDeviceToHost));
+        std::fwrite(buf.data(), 4, (size_t) N, f);
+        if (attn_li >= 0 && kv_type != KV_F32) {   // kq / vq: kv_rows * HKV rows of kv_step bytes each
+            std::vector<uint8_t> kv(kv_rows * (size_t) HKV * kv_step);
+            CK(cudaMemcpy(kv.data(), kq[attn_li], kv.size(), cudaMemcpyDeviceToHost));
+            std::fwrite(kv.data(), 1, kv.size(), f);
+            CK(cudaMemcpy(kv.data(), vq[attn_li], kv.size(), cudaMemcpyDeviceToHost));
+            std::fwrite(kv.data(), 1, kv.size(), f);
+        } else if (attn_li >= 0) {   // an f32 cache: the same row count, kv_step = HD*4 bytes per row
+            std::vector<float> kv(kv_rows * (size_t) HKV * HD);
+            CK(cudaMemcpy(kv.data(), kc[attn_li], kv.size() * 4, cudaMemcpyDeviceToHost));
+            std::fwrite(kv.data(), 4, kv.size(), f);
+            CK(cudaMemcpy(kv.data(), vc[attn_li], kv.size() * 4, cudaMemcpyDeviceToHost));
+            std::fwrite(kv.data(), 4, kv.size(), f);
+        }
+        std::fclose(f);
+        std::fprintf(stderr, "strata-q36: state dump %s: %d layers (%d GDN), pos %lld, kv row %d B, at %s\n", path,
+                     (int) m->layers.size(), n_gdn, (long long) pos_now, (int) kv_step, where);
+    }
     /// logits [n][V] = W_out hn rows, and each row's greedy pick.
     void head_rows(const float* hn, int n, float* lg, int32_t* pk) {
         const auto& g = m->g;
@@ -2980,6 +3033,7 @@ struct Engine {
                     return i + T;
                 }
             }
+            dump_state_if_asked(pos, "super");
             if (m->hybrid) rebalance(hybrid_swaps_after_prompt);
             return n;
         }
@@ -3010,6 +3064,7 @@ struct Engine {
                 return i + T;
             }
         }
+        dump_state_if_asked(pos, "chunk");
         if (m->hybrid) rebalance(hybrid_swaps_after_prompt);
         return n;
     }
