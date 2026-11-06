@@ -960,7 +960,7 @@ constexpr int kGdnColGroups = 4;
 //     not bit exact and goes through the gdn_y / S[li] gates.
 //   kGdnPrefetch 1 -> 2 keeps two input sets live and issues each token's loads two steps ahead.  Same values, same
 //     operations, same order: this one must come back bit for bit, and any difference is a bug in the restructure.
-constexpr int kGdnRowGroups = 8;
+constexpr int kGdnRowGroups = 16;
 constexpr int kGdnPrefetch = 1;
 template <int RG, int PF>
 __global__ void __launch_bounds__((128 / kGdnColGroups) * RG, RG == 8 ? 4 : 2)
