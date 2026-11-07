@@ -4332,6 +4332,17 @@ int strata::qwen35::run(int argc, char** argv) {
     int expert_slots = 0, batch = 0, draft_vocab = -1, vram_reserve_mib = 768;
     bool serve_mode = false, graph = true, vision = false, batch_mtp = false;
     int kv_type = KV_F32;
+    std::string ck, cv;   // --cache-type-k / --cache-type-v, kept aside: they only make sense as a pair
+    // strata's KV names on this engine's formats: int8 is our q8_0 (a 34 B block of 32 values), and there is no
+    // fp16 cache here, so f16 lands on fp32
+    auto kv_of = [](const std::string& v) -> int {
+        if (v == "q8_0" || v == "q8" || v == "int8") return KV_Q8;
+        if (v == "q5_1" || v == "q51") return KV_Q51;
+        if (v == "q5_0" || v == "q5") return KV_Q5;
+        if (v == "q4_0" || v == "q4") return KV_Q4;
+        if (v == "fp32" || v == "f32" || v == "fp16" || v == "f16") return KV_F32;
+        return -1;
+    };
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
         auto next = [&]() -> std::string {
@@ -4371,15 +4382,23 @@ int strata::qwen35::run(int argc, char** argv) {
         else if (a == "--batch-mtp") batch_mtp = true;                                  // ... each verifying an MTP proposal
         else if (a == "--expert-vram") expert_vram = std::atof(next().c_str());   // GiB for the routed experts
         else if (a == "--vram-reserve-mib") vram_reserve_mib = std::atoi(next().c_str());   // MiB kept free beside the experts
-        else if (a == "--kv-type") {
+        else if (a == "--kv-type" || a == "--kv") {
             const std::string v = next();
-            if (v == "q8_0" || v == "q8") kv_type = KV_Q8;
-            else if (v == "q5_1" || v == "q51") kv_type = KV_Q51;
-            else if (v == "q5_0" || v == "q5") kv_type = KV_Q5;
-            else if (v == "q4_0" || v == "q4") kv_type = KV_Q4;
-            else if (v == "fp32" || v == "f32") kv_type = KV_F32;
-            else { std::fprintf(stderr, "strata-q36: --kv-type takes fp32, q8_0, q5_1, q5_0 or q4_0\n"); return 2; }
+            if (v == "k8v4") {   // Flash-Next's pair (INT8 K over a rotated Q4_0 V): this engine keeps one format
+                std::fprintf(stderr, "strata-q36: --kv k8v4 wants a format per cache and q36 stores K and V in one "
+                                     "-- take q4_0 or q8_0\n");
+                return 2;
+            }
+            if ((kv_type = kv_of(v)) < 0) {
+                std::fprintf(stderr, "strata-q36: --kv-type takes fp32, q8_0, q5_1, q5_0 or q4_0\n");
+                return 2;
+            }
+            if (v == "fp16" || v == "f16")
+                std::fprintf(stderr, "strata-q36: --kv %s: this engine has no fp16 cache, keeping it in fp32\n",
+                             v.c_str());
         }
+        else if (a == "--cache-type-k") ck = next();
+        else if (a == "--cache-type-v") cv = next();
         else if (a == "--cpu-threads") cpu_threads = std::atoi(next().c_str());
         else if (a == "--expert-slots") expert_slots = std::atoi(next().c_str());
         else if (a == "--hybrid-rows") hybrid_rows = std::atoi(next().c_str());
@@ -4412,6 +4431,14 @@ int strata::qwen35::run(int argc, char** argv) {
     if (vram_reserve_mib < 16 || vram_reserve_mib > 8192) { std::fprintf(stderr, "strata-q36: --vram-reserve-mib takes 16 .. 8192\n"); return 2; }
     if (att_mb != 0 && (att_mb < 64 || att_mb > 512)) { std::fprintf(stderr, "strata-q36: --att-mb takes 64 .. 512\n"); return 2; }
     if (chunk < 0 || chunk > 4096 || ctx < 256) { std::fprintf(stderr, "strata-q36: bad --chunk / --max-context\n"); return 2; }
+    if (ck.empty() != cv.empty())
+        { std::fprintf(stderr, "strata-q36: --cache-type-k and --cache-type-v only work as a pair\n"); return 2; }
+    if (!ck.empty()) {
+        if (ck != cv) { std::fprintf(stderr, "strata-q36: q36 keeps one format for K and V: --cache-type-k %s and "
+                                             "--cache-type-v %s cannot mix\n", ck.c_str(), cv.c_str()); return 2; }
+        if ((kv_type = kv_of(ck)) < 0)
+            { std::fprintf(stderr, "strata-q36: --cache-type takes fp32, q8_0, q5_1, q5_0 or q4_0\n"); return 2; }
+    }
     Model m;
     std::string err;
     try {
