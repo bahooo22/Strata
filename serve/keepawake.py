@@ -30,6 +30,7 @@ class KeepAwake:
         self._cond = threading.Condition()
         self._closed = False
         self._thread = None
+        self._pending: list[bool] = []      # want-states the thread has not applied yet, oldest first
 
     @classmethod
     def create(cls, enabled: bool, say=print):
@@ -52,11 +53,13 @@ class KeepAwake:
         held = False
         while True:
             with self._cond:
-                while not self._closed and (self._count > 0) == held:
+                while not self._closed and not self._pending:
                     self._cond.wait()
                 if self._closed:
                     break
-                want = self._count > 0
+                want = self._pending.pop(0)
+            if want == held:
+                continue
             try:
                 self._call(ES_CONTINUOUS | ES_SYSTEM_REQUIRED if want else ES_CONTINUOUS)
                 held = want
@@ -72,17 +75,27 @@ class KeepAwake:
             self._thread = threading.Thread(target=self._loop, daemon=True, name="keep-awake")
             self._thread.start()
 
+    def _enqueue(self, want: bool):
+        # every 0 -> 1 and 1 -> 0 transition is applied in order, so a request shorter than the
+        # thread's wake-up still holds and then clears the state (the test relies on both calls)
+        if (self._pending[-1] if self._pending else not want) != want:
+            self._pending.append(want)
+
     def acquire(self):
         with self._cond:
             if self._closed:
                 return
             self._count += 1
+            if self._count == 1:
+                self._enqueue(True)
             self._start()
             self._cond.notify_all()
 
     def release(self):
         with self._cond:
             self._count = max(0, self._count - 1)
+            if self._count == 0:
+                self._enqueue(False)
             self._cond.notify_all()
 
     def close(self):
