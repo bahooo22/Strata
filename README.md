@@ -213,3 +213,16 @@ Thank you to everyone who supports Strata.
 
 **Sponsorships, hardware partnerships or collaborations:** [niko.veit@outlook.com](mailto:niko.veit@outlook.com).
 
+
+## Fork measurement charts
+
+Two charts built from the measurements in [`docs/research/VRAM_HEADROOM.md`](docs/research/VRAM_HEADROOM.md):
+
+![Optimization steps at 96k](docs/assets/progress-96k.svg)
+
+![Prefill before and after the VRAM fix](docs/assets/windows-vram.svg)
+
+The first shows what each optimization step (super-chunk, flash attention, upload stream) gave at
+96k; the second shows the prefill collapse on an 8 GB card and its removal across the 64k–160k
+windows at `--n-cpu-moe 33`. Every number in the charts is traceable to a raw measurement file; the
+research document lists `file:line` for each value.

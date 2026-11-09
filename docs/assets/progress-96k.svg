@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="470" viewBox="0 0 980 470">
+<rect x="0.0" y="0.0" width="980.0" height="470.0" rx="0" fill="#f7f8fa" opacity="1.0"/>
+<text x="28.0" y="42.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="22" fill="#1c2733" text-anchor="start" font-weight="600">What each optimization step gave at 96k</text>
+<text x="28.0" y="68.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">KAT IQ4_XS, master.txt, KV q4_0, FA on. pp = prefill tok/s, tg = decode tok/s.</text>
+<rect x="28.0" y="88.0" width="450.0" height="300.0" rx="10" fill="#ffffff" opacity="1.0"/>
+<text x="46.0" y="118.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#1c2733" text-anchor="start" font-weight="600">Strata q36</text>
+<text x="46.0" y="138.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">super-chunk и flash attention, 05–08.11</text>
+<line x1="218.0" y1="156.0" x2="218.0" y2="296.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="218.0" y="312.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">700</text>
+<line x1="264.5" y1="156.0" x2="264.5" y2="296.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="264.5" y="312.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">875</text>
+<line x1="311.0" y1="156.0" x2="311.0" y2="296.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="311.0" y="312.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">1050</text>
+<line x1="357.5" y1="156.0" x2="357.5" y2="296.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="357.5" y="312.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">1225</text>
+<line x1="404.0" y1="156.0" x2="404.0" y2="296.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="404.0" y="312.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">1400</text>
+<text x="46.0" y="177.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="400">super N=1</text>
+<rect x="218.0" y="162.0" width="26.8" height="20.0" rx="3" fill="#2f6fd0" opacity="0.85"/>
+<text x="252.8" y="176.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="600">800.9  ·  tg 16.7</text>
+<text x="46.0" y="211.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="400">super N=4</text>
+<rect x="218.0" y="196.0" width="86.1" height="20.0" rx="3" fill="#2f6fd0" opacity="0.85"/>
+<text x="312.1" y="210.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="600">1024.0  ·  tg 17.2</text>
+<text x="46.0" y="245.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="400">+ FA all</text>
+<rect x="218.0" y="230.0" width="161.8" height="20.0" rx="3" fill="#2f6fd0" opacity="0.85"/>
+<text x="387.8" y="244.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="600">1308.9  ·  tg 15.3</text>
+<text x="46.0" y="279.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="400">super N=8</text>
+<rect x="218.0" y="264.0" width="167.1" height="20.0" rx="3" fill="#2f6fd0" opacity="0.85"/>
+<text x="393.1" y="278.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="600">1328.9  ·  tg 14.2</text>
+<text x="46.0" y="374.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="start" font-weight="400">4 точки, одни и те же модель и промпт; tg падает по мере роста pp.</text>
+<rect x="502.0" y="88.0" width="450.0" height="300.0" rx="10" fill="#ffffff" opacity="1.0"/>
+<text x="520.0" y="118.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#1c2733" text-anchor="start" font-weight="600">llama форк</text>
+<text x="520.0" y="138.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">upload stream + event lifetime, 07.11</text>
+<line x1="692.0" y1="156.0" x2="692.0" y2="228.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="692.0" y="244.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">940</text>
+<line x1="738.5" y1="156.0" x2="738.5" y2="228.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="738.5" y="244.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">955</text>
+<line x1="785.0" y1="156.0" x2="785.0" y2="228.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="785.0" y="244.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">970</text>
+<line x1="831.5" y1="156.0" x2="831.5" y2="228.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="831.5" y="244.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">985</text>
+<line x1="878.0" y1="156.0" x2="878.0" y2="228.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="878.0" y="244.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">1000</text>
+<text x="520.0" y="177.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="400">stream off</text>
+<rect x="692.0" y="162.0" width="69.1" height="20.0" rx="3" fill="#2e8b57" opacity="0.85"/>
+<text x="769.1" y="176.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="600">962.3  ·  tg 23.2</text>
+<text x="520.0" y="211.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="400">stream on</text>
+<rect x="692.0" y="196.0" width="142.3" height="20.0" rx="3" fill="#2e8b57" opacity="0.85"/>
+<text x="842.3" y="210.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="start" font-weight="600">985.9  ·  tg 23.2</text>
+<text x="520.0" y="374.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="start" font-weight="400">шкала 940–1000: шаг +2.5 % pp, tg без изменений — это предел копий.</text>
+<text x="28.0" y="418.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">Источник: glm/2026-11-09_session/stageK-chart-data.json (chart1_strata, chart1_96k),</text>
+<text x="28.0" y="436.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">сверка 149 чисел по первичникам; null-ступени (нет точки на 96k) на график не вынесены.</text>
+</svg>
