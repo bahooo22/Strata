@@ -482,11 +482,8 @@ if(STRATA_NATIVE_EXPERTS)
       # q4_0/q4_0 and q4_0/q4_1: a plain llama-quantize Q4_0 file (bartowski's Qwen3.8-Flash-Next-Q4_0: gate/up Q4_0,
       # down Q4_0 on 42 layers and Q4_1 on 6)
       # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
-      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
-      # is_iq() promised type 10 while dq_dispatch had no case for it, so the dequantizer left the destination
-      # unwritten and the launch still reported success; these pairs pin the dequantizer against ggml's to_float.
-      set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1
-                               q2_K/q4_K q2_K/iq4_xs)
+      # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
+      set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1)
       if(STRATA_Q6K_EXPERTS)
         list(APPEND _strata_parity_pairs q6_K/q8_0)
       else()   # a pair without GPU kernels (Q6_K gate/up) is refused by native_expert_supported, not run
@@ -497,6 +494,17 @@ if(STRATA_NATIVE_EXPERTS)
         string(REPLACE "/" "_" _name "${_pair}")
         add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
         set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120)
+      endforeach()
+      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
+      # is_iq() promised type 10 while dq_dispatch had no case for it, so the dequantizer left the destination
+      # unwritten and the launch still reported success; these pairs pin the dequantizer against ggml's to_float.
+      # Q2_K's 256-weight superblock needs whole blocks: the UD-IQ3_S geometry H=2048 FF=512, not the default
+      # Flash-Next 2560/640 (FF=640 is not a multiple of 256, the pair is refused as "not whole blocks").
+      foreach(_pair q2_K/q4_K q2_K/iq4_xs)
+        string(REPLACE "/" "_" _name "${_pair}")
+        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
+        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120
+                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
       endforeach()
       add_test(NAME native_expert_parity_q5_1_min COMMAND native_expert_parity --q5_1-min)
       # Unsloth v3.1 Qwen3.8-Flash-Next sets (UD-IQ1_M .. UD-IQ4_XS, round 0214): every gate/up x down pair their layers use,
