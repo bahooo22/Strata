@@ -16,6 +16,7 @@ wants to finish them.
 | [super-chunk.md](super-chunk.md) | applied | Layer-major prefill: stage each layer's experts once per N chunks | N=4 gives +25/+28/+21 % pp at 64k/96k/128k; bit-identical at N=1 |
 | [fa-attention.md](fa-attention.md) | pilot | Prompt attention on mma.m16n8k16: no score buffer, one launch per layer per chunk | Replaces ~45 000 cuBLAS launches at 96k; gated by G1-G5 |
 | [audit-fork-2026-11-04.md](audit-fork-2026-11-04.md) | audit | Where the time goes in the fork: expert weight delivery, not GPU kernels | The measured lever is the prefill chunk size (96k: 573.8 -> 1094.3 pp at 2048); moving the engine to upstream master is a no-go |
+| [kernel-progress.md](kernel-progress.md) | summary | Kernel progress in one table: stock `146df3c4`, our 2026-11-01 start, super-chunk, FA | Turns "much faster" into numbers: 123.1 pp at a 32k ceiling -> 1504.0 pp at 64k and 959.9 pp at 160k; source of `docs/assets/kernel-progress.svg` |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
 (`pacc` under T ≤ 8, L2-ordered split-K, per-layer pinned arena, `--att-mb`,

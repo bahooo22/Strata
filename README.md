@@ -216,8 +216,8 @@ Thank you to everyone who supports Strata.
 
 ## Fork measurement charts
 
-Five charts built from our own measurements; the first two come from
-[`docs/research/VRAM_HEADROOM.md`](docs/research/VRAM_HEADROOM.md):
+Five charts built from our own measurements. Each chart names the raw files its numbers came from in
+its own footer:
 
 ![Optimization steps at 96k](docs/assets/progress-96k.svg)
 
@@ -225,8 +225,10 @@ Five charts built from our own measurements; the first two come from
 
 The first shows what each optimization step (super-chunk, flash attention, upload stream) gave at
 96k; the second shows the prefill collapse on an 8 GB card and its removal across the 64k–160k
-windows at `--n-cpu-moe 33`. Every number in the charts is traceable to a raw measurement file; the
-research document lists `file:line` for each value.
+windows at `--n-cpu-moe 33`. Every number is traceable to a raw measurement file, which each chart
+footer names; the two optimization steps in the first chart are written up in
+[`docs/research/super-chunk.md`](docs/research/super-chunk.md) and
+[`docs/research/fa-attention.md`](docs/research/fa-attention.md).
 
 ![One model, two quants](docs/assets/quant-compare.svg)
 
@@ -240,7 +242,7 @@ fourth places every measured model on the same 64k-160k windows, with gaps left 
 The fifth chart is the kernel-progress overview: the fork point `146df3c4` (stock, whose KV stays
 fp32 and therefore stops at 32k with 123.1 pp) and our own 2026-11-01 start (170.5 pp at 64k) as the
 two baselines, then super-chunk N=4, then the working kernel with flash attention across
-64k/80k/96k/128k/160k (1504.0 down to 959.9 pp), with the llama fork as the control line. Every
-point carries the `file:line` anchor of its raw log; the written-up version is
-`docs/measurements/kernel-progress-2026-11-09.md` in the measurements archive.
+64k/80k/96k/128k/160k (1504.0 down to 959.9 pp), with the llama fork as the control line. The
+written-up version, with the table every point came from, is
+[`docs/research/kernel-progress.md`](docs/research/kernel-progress.md).
 
