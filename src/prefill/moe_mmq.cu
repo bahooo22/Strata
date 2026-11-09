@@ -334,8 +334,9 @@ bool supported(int t) {
 #endif
             return true;
 #ifdef STRATA_MMQ_KQUANTS
-        // Unsloth's UD-Q4/Q5/Q6_K_XL experts; on HIP also the dense GGUF projections (STRATA_DENSE_MMQ)
-        case GGML_TYPE_Q4_K: case GGML_TYPE_Q5_K: case GGML_TYPE_Q5_1: case GGML_TYPE_Q6_K:
+        // Unsloth's UD experts: Q2_K is the gate/up layer UD-IQ3_S mixes with IQ2_S, Q4/Q5/Q6_K_XL are the rest;
+        // on HIP also the dense GGUF projections (STRATA_DENSE_MMQ)
+        case GGML_TYPE_Q2_K: case GGML_TYPE_Q4_K: case GGML_TYPE_Q5_K: case GGML_TYPE_Q5_1: case GGML_TYPE_Q6_K:
             return kq_ok();
 #endif
 #if !defined(GGML_USE_HIP)
@@ -535,7 +536,7 @@ void Context::run(const Product& p, void* stream) {
         case GGML_TYPE_TQP7: mul_mat_q_case<GGML_TYPE_TQP7>(ctx, a, s); break;
 #endif
 #if defined(STRATA_MMQ_KQUANTS) && defined(STRATA_KQ_DSO)
-        case GGML_TYPE_Q4_K: case GGML_TYPE_Q5_K: case GGML_TYPE_Q6_K: case GGML_TYPE_Q5_1: {
+        case GGML_TYPE_Q2_K: case GGML_TYPE_Q4_K: case GGML_TYPE_Q5_K: case GGML_TYPE_Q6_K: case GGML_TYPE_Q5_1: {
             const int e = kq::run((int) t, &a, s);
             if (e != 0) {
                 std::fprintf(stderr, "prefill mmq: the K-quant library failed on type %d (error %d)\n", (int) t, e);
@@ -544,6 +545,7 @@ void Context::run(const Product& p, void* stream) {
             break;
         }
 #elif defined(STRATA_MMQ_KQUANTS)
+        case GGML_TYPE_Q2_K: mul_mat_q_case<GGML_TYPE_Q2_K>(ctx, a, s); break;
         case GGML_TYPE_Q4_K: mul_mat_q_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
         case GGML_TYPE_Q5_K: mul_mat_q_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
         case GGML_TYPE_Q6_K: mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, a, s); break;

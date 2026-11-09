@@ -1,10 +1,11 @@
 // src/prefill/mmq_kq_lib.cu - strata_kq, the shared library with llama.cpp's MMQ prompt kernels for the K-quants
-// (Q4_K, Q5_K, Q5_1, Q6_K: the experts of Unsloth's UD-Q4/Q5/Q6_K_XL files).  MODEL-UPDATE Phase 1: the engine loads
+// (Q2_K, Q4_K, Q5_K, Q5_1, Q6_K: the experts of Unsloth's UD files, whose UD-IQ3_S mixes one Q2_K gate/up layer with
+// IQ2_S and IQ4_XS).  MODEL-UPDATE Phase 1: the engine loads
 // every kernel of its own binary when it starts (CUDA_MODULE_LOADING=EAGER, src/program/generate.cpp), so kernels in
-// the engine cost every model VRAM; these four instances were ~3.8 MB of sm_60 code (3 expert slots of IQ3_XXS on a
-// P100).  Here they load only when moe_mmq.cu opens this library - for a model with these experts, before the expert
-// cache is sized - and never otherwise.  The library has its own copy of ggml_cuda_host.cu's symbols and of the static
-// CUDA runtime; it works in the engine's context on the stream it is given.
+// the engine cost every model VRAM; the four K-quant instances alone were ~3.8 MB of sm_60 code (3 expert slots of
+// IQ3_XXS on a P100).  Here they load only when moe_mmq.cu opens this library - for a model with these experts, before
+// the expert cache is sized - and never otherwise.  The library has its own copy of ggml_cuda_host.cu's symbols and of
+// the static CUDA runtime; it works in the engine's context on the stream it is given.
 #include "common.cuh"
 #include "mmq.cuh"
 
@@ -50,6 +51,7 @@ STRATA_KQ_EXPORT int strata_kq_run(int device, int type, const void* args, void*
     const mmq_args& a = *(const mmq_args*) args;
     const cudaStream_t s = (cudaStream_t) stream;
     switch ((ggml_type) type) {
+        case GGML_TYPE_Q2_K: mul_mat_q_case<GGML_TYPE_Q2_K>(ctx, a, s); break;
         case GGML_TYPE_Q4_K: mul_mat_q_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
         case GGML_TYPE_Q5_K: mul_mat_q_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
         case GGML_TYPE_Q5_1: mul_mat_q_case<GGML_TYPE_Q5_1>(ctx, a, s); break;

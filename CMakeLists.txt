@@ -2377,13 +2377,14 @@ if(STRATA_NATIVE_EXPERTS)
                      src/prefill/moe_ws_down.cu)
     endif()
     # q8_0: the drafter's matrices (E-9); STRATA_ORCA_Q4KS_MMQ adds q5_0 (#296, in _strata_mmq_types), and
-    # STRATA_MMQ_KQUANTS q4_k q5_k q5_1 q6_k, the experts of Unsloth's UD-Q4/Q5/Q6_K_XL (docs/QUANTS.md; the dispatch
-    # follows eddoursul/Strata 7706c1b).  MODEL-UPDATE Phase 1: on CUDA they are a library of their own, strata_kq
+    # STRATA_MMQ_KQUANTS q2_k q4_k q5_k q5_1 q6_k, the experts of Unsloth's UD files (q2_k is the gate/up layer
+    # UD-IQ3_S mixes with IQ2_S; docs/QUANTS.md; the dispatch follows eddoursul/Strata 7706c1b).  MODEL-UPDATE Phase 1:
+    # on CUDA they are a library of their own, strata_kq
     # (below), loaded only for a model with these experts: the engine loads every kernel of its own binary at start
-    # (CUDA_MODULE_LOADING=EAGER), and these four took ~3.8 MB of VRAM (3 expert slots of IQ3_XXS on a P100) from every
-    # model.  gfx906 (HIP: code objects load on first use) keeps them in strata_mmq.
+    # (CUDA_MODULE_LOADING=EAGER), and the four K-quants alone took ~3.8 MB of VRAM (3 expert slots of IQ3_XXS on a
+    # P100) from every model.  gfx906 (HIP: code objects load on first use) keeps them in strata_mmq.
     set(_strata_mmq_cuda_types ${_strata_mmq_types})
-    set(_strata_kq_types q4_k q5_k q5_1 q6_k)
+    set(_strata_kq_types q2_k q4_k q5_k q5_1 q6_k)
     set(_strata_kq_dso OFF)
     if(STRATA_MMQ_KQUANTS AND STRATA_HIP_GFX906)
       list(APPEND _strata_mmq_cuda_types ${_strata_kq_types})
@@ -2754,7 +2755,11 @@ if(STRATA_NATIVE_EXPERTS)
       # q4_0/q4_0 and q4_0/q4_1: a plain llama-quantize Q4_0 file (bartowski's Qwen3.8-Flash-Next-Q4_0: gate/up Q4_0,
       # down Q4_0 on 42 layers and Q4_1 on 6)
       # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
-      set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1)
+      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
+      # is_iq() promised type 10 while dq_dispatch had no case for it, so the dequantizer left the destination
+      # unwritten and the launch still reported success; these pairs pin the dequantizer against ggml's to_float.
+      set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1
+                               q2_K/q4_K q2_K/iq4_xs)
       if(STRATA_Q6K_EXPERTS)
         list(APPEND _strata_parity_pairs q6_K/q8_0)
       else()   # a pair without GPU kernels (Q6_K gate/up) is refused by native_expert_supported, not run
