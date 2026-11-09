@@ -3107,6 +3107,23 @@ __device__ void dq_q3_k(const void* vx, int64_t ibs, dst_t* yy, int tid) {
         for (int l = l0; l < l0 + 4; ++l) y[l] = cvt<dst_t>(dl * ((int8_t) ((q[l] >> shift) & 3) - ((hm[l] & m) ? 0 : 4)));
     }
 }
+// Q2_K (one gate/up layer of the Unsloth UD-IQ3_S file): llama.cpp's dequantize_q2_K, its 64 threads folded onto 32
+template<typename dst_t>
+__device__ void dq_q2_k(const void* vx, int64_t ibs, dst_t* yy, int tid) {
+    const block_q2_K* x = (const block_q2_K*) vx;
+    const float dall = __low2half(x[ibs].dm);
+    const float dmin = __high2half(x[ibs].dm);
+    for (int tt = tid; tt < 64; tt += 32) {
+        const int n = tt / 32, l = tt - 32 * n;
+        const int is = 8 * n + l / 16;
+        const uint8_t q = x[ibs].qs[32 * n + l];
+        dst_t* y = yy + 128 * n;
+        y[l +  0] = cvt<dst_t>(dall * (x[ibs].scales[is + 0] & 0xF) * ((q >> 0) & 3) - dmin * (x[ibs].scales[is + 0] >> 4));
+        y[l + 32] = cvt<dst_t>(dall * (x[ibs].scales[is + 2] & 0xF) * ((q >> 2) & 3) - dmin * (x[ibs].scales[is + 2] >> 4));
+        y[l + 64] = cvt<dst_t>(dall * (x[ibs].scales[is + 4] & 0xF) * ((q >> 4) & 3) - dmin * (x[ibs].scales[is + 4] >> 4));
+        y[l + 96] = cvt<dst_t>(dall * (x[ibs].scales[is + 6] & 0xF) * ((q >> 6) & 3) - dmin * (x[ibs].scales[is + 6] >> 4));
+    }
+}
 template<typename dst_t>
 __device__ void dq_iq4_xs(const void* vx, int64_t ibs, dst_t* yy, int tid) {
     const block_iq4_xs* x = (const block_iq4_xs*) vx + ibs;
@@ -3348,8 +3365,8 @@ __device__ void dq_tqp(const void* vx, int64_t ibs, dst_t* yy, int tid) {
     }
 }
 
-// Every type below must also be in is_iq() (BF16: embed_type_supported): the host entry points refuse the others,
-// so the default is unreachable.
+// The host entry points gate on is_iq()/embed_type_supported(), a list that can promise a type this switch does not
+// cover: the destination would stay unwritten while the launch still reports success, so an uncovered type traps.
 template<typename dst_t>
 __device__ __forceinline__ void dq_dispatch(int ty, const void* vx, int64_t ibs, dst_t* y, int tid) {
     switch (ty) {
@@ -3361,6 +3378,7 @@ __device__ __forceinline__ void dq_dispatch(int ty, const void* vx, int64_t ibs,
         case 22: dq_iq2_s(vx, ibs, y, tid); break;
         case 29: dq_iq1_m(vx, ibs, y, tid); break;
         case 23: dq_iq4_xs(vx, ibs, y, tid); break;
+        case 10: dq_q2_k(vx, ibs, y, tid); break;
         case 11: dq_q3_k(vx, ibs, y, tid); break;
         case 42: dq_q2_0(vx, ibs, y, tid); break;
         case 12: dq_q4_k(vx, ibs, y, tid); break;
@@ -3379,7 +3397,7 @@ __device__ __forceinline__ void dq_dispatch(int ty, const void* vx, int64_t ibs,
         case 147: dq_tqp<147>(vx, ibs, y, tid); break;
         case 148: dq_tqp<148>(vx, ibs, y, tid); break;
         case 149: dq_tqp<149>(vx, ibs, y, tid); break;
-        default: break;
+        default: __trap();
     }
 }
 

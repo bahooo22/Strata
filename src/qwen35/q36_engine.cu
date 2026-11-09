@@ -1411,7 +1411,9 @@ struct Engine {
     __half *k16 = nullptr, *v16 = nullptr, *q16 = nullptr;   // the prompt attention's FP16 operands
     size_t kAttScoreFloats = (size_t) 64 << 20;   // 256 MB (16 M floats when the experts' fit is close)
     // the prompt's MMQ experts
-    bool use_mmq = false;
+    bool use_mmq = false;            // the MMQ arenas are allocated: at least one layer (or the MTP block) takes MMQ
+    // per-layer MMQ, indexed like lhy(): one uncovered type must not drop every layer to the vector kernels
+    std::vector<char> mmq_layer;
     std::unique_ptr<MMQ::Context> mctx;
     int32_t *rcnt = nullptr, *rcur = nullptr, *rbounds = nullptr, *rmax = nullptr, *ident = nullptr, *rinv = nullptr;
     void *mq_x = nullptr, *mq_hq = nullptr;
@@ -1669,13 +1671,26 @@ struct Engine {
         k16 = dalloc_t<__half>((size_t) g.n_head_kv * ctx * g.head_dim);
         v16 = dalloc_t<__half>((size_t) g.n_head_kv * ctx * g.head_dim);
         q16 = dalloc_t<__half>(T * g.n_head * g.head_dim);
-        use_mmq = MMQ::built() && std::getenv("STRATA_Q36_NO_MMQ") == nullptr;
+        const bool mmq_built = MMQ::built() && std::getenv("STRATA_Q36_NO_MMQ") == nullptr;
         auto mmq_ok = [&](const Layer& L) {
             return MMQ::supported(L.L.gu_type) && MMQ::supported(L.L.d_type) && MMQ::fits(L.L.gu_type, 2 * g.n_ff) &&
                    MMQ::fits(L.L.d_type, g.n_embd);
         };
-        for (const Layer& L : m->layers) use_mmq = use_mmq && mmq_ok(L);
-        if (m->has_mtp) use_mmq = use_mmq && mmq_ok(m->mtp);
+        mmq_layer.assign(m->layers.size() + (m->has_mtp ? 1 : 0), 0);
+        int n_mmq = 0, first_bad = -1;
+        for (size_t l = 0; l < m->layers.size(); ++l) {
+            mmq_layer[l] = (char) (mmq_built && mmq_ok(m->layers[l]));
+            n_mmq += mmq_layer[l];
+            if (!mmq_layer[l] && first_bad < 0) first_bad = (int) l;
+        }
+        if (m->has_mtp) mmq_layer[m->layers.size()] = (char) (mmq_built && mmq_ok(m->mtp));
+        use_mmq = n_mmq > 0 || (m->has_mtp && mmq_layer[m->layers.size()] != 0);
+        if (mmq_built && first_bad >= 0) {
+            const Layer& L = m->layers[(size_t) first_bad];
+            std::fprintf(stderr, "strata-q36: layer %d takes the native grouped kernels: MMQ does not cover gate/up "
+                                 "type %d or down type %d, or has no tile for them on this GPU\n",
+                         first_bad, L.L.gu_type, L.L.d_type);
+        }
         if (use_mmq) {
             const int64_t ne = (int64_t) T * Kp;
             mctx = std::make_unique<MMQ::Context>();
@@ -1692,7 +1707,13 @@ struct Engine {
             mq_gu = dalloc((size_t) ne * 2 * FF);
             mq_h = dalloc((size_t) ne * FF);
         }
-        std::fprintf(stderr, "strata-q36: prompt experts on %s\n", use_mmq ? "MMQ (int8)" : "the native grouped kernels");
+        if (n_mmq == (int) m->layers.size() && (!m->has_mtp || mmq_layer[m->layers.size()] != 0))
+            std::fprintf(stderr, "strata-q36: prompt experts on MMQ (int8)\n");
+        else if (!use_mmq)
+            std::fprintf(stderr, "strata-q36: prompt experts on the native grouped kernels\n");
+        else
+            std::fprintf(stderr, "strata-q36: prompt experts on MMQ (int8) in %d of %zu layers, the rest on the native "
+                                 "grouped kernels\n", n_mmq, m->layers.size());
         {
             std::string gerr;
             int64_t big = 0;
@@ -2413,15 +2434,18 @@ struct Engine {
         else f32mm(L.router, h, logits_r, N, (int) g.n_expert, T);
         // the hybrid rows path: a batch of up to hybrid_t rows; when only the MTP block is hybrid, its every batch
         // (its prompt pass too: no staging buffers then)
-        const bool hy_rows = lhy(li) && (T <= hybrid_t || !main_hybrid);
-        const bool mmq_rows = !hy_rows && T > kGemmT && use_mmq;
+        // a layer without MMQ keeps the hybrid-rows path: the grouped kernel addresses blobs by the full expert id,
+        // while a hybrid layer holds only its slots there
+        const bool layer_mmq = use_mmq && mmq_layer[li] != 0;
+        const bool hy_rows = lhy(li) && (T <= hybrid_t || !main_hybrid || !layer_mmq);
+        const bool mmq_rows = !hy_rows && T > kGemmT && layer_mmq;
         if (!(!mmq_rows && route_group(L, hy_rows ? hy[li].slot_of_d : nullptr, T, ext ? (int) g.n_expert + 1 : (int) g.n_expert)))
             K::native_router_topk(logits_r, ids, ewts, (int) g.n_expert, Kp, T, st);
         const int64_t n_ent = (int64_t) T * Kp;
         const int32_t* prow = nullptr;
         if (hy_rows) {
             moe_hybrid_gpu(L, li, T);
-        } else if (T > kGemmT && use_mmq) {
+        } else if (T > kGemmT && layer_mmq) {
             // a prompt chunk: the experts on llama.cpp's MMQ (int8, the weights read once per expert): the entries
             // sorted by expert on the device, gate+up as one [2 FF] product per expert, SwiGLU, down into rows the
             // combine reads through entry -> sorted row
@@ -2510,7 +2534,7 @@ struct Engine {
         if (main_hybrid && T > hybrid_t && use_mmq) {
             std::vector<int> seq;
             for (size_t l = 0; l < m->layers.size(); ++l)
-                if (lhy(l)) seq.push_back((int) l);
+                if (lhy(l) && mmq_layer[l] != 0) seq.push_back((int) l);
             stream_begin(seq);
         }
         K::iq_embed_rows(m->embd_type, m->embd, m->embd_row, tok, T, N, x, st);
@@ -2542,7 +2566,7 @@ struct Engine {
         if (main_hybrid && use_mmq) {
             std::vector<int> seq;
             for (size_t l = 0; l < m->layers.size(); ++l)
-                if (lhy(l)) seq.push_back((int) l);
+                if (lhy(l) && mmq_layer[l] != 0) seq.push_back((int) l);
             stream_begin(seq);
         }
         K::iq_embed_rows(m->embd_type, m->embd, m->embd_row, tok_super, T, N, xsuper, st);
@@ -2554,7 +2578,7 @@ struct Engine {
         for (size_t l = 0; l < m->layers.size(); ++l) {
             const bool last = l + 1 == m->layers.size();
             // stream_take only when the streamed path is armed: stream_begin() above needs main_hybrid && use_mmq,
-            const uint8_t* sb = (main_hybrid && use_mmq && lhy(l)) ? stream_take((int) l) : nullptr;
+            const uint8_t* sb = (main_hybrid && use_mmq && lhy(l) && mmq_layer[l] != 0) ? stream_take((int) l) : nullptr;
             const float* wn = last ? m->out_norm : m->layers[l + 1].attn_norm;
             int k = 0;
             for (int off = 0; off < T; off += chunk, ++k) {
@@ -2631,7 +2655,8 @@ struct Engine {
     void forward_mtp(int T, int64_t p0, const float* seeds, bool draft, bool graph_mode) {
         const auto& g = m->g;
         const int N = (int) g.n_embd;
-        if (main_hybrid && lhy(m->layers.size()) && T > hybrid_t && use_mmq) stream_begin({(int) m->layers.size()});
+        if (main_hybrid && lhy(m->layers.size()) && T > hybrid_t && use_mmq && mmq_layer[m->layers.size()] != 0)
+            stream_begin({(int) m->layers.size()});
         K::iq_embed_rows(m->embd_type, m->embd, m->embd_row, tok_m, T, N, y, st);
         if (map_on) k_put_rows<<<T, kThreads, 0, st>>>(y, d_img, d_map, N);
         k_rms_ld<<<T, kThreads, 0, st>>>(y, N, m->mtp_enorm, mtp_cat, 2 * N, N, m->eps);              // [e | ...]
