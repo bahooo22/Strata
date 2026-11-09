@@ -226,3 +226,11 @@ The first shows what each optimization step (super-chunk, flash attention, uploa
 96k; the second shows the prefill collapse on an 8 GB card and its removal across the 64k–160k
 windows at `--n-cpu-moe 33`. Every number in the charts is traceable to a raw measurement file; the
 research document lists `file:line` for each value.
+
+![One model, two quants](docs/assets/quant-compare.svg)
+
+![Prefill by model and window](docs/assets/models-windows.svg)
+
+The third chart compares quants on one model (IQ4_XS/Q4_K_M against Q5_K_S at 96k and 128k); the
+fourth places every measured model on the same 64k-160k windows, with gaps left as gaps.
+
