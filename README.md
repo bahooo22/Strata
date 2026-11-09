@@ -216,7 +216,8 @@ Thank you to everyone who supports Strata.
 
 ## Fork measurement charts
 
-Two charts built from the measurements in [`docs/research/VRAM_HEADROOM.md`](docs/research/VRAM_HEADROOM.md):
+Five charts built from our own measurements; the first two come from
+[`docs/research/VRAM_HEADROOM.md`](docs/research/VRAM_HEADROOM.md):
 
 ![Optimization steps at 96k](docs/assets/progress-96k.svg)
 
@@ -233,4 +234,13 @@ research document lists `file:line` for each value.
 
 The third chart compares quants on one model (IQ4_XS/Q4_K_M against Q5_K_S at 96k and 128k); the
 fourth places every measured model on the same 64k-160k windows, with gaps left as gaps.
+
+![Strata kernel progress: two baselines, then the working grid](docs/assets/kernel-progress.svg)
+
+The fifth chart is the kernel-progress overview: the fork point `146df3c4` (stock, whose KV stays
+fp32 and therefore stops at 32k with 123.1 pp) and our own 2026-11-01 start (170.5 pp at 64k) as the
+two baselines, then super-chunk N=4, then the working kernel with flash attention across
+64k/80k/96k/128k/160k (1504.0 down to 959.9 pp), with the llama fork as the control line. Every
+point carries the `file:line` anchor of its raw log; the written-up version is
+`docs/measurements/kernel-progress-2026-11-09.md` in the measurements archive.
 
