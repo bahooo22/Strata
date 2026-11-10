@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="500" viewBox="0 0 980 500">
-<rect x="0.0" y="0.0" width="980.0" height="500.0" rx="0" fill="#f7f8fa" opacity="1.0"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="520" viewBox="0 0 980 520">
+<rect x="0.0" y="0.0" width="980.0" height="520.0" rx="0" fill="#f7f8fa" opacity="1.0"/>
 <text x="28.0" y="42.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" fill="#1c2733" text-anchor="start" font-weight="600">One model, two quants: what the heavier quant costs at 96k and 128k</text>
-<text x="28.0" y="68.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">llama.cpp, same flags per model, master.txt, 128-256 response tokens. Bar = pp, label = pp and tg.</text>
+<text x="28.0" y="68.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">llama.cpp fork, master.txt, 128-256 response tokens. Bar = pp, label = pp and tg.</text>
 <text x="143.5" y="110.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="14" fill="#1c2733" text-anchor="middle" font-weight="600">KAT Coder, 96k</text>
 <rect x="46.0" y="175.6" width="89.5" height="224.4" rx="4" fill="#2f6fd0" opacity="0.9"/>
 <text x="90.8" y="151.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1c2733" text-anchor="middle" font-weight="600">987.3</text>
@@ -39,7 +39,7 @@
 <text x="783.8" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="middle" font-weight="400">Q4_K_M</text>
 <rect x="844.5" y="249.9" width="89.5" height="150.1" rx="4" fill="#d68910" opacity="0.9"/>
 <text x="889.2" y="225.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1c2733" text-anchor="middle" font-weight="600">660.5</text>
-<text x="889.2" y="240.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">tg 17.8</text>
+<text x="889.2" y="240.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">tg 16.4</text>
 <text x="889.2" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="middle" font-weight="400">Q5_K_S (07.11)</text>
 <text x="836.5" y="444.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#95a5a6" text-anchor="middle" font-weight="400">Q5-класс</text>
 <line x1="28.0" y1="400.0" x2="952.0" y2="400.0" stroke="#1c2733" stroke-width="1.2"/>
@@ -55,6 +55,7 @@
 <text x="24.0" y="222.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">800</text>
 <line x1="28.0" y1="172.7" x2="40.0" y2="172.7" stroke="#95a5a6" stroke-width="1"/>
 <text x="24.0" y="176.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
-<text x="28.0" y="460.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">heretic: 96k/128k при ncmoe 33 (серия J/K); 128k Q5 — 07.11 при ncmoe 32, помечено.</text>
-<text x="28.0" y="480.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">KAT: 96k/128k из сетки 07.11 (profiles.md:127-130, 195-196).</text>
+<text x="28.0" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">heretic Q4_K_M 96k/128k: ncmoe 33, серия J/K 08.11 (:252-256). heretic Q5_K_S 96k: ncmoe 33 (:282), 128k: ncmoe 32 и -ub 2048, 07.11 (:205-206).</text>
+<text x="28.0" y="488.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">KAT IQ4_XS 96k/128k: ncmoe 30, -ub 8192, 07.11 (:195-196). KAT Q5_K_S: ncmoe 32, 05.11 (:127-130):</text>
+<text x="28.0" y="508.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">пара KAT снята в разные дни, строгого A/B по квантам здесь нет.</text>
 </svg>

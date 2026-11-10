@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540">
 <rect x="0.0" y="0.0" width="980.0" height="540.0" rx="0" fill="#f7f8fa" opacity="1.0"/>
 <text x="28.0" y="42.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="22" fill="#1c2733" text-anchor="start" font-weight="600">heretic Q4_K_M: prefill before and after the VRAM fix</text>
-<text x="28.0" y="68.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">86 558-token prompt at 96k, 128 response tokens. pp on a log scale; the morning collapse is one allocation layout, not the window.</text>
+<text x="28.0" y="68.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">one master.txt prompt per window (64 641-139 262 tokens), 128-256 response tokens. pp on a log scale; the morning collapse is one allocation layout, not the window.</text>
 <line x1="190.0" y1="128.0" x2="190.0" y2="400.0" stroke="#dfe3e8" stroke-width="1"/>
 <text x="190.0" y="120.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">50</text>
 <line x1="320.9" y1="128.0" x2="320.9" y2="400.0" stroke="#dfe3e8" stroke-width="1"/>

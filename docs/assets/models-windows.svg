@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="516" viewBox="0 0 980 516">
-<rect x="0.0" y="0.0" width="980.0" height="516.0" rx="0" fill="#f7f8fa" opacity="1.0"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="538" viewBox="0 0 980 538">
+<rect x="0.0" y="0.0" width="980.0" height="538.0" rx="0" fill="#f7f8fa" opacity="1.0"/>
 <text x="28.0" y="42.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" fill="#1c2733" text-anchor="start" font-weight="600">Prefill pp by model and window: where each engine and quant lands</text>
 <text x="28.0" y="68.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">Cells: pp (tok/s) on master.txt; grey — no point for that model/window. Colour scale 600–1400 pp.</text>
 <text x="392.2" y="116.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
@@ -73,6 +73,8 @@
 <text x="765.4" y="388.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1c2733" text-anchor="middle" font-weight="600">694</text>
 <rect x="831.6" y="364.0" width="116.4" height="38.0" rx="5" fill="#e6e9ee" opacity="1.0"/>
 <text x="889.8" y="388.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
-<text x="28.0" y="476.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">Страта — prefill 2048, MTP 0, FA all, super N=4; llama — стоковые флаги сетки, ncmoe 33 для heretic/Q5 и 32 для KAT/HauhauCS (09.11).</text>
-<text x="28.0" y="496.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">Источники: profiles.md:193-196, 225-229, 268-276; series J/K; 05-08.11. Пропуски не интерполируются.</text>
+<text x="28.0" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">Страта: prefill 2048, MTP 0, KV q4_0, FA all, super N=4 (profiles.md:220-221). llama: ncmoe 28-30 для KAT IQ4_XS и HauhauCS,</text>
+<text x="28.0" y="486.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">ncmoe 32 для обеих Q5 и 33 для heretic Q4_K_M; съёмка 05-08.11. Пропуски не интерполируются.</text>
+<text x="28.0" y="508.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">Источники: profiles.md:193-196 KAT IQ4_XS, :225-229 Страта, :252-256 heretic (серия J/K), :46/:59/:72 HauhauCS.</text>
+<text x="28.0" y="526.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7684" text-anchor="start" font-weight="400">profiles.md:103/:117/:128/:130 llmfan Q5, :127/:129 KAT Q5.</text>
 </svg>
