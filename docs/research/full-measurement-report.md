@@ -428,6 +428,15 @@ registry as the tables, and pass the same XML gate as the previous seven
 | [waterfall-96k.svg](../assets/waterfall-96k.svg) | accumulated contribution of the measured steps to `pp` at 96k |
 | [dep-days.svg](../assets/dep-days.svg) | `pp` by capture day, both forks against the upstreams |
 
+Besides the twelve new charts, the report relies on two earlier showcase charts:
+[models-windows.svg](../assets/models-windows.svg) — models across windows, and
+[quant-compare.svg](../assets/quant-compare.svg) — the quant comparison at 96k and 128k. Every cell
+carries an anchor into a line and column of the primary source; the check
+`glm\scripts\chart_cell_anchors_2026-11-11.py` confirms 39 cells by number, model and window and turns
+red on a substituted number or a foreign window (self-test 5/5). The heretic Q5_K_S 128k cell is
+corrected: tg 16.4 instead of 17.8, which had been measured at the 80k window
+(`harness/reports/profiles.md:174` against `:206`).
+
 ## 10. Primary-source map
 
 Every number in the master table is a line in a JSONL. The list below is printed by the generator, so
