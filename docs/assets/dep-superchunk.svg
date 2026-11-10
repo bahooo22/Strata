@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+<rect x="0.0" y="0.0" width="1000.0" height="520.0" rx="0" fill="#f7f8fa"/>
+<desc>docs/research/c2-pilot-2026-11-05.md:44 | docs/research/c2-pilot-2026-11-05.md:45 | docs/research/c2-pilot-2026-11-05.md:46 | docs/research/c2-pilot-2026-11-05.md:59 | docs/research/c2-pilot-2026-11-05.md:60 | docs/research/c2-pilot-2026-11-05.md:153 | docs/research/c2-pilot-2026-11-05.md:154 | docs/research/c2-pilot-2026-11-05.md:127 | docs/research/c2-pilot-2026-11-05.md:125 | docs/research/c2-pilot-2026-11-05.md:126 | docs/research/c4-hauhau-128k-2026-11-05.md:16 | docs/research/c4-hauhau-128k-2026-11-05.md:17 | docs/measurements/grid-2026-11-08.md:282 | docs/measurements/grid-2026-11-08.md:297</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Super-chunk: prompt speed against N</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">Bars grouped by context window, one bar per N. Only measured N are drawn; a window without a series stays out of the chart.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="430.0" x2="960.0" y2="430.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="434.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="84.0" y1="309.6" x2="960.0" y2="309.6" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="313.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">500</text>
+<line x1="84.0" y1="189.2" x2="960.0" y2="189.2" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="193.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="84.0" y1="430.0" x2="960.0" y2="430.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="99.0" y="270.1" width="15.8" height="159.9" rx="4" fill="#2f6fd0"/>
+<text x="106.9" y="262.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">664.1</text>
+<text x="130.7" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="146.6" y="234.9" width="15.8" height="195.1" rx="4" fill="#c0392b"/>
+<text x="154.5" y="226.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">810.3</text>
+<text x="178.2" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="146.6" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="146.6" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">HauhauCS IQ4_XS</text>
+<rect x="224.1" y="268.3" width="15.8" height="161.7" rx="4" fill="#2f6fd0"/>
+<text x="232.0" y="260.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">671.6</text>
+<text x="255.8" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="271.7" y="234.1" width="15.8" height="195.9" rx="4" fill="#c0392b"/>
+<text x="279.6" y="226.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">813.4</text>
+<text x="303.4" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="271.7" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="271.7" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">KAT IQ4_XS, main</text>
+<text x="357.2" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="381.0" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="396.9" y="267.9" width="15.8" height="162.1" rx="4" fill="#c0392b"/>
+<text x="404.8" y="259.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">673.0</text>
+<text x="428.5" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="396.9" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="396.9" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">KAT IQ4_XS, сборка без super</text>
+<rect x="474.4" y="254.6" width="15.8" height="175.4" rx="4" fill="#2f6fd0"/>
+<text x="482.3" y="246.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">728.6</text>
+<text x="506.1" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="522.0" y="210.0" width="15.8" height="220.0" rx="4" fill="#c0392b"/>
+<text x="529.9" y="202.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">913.8</text>
+<text x="553.7" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="522.0" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="522.0" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">KAT IQ4_XS, main</text>
+<text x="607.5" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="631.2" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="647.1" y="114.8" width="15.8" height="315.2" rx="4" fill="#c0392b"/>
+<text x="655.0" y="106.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1308.9</text>
+<rect x="670.9" y="110.0" width="15.8" height="320.0" rx="4" fill="#d68910"/>
+<text x="678.8" y="102.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1328.9</text>
+<text x="647.1" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="647.1" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">KAT IQ4_XS, main + FA</text>
+<rect x="724.7" y="244.7" width="15.8" height="185.3" rx="4" fill="#2f6fd0"/>
+<text x="732.6" y="236.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">769.4</text>
+<rect x="748.5" y="210.9" width="15.8" height="219.1" rx="4" fill="#2e8b57"/>
+<text x="756.4" y="202.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">910.0</text>
+<rect x="772.3" y="183.6" width="15.8" height="246.4" rx="4" fill="#c0392b"/>
+<text x="780.2" y="175.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1023.2</text>
+<text x="804.0" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="772.3" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="772.3" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">KAT IQ4_XS, черновой прогон</text>
+<rect x="849.9" y="237.1" width="15.8" height="192.9" rx="4" fill="#2f6fd0"/>
+<text x="857.8" y="229.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">800.9</text>
+<text x="881.5" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="897.4" y="183.4" width="15.8" height="246.6" rx="4" fill="#c0392b"/>
+<text x="905.3" y="175.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1024.0</text>
+<text x="929.1" y="416.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<text x="897.4" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="897.4" y="468.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">KAT IQ4_XS, чистый повтор</text>
+<text x="92.0" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#2f6fd0" text-anchor="start" font-weight="600">N=1</text>
+<text x="182.0" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#2e8b57" text-anchor="start" font-weight="600">N=2</text>
+<text x="272.0" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#c0392b" text-anchor="start" font-weight="600">N=4</text>
+<text x="362.0" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#d68910" text-anchor="start" font-weight="600">N=8</text>
+</svg>

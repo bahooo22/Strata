@@ -17,6 +17,11 @@ wants to finish them.
 | [fa-attention.md](fa-attention.md) | pilot | Prompt attention on mma.m16n8k16: no score buffer, one launch per layer per chunk | Replaces ~45 000 cuBLAS launches at 96k; gated by G1-G5 |
 | [audit-fork-2026-11-04.md](audit-fork-2026-11-04.md) | audit | Where the time goes in the fork: expert weight delivery, not GPU kernels | The measured lever is the prefill chunk size (96k: 573.8 -> 1094.3 pp at 2048); moving the engine to upstream master is a no-go |
 | [kernel-progress.md](kernel-progress.md) | summary | Kernel progress in one table: stock `146df3c4`, our 2026-11-01 start, super-chunk, FA | Turns "much faster" into numbers: 123.1 pp at a 32k ceiling -> 1504.0 pp at 64k and 959.9 pp at 160k; source of `docs/assets/kernel-progress.svg` |
+| [full-measurement-report.md](full-measurement-report.md) | report | Everything this machine measured, both forks, before/after: 8 lines x 5 windows, needles, rejected levers, source map | Every table is printed by a generator and every number carries a `file:line` anchor into the primary logs; Russian twin `full-measurement-report.ru.md` |
+| [strata-fork-report.md](strata-fork-report.md) | report | What the 25 Strata commits bought, per window and per model | Same generator as the summary report, so the two cannot drift apart (`--verify`) |
+| [llama-fork-report.md](llama-fork-report.md) | report | llama.cpp at the pinned `3cf03257f`: tuning by window, our patches, the pp collapse on Q4_K_M | The other half of the bench; its stock base is `stock-vs-fork-2026-11-08.md` |
+| [sweeps-appendix-ncmoe.md](sweeps-appendix-ncmoe.md) | appendix | Raw sweeps grouped by family: `ncmoe`, `ub`, `reserve`, `kv-types`, `windows-ladder`, `stock`, `by-model`, `grid-llama` | One page cannot hold the sweep corpus, so each family is its own pair `sweeps-appendix-*.md` / `sweeps-appendix-*.ru.md` |
+| [stock-vs-fork-2026-11-08.md](stock-vs-fork-2026-11-08.md) | measurement | The even stock/fork pair on one flag set, captured with a 64-token answer | Predecessor of the 11.11 grid; the 256-token re-shoot never entered it because the prompt came out off canon |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
 (`pacc` under T ≤ 8, L2-ordered split-K, per-layer pinned arena, `--att-mb`,

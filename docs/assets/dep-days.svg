@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<rect x="0.0" y="0.0" width="1000.0" height="560.0" rx="0" fill="#f7f8fa"/>
+<desc>evolution-data.json grid + stock_ladder</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Best prompt speed by shooting day</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">Per day the best measured pp over the whole registry (all engines, models and windows of that day). Windows differ between days, so this is a chronology of the fork, not a like-for-like comparison.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="92.0" y1="460.0" x2="960.0" y2="460.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="82.0" y="464.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="92.0" y1="343.3" x2="960.0" y2="343.3" stroke="#dfe3e8" stroke-width="1"/>
+<text x="82.0" y="347.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">500</text>
+<line x1="92.0" y1="226.6" x2="960.0" y2="226.6" stroke="#dfe3e8" stroke-width="1"/>
+<text x="82.0" y="230.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="92.0" y1="460.0" x2="960.0" y2="460.0" stroke="#1c2733" stroke-width="1.2"/>
+<line x1="92.0" y1="110.0" x2="960.0" y2="147.6" stroke="#2f6fd0" stroke-width="2.4"/>
+<circle cx="92.0" cy="110.0" r="4" fill="#2f6fd0"/>
+<text x="92.0" y="480.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#1c2733" text-anchor="middle" font-weight="400">11-08</text>
+<text x="92.0" y="496.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">16</text>
+<circle cx="960.0" cy="147.6" r="4" fill="#2f6fd0"/>
+<text x="960.0" y="480.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#1c2733" text-anchor="middle" font-weight="400">11-10</text>
+<text x="960.0" y="496.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">27</text>
+</svg>

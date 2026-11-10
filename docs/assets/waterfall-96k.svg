@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640">
+<rect x="0.0" y="0.0" width="1000.0" height="640.0" rx="0" fill="#f7f8fa"/>
+<desc>docs/research/audit-fork-2026-11-04.ru.md:139 — KAT IQ4_XS, 23 экспертных слота на слой | docs/research/audit-fork-2026-11-04.ru.md:140 — tg 20,6-21,7; слотов стало 18 | docs/research/c2-pilot-2026-11-05.md:59 — несопоставимо с 1094,3 (тот же прогон шел на prefill 2048, mtp 0, att 256) | docs/research/c2-pilot-2026-11-05.md:60 — +28 % на 96k, TTFT 108,1 -> 84,6 с | docs/plan/2026-11-05-optimization-plan.md:420 — smoke 96k N=4 против пилота 1021,4 — разница в шуме | docs/plan/2026-11-05-optimization-plan.md:445 — +5,5 % pp, tg 15,0 против 16,8 | docs/research/fa1-status-2026-11-05.md:124 — контроль 1019,1 — строка :125 того же документа | docs/measurements/grid-2026-11-07.md:12 — tg 15,3; ниже пилота FA 1341,1 из-за профиля att 256 | docs/measurements/grid-2026-11-08.md:297 — +1,5 % — не берём, N=4 остаётся рабочим</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Measured stages on 96k: how the ideas stacked up</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">One bar per measured pair (control -&gt; stage) on KAT IQ4_XS, 86 589 prompt tokens. Grey bars are single measured states without their own control. The bars are not additive: per-commit deltas were never measured on this rig.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="500.0" x2="960.0" y2="500.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="504.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="84.0" y1="358.3" x2="960.0" y2="358.3" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="362.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">500</text>
+<line x1="84.0" y1="216.7" x2="960.0" y2="216.7" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="220.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="84.0" y1="500.0" x2="960.0" y2="500.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="98.0" y="337.4" width="69.3" height="162.6" rx="4" fill="#95a5a6"/>
+<text x="132.7" y="329.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1c2733" text-anchor="middle" font-weight="600">573.8</text>
+<text x="132.7" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">база: prefill 1024</text>
+<text x="132.7" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">04.11</text>
+<text x="132.7" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">--prefill 1024</text>
+<rect x="195.3" y="189.9" width="69.3" height="147.5" rx="4" fill="#2e8b57"/>
+<text x="230.0" y="180.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="700">+520.5</text>
+<text x="230.0" y="165.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1094.3</text>
+<text x="230.0" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">prefill 2048</text>
+<text x="230.0" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">04.11</text>
+<text x="230.0" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">--prefill 1024 -&gt; 2048</text>
+<rect x="292.7" y="273.1" width="69.3" height="226.9" rx="4" fill="#95a5a6"/>
+<text x="327.3" y="265.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1c2733" text-anchor="middle" font-weight="600">800.9</text>
+<text x="327.3" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">super-chunk N=1</text>
+<text x="327.3" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">05.11</text>
+<text x="327.3" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">другой профиль: MTP 0, att 256</text>
+<rect x="390.0" y="209.9" width="69.3" height="63.2" rx="4" fill="#2e8b57"/>
+<text x="424.7" y="200.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="700">+223.1</text>
+<text x="424.7" y="185.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1024.0</text>
+<text x="424.7" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">super-chunk N=4</text>
+<text x="424.7" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">05.11</text>
+<text x="424.7" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">STRATA_Q36_SUPER_CHUNK 1 -&gt; 4</text>
+<rect x="487.3" y="211.4" width="69.3" height="288.6" rx="4" fill="#95a5a6"/>
+<text x="522.0" y="203.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1c2733" text-anchor="middle" font-weight="600">1018.4</text>
+<text x="522.0" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">main после merge</text>
+<text x="522.0" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">05.11</text>
+<text x="522.0" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">merge super-chunk в main</text>
+<rect x="584.7" y="195.7" width="69.3" height="15.8" rx="4" fill="#2e8b57"/>
+<text x="619.3" y="186.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="700">+55.6</text>
+<text x="619.3" y="171.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1074.0</text>
+<text x="619.3" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">--att-mb 512</text>
+<text x="619.3" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">05.11</text>
+<text x="619.3" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">att 256 -&gt; 512 МБ</text>
+<rect x="682.0" y="120.0" width="69.3" height="91.2" rx="4" fill="#2e8b57"/>
+<text x="716.7" y="111.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="700">+322.0</text>
+<text x="716.7" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1341.1</text>
+<text x="716.7" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">FA all 4x32</text>
+<text x="716.7" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">05.11</text>
+<text x="716.7" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">flash attention на всех слоях</text>
+<rect x="779.3" y="129.1" width="69.3" height="370.9" rx="4" fill="#95a5a6"/>
+<text x="814.0" y="121.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1c2733" text-anchor="middle" font-weight="600">1308.9</text>
+<text x="814.0" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">итог main + FA + super</text>
+<text x="814.0" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">07.11</text>
+<text x="814.0" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">каноническая сетка 07.11</text>
+<rect x="876.7" y="123.5" width="69.3" height="5.7" rx="4" fill="#2e8b57"/>
+<text x="911.3" y="114.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="700">+20.0</text>
+<text x="911.3" y="99.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">1328.9</text>
+<text x="911.3" y="520.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">super N=8</text>
+<text x="911.3" y="536.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">08.11</text>
+<text x="911.3" y="552.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7684" text-anchor="middle" font-weight="400">N 4 -&gt; 8 поверх main+FA</text>
+</svg>

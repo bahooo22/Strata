@@ -16,6 +16,11 @@
 | [fa-attention.ru.md](fa-attention.ru.md) | пилот | Attention промпта на mma.m16n8k16: без буфера скоров, один запуск на слой на чанк | Заменяет ~45 000 запусков cuBLAS на 96k; гейты G1–G5 |
 | [audit-fork-2026-11-04.ru.md](audit-fork-2026-11-04.ru.md) | аудит | Где теряется время в форке: доставка весов экспертов, а не GPU-ядра | Измеренный рычаг — размер чанка prefill (96k: 573.8 -> 1094.3 pp на 2048); переход движка на upstream master — no-go |
 | [kernel-progress.ru.md](kernel-progress.ru.md) | сводка | Прогресс ядра одной таблицей: сток `146df3c4`, наш старт 01.11, super-chunk, FA | Превращает «стало быстрее» в числа: 123.1 pp при потолке 32k → 1504.0 pp на 64k и 959.9 pp на 160k; источник `docs/assets/kernel-progress.svg` |
+| [full-measurement-report.ru.md](full-measurement-report.ru.md) | отчёт | Все замеры этой машины, оба форка, до и после: 8 линий × 5 окон, иглы, отклонённые рычаги, карта первичника | Таблицы печатает генератор, у каждой цифры якорь `файл:строка` на первичник; английская база — `full-measurement-report.md` |
+| [strata-fork-report.ru.md](strata-fork-report.ru.md) | отчёт | Что купили 25 коммитов Страты, по окнам и по моделям | Тот же генератор, что и у общего отчёта, поэтому расходиться им нечем (`--verify`) |
+| [llama-fork-report.ru.md](llama-fork-report.ru.md) | отчёт | llama.cpp на пине `3cf03257f`: тюнинг по окнам, наши патчи, обвал pp на Q4_K_M | Вторая половина стенда; стоковая база для неё — `stock-vs-fork-2026-11-08.ru.md` |
+| [sweeps-appendix-ncmoe.ru.md](sweeps-appendix-ncmoe.ru.md) | приложение | Сырые свипы по семействам: `ncmoe`, `ub`, `reserve`, `kv-types`, `windows-ladder`, `stock`, `by-model`, `grid-llama` | Весь корпус свипов на страницу не лезет, поэтому у семейства своя пара `sweeps-appendix-*.md` / `sweeps-appendix-*.ru.md` |
+| [stock-vs-fork-2026-11-08.ru.md](stock-vs-fork-2026-11-08.ru.md) | замеры | Ровная пара «сток против форка» на одном наборе флагов, снята с ответом 64 токена | Предшественник сетки 11.11; пересъём на 256 токенах в неё не вошёл — промпт вышел не по канону |
 
 Применённые оптимизации — в `engine/docs/profile-q36.md` и в истории коммитов
 (`pacc` при T ≤ 8, L2-порядок split-K, per-layer pinned арена, `--att-mb`,

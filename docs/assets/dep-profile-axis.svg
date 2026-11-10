@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="480" viewBox="0 0 1000 480">
+<rect x="0.0" y="0.0" width="1000.0" height="480.0" rx="0" fill="#f7f8fa"/>
+<desc>evolution-data.json q3_profile 80k | evolution-data.json q3_profile 128k</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Profile tuning axis of the same code</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">Two bars per window: the pair run on the old profile and on the tuned profile. This axis is separate from the code-fix axis; their product is not published.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="390.0" x2="960.0" y2="390.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="394.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="84.0" y1="327.2" x2="960.0" y2="327.2" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="331.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">250</text>
+<line x1="84.0" y1="264.3" x2="960.0" y2="264.3" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="268.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">500</text>
+<line x1="84.0" y1="201.5" x2="960.0" y2="201.5" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="205.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">750</text>
+<line x1="84.0" y1="138.7" x2="960.0" y2="138.7" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="142.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="84.0" y1="390.0" x2="960.0" y2="390.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="104.0" y="119.4" width="191.0" height="270.6" rx="4" fill="#95a5a6"/>
+<text x="199.5" y="111.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1076.8</text>
+<text x="199.5" y="408.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">было</text>
+<rect x="303.0" y="100.0" width="191.0" height="290.0" rx="4" fill="#7d3c98"/>
+<text x="398.5" y="92.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1153.9</text>
+<text x="398.5" y="408.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">стало</text>
+<text x="303.0" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="303.0" y="70.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#7d3c98" text-anchor="middle" font-weight="700">profile x1.07</text>
+<rect x="542.0" y="258.4" width="191.0" height="131.6" rx="4" fill="#95a5a6"/>
+<text x="637.5" y="250.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">523.8</text>
+<text x="637.5" y="408.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">было</text>
+<rect x="741.0" y="152.5" width="191.0" height="237.5" rx="4" fill="#7d3c98"/>
+<text x="836.5" y="144.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">945.1</text>
+<text x="836.5" y="408.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">стало</text>
+<text x="741.0" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="741.0" y="122.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#7d3c98" text-anchor="middle" font-weight="700">profile x1.80</text>
+</svg>

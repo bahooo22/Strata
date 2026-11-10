@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<rect x="0.0" y="0.0" width="1000.0" height="560.0" rx="0" fill="#f7f8fa"/>
+<desc>grid-hauhaucs-iq4xs-2026-11-10.jsonl:10 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:2 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:4 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:6 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:8 | grid-hauhaucsiq4xs-2026-11-08.jsonl:11 | grid-hauhaucsiq4xs-2026-11-08.jsonl:14 | grid-hauhaucsiq4xs-2026-11-08.jsonl:17 | grid-hauhaucsiq4xs-2026-11-10.jsonl:11 | grid-hauhaucsiq4xs-2026-11-10.jsonl:8 | grid-heretic-q4km-2026-11-10.jsonl:10 | grid-heretic-q4km-2026-11-10.jsonl:2 | grid-heretic-q4km-2026-11-10.jsonl:4 | grid-heretic-q4km-2026-11-10.jsonl:6 | grid-heretic-q4km-2026-11-10.jsonl:8 | grid-hereticq4km-2026-11-10.jsonl:17 | grid-hereticq4km-2026-11-10.jsonl:20 | grid-hereticq4km-2026-11-10.jsonl:23 | grid-hereticq4km-2026-11-10.jsonl:26 | grid-hereticq4km-2026-11-10.jsonl:29 | grid-ud-iq3s-2026-11-10.jsonl:1 | grid-ud-iq3s-2026-11-10.jsonl:2 | grid-ud-iq3s-2026-11-10.jsonl:3 | grid-ud-iq3s-2026-11-10.jsonl:4</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Upstream build against the fork, by window</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">Where the registry holds an upstream point on the same window, both bars are drawn; an absent upstream point is marked, never guessed.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="470.0" x2="960.0" y2="470.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="474.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="84.0" y1="350.0" x2="960.0" y2="350.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="354.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">500</text>
+<line x1="84.0" y1="230.0" x2="960.0" y2="230.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="234.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="84.0" y1="470.0" x2="960.0" y2="470.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="622.6" y="326.4" width="68.6" height="143.6" rx="4" fill="#95a5a6"/>
+<text x="656.9" y="319.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">598.3</text>
+<rect x="697.2" y="264.8" width="68.6" height="205.2" rx="4" fill="#2f6fd0"/>
+<text x="731.5" y="257.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">854.8</text>
+<text x="697.2" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="697.2" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/hauhaucs-iq4xs</text>
+<text x="697.2" y="242.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.4</text>
+<rect x="797.8" y="332.3" width="68.6" height="137.7" rx="4" fill="#95a5a6"/>
+<text x="832.1" y="325.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">573.7</text>
+<rect x="872.4" y="270.7" width="68.6" height="199.3" rx="4" fill="#2f6fd0"/>
+<text x="906.7" y="263.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">830.0</text>
+<text x="872.4" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="872.4" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/hauhaucs-iq4xs</text>
+<text x="872.4" y="248.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.4</text>
+<rect x="97.0" y="316.5" width="68.6" height="153.5" rx="4" fill="#95a5a6"/>
+<text x="131.3" y="309.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">639.3</text>
+<rect x="171.6" y="235.8" width="68.6" height="234.2" rx="4" fill="#2f6fd0"/>
+<text x="205.9" y="228.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">975.8</text>
+<text x="171.6" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="171.6" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/hauhaucs-iq4xs</text>
+<text x="171.6" y="213.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.5</text>
+<rect x="272.2" y="318.2" width="68.6" height="151.8" rx="4" fill="#95a5a6"/>
+<text x="306.5" y="311.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">632.3</text>
+<rect x="346.8" y="245.1" width="68.6" height="224.9" rx="4" fill="#2f6fd0"/>
+<text x="381.1" y="238.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">936.8</text>
+<text x="346.8" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="346.8" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/hauhaucs-iq4xs</text>
+<text x="346.8" y="223.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.5</text>
+<rect x="447.4" y="321.2" width="68.6" height="148.8" rx="4" fill="#95a5a6"/>
+<text x="481.7" y="314.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">619.9</text>
+<rect x="522.0" y="251.8" width="68.6" height="218.2" rx="4" fill="#2f6fd0"/>
+<text x="556.3" y="244.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">908.9</text>
+<text x="522.0" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="522.0" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/hauhaucs-iq4xs</text>
+<text x="522.0" y="229.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.5</text>
+<rect x="622.6" y="326.4" width="68.6" height="143.6" rx="4" fill="#95a5a6"/>
+<text x="656.9" y="319.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">598.3</text>
+<rect x="697.2" y="279.7" width="68.6" height="190.3" rx="4" fill="#2f6fd0"/>
+<text x="731.5" y="272.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">792.7</text>
+<text x="697.2" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="697.2" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/heretic-q4km</text>
+<text x="697.2" y="257.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.3</text>
+<rect x="797.8" y="332.3" width="68.6" height="137.7" rx="4" fill="#95a5a6"/>
+<text x="832.1" y="325.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">573.7</text>
+<rect x="872.4" y="286.0" width="68.6" height="184.0" rx="4" fill="#2f6fd0"/>
+<text x="906.7" y="279.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">766.4</text>
+<text x="872.4" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="872.4" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/heretic-q4km</text>
+<text x="872.4" y="264.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.3</text>
+<rect x="97.0" y="316.5" width="68.6" height="153.5" rx="4" fill="#95a5a6"/>
+<text x="131.3" y="309.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">639.3</text>
+<rect x="171.6" y="259.0" width="68.6" height="211.0" rx="4" fill="#2f6fd0"/>
+<text x="205.9" y="252.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">879.0</text>
+<text x="171.6" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="171.6" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/heretic-q4km</text>
+<text x="171.6" y="237.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.4</text>
+<rect x="272.2" y="318.2" width="68.6" height="151.8" rx="4" fill="#95a5a6"/>
+<text x="306.5" y="311.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">632.3</text>
+<rect x="346.8" y="265.1" width="68.6" height="204.9" rx="4" fill="#2f6fd0"/>
+<text x="381.1" y="258.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">853.7</text>
+<text x="346.8" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="346.8" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/heretic-q4km</text>
+<text x="346.8" y="243.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.4</text>
+<rect x="447.4" y="321.2" width="68.6" height="148.8" rx="4" fill="#95a5a6"/>
+<text x="481.7" y="314.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">619.9</text>
+<rect x="522.0" y="267.1" width="68.6" height="202.9" rx="4" fill="#2f6fd0"/>
+<text x="556.3" y="260.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">845.1</text>
+<text x="522.0" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="522.0" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/heretic-q4km</text>
+<text x="522.0" y="245.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.4</text>
+<rect x="622.6" y="326.4" width="68.6" height="143.6" rx="4" fill="#95a5a6"/>
+<text x="656.9" y="319.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">598.3</text>
+<rect x="697.2" y="236.4" width="68.6" height="233.6" rx="4" fill="#2f6fd0"/>
+<text x="731.5" y="229.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">973.1</text>
+<text x="697.2" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="697.2" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/ud-iq3s</text>
+<text x="697.2" y="214.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.6</text>
+<rect x="797.8" y="332.3" width="68.6" height="137.7" rx="4" fill="#95a5a6"/>
+<text x="832.1" y="325.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">573.7</text>
+<rect x="872.4" y="244.9" width="68.6" height="225.1" rx="4" fill="#2f6fd0"/>
+<text x="906.7" y="237.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">937.9</text>
+<text x="872.4" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="872.4" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/ud-iq3s</text>
+<text x="872.4" y="222.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.6</text>
+<rect x="97.0" y="316.5" width="68.6" height="153.5" rx="4" fill="#95a5a6"/>
+<text x="131.3" y="309.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">639.3</text>
+<rect x="171.6" y="202.6" width="68.6" height="267.4" rx="4" fill="#2f6fd0"/>
+<text x="205.9" y="195.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1113.8</text>
+<text x="171.6" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="171.6" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/ud-iq3s</text>
+<text x="171.6" y="180.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.7</text>
+<rect x="272.2" y="318.2" width="68.6" height="151.8" rx="4" fill="#95a5a6"/>
+<text x="306.5" y="311.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">632.3</text>
+<rect x="346.8" y="209.9" width="68.6" height="260.1" rx="4" fill="#2f6fd0"/>
+<text x="381.1" y="202.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1083.4</text>
+<text x="346.8" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="346.8" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/ud-iq3s</text>
+<text x="346.8" y="187.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.7</text>
+<rect x="447.4" y="321.2" width="68.6" height="148.8" rx="4" fill="#95a5a6"/>
+<text x="481.7" y="314.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">619.9</text>
+<rect x="522.0" y="217.3" width="68.6" height="252.7" rx="4" fill="#2f6fd0"/>
+<text x="556.3" y="210.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1052.6</text>
+<text x="522.0" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="522.0" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">llama-fork/ud-iq3s</text>
+<text x="522.0" y="195.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2e8b57" text-anchor="middle" font-weight="700">x1.7</text>
+<text x="656.9" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="697.2" y="252.3" width="68.6" height="217.7" rx="4" fill="#2f6fd0"/>
+<text x="731.5" y="245.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">906.8</text>
+<text x="697.2" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="697.2" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/hauhaucs-iq4xs</text>
+<text x="832.1" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="872.4" y="233.4" width="68.6" height="236.6" rx="4" fill="#2f6fd0"/>
+<text x="906.7" y="226.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">985.8</text>
+<text x="872.4" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="872.4" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/hauhaucs-iq4xs</text>
+<text x="131.3" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="171.6" y="110.0" width="68.6" height="360.0" rx="4" fill="#2f6fd0"/>
+<text x="205.9" y="103.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1499.7</text>
+<text x="171.6" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="171.6" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/hauhaucs-iq4xs</text>
+<text x="306.5" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="346.8" y="207.7" width="68.6" height="262.3" rx="4" fill="#2f6fd0"/>
+<text x="381.1" y="200.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1092.5</text>
+<text x="346.8" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="346.8" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/hauhaucs-iq4xs</text>
+<text x="481.7" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="522.0" y="157.1" width="68.6" height="312.9" rx="4" fill="#2f6fd0"/>
+<text x="556.3" y="150.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1303.5</text>
+<text x="522.0" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="522.0" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/hauhaucs-iq4xs</text>
+<text x="656.9" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="697.2" y="228.8" width="68.6" height="241.2" rx="4" fill="#2f6fd0"/>
+<text x="731.5" y="221.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1005.0</text>
+<text x="697.2" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="697.2" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/heretic-q4km</text>
+<text x="832.1" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="872.4" y="250.6" width="68.6" height="219.4" rx="4" fill="#2f6fd0"/>
+<text x="906.7" y="243.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">914.0</text>
+<text x="872.4" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="872.4" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/heretic-q4km</text>
+<text x="131.3" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="171.6" y="148.6" width="68.6" height="321.4" rx="4" fill="#2f6fd0"/>
+<text x="205.9" y="141.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1338.8</text>
+<text x="171.6" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="171.6" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/heretic-q4km</text>
+<text x="306.5" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="346.8" y="175.9" width="68.6" height="294.1" rx="4" fill="#2f6fd0"/>
+<text x="381.1" y="168.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1225.0</text>
+<text x="346.8" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="346.8" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/heretic-q4km</text>
+<text x="481.7" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="522.0" y="187.2" width="68.6" height="282.8" rx="4" fill="#2f6fd0"/>
+<text x="556.3" y="180.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1178.0</text>
+<text x="522.0" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="522.0" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/heretic-q4km</text>
+<text x="656.9" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="697.2" y="243.1" width="68.6" height="226.9" rx="4" fill="#2f6fd0"/>
+<text x="731.5" y="236.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">945.1</text>
+<text x="697.2" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="697.2" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/ud-iq3s</text>
+<text x="832.1" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="872.4" y="261.2" width="68.6" height="208.8" rx="4" fill="#2f6fd0"/>
+<text x="906.7" y="254.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">869.7</text>
+<text x="872.4" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="872.4" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/ud-iq3s</text>
+<text x="131.3" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="171.6" y="172.3" width="68.6" height="297.7" rx="4" fill="#2f6fd0"/>
+<text x="205.9" y="165.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1240.3</text>
+<text x="171.6" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<text x="171.6" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/ud-iq3s</text>
+<text x="306.5" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="346.8" y="193.0" width="68.6" height="277.0" rx="4" fill="#2f6fd0"/>
+<text x="381.1" y="186.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1153.9</text>
+<text x="346.8" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<text x="346.8" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/ud-iq3s</text>
+<text x="481.7" y="456.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">—</text>
+<rect x="522.0" y="206.0" width="68.6" height="264.0" rx="4" fill="#2f6fd0"/>
+<text x="556.3" y="199.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">1099.8</text>
+<text x="522.0" y="490.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="522.0" y="506.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">strata-fork/ud-iq3s</text>
+</svg>

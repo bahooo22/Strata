@@ -10,6 +10,18 @@
 >
 > **Fork notes:** commits, the `STRATA_GGML_DIR` build, KV types and MTP — [`LOCAL.en.md`](LOCAL.en.md)
 > (in Russian — [`LOCAL.ru.md`](LOCAL.ru.md)).
+>
+> **Сводные отчёты 11.11 по всем замерам стенда** (оба форка, пять окон, до и после; каждая цифра
+> сгенерирована и несёт якорь на первичник): [общий](docs/research/full-measurement-report.ru.md),
+> [по Страте](docs/research/strata-fork-report.ru.md),
+> [по llama.cpp](docs/research/llama-fork-report.ru.md); сырые свипы — файлами
+> `docs/research/sweeps-appendix-*.ru.md`.
+>
+> **Consolidated 2026-11-11 reports for this bench** (both forks, five windows, before/after; every
+> number is generated and carries an anchor into the primary logs):
+> [summary](docs/research/full-measurement-report.md), [Strata](docs/research/strata-fork-report.md),
+> [llama.cpp](docs/research/llama-fork-report.md); raw sweeps are in
+> `docs/research/sweeps-appendix-*.md`.
 
 <h3 align="center">Run powerful AI on your own computer.</h3>
 <p align="center">Chat, code and work with images, locally.</p>

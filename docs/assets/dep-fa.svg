@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<rect x="0.0" y="0.0" width="1000.0" height="560.0" rx="0" fill="#f7f8fa"/>
+<desc>docs/research/fa1-status-2026-11-05.md:125 | docs/research/fa1-status-2026-11-05.md:124 | docs/research/fa1-status-2026-11-05.md:142 | docs/research/fa1-status-2026-11-05.md:143 | docs/research/rejected-levers.ru.md:34 | docs/research/fa-q4_0.ru.md:56 — attention 41.5 с | docs/research/fa-q4_0.ru.md:57 — attention 89.3 с | docs/research/fa-q4_0.ru.md:58 — attention 80.7 с</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Flash attention on/off, including the q4_0 no-go</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">pp, tokens per second on the single axis. Where a control run is recorded next to the FA run it is drawn as its own bar, so the pair is visible without a ratio.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="430.0" x2="960.0" y2="430.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="434.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="84.0" y1="310.7" x2="960.0" y2="310.7" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="314.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">500</text>
+<line x1="84.0" y1="191.4" x2="960.0" y2="191.4" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="195.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="84.0" y1="430.0" x2="960.0" y2="430.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="102.0" y="186.8" width="73.5" height="243.2" rx="4" fill="#95a5a6"/>
+<text x="138.8" y="178.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1019.1</text>
+<text x="138.8" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">контроль без FA, super N=4</text>
+<text x="138.8" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<rect x="211.5" y="110.0" width="73.5" height="320.0" rx="4" fill="#2f6fd0"/>
+<text x="248.2" y="102.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1341.1</text>
+<text x="248.2" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">FA all, tile 4x32</text>
+<text x="248.2" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<rect x="321.0" y="132.3" width="73.5" height="297.7" rx="4" fill="#2f6fd0"/>
+<text x="357.8" y="124.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1247.6</text>
+<text x="357.8" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">FA tile 8x32</text>
+<text x="357.8" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<rect x="430.5" y="128.3" width="73.5" height="301.7" rx="4" fill="#2f6fd0"/>
+<text x="467.2" y="120.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1264.4</text>
+<text x="467.2" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">FA tile 8x64</text>
+<text x="467.2" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<rect x="540.0" y="178.1" width="73.5" height="251.9" rx="4" fill="#c0392b"/>
+<text x="576.8" y="170.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1055.9</text>
+<text x="576.8" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">FA Q из global (Q-ldg)</text>
+<text x="576.8" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<text x="576.8" y="498.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#c0392b" text-anchor="middle" font-weight="600">no-go</text>
+<rect x="649.5" y="123.2" width="73.5" height="306.8" rx="4" fill="#95a5a6"/>
+<text x="686.2" y="115.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">1285.6</text>
+<text x="686.2" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">контроль fp16-путь q4_0 KV</text>
+<text x="686.2" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<text x="686.2" y="482.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">attn 41.5 с</text>
+<rect x="759.0" y="250.7" width="73.5" height="179.3" rx="4" fill="#c0392b"/>
+<text x="795.8" y="242.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">751.5</text>
+<text x="795.8" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">q4_0 KV, байтовый загрузчик</text>
+<text x="795.8" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<text x="795.8" y="482.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">attn 89.3 с</text>
+<text x="795.8" y="498.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#c0392b" text-anchor="middle" font-weight="600">no-go</text>
+<rect x="868.5" y="236.0" width="73.5" height="194.0" rx="4" fill="#c0392b"/>
+<text x="905.2" y="228.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">813.2</text>
+<text x="905.2" y="450.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1c2733" text-anchor="middle" font-weight="400">q4_0 KV, упакованный загрузчик</text>
+<text x="905.2" y="466.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">96k</text>
+<text x="905.2" y="482.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="middle" font-weight="400">attn 80.7 с</text>
+<text x="905.2" y="498.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#c0392b" text-anchor="middle" font-weight="600">no-go</text>
+</svg>

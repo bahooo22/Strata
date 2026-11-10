@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500" viewBox="0 0 1000 500">
+<rect x="0.0" y="0.0" width="1000.0" height="500.0" rx="0" fill="#f7f8fa"/>
+<desc>evolution-data.json needles</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Needle recall by window</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">Share of needles found, percent, summed from the per-run records of the registry.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="410.0" x2="960.0" y2="410.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="414.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0%</text>
+<line x1="84.0" y1="350.0" x2="960.0" y2="350.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="354.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">20%</text>
+<line x1="84.0" y1="290.0" x2="960.0" y2="290.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="294.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">40%</text>
+<line x1="84.0" y1="230.0" x2="960.0" y2="230.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="234.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">60%</text>
+<line x1="84.0" y1="170.0" x2="960.0" y2="170.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="174.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">80%</text>
+<line x1="84.0" y1="110.0" x2="960.0" y2="110.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="114.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">100%</text>
+<line x1="84.0" y1="410.0" x2="960.0" y2="410.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="122.5" y="110.0" width="98.1" height="300.0" rx="4" fill="#2e8b57"/>
+<text x="171.6" y="102.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">100 %</text>
+<text x="171.6" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">16k</text>
+<text x="171.6" y="448.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">2/2</text>
+<rect x="297.7" y="138.6" width="98.1" height="271.4" rx="4" fill="#c0392b"/>
+<text x="346.8" y="130.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">90 %</text>
+<text x="346.8" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<text x="346.8" y="448.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">19/21</text>
+<rect x="472.9" y="161.7" width="98.1" height="248.3" rx="4" fill="#c0392b"/>
+<text x="522.0" y="153.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">83 %</text>
+<text x="522.0" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<text x="522.0" y="448.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">24/29</text>
+<rect x="648.1" y="191.8" width="98.1" height="218.2" rx="4" fill="#c0392b"/>
+<text x="697.2" y="183.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">73 %</text>
+<text x="697.2" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="697.2" y="448.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">8/11</text>
+<rect x="823.3" y="260.0" width="98.1" height="150.0" rx="4" fill="#c0392b"/>
+<text x="872.4" y="252.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="600">50 %</text>
+<text x="872.4" y="430.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">256k</text>
+<text x="872.4" y="448.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">1/2</text>
+</svg>

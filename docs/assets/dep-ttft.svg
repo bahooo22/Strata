@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="540" viewBox="0 0 1000 540">
+<rect x="0.0" y="0.0" width="1000.0" height="540.0" rx="0" fill="#f7f8fa"/>
+<desc>grid-hauhaucs-iq4xs-2026-11-10.jsonl:10 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:2 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:4 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:6 | grid-hauhaucs-iq4xs-2026-11-10.jsonl:8 | grid-hauhaucsiq4xs-2026-11-08.jsonl:11 | grid-hauhaucsiq4xs-2026-11-08.jsonl:14 | grid-hauhaucsiq4xs-2026-11-08.jsonl:17 | grid-hauhaucsiq4xs-2026-11-10.jsonl:11 | grid-hauhaucsiq4xs-2026-11-10.jsonl:8 | grid-heretic-q4km-2026-11-10.jsonl:10 | grid-heretic-q4km-2026-11-10.jsonl:2 | grid-heretic-q4km-2026-11-10.jsonl:4 | grid-heretic-q4km-2026-11-10.jsonl:6 | grid-heretic-q4km-2026-11-10.jsonl:8 | grid-hereticq4km-2026-11-10.jsonl:17 | grid-hereticq4km-2026-11-10.jsonl:20 | grid-hereticq4km-2026-11-10.jsonl:23 | grid-hereticq4km-2026-11-10.jsonl:26 | grid-hereticq4km-2026-11-10.jsonl:29 | grid-ud-iq3s-2026-11-10.jsonl:1 | grid-ud-iq3s-2026-11-10.jsonl:2 | grid-ud-iq3s-2026-11-10.jsonl:3 | grid-ud-iq3s-2026-11-10.jsonl:4</desc>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#1c2733" text-anchor="start" font-weight="600">Wall clock and time to first token by window</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7684" text-anchor="start" font-weight="400">Solid bars: measured wall of the whole request. Hollow outline: TTFT computed as prompt tokens / pp — it is an estimate, not a stopwatch reading.</text>
+<rect x="28.0" y="74.0" width="944.0" height="0.0" rx="0" fill="#dfe3e8"/>
+<line x1="84.0" y1="450.0" x2="960.0" y2="450.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="454.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0 c</text>
+<line x1="84.0" y1="316.0" x2="960.0" y2="316.0" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="320.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">100 c</text>
+<line x1="84.0" y1="182.1" x2="960.0" y2="182.1" stroke="#dfe3e8" stroke-width="1"/>
+<text x="74.0" y="186.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">200 c</text>
+<line x1="84.0" y1="450.0" x2="960.0" y2="450.0" stroke="#1c2733" stroke-width="1.2"/>
+<rect x="99.0" y="222.9" width="66.6" height="227.1" rx="4" fill="#2f6fd0"/>
+<text x="132.3" y="214.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">169.5</text>
+<rect x="171.6" y="314.5" width="66.6" height="135.5" rx="4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<text x="204.9" y="306.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="600">101.1</text>
+<text x="171.6" y="470.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<rect x="274.2" y="218.1" width="66.6" height="231.9" rx="4" fill="#2f6fd0"/>
+<text x="307.5" y="210.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">173.1</text>
+<rect x="346.8" y="286.1" width="66.6" height="163.9" rx="4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<text x="380.1" y="278.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="600">122.3</text>
+<text x="346.8" y="470.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<rect x="449.4" y="201.0" width="66.6" height="249.0" rx="4" fill="#2f6fd0"/>
+<text x="482.7" y="193.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">185.9</text>
+<rect x="522.0" y="262.9" width="66.6" height="187.1" rx="4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<text x="555.3" y="254.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="600">139.6</text>
+<text x="522.0" y="470.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<rect x="624.6" y="150.9" width="66.6" height="299.1" rx="4" fill="#2f6fd0"/>
+<text x="657.9" y="142.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">223.3</text>
+<rect x="697.2" y="177.3" width="66.6" height="272.7" rx="4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<text x="730.5" y="169.3" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="600">203.6</text>
+<text x="697.2" y="470.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<rect x="799.8" y="110.0" width="66.6" height="340.0" rx="4" fill="#2f6fd0"/>
+<text x="833.1" y="102.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#1c2733" text-anchor="middle" font-weight="600">253.8</text>
+<rect x="872.4" y="124.8" width="66.6" height="325.2" rx="4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<text x="905.7" y="116.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#2e8b57" text-anchor="middle" font-weight="600">242.8</text>
+<text x="872.4" y="470.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<text x="92.0" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#2f6fd0" text-anchor="start" font-weight="600">стена (мерёная)</text>
+<text x="274.0" y="96.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#2e8b57" text-anchor="start" font-weight="600">TTFT (расчётный)</text>
+</svg>
