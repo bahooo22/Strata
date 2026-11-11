@@ -74,6 +74,17 @@ function Quote-Arg([string]$a) {
     return $a
 }
 
+function Invoke-Kit([string[]]$kitArgs) {
+    # Отдельная область с ErrorActionPreference=Continue: под Stop чужая stderr-строка
+    # (ОТКАЗ detect.py, [FAIL] recommend.py) превращалась в terminating NativeCommandError,
+    # прогон обрывался с rc=1 вместо обещанных в шапке 2, а причина тонула в CategoryInfo-шуме.
+    $ErrorActionPreference = 'Continue'
+    $lines = & $py @kitArgs 2>&1
+    $code = $LASTEXITCODE
+    foreach ($line in $lines) { Write-Host ([string]$line) }
+    return $code
+}
+
 $kit = Resolve-Kit
 $binDir = Resolve-Bin
 $py = Find-Python
@@ -124,9 +135,9 @@ if ($FakeConfig) { $detectArgs = @((Quote-Arg (Join-Path $kit "detect.py")),
                                    "--fake-config", (Quote-Arg $FakeConfig),
                                    "--out", (Quote-Arg $cfgPath)) }
 Write-Host "== железо =="
-& $py @detectArgs 2>&1 | ForEach-Object { Write-Host $_ }
-if ($LASTEXITCODE -eq 2) { Fail "detect.py: конфигурация неполная (см. ОТКАЗ выше)" 2 }
-if ($LASTEXITCODE -eq 1) { Write-Host "  (detect дал предупреждения - они учтены в подборе)" }
+$drc = Invoke-Kit $detectArgs
+if ($drc -eq 2) { Fail "detect.py: конфигурация неполная (см. ОТКАЗ выше)" 2 }
+if ($drc -eq 1) { Write-Host "  (detect дал предупреждения - они учтены в подборе)" }
 if (-not (Test-Path -LiteralPath $cfgPath)) { Fail "detect.py не записал $cfgPath" 2 }
 
 # ---- 2. подбор: окно, движок, параметры, ссылка на модель
@@ -136,11 +147,15 @@ $common = @((Quote-Arg (Join-Path $kit "recommend.py")), "--gguf", (Quote-Arg $G
 if ($Window -gt 0) { $common += @("--window", "$Window") }
 Write-Host ""
 Write-Host "== подбор окна и параметров =="
-& $py @common 2>&1 | ForEach-Object { Write-Host $_ }
-$rc = $LASTEXITCODE
+$rc = Invoke-Kit $common
 if ($rc -eq 2) { Fail "подбор не состоялся (см. [FAIL] выше)" 2 }
 
+# Машинная копия подбора пишется при Continue: та же ловушка - чужая stderr-строка под Stop
+# обрывала бы прогон после уже успешного подбора.
+$eap = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 & $py @($common + @("--json")) 2>$null | Out-File -LiteralPath $recPath -Encoding UTF8
+$ErrorActionPreference = $eap
 if (-not (Test-Path -LiteralPath $recPath)) { Fail "не записан $recPath" 2 }
 try { $rec = Get-Content -LiteralPath $recPath -Raw | ConvertFrom-Json }
 catch { Fail "$recPath не разбирается как JSON: $_" 2 }
