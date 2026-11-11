@@ -46,22 +46,24 @@ from classify import BASE, classify   # noqa: E402
 
 MIB = 1024 ** 2
 KV_TYPE = "q4_0"          # измеренный рабочий тип KV на всех пяти окнах
-LADDER = (65536, 81920, 98304, 131072, 163840)
+LADDER = (65536, 81920, 98304, 131072, 163840, 229376)
 
 # --- правила по окнам: значения взяты из профилей стенда, первичник в src ---
 # Страта. chunk/prefill/kv/mtp одинаковы во всех профилях рабочей сетки; различаются
 # att-mb и vram-reserve-mib, и именно они определяют, какое окно ещё влезает.
 STRATA_RULES = [
-    {"window": 65536, "att_mb": 256, "reserve_mib": 768, "super_chunk": 4, "mtp": 0,
-     "src": "harness/config/strata-hauhaucs-iq4xs-64k.json"},
-    {"window": 81920, "att_mb": 256, "reserve_mib": 768, "super_chunk": 4, "mtp": 0,
-     "src": "harness/config/strata-hauhaucs-iq4xs-80k.json"},
-    {"window": 98304, "att_mb": 256, "reserve_mib": 768, "super_chunk": 4, "mtp": 0,
-     "src": "harness/config/strata-hauhaucs-iq4xs-96k.json"},
-    {"window": 131072, "att_mb": 256, "reserve_mib": 1024, "super_chunk": 4, "mtp": 0,
-     "src": "harness/config/strata-hauhaucs-iq4xs-128k.json"},
-    {"window": 163840, "att_mb": 256, "reserve_mib": 1024, "super_chunk": 4, "mtp": 0,
-     "src": "harness/config/strata-heretic-q4km-160k.json"},
+    {"window": 65536, "att_mb": 256, "reserve_mib": 512, "super_chunk": 8, "mtp": 0,
+     "src": "harness/config/strata-coder-64k.json"},
+    {"window": 81920, "att_mb": 256, "reserve_mib": 512, "super_chunk": 8, "mtp": 0,
+     "src": "harness/config/strata-coder-80k.json"},
+    {"window": 98304, "att_mb": 256, "reserve_mib": 512, "super_chunk": 8, "mtp": 0,
+     "src": "harness/config/strata-coder-96k.json"},
+    {"window": 131072, "att_mb": 256, "reserve_mib": 512, "super_chunk": 4, "mtp": 0,
+     "src": "harness/config/strata-coder-128k.json"},
+    {"window": 163840, "att_mb": 512, "reserve_mib": 512, "super_chunk": 4, "mtp": 0,
+     "src": "harness/config/strata-coder-160k.json"},
+    {"window": 229376, "att_mb": 256, "reserve_mib": 512, "super_chunk": 8, "mtp": 0,
+     "src": "harness/config/strata-coder-224k.json"},
 ]
 STRATA_FIXED = {"chunk": 128, "batch": 1, "prefill": 2048, "kv_type": KV_TYPE,
                 "draft_vocab": 8192, "fa_layer": "all",
@@ -573,7 +575,7 @@ def selftest(models_path: pathlib.Path | None = None) -> int:
     check("основание ответа - замер, а не формула", res["basis"], "measured")
     check("ссылка на загрузку отдана", res["model_link"]["gguf"], "model.gguf")
     check("сумма слагаемых меньше видеопамяти", res["fit"]["total_mib"] < BASE["vram_mib"], True)
-    check("потолок лесенки - 160k, больше не обещаем", res["window"], max(LADDER))
+    check("потолок лесенки - 224k, больше не обещаем", res["window"], max(LADDER))
 
     more = recommend(fake_geom(), {"gpu": {"name": "RTX 5080", "vram_mib": 16303, "cc": "120"},
                                    "cpu": {"physical": 16}, "ram": {"total_gib": 95.7}},
