@@ -2899,11 +2899,15 @@ class StrataEngine:
                     raise ValueError(line[4:].strip())
         finally:
             if not done:                                  # the consumer stopped early: stop the engine, drain to DONE
-                if self.can_stop:
+                # the engine can be ended or restarted on another thread meanwhile: Engine.close() closes stdin (a
+                # write then raises ValueError) before it clears `proc` (None then) - the STOP has nobody to reach, and
+                # the request's own outcome must not be replaced by that error
+                proc = self.proc
+                if self.can_stop and proc is not None:
                     try:
-                        self.proc.stdin.write(stop_line)
-                        self.proc.stdin.flush()
-                    except OSError:
+                        proc.stdin.write(stop_line)
+                        proc.stdin.flush()
+                    except (OSError, ValueError):
                         pass
                 # #481: never an untimed wait here - it holds the request FIFO, and an engine that lost step never
                 # answers.  An engine that honours STOP gets the current allowance in all (a STOP during a prompt
@@ -3896,6 +3900,20 @@ def drafting_vram_mib(cfg: dict, backend: str | None, archs) -> float | None:
         return None
 
 
+def own_path_context_warning(cfg: dict, args: list, vram_mib: float | None) -> str | None:
+    """The sentence for a Qwen3.6 start whose --max-context does not fit its one card (strata_control/own_path_fit.py, the rule setup's menu
+    uses); None for any other model, a context that fits, or a card that is not known.  Nothing about the start changes."""
+    try:
+        from strata_control import own_path_fit
+        fit = own_path_fit.from_model_name(cfg.get("model_name"))
+        if not fit or not vram_mib or "--max-context" not in args:
+            return None
+        ctx = int(args[args.index("--max-context") + 1])
+        return own_path_fit.warning(fit, float(vram_mib) / 1024, ctx, own_path_fit.MENU)
+    except Exception:                                        # noqa: BLE001 - an estimate that fails says nothing; the engine still says what does not fit
+        return None
+
+
 def mtp_retry_args(cfg: dict, exe: str | None, extra: list[str] | None = None) -> list[str] | None:
     """The arguments to start again with when an Auto start that picked DFlash2 ends before the engine is ready: the same start with the MTP (or no drafter, when
     the MTP layer is not on this computer). None when there is nothing to retry: the person named DFlash2 themselves (that start fails with its reason, as it
@@ -3970,6 +3988,10 @@ def engine_args(cfg: dict, exe: str | None = None, *, announce: bool = True) -> 
         fit_parallel, fit_note = None, ""
     if fit_note and announce:                                # (announce=False builds the arguments without any line)
         print(f"[strata] {fit_note}", flush=True)
+    if announce:                                             # #5715: Qwen3.6 with a context its card cannot hold: said before the start, nothing changed
+        too_big = own_path_context_warning(cfg, args, drafting_vram_mib(cfg, backend, archs))
+        if too_big:
+            print(f"[strata] {too_big}", flush=True)
     if fit_parallel is not None:
         cfg = {**cfg, "parallel": fit_parallel}
     # "mtp": false (the Models settings, `strata launch --mtp off`, or by hand): no draft layer, whatever the args say.  A setup run
@@ -4299,16 +4321,15 @@ def ordered_gpus(cfg: dict, scores=None, vrams=None, archs=None) -> list[int]:
     sc = scores if scores is not None else (hip_speed_scores(gl) if hip else gpu_speed_scores(gl))
     if not sc or any(i not in sc for i in gl):
         return gl
-    if max(sc[i] for i in gl) < 1.05 * min(sc[i] for i in gl):
-        return gl     # #1760: cards within 5% of each other are the same card (two 5070 Ti read 1.2% apart on the clock): keep the order
-    out = sorted(gl, key=lambda i: sc[i])
-    if out != gl:
-        vram = vrams if vrams is not None else (None if scores is not None else gpu_vram_mib(gl, hip))
-        if vram is not None and all(i in vram for i in gl) and vram[out[-1]] < vram[gl[-1]]:
-            print(f"[strata] layer split: keeping card order {','.join(map(str, gl))} - the faster card has "
-                  f"less VRAM than the one the split ends on ({vram[out[-1]]} vs {vram[gl[-1]]} MiB, #1576)",
-                  flush=True)
-            return gl
+    # the decision itself (5% rule #1760, faster card last #1352, VRAM guard #1576) is strata_control/gpu_roles.speed_stage_order, which `strata launch --plan`
+    # calls too (gpu_roles.from_legacy), so the plan names the same Main card as this start
+    out, why, seen = gpu_roles.speed_stage_order(
+        gl, sc, vrams if vrams is not None else (None if scores is not None else (lambda: gpu_vram_mib(gl, hip))))
+    if why == "kept-vram":
+        print(f"[strata] layer split: keeping card order {','.join(map(str, gl))} - the faster card has "
+              f"less VRAM than the one the split ends on ({seen[0]} vs {seen[1]} MiB, #1576)",
+              flush=True)
+    elif why == "faster-last":
         print(f"[strata] layer split: card order {','.join(map(str, out))} (the faster card last; "
               f'"gpu_order": "as_given" keeps {",".join(map(str, gl))}, #1352)', flush=True)
     return out
