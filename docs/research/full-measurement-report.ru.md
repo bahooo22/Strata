@@ -428,7 +428,12 @@ x24,5 × x1,80 как «ускорение фикса» в этом докуме
 
 Кроме двенадцати новых, отчёт опирается на две прежние диаграммы витрины:
 [models-windows.svg](../assets/models-windows.svg) — модели по окнам, и
-[quant-compare.svg](../assets/quant-compare.svg) — сравнение квантов на 96k и 128k. Каждая их клетка
+[quant-compare.svg](../assets/quant-compare.svg) — сравнение квантов на 96k и 128k. К тому же ряду
+относятся ещё четыре прежние диаграммы: [evolution-pp.svg](../assets/evolution-pp.svg) — эволюция
+`pp` по шагам, [evolution-q3.svg](../assets/evolution-q3.svg) — ось q3 (код и профиль),
+[progress-96k.svg](../assets/progress-96k.svg) — прогресс на 96k и
+[windows-vram.svg](../assets/windows-vram.svg) — занятая VRAM по окнам. Все 19 диаграмм витрины
+проходят единый XML-гейт. Каждая их клетка
 несёт якорь на строку и колонку первичника; мерка `glm\scripts\chart_cell_anchors_2026-11-11.py`
 подтверждает 39 клеток по числу, модели и окну и краснеет на подмене числа или на чужом окне
 (самопроверка 5/5). Клетка heretic Q5_K_S 128k исправлена: tg 16.4 вместо 17.8, которое было снято
