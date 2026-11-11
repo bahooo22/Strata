@@ -21,7 +21,14 @@ if not exist "%PS%" (
   pause
   exit /b 2
 )
-"%PS%" -NoProfile -ExecutionPolicy Bypass -File "%~dp0start.ps1" %*
+set "PS1=%~dp0start.ps1"
+if not exist "%PS1%" set "PS1=%~dp0kit\start.ps1"
+if not exist "%PS1%" (
+  echo [FAIL] start.ps1 not found next to START.bat or in kit\
+  pause
+  exit /b 2
+)
+"%PS%" -NoProfile -ExecutionPolicy Bypass -File "%PS1%" %*
 set "RC=%ERRORLEVEL%"
 echo.
 echo (kit finished with code %RC%)
