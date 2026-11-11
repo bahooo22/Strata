@@ -67,7 +67,7 @@ RAM locked to the driver so expert weights reach the card directly; the CPU pool
 
 ### `super-chunk` (N=1/4/8)
 
-The prompt is read in chapters; at N=4 a layer loads its experts every few chapters, sparing PCIe.
+The prompt is read in chapters; at N=4 a layer loads its experts every few chapters, sparing PCIe. N=8 comes with two verdicts: rejected on main 08.11 (+1.5 % against the 4 % gate), taken on kit-all 11.11 at 64k/80k/96k/224k, while 128k and 160k have no paired measurement.
 
 **Fake when:** N=4 against N=1 is called "the engine got faster" though only a profile switched; "bit-exact" holds inside one N.
 
@@ -258,8 +258,12 @@ The product of the two axes is not published in this report: x24.5 is code, x1.8
 
 - **super-chunk N=4.** At 96k the grid profile uses chunk merging; in the profile the MoE phase shrank
   from 49,518.9 ms to 23,336.6 ms (−52.9 %), attention did not change (61,372.3 → 60,958.8)
-  (`docs/research/super-chunk.ru.md:85`). N=8 was tried and rejected: +1.5 % against a 4 % gate
-  (`harness/reports/profiles.md:353`).
+  (`docs/research/super-chunk.ru.md:85`). N=8 has two slices: on main 08.11 it gives 1328.9 against
+  the 1308.9 control, i.e. +1.5 % against the 4 % gate, which is a no-go
+  (`harness/reports/profiles.md:353`); on kit-all 11.11 pairs inside one step give +14.1 % at 64k,
+  +13.7 % at 80k, +12.3 % at 96k and +10.7 % at 224k pp, and N=8 is taken for those four windows
+  (`docs/measurements/grid-2026-11-11.en.md:195`). At 128k and 160k N=4 is an unchosen option,
+  not a measured minus.
 - **Flash attention.** Tile 4x32 on fp16 KV: 1341.1 tok/s against the 1019.1 control without FA on the
   same 86,589-token prompt (`docs/research/fa1-status-2026-11-05.md:124`). The 8x16 tile with
   `kPad=0` gave 741.5 against 1311.8
@@ -333,7 +337,7 @@ closed), `ud-iq3s-*` and `heretic-q4km-*` on the grid models.
 | -ub 1024 (llama) | a small physical batch as a way to hold VRAM | 532.17 pp / 20.26 tg / 7892 MiB at 96k with ncmoe 30 | no-go: pp below 858 and VRAM did not drop | docs/measurements/vram-audit-ncmoe-2026-11-09.md:52 |
 | -nkvo (llama) | move the V cache to system RAM to free VRAM for experts | 691.11 pp / 5.16 tg / 6368 MiB at 96k | no-go: VRAM was freed, tg dropped fourfold | docs/measurements/vram-audit-ncmoe-2026-11-09.md:53 |
 | --ctx-checkpoints 0 (llama) | disable context checkpoints to drop their overhead | 848.98 pp / 20.32 tg against the 843.41/19.81 control | no effect: the difference is within noise | docs/measurements/vram-audit-ncmoe-2026-11-09.md:54 |
-| super-chunk N=8 | raise the fused prefill chunk count from 4 to 8 | median 1328.9 against 1308.9 = +1.5 % over 6 repeats | no-go: below the 4 % gate, tg under control in five of six repeats | docs/measurements/grid-2026-11-08.en.md:304 |
+| super-chunk N=8 | raise the fused prefill chunk count from 4 to 8 | main 08.11: median 1328.9 against the 1308.9 control = +1.5 % over 6 repeats; kit-all 11.11: pairs inside one step give +14.1 % (64k), +13.7 % (80k), +12.3 % (96k), +10.7 % (224k) pp | no-go on main 08.11 (under the 4 % gate, tg under control in five of six repeats); taken on kit-all 11.11 for those four windows, decode regresses only at 80k; for 128k/160k N=4 is an unchosen option, not a paired measurement | docs/measurements/grid-2026-11-11.en.md:195 |
 | FA tile 8x16 with kPad = 0 | shrink the attention tile to fit 2 blocks per SM | 741.5 pp / 15.5 tg against 1311.8 / 16.0 for the 4x32 control | no-go: -43.5 % pp | docs/research/rejected-levers.md:29 |
 
 The rows about `-ub`, `-nkvo` and `--ctx-checkpoints` belong to the llama fork and stay here because
