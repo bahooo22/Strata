@@ -1790,7 +1790,12 @@ struct Engine {
             }
             if (n_sess == 1) {   // #5715: one session whose context cannot fit, said in words before the allocation fails
                 const size_t shared_tok = (size_t) g.n_head_kv * g.head_dim * 2 * 2;   // the fp16 K / V copy (k16 / v16 above)
-                const size_t kv_tok = (size_t) (g.n_head_kv * g.head_dim * 2 * 4) * n_attn;
+                const size_t kv_tok_f32 = (size_t) (g.n_head_kv * g.head_dim * 2 * 4) * n_attn;
+                // alloc_session gives a quantized cache kv_block_bytes per 32 values, so the fp32 figure is only the size of the
+                // K / V at KV_F32: at q4_0 it asks for seven times the cache the start really takes and refuses a context that
+                // allocates with room to spare.
+                const size_t kv_tok = kv_type == KV_F32 ? kv_tok_f32
+                                      : (size_t) g.n_head_kv * g.head_dim * 2 / 32 * kv_block_bytes(kv_type) * n_attn;
                 const size_t ne = (size_t) g.n_expert;
                 size_t total_main = 0, max_layer = 0, packed = 0;
                 for (const Layer& L : m->layers) {
@@ -1800,7 +1805,7 @@ struct Engine {
                 if (m->has_mtp) max_layer = std::max(max_layer, m->mtp.stride * ne);
                 for (const auto& pk : m->packed) packed += std::get<2>(pk);
                 const strata::qwen35::OneSessionFit f = strata::qwen35::one_session_fit(
-                    {(size_t) ctx, kv_tok, shared_tok, per - kv_tok * (size_t) ctx, fr0, total_main, packed,
+                    {(size_t) ctx, kv_tok, shared_tok, per - kv_tok_f32 * (size_t) ctx, fr0, total_main, packed,
                      kAttScoreFloats > ((size_t) 16 << 20) ? (kAttScoreFloats - ((size_t) 16 << 20)) * 6 : 0,
                      use_mmq ? 2 * (max_layer + kMmqTail) : 0, T * Kp * N * 4 + T * Kp * 4});
                 if (f.refuse) {   // the old ending: the bare cudaMalloc line in alloc_session, or the hybrid buffers' text in place_experts
