@@ -154,9 +154,20 @@ if ($rc -eq 2) { Fail "подбор не состоялся (см. [FAIL] выш
 # обрывала бы прогон после уже успешного подбора.
 $eap = $ErrorActionPreference
 $ErrorActionPreference = 'Continue'
-& $py @($common + @("--json")) 2>$null | Out-File -LiteralPath $recPath -Encoding UTF8
+# stderr в файл, а не в $null: Out-File создаёт и обнуляет $recPath до первой строки вывода,
+# поэтому упавший Python оставлял нулевой файл, а следующий за ним отказ читался как «в подборе
+# нет строки запуска» - ложная причина при настоящей причине, утопленной в $null.
+$recErr = Join-Path $run "recommend.err.log"
+& $py @($common + @("--json")) 2> $recErr | Out-File -LiteralPath $recPath -Encoding UTF8
+$jsrc = $LASTEXITCODE
 $ErrorActionPreference = $eap
 if (-not (Test-Path -LiteralPath $recPath)) { Fail "не записан $recPath" 2 }
+if ((Get-Item -LiteralPath $recPath).Length -eq 0) {
+    $why = ''
+    if (Test-Path -LiteralPath $recErr) { $why = ((Get-Content -LiteralPath $recErr | Select-Object -Last 3) -join ' / ') }
+    if (-not $why) { $why = "stderr пуст" }
+    Fail "recommend.py --json не напечатал ничего (rc=$jsrc): $why" 2
+}
 try { $rec = Get-Content -LiteralPath $recPath -Raw | ConvertFrom-Json }
 catch { Fail "$recPath не разбирается как JSON: $_" 2 }
 if (-not $rec.launch -or -not $rec.launch.args) { Fail "в подборе нет строки запуска" 2 }
