@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<rect x="0.0" y="0.0" width="1000.0" height="560.0" rx="0" fill="#f7f8fa"/>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" fill="#1c2733" text-anchor="start" font-weight="600">Fork evolution: prompt processing by context window</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">RTX 3060 Ti 8 GB, master.txt prompt, 256 response tokens, greedy. Higher is better; a missing point is drawn as a gap, never as zero.</text>
+<line x1="84.0" y1="470.0" x2="960.0" y2="470.0" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="474.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">0</text>
+<line x1="84.0" y1="420.1" x2="960.0" y2="420.1" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="424.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">200</text>
+<line x1="84.0" y1="370.2" x2="960.0" y2="370.2" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="374.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">400</text>
+<line x1="84.0" y1="320.4" x2="960.0" y2="320.4" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="324.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">600</text>
+<line x1="84.0" y1="270.5" x2="960.0" y2="270.5" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="274.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">800</text>
+<line x1="84.0" y1="220.6" x2="960.0" y2="220.6" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="224.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1000</text>
+<line x1="84.0" y1="170.7" x2="960.0" y2="170.7" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="174.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1200</text>
+<line x1="84.0" y1="120.9" x2="960.0" y2="120.9" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="124.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1400</text>
+<line x1="84.0" y1="71.0" x2="960.0" y2="71.0" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="75.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1600</text>
+<line x1="84.0" y1="21.1" x2="960.0" y2="21.1" stroke="#dfe3e8" stroke-width="2"/>
+<text x="74.0" y="25.1" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7684" text-anchor="end" font-weight="400">1800</text>
+<line x1="84.0" y1="470.0" x2="960.0" y2="470.0" stroke="#1c2733" stroke-width="1.2"/>
+<text x="84.0" y="492.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="400">64k</text>
+<text x="303.0" y="492.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="400">80k</text>
+<text x="522.0" y="492.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="400">96k</text>
+<text x="741.0" y="492.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="400">128k</text>
+<text x="960.0" y="492.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#1c2733" text-anchor="middle" font-weight="400">160k</text>
+<line x1="84.0" y1="160.7" x2="303.0" y2="182.2" stroke="#2f6fd0" stroke-width="2.2"/>
+<line x1="303.0" y1="182.2" x2="522.0" y2="195.7" stroke="#2f6fd0" stroke-width="2.2"/>
+<line x1="522.0" y1="195.7" x2="741.0" y2="234.3" stroke="#2f6fd0" stroke-width="2.2"/>
+<line x1="741.0" y1="234.3" x2="960.0" y2="253.1" stroke="#2f6fd0" stroke-width="2.2"/>
+<circle cx="84.0" cy="160.7" r="3.6" fill="#2f6fd0"/>
+<circle cx="303.0" cy="182.2" r="3.6" fill="#2f6fd0"/>
+<circle cx="522.0" cy="195.7" r="3.6" fill="#2f6fd0"/>
+<circle cx="741.0" cy="234.3" r="3.6" fill="#2f6fd0"/>
+<circle cx="960.0" cy="253.1" r="3.6" fill="#2f6fd0"/>
+<text x="92.0" y="82.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#2f6fd0" text-anchor="start" font-weight="600">Страта форка, UD-IQ3_S (q3)</text>
+<line x1="84.0" y1="136.1" x2="303.0" y2="164.5" stroke="#2e8b57" stroke-width="2.2"/>
+<line x1="303.0" y1="164.5" x2="522.0" y2="176.2" stroke="#2e8b57" stroke-width="2.2"/>
+<line x1="522.0" y1="176.2" x2="741.0" y2="219.4" stroke="#2e8b57" stroke-width="2.2"/>
+<line x1="741.0" y1="219.4" x2="960.0" y2="242.1" stroke="#2e8b57" stroke-width="2.2"/>
+<circle cx="84.0" cy="136.1" r="3.6" fill="#2e8b57"/>
+<circle cx="303.0" cy="164.5" r="3.6" fill="#2e8b57"/>
+<circle cx="522.0" cy="176.2" r="3.6" fill="#2e8b57"/>
+<circle cx="741.0" cy="219.4" r="3.6" fill="#2e8b57"/>
+<circle cx="960.0" cy="242.1" r="3.6" fill="#2e8b57"/>
+<text x="92.0" y="100.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#2e8b57" text-anchor="start" font-weight="600">Страта форка, heretic Q4_K_M (q4)</text>
+<line x1="84.0" y1="96.0" x2="303.0" y2="197.5" stroke="#c0392b" stroke-width="2.2"/>
+<line x1="303.0" y1="197.5" x2="522.0" y2="144.9" stroke="#c0392b" stroke-width="2.2"/>
+<line x1="522.0" y1="144.9" x2="741.0" y2="243.9" stroke="#c0392b" stroke-width="2.2"/>
+<line x1="741.0" y1="243.9" x2="960.0" y2="224.2" stroke="#c0392b" stroke-width="2.2"/>
+<circle cx="84.0" cy="96.0" r="3.6" fill="#c0392b"/>
+<circle cx="303.0" cy="197.5" r="3.6" fill="#c0392b"/>
+<circle cx="522.0" cy="144.9" r="3.6" fill="#c0392b"/>
+<circle cx="741.0" cy="243.9" r="3.6" fill="#c0392b"/>
+<circle cx="960.0" cy="224.2" r="3.6" fill="#c0392b"/>
+<text x="92.0" y="118.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#c0392b" text-anchor="start" font-weight="600">Страта форка, HauhauCS IQ4_XS (эталон)</text>
+<line x1="84.0" y1="192.2" x2="303.0" y2="199.8" stroke="#d68910" stroke-width="2.2"/>
+<line x1="303.0" y1="199.8" x2="522.0" y2="207.5" stroke="#d68910" stroke-width="2.2"/>
+<line x1="522.0" y1="207.5" x2="741.0" y2="227.3" stroke="#d68910" stroke-width="2.2"/>
+<line x1="741.0" y1="227.3" x2="960.0" y2="236.1" stroke="#d68910" stroke-width="2.2"/>
+<circle cx="84.0" cy="192.2" r="3.6" fill="#d68910"/>
+<circle cx="303.0" cy="199.8" r="3.6" fill="#d68910"/>
+<circle cx="522.0" cy="207.5" r="3.6" fill="#d68910"/>
+<circle cx="741.0" cy="227.3" r="3.6" fill="#d68910"/>
+<circle cx="960.0" cy="236.1" r="3.6" fill="#d68910"/>
+<text x="92.0" y="136.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#d68910" text-anchor="start" font-weight="600">llama форка, UD-IQ3_S (q3)</text>
+<line x1="84.0" y1="250.8" x2="303.0" y2="257.1" stroke="#7d3c98" stroke-width="2.2"/>
+<line x1="303.0" y1="257.1" x2="522.0" y2="259.2" stroke="#7d3c98" stroke-width="2.2"/>
+<line x1="522.0" y1="259.2" x2="741.0" y2="272.3" stroke="#7d3c98" stroke-width="2.2"/>
+<line x1="741.0" y1="272.3" x2="960.0" y2="278.9" stroke="#7d3c98" stroke-width="2.2"/>
+<circle cx="84.0" cy="250.8" r="3.6" fill="#7d3c98"/>
+<circle cx="303.0" cy="257.1" r="3.6" fill="#7d3c98"/>
+<circle cx="522.0" cy="259.2" r="3.6" fill="#7d3c98"/>
+<circle cx="741.0" cy="272.3" r="3.6" fill="#7d3c98"/>
+<circle cx="960.0" cy="278.9" r="3.6" fill="#7d3c98"/>
+<text x="92.0" y="154.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#7d3c98" text-anchor="start" font-weight="600">llama форка, heretic Q4_K_M (q4)</text>
+<line x1="84.0" y1="226.7" x2="303.0" y2="236.4" stroke="#16a085" stroke-width="2.2"/>
+<line x1="303.0" y1="236.4" x2="522.0" y2="243.3" stroke="#16a085" stroke-width="2.2"/>
+<line x1="522.0" y1="243.3" x2="741.0" y2="256.8" stroke="#16a085" stroke-width="2.2"/>
+<line x1="741.0" y1="256.8" x2="960.0" y2="263.0" stroke="#16a085" stroke-width="2.2"/>
+<circle cx="84.0" cy="226.7" r="3.6" fill="#16a085"/>
+<circle cx="303.0" cy="236.4" r="3.6" fill="#16a085"/>
+<circle cx="522.0" cy="243.3" r="3.6" fill="#16a085"/>
+<circle cx="741.0" cy="256.8" r="3.6" fill="#16a085"/>
+<circle cx="960.0" cy="263.0" r="3.6" fill="#16a085"/>
+<text x="92.0" y="172.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#16a085" text-anchor="start" font-weight="600">llama форка, HauhauCS IQ4_XS</text>
+<line x1="84.0" y1="310.6" x2="303.0" y2="312.3" stroke="#95a5a6" stroke-width="2.2"/>
+<line x1="303.0" y1="312.3" x2="522.0" y2="315.4" stroke="#95a5a6" stroke-width="2.2"/>
+<line x1="522.0" y1="315.4" x2="741.0" y2="320.8" stroke="#95a5a6" stroke-width="2.2"/>
+<line x1="741.0" y1="320.8" x2="960.0" y2="326.9" stroke="#95a5a6" stroke-width="2.2"/>
+<circle cx="84.0" cy="310.6" r="3.6" fill="#95a5a6"/>
+<circle cx="303.0" cy="312.3" r="3.6" fill="#95a5a6"/>
+<circle cx="522.0" cy="315.4" r="3.6" fill="#95a5a6"/>
+<circle cx="741.0" cy="320.8" r="3.6" fill="#95a5a6"/>
+<circle cx="960.0" cy="326.9" r="3.6" fill="#95a5a6"/>
+<text x="92.0" y="190.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#95a5a6" text-anchor="start" font-weight="600">llama сток (3cf03257), KAT IQ4_XS</text>
+<text x="92.0" y="208.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#34495e" text-anchor="start" font-weight="600">Страта сток (146df3c4), KAT Q5_K_S, fp32 KV</text>
+</svg>

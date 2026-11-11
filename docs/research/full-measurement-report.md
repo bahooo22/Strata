@@ -430,7 +430,12 @@ registry as the tables, and pass the same XML gate as the previous seven
 
 Besides the twelve new charts, the report relies on two earlier showcase charts:
 [models-windows.svg](../assets/models-windows.svg) — models across windows, and
-[quant-compare.svg](../assets/quant-compare.svg) — the quant comparison at 96k and 128k. Every cell
+[quant-compare.svg](../assets/quant-compare.svg) — the quant comparison at 96k and 128k. Four more
+earlier showcase charts belong to the same row: [evolution-pp.svg](../assets/evolution-pp.svg) —
+`pp` evolution by step, [evolution-q3.svg](../assets/evolution-q3.svg) — the q3 axis (code and
+profile), [progress-96k.svg](../assets/progress-96k.svg) — progress at 96k, and
+[windows-vram.svg](../assets/windows-vram.svg) — VRAM in use across windows. All 19 showcase charts
+pass the same XML gate. Every cell
 carries an anchor into a line and column of the primary source; the check
 `glm\scripts\chart_cell_anchors_2026-11-11.py` confirms 39 cells by number, model and window and turns
 red on a substituted number or a foreign window (self-test 5/5). The heretic Q5_K_S 128k cell is

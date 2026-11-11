@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="470" viewBox="0 0 1000 470">
+<rect x="0.0" y="0.0" width="1000.0" height="470.0" rx="0" fill="#f7f8fa"/>
+<text x="28.0" y="40.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" fill="#1c2733" text-anchor="start" font-weight="600">Q2_K-MMQ fix: UD-IQ3_S prompt speed before and after</text>
+<text x="28.0" y="66.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7684" text-anchor="start" font-weight="400">Pair bars: same profile, same prompt, only the expert-routing fix differs. Third bar (violet): the tuned-profile point that holds the grid cell.</text>
+<rect x="106.0" y="368.6" width="57.6" height="11.4" rx="4" fill="#95a5a6"/>
+<text x="134.8" y="360.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">50.7</text>
+<text x="134.8" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">before fix</text>
+<rect x="171.6" y="100.0" width="57.6" height="280.0" rx="4" fill="#2f6fd0"/>
+<text x="200.4" y="92.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">1240.3</text>
+<text x="200.4" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">after fix</text>
+<text x="171.6" y="70.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#2e8b57" text-anchor="middle" font-weight="700">fix x24.5</text>
+<text x="171.6" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">64k</text>
+<rect x="281.2" y="367.5" width="35.7" height="12.5" rx="4" fill="#95a5a6"/>
+<text x="299.1" y="359.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">55.3</text>
+<text x="299.1" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">before fix</text>
+<rect x="324.9" y="136.9" width="35.7" height="243.1" rx="4" fill="#2f6fd0"/>
+<text x="342.8" y="128.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">1076.8</text>
+<text x="342.8" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">after fix</text>
+<rect x="368.7" y="119.5" width="35.7" height="260.5" rx="4" fill="#7d3c98"/>
+<text x="386.5" y="111.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">1153.9</text>
+<text x="386.5" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">in grid</text>
+<text x="346.8" y="106.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#2e8b57" text-anchor="middle" font-weight="700">fix x19.5</text>
+<text x="395.9" y="89.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#7d3c98" text-anchor="middle" font-weight="700">profile x1.07</text>
+<text x="346.8" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">80k</text>
+<rect x="456.4" y="368.4" width="57.6" height="11.6" rx="4" fill="#95a5a6"/>
+<text x="485.2" y="360.4" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">51.2</text>
+<text x="485.2" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">before fix</text>
+<rect x="522.0" y="131.7" width="57.6" height="248.3" rx="4" fill="#2f6fd0"/>
+<text x="550.8" y="123.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">1099.8</text>
+<text x="550.8" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">after fix</text>
+<text x="522.0" y="101.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#2e8b57" text-anchor="middle" font-weight="700">fix x21.5</text>
+<text x="522.0" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">96k</text>
+<rect x="631.6" y="368.5" width="35.7" height="11.5" rx="4" fill="#95a5a6"/>
+<text x="649.5" y="360.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">51.0</text>
+<text x="649.5" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">before fix</text>
+<rect x="675.3" y="261.8" width="35.7" height="118.2" rx="4" fill="#2f6fd0"/>
+<text x="693.2" y="253.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">523.8</text>
+<text x="693.2" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">after fix</text>
+<rect x="719.1" y="166.6" width="35.7" height="213.4" rx="4" fill="#7d3c98"/>
+<text x="736.9" y="158.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">945.1</text>
+<text x="736.9" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">in grid</text>
+<text x="697.2" y="231.8" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#2e8b57" text-anchor="middle" font-weight="700">fix x10.3</text>
+<text x="746.3" y="136.6" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#7d3c98" text-anchor="middle" font-weight="700">profile x1.80</text>
+<text x="697.2" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">128k</text>
+<rect x="806.8" y="368.5" width="57.6" height="11.5" rx="4" fill="#95a5a6"/>
+<text x="835.6" y="360.5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">51.1</text>
+<text x="835.6" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">before fix</text>
+<rect x="872.4" y="183.7" width="57.6" height="196.3" rx="4" fill="#2f6fd0"/>
+<text x="901.2" y="175.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1c2733" text-anchor="middle" font-weight="600">869.7</text>
+<text x="901.2" y="398.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">after fix</text>
+<text x="872.4" y="153.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#2e8b57" text-anchor="middle" font-weight="700">fix x17.0</text>
+<text x="872.4" y="420.0" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1c2733" text-anchor="middle" font-weight="600">160k</text>
+<line x1="84.0" y1="380.0" x2="960.0" y2="380.0" stroke="#1c2733" stroke-width="1.2"/>
+</svg>
