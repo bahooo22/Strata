@@ -1,15 +1,13 @@
 {
  "version": 1,
  "generated": "2026-11-12",
- "measure": "ci_binary_markers2_2026-11-12.py (снимки 12.11 на стендовых сборках)",
+ "measure": "pm_registry_audit_2026-11-12.py + pm_attr_check_2026-11-12.py: имена взяты из «+»-строк наших диффов, отфильтрованы по отсутствию в базе апстрима и подтверждены побайтно в носителях комплекта",
  "note": "Бинарник доказуемо несёт два класса имён: строковые литералы (переменные среды, CLI-флаги, тексты) и имена CUDA-ядер из fatbin. Локальные имена функций и переменных компилятор не сохраняет, поэтому коммиты без такого следа в реестр не входят - их отсутствие здесь не значит, что патч не собран.",
  "engines": {
   "strata": {
    "upstream": "upstream/main",
-   "commits_ours": 72,
-   "candidates": 787,
-   "ours_unique": 589,
-   "markers": 23,
+   "commits_ours": 81,
+   "markers": 24,
    "commits_with_marker": 12,
    "carriers": [
     "strata-q36.exe",
@@ -17,6 +15,16 @@
    ],
    "carrier_note": "cubin-ядра Страты живут в strata-q36.exe и strata.exe",
    "list": [
+    {
+     "token": "k_fa_prefill",
+     "kind": "kernel",
+     "commit": "cc4da32c",
+     "subject": "q36: FA-пилот — prompt attention на mma.m16n8k16 (fp16 K/V)",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
     {
      "token": "k_kv_f16_kv",
      "kind": "kernel",
@@ -170,8 +178,8 @@
     {
      "token": "STRATA_Q36_ATT_MB",
      "kind": "literal",
-     "commit": "a00ab004",
-     "subject": "RU: q36: флаг --att-mb — размер attention-буфера без пересборки",
+     "commit": "efec68e7",
+     "subject": "RU: q36: размер attention-буфера — env-флаг STRATA_Q36_ATT_MB",
      "bins": [
       "strata-q36.exe",
       "strata.exe"
@@ -190,8 +198,8 @@
     {
      "token": "STRATA_Q36_FA_LAYER",
      "kind": "literal",
-     "commit": "0b200472",
-     "subject": "RU: packaging: портативный комплект detect/classify/recommend в истории",
+     "commit": "cc4da32c",
+     "subject": "q36: FA-пилот — prompt attention на mma.m16n8k16 (fp16 K/V)",
      "bins": [
       "strata-q36.exe",
       "strata.exe"
@@ -240,22 +248,21 @@
     {
      "token": "STRATA_Q36_SUPER_CHUNK",
      "kind": "literal",
-     "commit": "0b200472",
-     "subject": "RU: packaging: портативный комплект detect/classify/recommend в истории",
+     "commit": "36dddeb1",
+     "subject": "super-chunk: слой-мажорный обход промпта, эксперты слоя стейджатся один раз",
      "bins": [
       "strata-q36.exe",
       "strata.exe"
      ]
     }
-   ]
+   ],
+   "marker_rule": "маркер = ASCII-имя (переменная среды, флаг CLI, текст или имя cuda-ядра), которого нет в дереве базы апстрима и которое найдено побайтно в названных носителях; commit - самый старый наш коммит, изменивший число вхождений имени, то есть коммит, внедривший маркер"
   },
   "llama": {
    "upstream": "origin/master",
-   "commits_ours": 12,
-   "candidates": 8,
-   "ours_unique": 5,
+   "commits_ours": 14,
    "markers": 5,
-   "commits_with_marker": 4,
+   "commits_with_marker": 3,
    "carriers": [
     "ggml-base.dll",
     "ggml-cuda.dll",
@@ -276,8 +283,8 @@
     {
      "token": "GGML_CUDA_UPLOAD_STREAM",
      "kind": "literal",
-     "commit": "1c8daa768",
-     "subject": "ggml: keep the upload-stream test public and gate it by the CUDA env flag",
+     "commit": "62d89edc2",
+     "subject": "llama : upload expert copies on a separate stream with an event-lifetime fix",
      "bins": [
       "ggml-cuda.dll"
      ]
@@ -294,8 +301,8 @@
     {
      "token": "GGML_MOE_TRACE",
      "kind": "literal",
-     "commit": "8d3325728",
-     "subject": "llama: диагностика H2D и гистограмма экспертов в MoE",
+     "commit": "62d89edc2",
+     "subject": "llama : upload expert copies on a separate stream with an event-lifetime fix",
      "bins": [
       "llama.dll"
      ]
@@ -303,13 +310,14 @@
     {
      "token": "GGML_SCHED_COPIES",
      "kind": "literal",
-     "commit": "a418f346d",
-     "subject": "RU: llama-kit: перенесены n_copies планировщика и учёт закэшированных байт",
+     "commit": "62d89edc2",
+     "subject": "llama : upload expert copies on a separate stream with an event-lifetime fix",
      "bins": [
       "ggml-base.dll"
      ]
     }
-   ]
+   ],
+   "marker_rule": "маркер = ASCII-имя (переменная среды, флаг CLI, текст или имя cuda-ядра), которого нет в дереве базы апстрима и которое найдено побайтно в названных носителях; commit - самый старый наш коммит, изменивший число вхождений имени, то есть коммит, внедривший маркер"
   }
  }
 }

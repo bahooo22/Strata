@@ -196,12 +196,20 @@ file list caught it. The script self-check tests the merge of a second archive w
 checks.
 
 The marker gate is the one thing a green build cannot prove. The registry
-`packaging\kit\ci\patch-markers.json` was taken off real binaries on 12.11: 23 markers for Strata
-over two carriers (exe) and 5 for the llama leg over three (dll). The markers cover 12 of our 72
-Strata commits and 4 of 12 in the llama leg; edits that leave no readable name in a binary (a string
+`packaging\kit\ci\patch-markers.json` was taken off real binaries on 12.11: 24 markers for Strata
+over two carriers (exe) and 5 for the llama leg over three (dll). The markers cover 12 of our 81
+Strata commits and 3 of 14 in the llama leg; edits that leave no readable name in a binary (a string
 literal or a CUDA kernel name inside the fatbin) are invisible to the gate and are still checked by
 parity measurements on the bench. A lost marker is exit code 1 and a red run; an absent carrier is
 exit code 2, which reads as "the check did not happen".
+
+Two rules without which the registry lies are measured and recorded in the file itself. A marker
+name must be absent from the upstream base tree: finding `--cache-type-k` in an exe would prove
+nothing, since the stock build has that flag too. The `commit` field is the oldest of our commits
+that changed how often the name occurs, i.e. the one that introduced it. The previous match took the
+commit from a "the name occurs in this tree" sample and pulled attribution onto a later mention - for
+six markers it pointed at a packaging commit of 11.11 or at a neighbouring patch instead of the
+commit that coined the name.
 
 Actions does not measure anything that requires a GPU: serving a model and the per-architecture cost
 limit (`-SkipProbe`). The time limits rest on cold builds: the `build_kind` label in build-measure is

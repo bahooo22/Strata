@@ -30,8 +30,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Имена носителей в реестре регистронезависимы: на стенде exe лежит как strata-q36.exe, в CI
-# CMake ничего не меняет, но сравнение с учётом регистра снимает вопрос «а не из-за лилшы ли».
+# Маркер обязан быть ASCII: побайтный поиск по exe/dll не видит кириллицу (она живёт в UTF-16
+# секции #US), и не-ASCII маркер вечно светился бы красным при собранном патче.
 ASCII_ONLY = True
 
 
@@ -154,7 +154,8 @@ def main() -> int:
           f"{cov} из {eng['commits_with_marker']}")
     for m in missing:
         print(f"  ПРОПАЛ [{m['kind']}] {m['token']!r} (коммит {m['commit']}): "
-              f"искали в {', '.join(m['wanted'])}, нашли в {', '.join(m['hit']) or 'нигде'}")
+              f"искали в {', '.join(m['wanted'])}, "
+              + (f"нашли в {', '.join(m['hit'])}" if m["hit"] else "нет ни в одном носителе"))
 
     if a.out:
         measure = {
@@ -201,6 +202,16 @@ def selftest() -> int:
         ["strata-q36.exe", "strata.exe"])
     chk("носители llama - три dll", carriers(reg["engines"]["llama"]),
         ["ggml-base.dll", "ggml-cuda.dll", "llama.dll"])
+
+    # Цифры реестра обязаны следовать за списком маркеров: после синка апстрима файл иначе
+    # врёт молча - гейт печатает «покрыто 12 из 72», хотя наших коммитов уже 81.
+    for e_name, eng in reg["engines"].items():
+        chk(f"{e_name}: markers равен длине списка", eng.get("markers"), len(eng["list"]))
+        chk(f"{e_name}: commits_with_marker равен множеству commit списка",
+            eng.get("commits_with_marker"), len({m["commit"] for m in eng["list"]}))
+        chk(f"{e_name}: покрыто не больше, чем наших коммитов",
+            eng["commits_with_marker"] <= eng["commits_ours"], True)
+        chk(f"{e_name}: правило съёмки записано в реестре", bool(eng.get("marker_rule")), True)
 
     # Подложка: бинарник, в который вручную положены ВСЕ маркеры движка, обязан дать zero missing.
     tmp = Path(tempfile.mkdtemp(prefix="patch-markers-"))
@@ -273,8 +284,8 @@ def selftest() -> int:
 
     print(f"patch_markers selftest: ok={ok} bad={bad}")
     # Обрезанный или изменённый блок выглядел бы как «провалов нет»: порог проверок - часть меры.
-    if (ok + bad) < 14:
-        print("ИТОГ: проверок меньше 14 - мера не состоялась")
+    if (ok + bad) < 24:
+        print("ИТОГ: проверок меньше 24 - мера не состоялась")
         return 2
     return 1 if bad else 0
 
