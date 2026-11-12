@@ -1,0 +1,174 @@
+# =============================================================================
+# Portable-комплект, автоматика: сборка серверов Страты при пушах.
+# =============================================================================
+#
+# Что здесь проверяется и почему именно так:
+#   * входы сборки задаются только параметрами CI-скриптов (пути собираются из runner-
+#     переменных), поэтому прогон не знает ничего о стенде и не может «случайно» собрать
+#     то, что на стенде работает, а в Actions падает;
+#   * тулчейн CUDA собирается из redist-архивов NVIDIA с закреплением sha256 по каждому
+#     архиву: в образе windows-2022 CUDA отсутствует, а full-дистрибутив требует
+#     подтверждения лицензии и весит гигабайты больше;
+#   * гейт маркеров (patch_markers.py) обязателен: зелёная сборка НЕ доказывает, что в exe
+#     лежат наши патчи - Actions с тем же логом соберёт чистое дерево апстрима. Реестр
+#     маркеров сверяется с байтами носителей, и rc=1 означает «патч утрачен»;
+#   * на пуше собирается одна архитектура (86): -Arch влияет только на ширину codegen,
+#     списки -D-ключей, цели и линковки те же, что в комплекте, а время прогона падает
+#     примерно втрое. Полный набор 86;89;120 собирает kit-release.yml - он же и публикует
+#     ассет релиза.
+#
+# Что в Actions отсутствует по сравнению со стендом и потому не мерится: предельная цена
+# каждой архитектуры (-ProbeScript живёт в harness и время жрёт), запуск серверов
+# прогоном с моделью (GPU-раннеров нет). Оба пропуска печатаются явно.
+name: Kit build (Strata CUDA servers)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'packaging/kit/**'
+      - '.github/workflows/kit-build.yml'
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: >-
+          CUDA-архитектуры через ; (86 - быстрый контроль, 86;89;120 - как в комплекте)
+        required: false
+        default: '86'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CUDA_VERSION: '13.3.1'
+  # ggml-дерево, из которого Страта берёт K-quant template-instances: в vendored
+  # third_party/strata-ggml нет q2_k, и без -GgmlDir CMake падает на generate
+  # («Cannot find source file»), а в логе это неотличимо от поломки тулчейна.
+  GGML_REPO: 'bahooo22/llama.cpp'
+  GGML_PIN: '3cf03257f'
+
+jobs:
+  ci-gates:
+    name: "CI-скрипты: selftest без тулчейна и исходников"
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: strata
+          persist-credentials: false
+
+      - name: Контроли скриптов сборки, упаковки и тулчейна
+        shell: pwsh
+        run: |
+          $ci = "strata\packaging\kit\ci"
+          $bad = @()
+          foreach ($s in @('build_kit.ps1', 'pack_kit.ps1', 'install_cuda_redist.ps1')) {
+            & pwsh -NoProfile -NonInteractive -File "$ci\$s" -SelfTest
+            Write-Host "rc($s -SelfTest)=$LASTEXITCODE"
+            if ($LASTEXITCODE -ne 0) { $bad += $s }
+          }
+          if ($bad) { Write-Host "::error:selftest не прошёл: $($bad -join ', ')"; exit 1 }
+
+      - name: Реестр маркеров и формат-гейт zip
+        shell: bash
+        run: |
+          python strata/packaging/kit/ci/patch_markers.py --selftest; rc1=$?
+          bash strata/packaging/kit/ci/verify_zip.sh --selftest; rc2=$?
+          echo "rc(patch_markers --selftest)=$rc1 rc(verify_zip --selftest)=$rc2"
+          [ "$rc1" = 0 ] && [ "$rc2" = 0 ]
+
+  strata-cuda:
+    name: Сборка strata + strata-q36 под CUDA
+    runs-on: windows-2022
+    timeout-minutes: 180
+    env:
+      ARCH: ${{ github.event.inputs.arch || '86' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: strata
+
+      - name: ggml-дерево для K-quant template-instances
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GGML_REPO }}
+          ref: ${{ env.GGML_PIN }}
+          path: ggml-pin
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Кэш redist-архивов CUDA
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\cuda-dl
+          key: cuda-dl-${{ env.CUDA_VERSION }}-strata
+
+      - name: Тулчейн CUDA из redist-архивов
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $ci = Join-Path $ws 'strata\packaging\kit\ci'
+          & pwsh -NoProfile -NonInteractive -File $ci\install_cuda_redist.ps1 `
+              -Root (Join-Path $env:RUNNER_TEMP 'cuda') `
+              -CacheDir (Join-Path $env:RUNNER_TEMP 'cuda-dl') `
+              -CudaVersion $env:CUDA_VERSION
+          Write-Host "rc(install_cuda_redist)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: Сборка серверов Страты
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $ci = Join-Path $ws 'strata\packaging\kit\ci'
+          & pwsh -NoProfile -NonInteractive -File $ci\build_kit.ps1 `
+              -StrataSrc (Join-Path $ws 'strata') `
+              -GgmlDir (Join-Path $ws 'ggml-pin') `
+              -Cuda (Join-Path $env:RUNNER_TEMP 'cuda') `
+              -Out (Join-Path $env:RUNNER_TEMP 'kit') `
+              -Engines strata -Arch $env:ARCH -SkipProbe
+          Write-Host "rc(build_kit)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: Гейт «наши патчи в собранном exe»
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $bd = Join-Path $ws 'strata\build-kit'
+          python (Join-Path $ws 'strata\packaging\kit\ci\patch_markers.py') `
+              --engine strata `
+              --bin (Join-Path $bd 'strata-q36.exe') --bin (Join-Path $bd 'strata.exe') `
+              --out (Join-Path $env:RUNNER_TEMP 'kit\markers-strata.json')
+          Write-Host "rc(patch_markers)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: Меры и логи прогона
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kit-measures-strata-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}\kit\build-measure.partial.json
+            ${{ runner.temp }}\kit\elf-proof.partial.json
+            ${{ runner.temp }}\kit\markers-strata.json
+            ${{ runner.temp }}\kit\build-strata.log
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Бинарники серверов
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: strata-cuda-servers-${{ github.sha }}
+          path: |
+            strata\build-kit\strata-q36.exe
+            strata\build-kit\strata.exe
+          retention-days: 14
