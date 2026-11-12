@@ -382,18 +382,24 @@ if ($SelfTest) {
     $ErrorActionPreference = "Continue"
     $script:ok = 0; $script:bad = 0
     function Chk([string]$Name, $Got, $Want) {
-        # Дробные сравниваем как числа: в PowerShell 7.6 строковое представление целого Double
-        # зависит от того, как значение попало в сравнение. Литерал 3321.0 в позиции аргумента
-        # даёт «3321.0», а то же значение из переменной или из ConvertFrom-Json - «3321»
-        # (замер 12.11: [string]$Got = '3321', [string]$Want = '3321.0' при $Got -eq $Want = True),
-        # поэтому контроль на равных секундах краснел с текстом «получено 3321, ожидалось 3321».
-        $num = ($Got -is [double] -or $Got -is [single] -or $Got -is [decimal]) -and
-              ($Want -is [double] -or $Want -is [single] -or $Want -is [decimal])
-        $same = if ($num) { $Got -eq $Want } else { [string]$Got -eq [string]$Want }
+        # Дробные сравниваем как числа при ЛЮБЫХ типах. Проверка «оба значения [double]» не
+        # спасает: ConvertTo-Json пишет Double 3321.0 как «3321», и ConvertFrom-Json в Windows
+        # PowerShell 5.1 возвращает Int32, тогда как литерал аргумента остаётся Double. Смешение
+        # типов уходило в строковое сравнение '3321' против '3321.0' и контроль краснел с
+        # нечитаемым текстом «получено 3321, ожидалось 3321» (замер 12.11 на pwsh 7.6 - 105/105,
+        # на powershell 5.1 - 104/105). Разбор инвариантной культурой, чтобы ru-RU с запятой как
+        # десятичным разделителем не распался на «33210» и не сравнил несравнимое.
+        $gn = 0.0; $wn = 0.0
+        $inv = [System.Globalization.CultureInfo]::InvariantCulture
+        $num = [double]::TryParse([string]$Got, [System.Globalization.NumberStyles]::Float, $inv, [ref]$gn) -and
+               [double]::TryParse([string]$Want, [System.Globalization.NumberStyles]::Float, $inv, [ref]$wn)
+        $same = if ($num) { $gn -eq $wn } else { [string]$Got -eq [string]$Want }
+        $tg = if ($null -eq $Got) { "null" } else { $Got.GetType().Name }
+        $tw = if ($null -eq $Want) { "null" } else { $Want.GetType().Name }
         if ($same) {
             $script:ok++; Write-Host "  ok   $Name"
         } else {
-            $script:bad++; Write-Host "FAIL   ${Name}: получено '$Got', ожидалось '$Want'"
+            $script:bad++; Write-Host "FAIL   ${Name}: получено '$Got' [$tg], ожидалось '$Want' [$tw]"
         }
     }
     Write-Host "build_kit.ps1 selftest"
@@ -489,8 +495,8 @@ if ($SelfTest) {
     # прогона не должен становиться «временем сборки» этого, а время прогрева цену полной
     # компиляции не называет. Отбор «любая не-no-op мера» принимал и прогрев: в measure-файле
     # стендового прогона 12.11 у Страты стоит 712.6 с при 25+5 рёбрах, а у llama-ноги 2788.8 с
-    # при 156+8 - это доли полной сборки (174 и 329 рёбер), которыми README обосновывал лимиты
-    # Actions до правки.
+    # при 156+8 - это доли полной сборки (174 и 330 рёбер полного плана), которыми README
+    # обосновывал лимиты Actions до правки.
     $mdir = Join2 ([System.IO.Path]::GetTempPath()) ("build-kit-prev-" +
                [Guid]::NewGuid().ToString("N").Substring(0, 8))
     New-Item -ItemType Directory -Force -Path $mdir | Out-Null
@@ -514,6 +520,25 @@ if ($SelfTest) {
     Chk "снятая метка «полная компиляция» больше не принимается" ($null -eq (Get-PrevBuild $mdir "llama")) $true
     Chk "движок без прежней меры отсутствует" ($null -eq (Get-PrevBuild $mdir "strata")) $true
     Remove-Item -LiteralPath $mdir -Recurse -Force -ErrorAction SilentlyContinue
+    # Регрессия на самой Chk. Round-trip через JSON меняет тип меры: ConvertTo-Json пишет
+    # Double 3321.0 как «3321», и ConvertFrom-Json в Windows PowerShell 5.1 возвращает Int32,
+    # тогда как pwsh - Double. Равные значения обязаны оставаться зелёными при любых типах,
+    # а разные - не проходить молча: саботаж меряется приростом счётчика провалов, потому что
+    # зелёный снимок ничего не доказывает.
+    Chk "целое из JSON равно дробному литералу" ([int32]3321) 3321.0
+    Chk "строка «3321» равна дробному литералу" "3321" 3321.0
+    # Саботаж считает дельту провалов и ОТКАТЫВАЕТ её: контроль над тем, что Chk краснеет,
+    # не должен сам становиться провалом всего самоконтроля.
+    $bad0 = $script:bad; $ok0 = $script:ok
+    Chk "саботаж: 3321 против 3322" 3321 3322 6>$null
+    $sab = $script:bad - $bad0
+    $script:bad = $bad0; $script:ok = $ok0
+    Chk "саботаж разного значения найден" $sab 1
+    $bad1 = $script:bad; $ok1 = $script:ok
+    Chk "саботаж: null против строки" $null "холодная сборка" 6>$null
+    $sab = $script:bad - $bad1
+    $script:bad = $bad1; $script:ok = $ok1
+    Chk "саботаж null против строки найден" $sab 1
     # Write-Json обязан давать читаемый classify.py файл: BOM меряется первым байтом, а не
     # «похоже ли содержимое на JSON» - с BOM содержимое тоже похоже, а json.loads падает.
     $bomFile = Join2 ([System.IO.Path]::GetTempPath()) "build-kit-selftest.json"

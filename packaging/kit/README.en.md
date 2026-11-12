@@ -146,6 +146,18 @@ The CI variants of the same scripts live in `packaging\kit\ci\` and are called w
 cannot accidentally build something that works at home and fails in Actions. A missing mandatory
 parameter is a refusal with exit code 2, not a half-finished build.
 
+The entry point of these self-checks is pwsh 7 - the same one Actions calls them with. Under Windows
+PowerShell 5.1 `pack_kit.ps1 -SelfTest` reports `ok=63 bad=3` (taken on 12.11): the three FAILs sit
+on an entry that did not happen, not on packing - the test tree is never created because
+`Set-Content -Encoding utf8NoBOM` only exists from PowerShell 6 on, and `install_cuda_redist.ps1`
+does not parse in 5.1 at all (its source is UTF-8 without a BOM, which 5.1 reads as OEM). Red on
+that entry means "the check did not happen". The real packing path does not depend on the shell:
+measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($false)`, not
+`-Encoding`. One more difference between the entries is a JSON round-trip: `ConvertTo-Json` writes
+the Double `3321.0` as `3321`, and `ConvertFrom-Json` returns Int32 in 5.1 where pwsh returns Double;
+`Chk` in `build_kit.ps1` compares fractional values as numbers under any types and prints the types
+in the FAIL line, so equal values are never compared as strings.
+
 - `kit-build.yml` (this fork, a push to `main` touching `src/`, `include/`, `cmake/`,
   `CMakeLists.txt` or `packaging/kit/`). The first job runs five controls without a toolchain and
   without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
@@ -190,15 +202,32 @@ Actions does not measure anything that requires a GPU: serving a model and the p
 limit (`-SkipProbe`). The time limits rest on cold builds: the `build_kind` label in build-measure is
 decided by the number of real target objects in the build tree BEFORE the run and tells apart
 "cold build", "partial build" (a warm-up after an edit), "no-op" and "coldness not measured" - a
-warm-up time does not state the price of a full compilation and cannot justify a limit. The cold
-numbers on hand are strata 737.7 s (160 compilations and 14 links out of a plan of 174, architecture
-86 only, run of 12.11) and llama 3321.0 s (315 compilations and 14 links out of a plan of 330,
-architecture 120a). The numbers this paragraph quoted before, strata 712.6 s and llama 2788.8 s, are
-warm-ups: 30 and 164 edges executed instead of 174 and 329. The 180 minutes of a push run are 14.6
-times the cold Strata build on 86 and 3.2 times the cold llama build, which was taken on 120a: the
-llama leg on 86 has not been measured. The release run gets 240 minutes and builds both legs on 86,
-89 and 120 in a single tree; the two measured cold builds sum to 67.6 minutes for one architecture
-per leg, and the cost of a three-architecture run still has to be measured.
+warm-up time does not state the price of a full compilation and cannot justify a limit.
+
+The cold numbers on hand each have a carrier file in the bench `dist\` directory: strata 1686.2 s
+(`gpu-infer-kit-strata-cold3`: 160 compilations and 14 links out of a plan of 174, 174 of 174 edges
+executed in the log, commit `0f37b86e`) and a repeat of the same configuration at 1774.1 s
+(`gpu-infer-kit-strata-cold`); llama 3006.1 s (`gpu-infer-kit-llama-sync3`, commit `c8b1899f9`) and
+3321.0 s (`gpu-infer-kit-llama-cold`) - both logs show 330/330 edges and 315 compilations out of a
+plan of 330. All four runs used the same architecture list: `CMakeCache.txt` of the
+`engine-kit-kitall\build-kit-cold3` and `llama-kit\build-kit-cold` trees reads `86;89;120`, and the
+fatbin of the binaries taken from those trees gives 26 `sm_86`, 26 `sm_89`, 25 `sm_120` and 1
+`sm_120a` entries in `strata-q36.exe`, and 27 `sm_86`, 32 `sm_89`, 43 `sm_120a` in `ggml-cuda.dll`.
+The `archs` field is empty in these measure files and `build_kind` still carries the old "full
+compilation" label: the snapshots were taken by code predating the coldness-label fix, so coldness
+and architecture coverage are proven by the logs and CMakeCache rather than by measure fields.
+
+The numbers this paragraph quoted before rested on unclosed measurements: strata 737.7 s has no
+carrier file at all (only the run's stdout and commit bodies), and strata 712.6 s and llama 2788.8 s
+are warm-ups - 25+5 and 156+8 executed steps instead of 174 and 330.
+
+Hence the limits. The release run gets 240 minutes and builds both legs on 86, 89 and 120 in a single
+tree: the worst measured pair is 1774.1 + 3321.0 = 5095.1 s (84.9 minutes), the pair taken from one
+and the same run is 1686.2 + 3006.1 = 4692.3 s (78.2 minutes); 240 minutes is 2.8 times the worst
+pair, the rest goes to the CUDA toolchain, packaging and publishing the asset. A push run gets 180
+minutes and builds a single architecture (86 by default), so the 1774.1 s three-architecture build
+serves as its upper bound: a margin of 6.1 times. There is no separate cold measurement on 86 with a
+carrier file, and the price of the llama leg on 86 has not been measured.
 
 ## What is not here
 
