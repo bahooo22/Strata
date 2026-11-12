@@ -139,6 +139,43 @@ a success.
 `-SelfTest` on both scripts runs the controls without building anything and without touching
 hardware.
 
+## Automation: what GitHub Actions builds and publishes
+
+The CI variants of the same scripts live in `packaging\kit\ci\` and are called with parameters only
+(`-StrataSrc`, `-LlamaSrc`, `-GgmlDir`, `-Cuda`, `-Out`): a run knows nothing about the bench and
+cannot accidentally build something that works at home and fails in Actions. A missing mandatory
+parameter is a refusal with exit code 2, not a half-finished build.
+
+- `kit-build.yml` (this fork, a push to `main` touching `src/`, `include/`, `cmake/`,
+  `CMakeLists.txt` or `packaging/kit/`). The first job runs five controls without a toolchain and
+  without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
+  `patch_markers.py --selftest` and `verify_zip.sh --selftest`. The second job builds CUDA 13.3.1
+  from redist archives (a pinned sha256 per archive, the download folder in actions/cache), compiles
+  `strata.exe` and `strata-q36.exe` for architecture 86 and gates the markers byte-wise in both
+  executables.
+- `kit-build-cuda.yml` (the llama.cpp fork, a push to `kit-all-sync`) does the same for the llama
+  leg: the scripts and the marker registry are checked out from this fork, because a copy would
+  diverge at the first edit; `-Engines llama`, then the gate over ggml-base.dll, ggml-cuda.dll and
+  llama.dll.
+- `kit-release.yml` (this fork, a published release by tag or a manual run with a tag) is the whole
+  kit: both engines in ONE run (`-Engines 'strata;llama'`) for `86;89;120`, because only the paired
+  run writes the merged build-measure.json and elf-proof.json that the packer reads; then the marker
+  gate for both legs, the native dependency registry over six binaries, packaging, a byte-level
+  format gate on the archive (the PK header and the EOCD) and the upload as an asset of an already
+  existing release. Without a tag it stays a run artifact.
+
+The marker gate is the one thing a green build cannot prove. The registry
+`packaging\kit\ci\patch-markers.json` was taken off real binaries on 12.11: 23 markers for Strata
+over two carriers (exe) and 5 for the llama leg over three (dll). The markers cover 12 of our 72
+Strata commits and 4 of 12 in the llama leg; edits that leave no readable name in a binary (a string
+literal or a CUDA kernel name inside the fatbin) are invisible to the gate and are still checked by
+parity measurements on the bench. A lost marker is exit code 1 and a red run; an absent carrier is
+exit code 2, which reads as "the check did not happen".
+
+Actions does not measure anything that requires a GPU: serving a model and the per-architecture cost
+limit (`-SkipProbe`). The time limits (180 minutes for a push run, 240 for the release run) come
+from the bench numbers in build-measure.json: strata 712.6 s, llama 2788.8 s.
+
 ## What is not here
 
 - models (the archive contains no `.gguf` file);
