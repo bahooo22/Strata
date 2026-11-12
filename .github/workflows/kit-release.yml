@@ -227,10 +227,19 @@ jobs:
 
       - name: Публикация ассетом релиза
         shell: bash
+        env:
+          # gh НЕ наследует автоматический токен прогона: без этой строки шаг падает с
+          # «gh: To use GitHub CLI in a GitHub Actions workflow, set the GH_TOKEN environment
+          # variable» - и падает последним, то есть после полной двухчасовой сборки.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -z "${KIT_TAG:-}" ]; then
             echo "Релизный тег не задан: сборка проверена, ассет не публикуется"
             exit 0
+          fi
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::GH_TOKEN пуст - публикация не состоялась (не путать с «патчей нет»)"
+            exit 2
           fi
           if [ ! -f "${KIT_ZIP:-}" ]; then
             echo "::error::нет архива ${KIT_ZIP} - публиковать нечего"; exit 2

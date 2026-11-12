@@ -178,8 +178,13 @@ measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($fa
   kit: both engines in ONE run (`-Engines 'strata;llama'`) for `86;89;120`, because only the paired
   run writes the merged build-measure.json and elf-proof.json that the packer reads; then the marker
   gate for both legs, the native dependency registry over six binaries, packaging, a byte-level
-  format gate on the archive (the PK header and the EOCD) and the upload as an asset of an already
-  existing release. Without a tag it stays a run artifact.
+  format gate on the archive bytes (the PK header and the EOCD) and the upload as an asset of an
+  already existing release. Without a tag it stays a run artifact. The upload runs `gh`, which does
+  NOT inherit the automatic run token: the step must receive `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`
+  (the workflow already declares `contents: write`). Without that line the LAST step dies - after a
+  two-hour build - with "set the GH_TOKEN environment variable"; an empty token is caught by a
+  separate guard that returns rc=2 with its own reason, so the refusal reads as "the publication did
+  not happen" rather than as "our patches are missing".
 
 Suitability of the component index (`redistrib_<version>.json`) is measured by structure: the release
 label must equal the requested version and the index must hold at least 20 components. The earlier
