@@ -49,6 +49,12 @@ concurrency:
 
 env:
   CUDA_VERSION: '13.3.1'
+  # Русские строки python-гейтов идут в лог шага. Без этих переменных python выбирает кодовую
+  # страницу консоли - замер 12.11 на стенде даёт sys.stdout.encoding=cp1251, и строка
+  # «приёмка комплекта» уходит 19 байтами cp1251 вместо 35 байт UTF-8. Код возврата при этом 0,
+  # то есть прогон зелёный, а приёмка в логе Actions читается как mojibake.
+  PYTHONIOENCODING: 'utf-8'
+  PYTHONUTF8: '1'
   # ggml-дерево, из которого Страта берёт K-quant template-instances: в vendored
   # third_party/strata-ggml нет q2_k, и без -GgmlDir CMake падает на generate
   # («Cannot find source file»), а в логе это неотличимо от поломки тулчейна.

@@ -39,6 +39,12 @@ concurrency:
 
 env:
   CUDA_VERSION: '13.3.1'
+  # Русские строки python-гейтов идут в лог шага. Без этих переменных python выбирает кодовую
+  # страницу консоли - замер 12.11 на стенде даёт sys.stdout.encoding=cp1251, и строка
+  # «приёмка комплекта» уходит 19 байтами cp1251 вместо 35 байт UTF-8. Код возврата при этом 0,
+  # то есть прогон зелёный, а приёмка в логе Actions читается как mojibake.
+  PYTHONIOENCODING: 'utf-8'
+  PYTHONUTF8: '1'
   ARCH: '86;89;120'
   GGML_REPO: 'bahooo22/llama.cpp'
   GGML_PIN: '3cf03257f'
