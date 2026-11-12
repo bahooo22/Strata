@@ -148,8 +148,10 @@ The Terminal bundles a private Python and its dependencies for `windows-x86_64`,
 
 ## Release checks and gaps
 
-- CI covers scripts, Terminal checks, Metal builds and Docker images ([.github/workflows](../.github/workflows)). It does not replace native desktop
-  packaging, signing or real-GPU acceptance on every target. Some recipes still run by hand.
+- This fork keeps only the kit workflows ([.github/workflows](../.github/workflows)): `kit-build.yml` compiles the CUDA servers on every push and
+  `kit-release.yml` packs the portable kit. The upstream workflows for scripts, Terminal checks, Metal builds and Docker images were removed here,
+  so those checks run in the upstream repository. CI does not replace native desktop packaging, signing or real-GPU acceptance on every target
+  either; some recipes still run by hand.
 - Signing needs the owner's credentials, which are never in this tree. The feed and every engine package are signed with the feed key
   (`feed_tool.py`); the app installers with the Tauri updater key ([UPDATES.md](UPDATES.md)). The Mac app and Terminal archive are signed and
   notarised on a Mac that holds the Developer ID certificate. No Windows code-signing certificate is configured, so Windows may warn about the installer.
