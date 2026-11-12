@@ -59,7 +59,10 @@ env:
   # third_party/strata-ggml нет q2_k, и без -GgmlDir CMake падает на generate
   # («Cannot find source file»), а в логе это неотличимо от поломки тулчейна.
   GGML_REPO: 'bahooo22/llama.cpp'
-  GGML_PIN: '3cf03257f'
+  # Значение уходит в ref шага checkout, а тот признаёт SHA только длиной 40 или 64 символа
+  # (actions/checkout input-helper.ts:92). Короткий pin в 9 знаков трактуется как имя ref, и
+  # fetch отвечает «fatal: couldn't find remote ref» с rc=128 - прогон красный ещё до компиляции.
+  GGML_PIN: '3cf03257f219afbe7334045ff7c6a06ac68c627d'
 
 jobs:
   ci-gates:

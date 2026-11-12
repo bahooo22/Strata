@@ -47,7 +47,9 @@ env:
   PYTHONUTF8: '1'
   ARCH: '86;89;120'
   GGML_REPO: 'bahooo22/llama.cpp'
-  GGML_PIN: '3cf03257f'
+  # SHA в ref-аргументе checkout обязан быть полной длины: 40 или 64 символа, иначе actions/checkout
+  # трактует его как имя ref и fetch падает с rc=128. Развёрнуто - комментарий в kit-build.yml.
+  GGML_PIN: '3cf03257f219afbe7334045ff7c6a06ac68c627d'
   LLAMA_REPO: 'bahooo22/llama.cpp'
   LLAMA_REF: 'kit-all-sync'
   KIT_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
