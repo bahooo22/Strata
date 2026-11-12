@@ -130,11 +130,12 @@ Quote the architecture list: without quotes the shell splits the argument on the
 (configuration and build time and exit code per engine), `elf-proof.json` (which cubins are
 actually inside the binaries, read with `cuobjdump --list-elf`) and `runtime-deps.json` (dependency
 closure, from `dumpbin /imports`). Before calling an archive ready, `pack_kit.ps1` checks that
-every required file exists, that no foreign machine's absolute paths remain in the text files of
-the tree, that the measurement files parse as JSON without a BOM, that the built architectures
-cover the declared ones, that the dependency closure is empty, that the archive opens, and that no
-model is inside. Every control fails with a stated reason; a missing control is a failure too, not
-a success.
+every required file exists, that no absolute path with a drive letter remains in the text files of
+the tree - neither the "letter, forward slash, tree" form nor the "letter, backslash, tree" one
+(JSON and CMake emit both, the second as an escaped double backslash before the file name), that
+the measurement files parse as JSON without a BOM, that the built architectures cover the declared
+ones, that the dependency closure is empty, that the archive opens, and that no model is inside.
+Every control fails with a stated reason; a missing control is a failure too, not a success.
 
 `-SelfTest` on both scripts runs the controls without building anything and without touching
 hardware.
@@ -146,17 +147,21 @@ The CI variants of the same scripts live in `packaging\kit\ci\` and are called w
 cannot accidentally build something that works at home and fails in Actions. A missing mandatory
 parameter is a refusal with exit code 2, not a half-finished build.
 
-The entry point of these self-checks is pwsh 7 - the same one Actions calls them with. Under Windows
-PowerShell 5.1 `pack_kit.ps1 -SelfTest` reports `ok=63 bad=3` (taken on 12.11): the three FAILs sit
-on an entry that did not happen, not on packing - the test tree is never created because
+The entry point of these self-checks is pwsh 7 - the same one Actions calls them with: on it
+`pack_kit.ps1 -SelfTest` reports `ok=73 bad=0` (taken on 12.11). The same run under Windows
+PowerShell 5.1 reports `ok=69 bad=4` (it used to be `ok=63 bad=3`; the seven extra controls come
+from the portability fix, and both pairs were measured on one tree). The four FAILs sit on an entry
+that did not happen, not on packing: the test tree is never created because
 `Set-Content -Encoding utf8NoBOM` only exists from PowerShell 6 on, and `install_cuda_redist.ps1`
 does not parse in 5.1 at all (its source is UTF-8 without a BOM, which 5.1 reads as OEM). Red on
-that entry means "the check did not happen". The real packing path does not depend on the shell:
+that entry means "the check did not happen", and green there means nothing: two of the new controls
+wait for ZERO findings and pass idly on a tree that was never built. One more difference between the
+entries is a JSON round-trip: `ConvertTo-Json` writes the Double `3321.0` as `3321`, and
+`ConvertFrom-Json` returns Int32 in 5.1 where pwsh returns Double; `Chk` in `build_kit.ps1`
+compares fractional values as numbers under any types and prints the types in the FAIL line, so
+equal values are never compared as strings. The real packing path does not depend on the shell:
 measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($false)`, not
-`-Encoding`. One more difference between the entries is a JSON round-trip: `ConvertTo-Json` writes
-the Double `3321.0` as `3321`, and `ConvertFrom-Json` returns Int32 in 5.1 where pwsh returns Double;
-`Chk` in `build_kit.ps1` compares fractional values as numbers under any types and prints the types
-in the FAIL line, so equal values are never compared as strings.
+`-Encoding`.
 
 - `kit-build.yml` (this fork, a push to `main` touching `src/`, `include/`, `cmake/`,
   `CMakeLists.txt` or `packaging/kit/`). The first job runs five controls without a toolchain and

@@ -5,7 +5,7 @@
     Windows, pwsh 7 - нет.
 
         START.bat                          спросить путь к .gguf и всё сделать
-        START.bat C:\models\model.gguf     то же без вопроса
+        START.bat .\models\model.gguf      то же без вопроса
         START.bat a.gguf -DryRun           напечатать строку запуска и НЕ запускать
         START.bat a.gguf -Yes              не спрашивать разрешения на запуск
         START.bat a.gguf -Engine llama     запретить выбор движка

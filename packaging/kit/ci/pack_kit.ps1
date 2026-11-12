@@ -15,7 +15,8 @@
     Гейты до того, как архив считается готовым:
       1. каждый обязательный файл манифеста существует - иначе комплект доезжает до чужой машины
          с «модуль не найден» вместо предупреждения;
-      2. переносимость: в текстовых файлах дерева нет абсолютных путей стенда (D:\, F:\, C:\Users);
+      2. переносимость: в текстовых файлах дерева нет абсолютных путей с литерой диска ни в
+         одной форме записи (`C:\x`, `C:/x`, смешанный `C:\x/y`) - ни стенда, ни раннера;
       3. сайдкары читаются: elf-proof.json, runtime-deps.json, build-measure.json - валидный JSON
          БЕЗ BOM (классификатор комплекта читает их json.loads, BOM ломает чтение);
       4. доказательство архитектур покрывает заявленные архитектуры, а замыкание зависимостей
@@ -54,8 +55,15 @@ $EXCLUDE_DIRS = @('__pycache__', 'run', '.pytest_cache', 'logs')
 $EXCLUDE_EXT = @('.log', '.jsonl', '.pyc', '.err', '.tmp')
 # Меры, которые едут в комплект очищенными от путей стенда.
 $SIDECARS = @("elf-proof.json", "runtime-deps.json", "build-measure.json")
-# Пути стенда, которые делают «портативный» непригодным на чужой машине.
-$STAND_PATH_RE = '(?i)([def]:\\|c:\\users\\)'
+# Пути, которые делают «портативный» непригодным на чужой машине: ЛЮБАЯ литера диска и ЛЮБОЙ
+# разделитель. Прежняя сигнатура ловила только обратные слеши трёх литер (D, F, E) и C:\Users,
+# поэтому молчала на реальных мерах: в elf-proof.json и build-measure.json значения записаны в
+# форме «литера, косая черта, дерево, затем \\ перед именем файла» - первая половина не совпадала
+# вовсе. Та же причина дырявит Actions: у раннера рабочий каталог начинается на C:\, а сочетание
+# литеры C с обратным слэшем в старом наборе не было.
+# Lookbehind обязан быть: без него `https://` даёт совпадение на `s://`, и очистка изуродовала бы
+# ссылки в models.json (мерка кандидата на живом дереве: 14 находок, ноль ложных).
+$STAND_PATH_RE = '(?i)(?<![a-z])[a-z]:[\\/]'
 
 function Join2([string]$base, [string]$tail) {
     # Join-Path бросает исключение на несуществующем диске; здесь отказ обязан быть нашим текстом.
@@ -142,12 +150,12 @@ function Remove-StandPaths($Node) {
         # в pwsh 7.6 вызывает скриптблок с настоящим Match (проверено: args=1 type=Match), но
         # подставляет в результат ПУСТУЮ строку - молчание, из-за которого пути исчезали бы
         # вместе с половиной текста меры.
-        $pat = '[A-Za-z]:\\[^"<>|;,\s]*'
+        $pat = '(?i)(?<![a-z])[a-z]:[\\/][^"<>|;,\s]*'
         $sb = [System.Text.StringBuilder]::new()
         $last = 0
         foreach ($mt in [regex]::Matches($Node, $pat)) {
             [void]$sb.Append($Node.Substring($last, $mt.Index - $last))
-            [void]$sb.Append(($mt.Value -split '\\')[-1])
+            [void]$sb.Append(($mt.Value -split '[\\/]')[-1])
             $last = $mt.Index + $mt.Length
         }
         [void]$sb.Append($Node.Substring($last))
@@ -253,6 +261,15 @@ if ($SelfTest) {
     $hits = Test-NoStandPaths -Dir $tmp
     Chk "путь стенда найден" $hits.Count 1
     Chk "найден именно models.json" (@($hits | Where-Object { $_ -like 'models.json*' }).Count) 1
+    # Регрессия на прежнюю сигнатуру: реальные меры пишут путь как «литера, косая черта, дерево,
+    # \\ перед именем», и прежний шаблон с обратными слэшами на такой форме молчал - гейт был
+    # зелёным при четырнадцати путях машины в текстовых файлах комплекта.
+    Set-Content -LiteralPath (Join2 $tmp "models.json") -Value '{"p": "C:/build/x\\strata.exe"}' -Encoding utf8NoBOM
+    Chk "косая черта после литеры тоже находка" (Test-NoStandPaths -Dir $tmp).Count 1
+    # Обратная сторона: ссылка на CDN не является путём, и не должна красить зелёную сборку.
+    Set-Content -LiteralPath (Join2 $tmp "models.json") `
+        -Value '{"hf_url": "https://huggingface.co/x/y/resolve/main/model.gguf"}' -Encoding utf8NoBOM
+    Chk "https-ссылка не находка" (Test-NoStandPaths -Dir $tmp).Count 0
     Set-Content -LiteralPath (Join2 $tmp "models.json") -Value '{"p": "models/x.gguf"}' -Encoding utf8NoBOM
     Chk "чистое дерево - ноль находок" (Test-NoStandPaths -Dir $tmp).Count 0
 
@@ -295,6 +312,17 @@ if ($SelfTest) {
     Chk "элементов в массиве как было" $clean.list.Count 1
     $multi = Remove-StandPaths ('{"a": ["C:\\x\\one.dll", "D:\\y\\two.dll"]}' | ConvertFrom-Json)
     Chk "многосточный массив вычищен поэлементно" ($multi.a -join ',') "one.dll,two.dll"
+    # Очистка обязана идти по той же сигнатуре, что и гейт: иначе «проход по косым чертам» - это
+    # ноль изменений в мере, а гейт краснеет на легальной сборке. Смешанная форма (косые в дереве,
+    # удвоенный обратный перед именем) - ровно то, что лежало в elf-proof.json живого комплекта.
+    Chk "косая черта сворачивается в имя" (Remove-StandPaths "C:/a/b/ggml-cuda.dll") "ggml-cuda.dll"
+    Chk "смешанный разделитель сворачивается в имя" (Remove-StandPaths "C:/a/b\\strata-q36.exe") "strata-q36.exe"
+    Chk "https не изуродован очисткой" `
+        (Remove-StandPaths "загрузить с https://developer.download.nvidia.com/compute/cuda/redist/x.zip") `
+        "загрузить с https://developer.download.nvidia.com/compute/cuda/redist/x.zip"
+    $scrubbed = Remove-StandPaths ('{"path": "C:/build/kit\\strata.exe", "url": "https://hf.co/x/y.gguf"}' | ConvertFrom-Json)
+    Chk "вычищенная мера больше не находится гейтом" ($scrubbed.path -match $STAND_PATH_RE) $false
+    Chk "вычищенная ссылка цела" $scrubbed.url "https://hf.co/x/y.gguf"
 
     # Защита каталога мер меряется до основного потока: отказ обязан быть текстом, а не «меры
     # исчезли между прогонами», и разные формы записи одного и того же пути не должны её обмануть.
