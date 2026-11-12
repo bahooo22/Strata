@@ -48,6 +48,22 @@ MIB = 1024 ** 2
 KV_TYPE = "q4_0"          # измеренный рабочий тип KV на всех пяти окнах
 LADDER = (65536, 81920, 98304, 131072, 163840, 229376)
 
+# Кванты KV, которые принимает каждый движок: ключ - имя, которое мы печатаем в строке
+# запуска, значение - имя строки в geom["kv_bytes_per_token"] (она по ggml-именам).
+# Первичники: Страта - src/qwen35/q36_engine.cu:4389-4395 (лямбда kv_of; fp16/f16 откатывает
+# на fp32, k8v4 и пара K!=V отвергаются с rc=2); llama.cpp в пине 3cf03257 -
+# common/arg.cpp:304-313 (f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1).
+# Множества РАЗНЫЕ: q5_1 есть у обоих, iq4_nl и q4_1 - только у llama, а Страта не знает f16.
+KV_BY_ENGINE = {
+    "strata": {"fp32": "f32", "q8_0": "q8_0", "q5_1": "q5_1", "q5_0": "q5_0", "q4_0": "q4_0"},
+    "llama": {t: t for t in ("f32", "f16", "bf16", "q8_0", "q5_1", "q5_0", "q4_0",
+                             "q4_1", "iq4_nl")},
+}
+# Вся лесенка и все окна реестра сняты при q4_0, поэтому на любом другом кванте ответ
+# перестаёт быть «замером этой модели» и обязан быть подписан расчётом: цена KV входит в
+# слагаемые окна, и менять её, не переснимая замер, нельзя.
+KV_MEASURED = KV_TYPE
+
 # --- правила по окнам: значения взяты из профилей стенда, первичник в src ---
 # Страта. chunk/prefill/kv/mtp одинаковы во всех профилях рабочей сетки; различаются
 # att-mb и vram-reserve-mib, и именно они определяют, какое окно ещё влезает.
@@ -217,8 +233,8 @@ def gpu_weights_mib(geom: dict, ncmoe: int, engine: str) -> tuple[float, dict]:
                             "expert_layers_in_ram": k, "n_layer": len(by_layer)}
 
 
-def fit_strata(geom: dict, window: int, rule: dict) -> Fit:
-    per_tok = kv_bytes_per_token(geom)
+def fit_strata(geom: dict, window: int, rule: dict, kv_type: str = KV_TYPE) -> Fit:
+    per_tok = kv_bytes_per_token(geom, KV_BY_ENGINE["strata"][kv_type])
     kv = per_tok * window / MIB
     # Плотная часть (attention, эмбеддинги, norm) у q36 в видеопамяти остаётся, эксперты -
     # нет: они стримятся из RAM, и флага размера арены в рабочих профилях нет (см. константу).
@@ -227,14 +243,15 @@ def fit_strata(geom: dict, window: int, rule: dict) -> Fit:
                reserve_mib=float(rule["reserve_mib"]),
                gdn_mib=float(geom.get("gdn_mib_total") or 0.0),
                weights_mib=weights,
-               parts={"kv_per_token_bytes": round(per_tok, 1), **wparts,
+               parts={"kv_type": kv_type, "kv_per_token_bytes": round(per_tok, 1), **wparts,
                       "weights_note": "плотная часть: эксперты маршрута q36 стримятся из RAM",
                       "src": rule["src"], "engine": "strata"})
 
 
 def fit_llama(geom: dict, window: int, rule: dict,
-              remainder_mib: float = LLAMA_REMAINDER["max_mib"]) -> Fit:
-    per_tok = kv_bytes_per_token(geom)
+              remainder_mib: float = LLAMA_REMAINDER["max_mib"],
+              kv_type: str = KV_TYPE) -> Fit:
+    per_tok = kv_bytes_per_token(geom, KV_BY_ENGINE["llama"][kv_type])
     # У llama при -fa on attention-буферы считается внутри остатка: отдельным слагаемым их
     # не ставим, иначе одна и та же память учитывается дважды (в остаток они вошли фактом
     # VRAM max из аудита).
@@ -243,13 +260,13 @@ def fit_llama(geom: dict, window: int, rule: dict,
     return Fit(window=window, kv_mib=kv, att_mib=0.0, reserve_mib=0.0,
                gdn_mib=float(geom.get("gdn_mib_total") or 0.0), weights_mib=weights,
                remainder_mib=float(remainder_mib),
-               parts={"kv_per_token_bytes": round(per_tok, 1), **wparts,
+               parts={"kv_type": kv_type, "kv_per_token_bytes": round(per_tok, 1), **wparts,
                       "remainder_src": LLAMA_REMAINDER["src"],
                       "src": rule["src"], "engine": "llama"})
 
 
 def build_args(engine: str, gguf_path: str, window: int, rule: dict, exe: str,
-               threads: int | None = None) -> dict:
+               threads: int | None = None, kv_type: str = KV_TYPE) -> dict:
     if engine == "strata":
         fixed = STRATA_FIXED
         args = [exe, "--native", gguf_path,
@@ -257,7 +274,7 @@ def build_args(engine: str, gguf_path: str, window: int, rule: dict, exe: str,
                 "--chunk", str(fixed["chunk"]), "--batch", str(fixed["batch"]),
                 "--no-graph", "--prefill", str(fixed["prefill"]),
                 "--mtp", str(rule["mtp"]), "--draft-vocab", str(fixed["draft_vocab"]),
-                "--kv-type", fixed["kv_type"],
+                "--kv-type", kv_type,
                 "--vram-reserve-mib", str(rule["reserve_mib"]),
                 "--att-mb", str(rule["att_mb"])]
         env = {"STRATA_Q36_FA_LAYER": fixed["fa_layer"],
@@ -266,7 +283,7 @@ def build_args(engine: str, gguf_path: str, window: int, rule: dict, exe: str,
     args = [exe, "-m", gguf_path,
             "--ctx-size", str(window), "-ngl", "99",
             "--n-cpu-moe", str(rule["ncmoe"]), "-b", str(rule["b"]), "-ub", str(rule["ub"]),
-            "-ctk", KV_TYPE, "-ctv", KV_TYPE, "-fa", "on",
+            "-ctk", kv_type, "-ctv", kv_type, "-fa", "on",
             "--temp", "0", "--host", "127.0.0.1", "--port", str(PORTS["llama"])]
     # -t на стенде равнялся числу ФИЗИЧЕСКИХ ядер (4) - на другой машине это другое число,
     # и зашивать его значит выдать замеренное за универсальное.
@@ -279,18 +296,24 @@ def rules_for(engine: str) -> list[dict]:
     return STRATA_RULES if engine == "strata" else LLAMA_RULES
 
 
-def fit_of(geom: dict, engine: str, rule: dict, remainder_mib: float | None = None) -> Fit:
+def fit_of(geom: dict, engine: str, rule: dict, remainder_mib: float | None = None,
+           kv_type: str = KV_TYPE) -> Fit:
+    if kv_type not in KV_BY_ENGINE[engine]:
+        raise RecommendError(f"квант KV {kv_type!r} движок {engine} не принимает: "
+                             f"его список - {', '.join(KV_BY_ENGINE[engine])}")
     if engine == "strata":
-        return fit_strata(geom, rule["window"], rule)
+        return fit_strata(geom, rule["window"], rule, kv_type)
     return fit_llama(geom, rule["window"], rule,
-                     LLAMA_REMAINDER["max_mib"] if remainder_mib is None else remainder_mib)
+                     LLAMA_REMAINDER["max_mib"] if remainder_mib is None else remainder_mib,
+                     kv_type)
 
 
 def ladder_max(geom: dict, engine: str, vram: float,
-               remainder_mib: float | None = None) -> tuple[dict | None, Fit | None]:
+               remainder_mib: float | None = None,
+               kv_type: str = KV_TYPE) -> tuple[dict | None, Fit | None]:
     """Верхняя ступень лесенки, которая влезает в vram по слагаемым (спускаемся сверху)."""
     for rule in sorted(rules_for(engine), key=lambda r: -r["window"]):
-        f = fit_of(geom, engine, rule, remainder_mib)
+        f = fit_of(geom, engine, rule, remainder_mib, kv_type)
         if f.total_mib <= vram:
             return rule, f
     return None, None
@@ -315,7 +338,8 @@ def measured_max(measured: dict | None, engine: str) -> tuple[int | None, dict]:
 def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
               want_window: int | None = None, gguf_path: str = "",
               exe_strata: str = "bin\\strata-q36.exe",
-              exe_llama: str = "bin\\llama-server.exe") -> dict:
+              exe_llama: str = "bin\\llama-server.exe",
+              kv_type: str = KV_TYPE) -> dict:
     """Главный ответ комплекта: окно, параметры, ссылка на модель и честный список оговорок."""
     vram = cfg.get("gpu", {}).get("vram_mib")
     if not vram:
@@ -332,6 +356,15 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
     for eng in order:
         if eng not in ("strata", "llama"):
             raise RecommendError(f"движка {eng!r} в комплекте нет: только strata или llama")
+    known = {t for names in KV_BY_ENGINE.values() for t in names}
+    if kv_type not in known:
+        raise RecommendError(f"кванта KV {kv_type!r} нет ни у одного движка комплекта: "
+                             f"Страта - {', '.join(KV_BY_ENGINE['strata'])}; "
+                             f"llama.cpp - {', '.join(KV_BY_ENGINE['llama'])}")
+    if kv_type != KV_MEASURED:
+        warnings.append(f"квант KV {kv_type}: лесенка и весь реестр окон сняты при "
+                        f"{KV_MEASURED}, поэтому ответ ниже - расчёт по слагаемым, а не замер "
+                        f"этой модели на этом кванте")
     measured = model_lookup(models, gguf_path or geom.get("file", ""))
     if measured:
         q = measured.get("quant")
@@ -343,15 +376,25 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
                         "правилу для этого класса моделей, а не по прямому замеру этой модели")
 
     candidates: list[dict] = []
+    kv_skipped: list[str] = []
     for eng in order:
         rules = rules_for(eng)
+        if kv_type not in KV_BY_ENGINE[eng]:
+            kv_skipped.append(f"{eng} не принимает квант KV {kv_type} "
+                              f"(его список: {', '.join(KV_BY_ENGINE[eng])})")
+            warnings.append(kv_skipped[-1] + " - движок отложен, чтобы не выдавать строку "
+                            "запуска с флагом, который движок отвергает")
+            continue
         m_window, m_row = measured_max(measured, eng)
-        cons_rule, cons_fit = ladder_max(geom, eng, vram)          # худший остаток - гарантия
+        # Основанием «по замеру» окно бывает только на том кванте, на котором мерилось:
+        # реестр не знает, сколько весит KV при другом.
+        b_window = m_window if kv_type == KV_MEASURED else None
+        cons_rule, cons_fit = ladder_max(geom, eng, vram, kv_type=kv_type)
         opt_rule, opt_fit = (None, None)
         if eng == "llama":
-            opt_rule, opt_fit = ladder_max(geom, eng, vram, LLAMA_REMAINDER["min_mib"])
+            opt_rule, opt_fit = ladder_max(geom, eng, vram, LLAMA_REMAINDER["min_mib"], kv_type)
         if cons_rule is None:
-            f0 = fit_of(geom, eng, rules[0])
+            f0 = fit_of(geom, eng, rules[0], kv_type=kv_type)
             warnings.append(f"{eng}: минимальная ступень лесенки ({rules[0]['window']} токенов) "
                             f"требует {round(f0.total_mib)} МиБ из {round(vram)} - не влезает")
             continue
@@ -361,17 +404,18 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
             if step is None:
                 raise RecommendError(f"окна {want_window} нет в лесенке "
                                      f"({[r['window'] for r in rules]})")
-            fw = fit_of(geom, eng, step)
-            fw_opt = fit_of(geom, eng, step, LLAMA_REMAINDER["min_mib"]) if eng == "llama" else fw
+            fw = fit_of(geom, eng, step, kv_type=kv_type)
+            fw_opt = (fit_of(geom, eng, step, LLAMA_REMAINDER["min_mib"], kv_type)
+                      if eng == "llama" else fw)
             fits = fw.total_mib <= vram
             candidates.append({"engine": eng, "window": want_window, "asked": True,
                                "fits": fits, "fits_optimistic": fw_opt.total_mib <= vram,
-                               "basis": "measured" if m_window == want_window
+                               "basis": "measured" if b_window == want_window
                                         else "formula", "rule": step, "fit": fw.to_dict(),
-                               "measured": m_window == want_window,
+                               "measured": b_window == want_window,
                                "launch": build_args(eng, gguf_path, want_window, step,
                                                     exe_strata if eng == "strata" else exe_llama,
-                                                    threads)})
+                                                    threads, kv_type)})
             if not fits:
                 msg = (f"{eng}: окно {want_window} требует {round(fw.total_mib)} МиБ "
                        f"> {round(vram)}")
@@ -383,17 +427,17 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
             continue
 
         rule, f, basis = cons_rule, cons_fit, "formula"
-        if m_window and m_window > cons_fit.window and abs(vram - BASE["vram_mib"]) < 1:
+        if b_window and b_window > cons_fit.window and abs(vram - BASE["vram_mib"]) < 1:
             # Формула занижает против факта на нашей же базе: идём за фактом и говорим об этом.
-            rule = next((r for r in rules if r["window"] == m_window), cons_rule)
-            f = fit_of(geom, eng, rule)
+            rule = next((r for r in rules if r["window"] == b_window), cons_rule)
+            f = fit_of(geom, eng, rule, kv_type=kv_type)
             basis = "measured"
             warnings.append(f"{eng}: формула по слагаемым остановилась на {cons_fit.window} "
                             f"токенов, а для этой модели замерено {m_window} "
                             f"(pp {m_row.get('pp')}, первичник {m_row.get('src', 'реестр')}): "
                             f"берём замеренное, потому что остаток видеопамяти под данную "
                             f"модель не калибровался")
-        elif m_window == cons_fit.window:
+        elif b_window == cons_fit.window:
             basis = "measured"
         if basis == "measured" and measured:
             step = next((r for r in rules if r["window"] == m_window), rule)
@@ -407,7 +451,7 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
             diff = {k: v for k, v in from_model.items() if step.get(k) != v}
             if diff:
                 rule = {**step, **from_model, "src": m_row.get("src") or step["src"]}
-                f = fit_of(geom, eng, rule)
+                f = fit_of(geom, eng, rule, kv_type=kv_type)
                 warnings.append(f"{eng}: параметры окна берутся из замера этой модели "
                                 f"({', '.join('%s=%s' % kv for kv in diff.items())}, "
                                 f"src {rule['src']}), а не из общего правила окна ({step['src']})")
@@ -428,9 +472,12 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
                            "measured": basis == "measured",
                            "launch": build_args(eng, gguf_path, f.window, rule,
                                                 exe_strata if eng == "strata" else exe_llama,
-                                                threads)})
+                                                threads, kv_type)})
 
     if not candidates:
+        if kv_skipped:
+            raise RecommendError(f"квант KV {kv_type}: {'; '.join(kv_skipped)} - "
+                                 f"считать окно нечем, возьмите квант из списка движка")
         raise RecommendError("ни один движок не смог разместить даже минимальную ступень лесенки: "
                              "нужна видеопамять больше или модель легче")
     best = max(candidates, key=lambda c: c["window"])
@@ -454,6 +501,7 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
                       "gdn_mib_total": round(float(geom.get("gdn_mib_total", 0)), 1),
                       "kv_bytes_per_token": geom.get("kv_bytes_per_token")},
             "vram_mib": vram, "window": best["window"], "engine": best["engine"],
+            "kv_type": kv_type,
             "basis": best["basis"], "rule": best["rule"], "fit": best["fit"],
             "asked": best["asked"], "fits": best["fits"],
             "fits_optimistic": best["fits_optimistic"],
@@ -470,7 +518,7 @@ def render_text(res: dict) -> str:
     """Человеческий вывод: что предложено, почему, чем мерить."""
     r = res["rule"]
     lines = [f"движок: {res['engine']}    окно: {res['window']} токенов    "
-             f"видеопамять: {round(res['vram_mib'])} МиБ"]
+             f"видеопамять: {round(res['vram_mib'])} МиБ    KV: {res.get('kv_type', KV_TYPE)}"]
     m = res["model"]
     lines.append(f"модель: {m['file']}  квант экспертов {m['quant']}  "
                  f"слоёв {m['block_count']} MoE-слоёв всего {m['expert_gib']} ГиБ, "
@@ -511,7 +559,11 @@ def fake_geom(**over) -> dict:
     g = {"file": "model.gguf", "arch": "qwen35moe", "quant": "iq4_xs", "block_count": 40,
          "expert_count": 256, "expert_gib": 15.94, "dense_gib": 1.495, "gdn_mib_total": 62.8,
          "expert_bytes_by_layer": [427819008] * 40,
-         "kv_bytes_per_token": {"q4_0": 5760.0, "q8_0": 10880.0, "f16": 20480.0}}
+         # Таблица KV собрана ИЗ gguf_meta.KV_BYTES при том же числе элементов KV на токен,
+         # что у HauhauCS IQ4_XS (10240 = 5760 / (18/32)). Своим списком она неизбежно
+         # разошлась бы с первичником, и контроль «каждый квант движка чем-то считается»
+         # мерил бы копию, а не таблицу заголовка.
+         "kv_bytes_per_token": {t: 10240 * b for t, b in gguf_meta.KV_BYTES.items()}}
     g.update(over)
     return g
 
@@ -594,6 +646,34 @@ def selftest(models_path: pathlib.Path | None = None) -> int:
     check("класс слабой машины - ниже базы", cls["class"] in ("below", "weak"), True)
     check("для чужой архитектуры есть жалоба на cubin",
           any("sm_75" in w for w in cls["warnings"]), True)
+
+    # ---------------- квант KV как параметр гейта (фикс #5715: цена окна зависит от кванта) --
+    # Без этого гейт считал окно всегда по q4_0 и печатал в строке запуска тот же q4_0, а
+    # выбор другого кванта пользователем остался бы вообще без пересчёта.
+    for eng, names in KV_BY_ENGINE.items():
+        for name, table_key in names.items():
+            check(f"{eng}: квант {name} имеет цену KV в заголовке",
+                  kv_bytes_per_token(fake_geom(), table_key) > 0, True)
+    check("у движков есть квант, известный только одному (иначе отсев пуст)",
+          "q4_1" in KV_BY_ENGINE["llama"] and "q4_1" not in KV_BY_ENGINE["strata"], True)
+    q4 = recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", engine="strata")
+    q51 = recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", engine="strata",
+                    kv_type="q5_1")
+    check("q5_1 дороже на токен, чем q4_0",
+          q51["fit"]["parts"]["kv_per_token_bytes"] > q4["fit"]["parts"]["kv_per_token_bytes"],
+          True)
+    check("более дорогой квант не обещает более широкое окно", q51["window"] <= q4["window"], True)
+    check("на замеренном кванте основание - замер", (q4["basis"], q4["measured"]),
+          ("measured", True))
+    check("на чужом кванте основание - расчёт", (q51["basis"], q51["measured"]),
+          ("formula", False))
+    check("на чужом кванте есть предупреждение про реестр",
+          any("реестр окон сняты" in w for w in q51["warnings"]), True)
+    check("строка запуска несёт выбранный квант",
+          q51["launch"]["args"][q51["launch"]["args"].index("--kv-type") + 1], "q5_1")
+    check("llama принимает квант, которого нет у Страты",
+          recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", engine="llama",
+                    kv_type="q4_1")["fit"]["parts"]["kv_type"], "q4_1")
 
     # Модель не из реестра: ответ обязан остаться, но «измеренность» и ссылка - нет.
     res_unknown = recommend(fake_geom(), cfg_base, models, gguf_path="other.gguf")
@@ -687,6 +767,15 @@ def selftest(models_path: pathlib.Path | None = None) -> int:
         recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", want_window=12345)
     sabotage("окно вне лесенки", bad_window)
 
+    def bad_kv():
+        recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf",
+                  engine="strata", kv_type="q4_1")
+    sabotage("квант KV, которого нет у выбранного движка", bad_kv)
+
+    def unknown_kv():
+        recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", kv_type="q9_9")
+    sabotage("квант KV, которого нет ни у одного движка", unknown_kv)
+
     tmp = pathlib.Path(__file__).resolve().parent / "_selftest-models.json"
     try:
         tmp.write_text(json.dumps({"models": []}), encoding="utf-8")
@@ -724,6 +813,12 @@ def main() -> int:
     ap.add_argument("--fake-config", help="тот же JSON, но подставной: проверка без смены железа")
     ap.add_argument("--models", help="реестр замеренных моделей (по умолчанию kit\\models.json)")
     ap.add_argument("--engine", default="auto", choices=["auto", "strata", "llama"])
+    ap.add_argument("--kv-type", default=KV_TYPE,
+                    choices=sorted({t for n in KV_BY_ENGINE.values() for t in n}),
+                    help=f"квант KV-кэша, под который считается окно; по умолчанию {KV_TYPE} - "
+                         f"на нём снята лесенка и весь реестр. Множества у движков разные: "
+                         f"Страта - {', '.join(KV_BY_ENGINE['strata'])}; "
+                         f"llama.cpp - {', '.join(KV_BY_ENGINE['llama'])}")
     ap.add_argument("--window", type=int, help="проверить конкретное окно, а не максимум")
     ap.add_argument("--exe-strata", default="bin\\strata-q36.exe")
     ap.add_argument("--exe-llama", default="bin\\llama-server.exe")
@@ -780,7 +875,8 @@ def main() -> int:
     try:
         models = load_models(models_path)
         res = recommend(geom, cfg, models, engine=a.engine, want_window=a.window,
-                        gguf_path=a.gguf, exe_strata=a.exe_strata, exe_llama=a.exe_llama)
+                        gguf_path=a.gguf, exe_strata=a.exe_strata, exe_llama=a.exe_llama,
+                        kv_type=a.kv_type)
     except RecommendError as exc:
         print(f"[FAIL] {exc}", file=sys.stderr)
         return 2
