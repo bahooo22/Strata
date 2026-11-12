@@ -186,6 +186,17 @@ measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($fa
   separate guard that returns rc=2 with its own reason, so the refusal reads as "the publication did
   not happen" rather than as "our patches are missing".
 
+Before any push, acceptance stays an offline measure made of two parts. The first is the `ci-gates`
+job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
+paths): `build_kit` 109/109 controls, `pack_kit` 73/0, `install_cuda_redist` 27/0,
+`patch_markers --selftest` 28/0, `verify_zip --selftest` 6/0 (measured 13.11). The second is the
+marker gate over the stand's binaries: 24/24 Strata markers across 12 commits and 5/5 in the llama
+leg across 3. Add to them a static audit of the three workflows: it catches GH_TOKEN-class defects
+before a long run starts, its own sabotage control (six buried failures plus a false-alarm
+control) gives 7/7, and over the three files it is clean except one warning - the llama leg takes
+the CI scripts at a floating `ref: main`, which is the price of one source of truth, not a forgotten
+pin.
+
 Suitability of the component index (`redistrib_<version>.json`) is measured by structure: the release
 label must equal the requested version and the index must hold at least 20 components. The earlier
 byte threshold ("at least 50 000 B") rejected the live full 13.3.1 index, which weighs 47 914 B
