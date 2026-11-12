@@ -13,7 +13,12 @@
       * у каждого архива ровно ОДНА верхняя папка `<компонент>-windows-x86_64-<версия>-archive`,
         внутри неё - каталоги относительно корня тулчейна (bin, include, lib, nvvm,
         visual_studio_integration, LICENSE);
-      * DLL лежат в bin/x64/, а комплект и сборщик ищут их в bin/ - отсюда шаг «подъёма».
+      * DLL лежат в bin/x64/, а комплект и сборщик ищут их в bin/ - отсюда шаг «подъёма»;
+      * каталоги разных архивов ПЕРЕКРЫВАЮТСЯ (листинг 9 архивов 12.11: bin у 4 из 9,
+        include у 6 из 9, lib у 3 из 9), поэтому раскладка обязана СЛИВАТЬСЯ: перенос каталога
+        в уже существующий каталог-приёмник PowerShell кладёт его внутрь, и первый живой прогон
+        12.11 дал Root\bin\bin\x64\cublas64_13.dll при совпавших
+        sha256 всех девяти архивов - неполный тулчейн, который заметил только Test-Toolchain.
     Стендовый тулчейн F:\CUDA\cuda-13.3 устроен ровно так же (в bin/ лежат cublas64_13.dll,
     cudart64_13.dll, а рядом - каталоги crt/ и x64/), поэтому собранный здесь nvcc ведёт себя
     как стендовый.
@@ -86,6 +91,28 @@ function Get-Sha256([string]$Path) {
     return $h.ToLowerInvariant()
 }
 
+function Test-IndexJson([string]$Path, [string]$Version) {
+    # Пригодность индекса меряется СТРУКТУРОЙ, а не размером. Прежний байтовый порог
+    # ("-lt 50000") отбраковывал живой полный redistrib_13.3.1.json весом 47 914 Б (замер
+    # 12.11), то есть шаг "Тулчейн CUDA" прерывался до первого скачивания - и это была не
+    # защита, а отказ работать. Теперь три критерия, каждый из которых ловит свой способ
+    # испортить проверку: метка релиза (другая версия или подмена), число компонентов
+    # (обрезанный ответ) и сам разбор JSON (страница ошибки CDN вместо JSON).
+    $bad = @()
+    $obj = $null
+    try {
+        $obj = ConvertFrom-Json (Get-Content -LiteralPath $Path -Raw -Encoding UTF8)
+    } catch {
+        return @("разбор JSON не удался")
+    }
+    if ($null -eq $obj) { return @("индекс пуст") }
+    $label = [string]$obj.release_label
+    if ($label -ne $Version) { $bad += ("метка релиза '{0}', запрошена {1}" -f $label, $Version) }
+    $comps = @(@($obj.PSObject.Properties | Where-Object { $_.Value -is [System.Management.Automation.PSCustomObject] }))
+    if ($comps.Count -lt 20) { $bad += ("компонентов {0}, ждём не меньше 20" -f $comps.Count) }
+    return $bad
+}
+
 function Save-Index([string]$Version, [string]$Dest) {
     $url = "$BASE/redistrib_$Version.json"
     try {
@@ -95,12 +122,15 @@ function Save-Index([string]$Version, [string]$Dest) {
         return $null
     }
     $bytes = (Get-Item -LiteralPath $Dest).Length
-    # Пустой или обрезанный ответ читается как «компонентов нет», и прогон выглядел бы отказом
-    # по версии, хотя проверка просто не состоялась.
-    if ($bytes -lt 50000) {
-        Write-Host "ОТКАЗ: индекс ${bytes} Б - проверка не состоялась"
+    # Пустой или обрезанный ответ читался бы как «компонентов нет», и прогон выглядел бы
+    # отказом по версии, хотя проверка просто не состоялась - поэтому гейт здесь, до разбора.
+    $bad = @(Test-IndexJson -Path $Dest -Version $Version)
+    if ($bad) {
+        Write-Host ("ОТКАЗ: индекс {0} Б неприменим ({1}) - проверка не состоялась" -f `
+                    $bytes, ($bad -join '; '))
         return $null
     }
+    Write-Host ("индекс пригоден: {0} Б, метка релиза {1}" -f $bytes, $Version)
     return $bytes
 }
 
@@ -117,6 +147,31 @@ function Get-Archive([string]$Url, [string]$Dest, [int]$Retries) {
     return $false
 }
 
+function Merge-Into([string]$Src, [string]$Dst) {
+    # Рекурсивное СЛИЯНИЕ дерева Src в Dst; возвращает число перенесённых файлов.
+    # Именно слияние, а не Move-Item верхним слоем: живой прогон 12.11 (9/9 sha256 совпали,
+    # распаковка прошла) дал Root\bin\bin\x64\cublas64_13.dll, Root\bin\bin\cuobjdump.exe и
+    # Root\include\include\cuda_runtime.h. Причина в семантике PowerShell: перенос каталога в
+    # уже существующий каталог-приёмник кладёт его ВНУТРЬ, а не сливает. Первый архив создаёт
+    # bin\, и все последующие с тем же каталогом (bin у 4 из 9: nvcc, cudart, cuobjdump, cublas;
+    # include у 6 из 9, lib у 3 из 9 - листинг архивов 12.11) оказывались вторым слоем, поэтому
+    # тулчейн собирался неполным при зелёных образах байтов.
+    if (-not (Test-Path -LiteralPath $Dst)) {
+        New-Item -ItemType Directory -Force -Path $Dst | Out-Null
+    }
+    $moved = 0
+    foreach ($item in Get-ChildItem -LiteralPath $Src -Force) {
+        $target = Join-Path $Dst $item.Name
+        if ($item.PSIsContainer) {
+            $moved += Merge-Into $item.FullName $target
+        } else {
+            Move-Item -LiteralPath $item.FullName -Destination $target -Force
+            $moved++
+        }
+    }
+    return $moved
+}
+
 function Expand-RedistArchive([string]$Zip, [string]$Root) {
     # Одна верхняя папка на архив - измеренный факт, а не предположение. Проверяем её наличие,
     # иначе «срез уровня» молча превратился бы в перенос пустого дерева.
@@ -129,19 +184,7 @@ function Expand-RedistArchive([string]$Zip, [string]$Root) {
             throw ("в архиве {0} верхних каталогов {1} (ждём один) - правило переноса больше не верно" -f `
                    (Split-Path $Zip -Leaf), $tops.Count)
         }
-        $moved = 0
-        foreach ($item in Get-ChildItem -LiteralPath $tops[0].FullName -Force) {
-            $dest = Join-Path $Root $item.Name
-            if (Test-Path -LiteralPath $dest) {
-                # LICENSE повторяется в каждом архиве: второй перенос не ошибка, а совпадение.
-                if ($item.Name -ieq "LICENSE") { continue }
-                Move-Item -LiteralPath $item.FullName -Destination $dest -Force
-            } else {
-                Move-Item -LiteralPath $item.FullName -Destination $dest -Force
-            }
-            $moved++
-        }
-        return $moved
+        return Merge-Into $tops[0].FullName $Root
     } finally {
         Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -189,6 +232,9 @@ if ($SelfTest) {
     }
     $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("cuda-redist-selftest-" + [guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+    # Собственный текст скрипта нужен отдельной проверке: байтовый порог пригодности индекса
+    # уже не защищает ничего, и его возврат выглядел бы как «улучшение», а не как регрессия.
+    $code_redist = Get-Content -LiteralPath $PSCommandPath -Raw -Encoding UTF8
     try {
         # Подложка архива ровно как у NVIDIA: одна верхняя папка, внутри bin/x64 и LICENSE.
         $stage = Join-Path $tmp "payload"
@@ -202,12 +248,36 @@ if ($SelfTest) {
         $tc = Join-Path $tmp "cuda"
         New-Item -ItemType Directory -Force -Path $tc | Out-Null
         $moved = Expand-RedistArchive $zip $tc
-        Chk "перенос срезает одну верхнюю папку" $moved 3
+        Chk "перенос срезает одну верхнюю папку и считает файлы" $moved 3
         Chk "include лёг в корень тулчейна" (Test-Path (Join-Path $tc "include\cuda_runtime.h")) $true
         Chk "LICENSE не конфликтует при повторе" (Test-Path (Join-Path $tc "LICENSE")) $true
         $up = Move-BinX64ToBin $tc
         Chk "DLL поднят из bin/x64 в bin" ($up -join ",") "cublas64_13.dll"
         Chk "копия, а не перенос: x64 остался на месте" (Test-Path (Join-Path $tc "bin\x64\cublas64_13.dll")) $true
+
+        # Второй архив с ТЕМИ ЖЕ bin/x64 и include - ровно тот случай, который сломал живой
+        # прогон 12.11: перенос каталога в уже существующий каталог-приёмник давал слой bin\bin,
+        # и компоненты с общими каталогами (bin у 4 из 9, include у 6 из 9, lib у 3 из 9)
+        # уходили вторым слоем мимо мест, которые проверяет Test-Toolchain.
+        $stage2 = Join-Path $tmp "payload2"
+        New-Item -ItemType Directory -Force -Path (Join-Path $stage2 "bin\x64") | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $stage2 "include") | Out-Null
+        Write-NoBom (Join-Path $stage2 "LICENSE") "license"
+        Write-NoBom (Join-Path $stage2 "bin\x64\cublasLt64_13.dll") "dll-bytes-2"
+        Write-NoBom (Join-Path $stage2 "include\cublas_v2.h") "header-2"
+        $zip2 = Join-Path $tmp "libcublas-windows-x86_64-13.6.0.2-archive.zip"
+        Compress-Archive -Path $stage2 -DestinationPath $zip2 -Force
+        $moved2 = Expand-RedistArchive $zip2 $tc
+        Chk "второй архив принёс свои 3 файла" $moved2 3
+        Chk "dll второго архива легла в bin/x64" (Test-Path (Join-Path $tc "bin\x64\cublasLt64_13.dll")) $true
+        Chk "заголовок второго архива дописан в тот же include" `
+            (Test-Path (Join-Path $tc "include\cublas_v2.h")) $true
+        Chk "слоя bin\bin после слияния нет" (Test-Path (Join-Path $tc "bin\bin")) $false
+        Chk "слоя include\include после слияния нет" (Test-Path (Join-Path $tc "include\include")) $false
+        Chk "файл первого архива цел после слияния" (Test-Path (Join-Path $tc "bin\x64\cublas64_13.dll")) $true
+        $up2 = @(Move-BinX64ToBin $tc)
+        Chk "подъём находит обе dll после слияния" `
+            (@($up2 | Where-Object { $_ -in @("cublas64_13.dll", "cublasLt64_13.dll") }).Count) 2
 
         # Список обязательных файлов обязан различать «нет файла» и «есть файл».
         $miss = @(Test-Toolchain $tc)
@@ -242,12 +312,46 @@ if ($SelfTest) {
         } catch {
             Chk "несуществующий файл - исключение, а не пустой хеш" "бросил" "бросил"
         }
+
+        # Гейт пригодности индекса проверяется офлайн на подложках: сеть в selftest недоступна,
+        # а ловить надо ровно те три способа испортить проверку, которые и описаны в функции.
+        # Метка релиза и порог компонентов берутся из живого индекса 13.3.1 (49 компонентов,
+        # release_label 13.3.1), поэтому подложка обязана проходить с тем же порогом.
+        function New-FakeIndex([string]$Label, [int]$Count) {
+            $o = [ordered]@{ release_date = "2026-06-29"; release_label = $Label; release_product = "cuda" }
+            for ($i = 0; $i -lt $Count; $i++) {
+                $o["comp$i"] = @{ "windows-x86_64" = @{ sha256 = ("{0:x64}" -f $i); size = "1024" } }
+            }
+            return ($o | ConvertTo-Json -Depth 6 -Compress)
+        }
+        $iGood = Join-Path $tmp "idx-good.json"
+        Write-NoBom $iGood (New-FakeIndex $CudaVersion 49)
+        Chk "полный индекс своей версии проходит гейт" @(Test-IndexJson -Path $iGood -Version $CudaVersion).Count 0
+        $iLabel = Join-Path $tmp "idx-label.json"
+        Write-NoBom $iLabel (New-FakeIndex "13.3.0" 49)
+        Chk "индекс другой версии отбраковывается" `
+            (@(Test-IndexJson -Path $iLabel -Version $CudaVersion).Count -ge 1) $true
+        $iTiny = Join-Path $tmp "idx-tiny.json"
+        Write-NoBom $iTiny (New-FakeIndex $CudaVersion 5)
+        Chk "обрезанный индекс (5 компонентов) отбраковывается" `
+            (@(Test-IndexJson -Path $iTiny -Version $CudaVersion).Count -ge 1) $true
+        $iJunk = Join-Path $tmp "idx-junk.json"
+        Write-NoBom $iJunk "<html><body>502 Bad Gateway</body></html>"
+        Chk "страница ошибки вместо JSON отбраковывается" `
+            (@(Test-IndexJson -Path $iJunk -Version $CudaVersion).Count -ge 1) $true
+        # Байтовый порог в Save-Index больше не критерий: живой индекс проходил бы мимо него.
+        # Ищем именно код (`if ($bytes -lt N)`), а не подстроку: число 50000 осознанно осталось
+        # в комментариях как история, и проверка по тексту их бы заставила удалить.
+        Chk "размер индекса больше не порог пригодности" `
+            ($code_redist -match '\$bytes\s*-\s*lt\s*\d') $false
     } finally {
         Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
     }
     Write-Host "install_cuda_redist selftest: ok=$ok bad=$bad"
     # Обрезанный или изменённый блок выглядел бы как «провалов нет»: порог проверок - часть меры.
-    if (($ok + $bad) -lt 12) { Write-Host "ИТОГ: проверок $($ok + $bad) меньше 12 - мера не состоялась"; exit 2 }
+    # 27 - число Chk, реально выполняющихся за прогон: в паре try/catch про несуществующий файл
+    # срабатывает ровно один из двух вызовов, поэтому мерить надо по прогону, а не по строкам.
+    if (($ok + $bad) -lt 27) { Write-Host "ИТОГ: проверок $($ok + $bad) меньше 27 - мера не состоялась"; exit 2 }
     if ($bad) { exit 1 }
     exit 0
 }
@@ -318,9 +422,9 @@ foreach ($name in $Components) {
     $n = Expand-RedistArchive $dest $Root
     $report.components += [ordered]@{
         name = $name; version = $PINS[$name].min; archive = $file
-        bytes = [long]$w.size; sha256 = $got; entries_moved = $n
+        bytes = [long]$w.size; sha256 = $got; files_moved = $n
     }
-    Write-Host ("  образ совпал, перенесено верхних позиций {0}" -f $n)
+    Write-Host ("  образ совпал, перенесено файлов {0}" -f $n)
 }
 
 $raised = @(Move-BinX64ToBin $Root)

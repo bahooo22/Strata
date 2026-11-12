@@ -164,6 +164,20 @@ parameter is a refusal with exit code 2, not a half-finished build.
   format gate on the archive (the PK header and the EOCD) and the upload as an asset of an already
   existing release. Without a tag it stays a run artifact.
 
+Suitability of the component index (`redistrib_<version>.json`) is measured by structure: the release
+label must equal the requested version and the index must hold at least 20 components. The earlier
+byte threshold ("at least 50 000 B") rejected the live full 13.3.1 index, which weighs 47 914 B
+(measured 12.11), so the job died before the first download; `-SelfTest` of the same script catches a
+return of that threshold with a separate check over the source text.
+
+The archives are laid out by recursive merge, not by moving the top level: component directories
+overlap (listing of the 9 archives on 12.11: `bin` in 4 of 9, `include` in 6 of 9, `lib` in 3 of 9),
+and moving a directory onto an existing directory makes PowerShell put it INSIDE. The first live run
+on 12.11, with all nine sha256 values matching, gave `bin\bin\x64\cublas64_13.dll` and
+`include\include\cuda_runtime.h` - the toolchain would have been incomplete, and only the mandatory
+file list caught it. The script self-check tests the merge of a second archive with seven separate
+checks.
+
 The marker gate is the one thing a green build cannot prove. The registry
 `packaging\kit\ci\patch-markers.json` was taken off real binaries on 12.11: 23 markers for Strata
 over two carriers (exe) and 5 for the llama leg over three (dll). The markers cover 12 of our 72
