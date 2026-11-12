@@ -242,18 +242,48 @@ function Get-BuildWork([string]$LogFile, [long]$Start, [long]$Delta) {
     return [pscustomobject]@{ compiles = $c; links = $l; bytes = $text.Length }
 }
 
+function Count-BuiltObjects([string]$BuildDir) {
+    # Сколько объектов РЕАЛЬНЫХ целей лежит в дереве сборки ДО прогона. Ноль означает, что дерево
+    # пустое и грядущая сборка холодная: её секунды - это цена полной компиляции, и именно такие
+    # секунды можно ставить в обоснование timeout-minutes. Ненулевое - сборка частичная (прогрев
+    # после правки одного файла), и её время ничего не обосновывает. Пробные компиляции самого
+    # CMake (CMakeFiles\3.x\CompilerIdCXX и т.п.) не считаются: они есть и у холодного дерева,
+    # поэтому считаем только то, что лежит внутри каталога вида <цель>.dir\.
+    if (-not (Test-Path $BuildDir)) { return 0 }
+    $n = 0
+    foreach ($f in @(Get-ChildItem -LiteralPath $BuildDir -Recurse -File `
+                                   -Include *.obj, *.o, *.cuobj -ErrorAction SilentlyContinue)) {
+        if ($f.FullName -match '[\\/][^\\/]+\.dir[\\/]') { $n += 1 }
+    }
+    return $n
+}
+
+function Get-BuildKind([int]$Work, [int]$PreObjects) {
+    # Метка на двух фактах: сделал ли прогон хоть что-то и была ли сборочная директория пуста до
+    # него. Прежняя формулировка «полная компиляция» при любой ненулевой работе не различала
+    # холодный прогон (174 рёбер ninja) и прогрев (30 рёбер), а этим числом README обосновывал
+    # лимиты Actions. -1 - холодность не измеряли: такое состояние называется отдельно, иначе
+    # забывчивый caller выдал бы непроверенное дерево за холодное.
+    if ($Work -eq 0) { return "no-op" }
+    if ($PreObjects -lt 0) { return "холодность не измерена" }
+    if ($PreObjects -eq 0) { return "холодная сборка" }
+    return "частичная сборка"
+}
+
 function Get-PrevBuild([string]$OutDir, [string]$Engine) {
-    # Прежняя measure-запись движка, снятая на реальной компиляции. Нужна потому, что повторный
+    # Прежняя measure-запись движка, снятая на ХОЛОДОЙ сборке. Нужна потому, что повторный
     # прогон скрипта на тёплом кэше собирает ноль файлов за ноль секунд, а «время сборки» в
-    # отчёте комплекта - это время полной компиляции под все архитектуры, и подменять его
-    # нулями нельзя: читатель принял бы 0.4 с за цену сборки трёх архитектур.
+    # отчёте комплекта - это время холодной компиляции под все архитектуры, и подменять его
+    # нулями нельзя: читатель принял бы 0.4 с за цену сборки трёх архитектур. Брать можно только
+    # запись с меткой «холодная сборка»: время прогрева (частичной сборки) цену полной компиляции
+    # не называет, а прежний отбор «не no-op» принимал и его.
     foreach ($name in @("build-measure.json", "build-measure.partial.json")) {
         $p = Join2 $OutDir $name
         if (-not (Test-Path $p)) { continue }
         $o = $null
         try { $o = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json } catch { continue }
         $e = $o.engines.$Engine
-        if ($e -and $e.build_kind -ne "no-op" -and $e.build_s) {
+        if ($e -and $e.build_kind -eq "холодная сборка" -and $e.build_s) {
             return [pscustomobject]@{ build = $e; started = $o.started; from = $name }
         }
     }
@@ -283,12 +313,13 @@ function Write-Json($Object, [string]$Path, [int]$Depth) {
 }
 
 function Set-EngineMeasure([string]$EngineName, [string]$Src, [string]$BuildDir, $Cfg, $Build,
-                           [string]$LogFile, [string]$Measures) {
+                           [string]$LogFile, [string]$Measures, [int]$PreObjects = -1) {
     # Единообразная запись меры движка: у llama и Страты она была скопирована дважды, и пропуск
     # no-op-проверки в одной из копий дал бы молчаливую подмену времени сборки нулями.
     $work = Get-BuildWork $LogFile $Build.log_start $Build.log_bytes
-    $noop = ($work.compiles + $work.links) -eq 0
-    $kind = if ($noop) { "no-op" } else { "полная компиляция" }
+    $workEdges = $work.compiles + $work.links
+    $noop = ($workEdges -eq 0)
+    $kind = Get-BuildKind $workEdges $PreObjects
     # Мера обязана называть коммит носителя: без него время сборки, размеры и cuobjdump описывают
     # «какую-то» вершину, и приёмка комплекта не может доказать, что байты в архиве сняты с того же
     # дерева, которое названо в аудите синка.
@@ -316,22 +347,30 @@ function Set-EngineMeasure([string]$EngineName, [string]$Src, [string]$BuildDir,
         build_compiles = $work.compiles
         build_links    = $work.links
         build_log_bytes = $Build.log_bytes
+        prebuilt_objects = $PreObjects
+    }
+    if (-not $noop -and $kind -ne "холодная сборка") {
+        # Это время нельзя ставить в обоснование лимитов Actions: оно описывает не полную
+        # компиляцию, а долю полной.
+        Write-Host ("  ВНИМАНИЕ ${EngineName}: сборка названа «$kind» (объектов в $BuildDir до " +
+                    "прогона: $PreObjects, рёбер работы: $workEdges) - время $($Build.sec) с " +
+                    "описывает НЕ полную компиляцию, в обоснование timeout-minutes не годится")
     }
     if ($noop) {
         $prev = Get-PrevBuild $Measures $EngineName
         if ($prev) {
-            # Время полной компиляции берём из прежнего замера и открыто говорим, откуда оно.
+            # Время холодной компиляции берём из прежнего замера и открыто говорим, откуда оно.
             $m.build_s = $prev.build.build_s
             $m.build_s_this_run = $Build.sec
             $m.build_s_at = $prev.started
             $m.build_s_from = $prev.from
             Write-Host ("  ${EngineName}: прогон ничего не компилировал ({0} с) - время сборки " +
-                        "взято из реальной компиляции {1} с (замер {2}, {3})" -f `
+                        "взято из холодной сборки {1} с (замер {2}, {3})" -f `
                         $Build.sec, $prev.build.build_s, $prev.started, $prev.from)
         } else {
             $m.build_s = $null
             Write-Host ("  ВНИМАНИЕ ${EngineName}: прогон ничего не компилировал, а прежней меры " +
-                        "полной сборки нет - время сборки НЕ измерено, в отчёт его ставить нельзя")
+                        "холодной сборки нет - время сборки НЕ измерено, в отчёт его ставить нельзя")
         }
     }
     return $m
@@ -343,7 +382,15 @@ if ($SelfTest) {
     $ErrorActionPreference = "Continue"
     $script:ok = 0; $script:bad = 0
     function Chk([string]$Name, $Got, $Want) {
-        if ([string]$Got -eq [string]$Want) {
+        # Дробные сравниваем как числа: в PowerShell 7.6 строковое представление целого Double
+        # зависит от того, как значение попало в сравнение. Литерал 3321.0 в позиции аргумента
+        # даёт «3321.0», а то же значение из переменной или из ConvertFrom-Json - «3321»
+        # (замер 12.11: [string]$Got = '3321', [string]$Want = '3321.0' при $Got -eq $Want = True),
+        # поэтому контроль на равных секундах краснел с текстом «получено 3321, ожидалось 3321».
+        $num = ($Got -is [double] -or $Got -is [single] -or $Got -is [decimal]) -and
+              ($Want -is [double] -or $Want -is [single] -or $Want -is [decimal])
+        $same = if ($num) { $Got -eq $Want } else { [string]$Got -eq [string]$Want }
+        if ($same) {
             $script:ok++; Write-Host "  ok   $Name"
         } else {
             $script:bad++; Write-Host "FAIL   ${Name}: получено '$Got', ожидалось '$Want'"
@@ -438,21 +485,33 @@ if ($SelfTest) {
     Chk "прежнее окно от конца файла теряет компиляцию" `
         (Get-BuildWork $slog ((Get-Item $slog).Length - $step1.log_bytes) $step1.log_bytes).compiles 0
     Remove-Item $slog, $sbuild, $snoise -ErrorAction SilentlyContinue
-    # Прежняя мера полной сборки читается только если она сама была полной: no-op прошлого
-    # прогона не должен становиться «временем сборки» этого.
+    # Прежняя мера полной сборки читается только если она сама была ХОЛОДОЙ: no-op прошлого
+    # прогона не должен становиться «временем сборки» этого, а время прогрева цену полной
+    # компиляции не называет. Отбор «любая не-no-op мера» принимал и прогрев: в measure-файле
+    # стендового прогона 12.11 у Страты стоит 712.6 с при 25+5 рёбрах, а у llama-ноги 2788.8 с
+    # при 156+8 - это доли полной сборки (174 и 329 рёбер), которыми README обосновывал лимиты
+    # Actions до правки.
     $mdir = Join2 ([System.IO.Path]::GetTempPath()) ("build-kit-prev-" +
                [Guid]::NewGuid().ToString("N").Substring(0, 8))
     New-Item -ItemType Directory -Force -Path $mdir | Out-Null
     Write-Json ([ordered]@{ started = "2026-11-10 19:51:41"
-                            engines = [ordered]@{ llama = [ordered]@{ build_s = 2857.6; build_kind = "полная компиляция" } } }) `
+                            engines = [ordered]@{ llama = [ordered]@{ build_s = 3321.0; build_kind = "холодная сборка" } } }) `
                (Join2 $mdir "build-measure.json") 4
     $pv = Get-PrevBuild $mdir "llama"
-    Chk "прежняя полная сборка найдена" $pv.build.build_s 2857.6
+    Chk "прежняя холодная сборка найдена" $pv.build.build_s 3321.0
     Chk "у найденной меры есть дата замера" $pv.started "2026-11-10 19:51:41"
+    Write-Json ([ordered]@{ started = "2026-11-12 14:04:17"
+                            engines = [ordered]@{ llama = [ordered]@{ build_s = 712.6; build_kind = "частичная сборка" } } }) `
+               (Join2 $mdir "build-measure.json") 4
+    Chk "прогрев не принимается за цену полной сборки" ($null -eq (Get-PrevBuild $mdir "llama")) $true
     Write-Json ([ordered]@{ started = "2026-11-10 20:00:00"
                             engines = [ordered]@{ llama = [ordered]@{ build_s = 0.4; build_kind = "no-op" } } }) `
                (Join2 $mdir "build-measure.json") 4
     Chk "no-op не принимается за полную сборку" ($null -eq (Get-PrevBuild $mdir "llama")) $true
+    Write-Json ([ordered]@{ started = "2026-11-12 14:04:17"
+                            engines = [ordered]@{ llama = [ordered]@{ build_s = 2788.8; build_kind = "полная компиляция" } } }) `
+               (Join2 $mdir "build-measure.json") 4
+    Chk "снятая метка «полная компиляция» больше не принимается" ($null -eq (Get-PrevBuild $mdir "llama")) $true
     Chk "движок без прежней меры отсутствует" ($null -eq (Get-PrevBuild $mdir "strata")) $true
     Remove-Item -LiteralPath $mdir -Recurse -Force -ErrorAction SilentlyContinue
     # Write-Json обязан давать читаемый classify.py файл: BOM меряется первым байтом, а не
@@ -508,6 +567,60 @@ if ($SelfTest) {
     Chk "мера без git называет коммит ПУСТО" $mLeak["commit"] "ПУСТО"
     Chk "JSON меры без git начинается с { а не с [" `
         (((ConvertTo-Json -InputObject $mLeak -Depth 6).TrimStart())[0]) "{"
+
+    # --- холодность сборки -------------------------------------------------------------------
+    # Метка ставилась при любой ненулевой работе, и её числом README обосновывал лимиты Actions.
+    # Знаменатель ninja различать не умеет (снято 12.11 по четырём логам): это план текущего
+    # вызова - у llama прогрев даёт план 165 против 330 у полной сборки, а у Страты план 174 и у
+    # холодного, и у CI-верного прогона. Факт, доступный ДО прогона, - число объектов реальных
+    # целей: они лежат в каталогах вида <цель>.dir, а пробные компиляции самого CMake есть и у
+    # совершенно пустого дерева, поэтому их считать нельзя.
+    $kdir = Join2 ([System.IO.Path]::GetTempPath()) ("build-kit-objs-" +
+               [Guid]::NewGuid().ToString("N").Substring(0, 8))
+    foreach ($f in @("CMakeFiles\strata.dir\server.cpp.obj", "CMakeFiles\strata.dir\main.cu.obj",
+                     "ggml\CMakeFiles\ggml-cuda.dir\mmq.cu.obj",
+                     "CMakeFiles\3.31.0\CompilerIdCXX\a.obj",
+                     "CMakeFiles\3.31.0\CompilerIdCUDA\t.cuobj")) {
+        $p = Join2 $kdir $f
+        New-Item -ItemType Directory -Force -Path ([System.IO.Path]::GetDirectoryName($p)) | Out-Null
+        [System.IO.File]::WriteAllText($p, "x", (New-Object System.Text.UTF8Encoding($false)))
+    }
+    Chk "объекты целей посчитаны, пробные компиляции - нет" (Count-BuiltObjects $kdir) 3
+    Chk "несуществующее дерево даёт ноль" (Count-BuiltObjects (Join2 $kdir "нет-такой-папки")) 0
+    Remove-Item -LiteralPath (Join2 $kdir "CMakeFiles\strata.dir") -Recurse -Force
+    Remove-Item -LiteralPath (Join2 $kdir "ggml") -Recurse -Force
+    Chk "после вычистки целей счёт нулевой" (Count-BuiltObjects $kdir) 0
+    Remove-Item -LiteralPath $kdir -Recurse -Force -ErrorAction SilentlyContinue
+    Chk "нулевая работа - no-op при любом дереве" (Get-BuildKind 0 7) "no-op"
+    Chk "пустое дерево с работой - холодная сборка" (Get-BuildKind 174 0) "холодная сборка"
+    Chk "непустое дерево с работой - частичная сборка" (Get-BuildKind 30 1200) "частичная сборка"
+    Chk "без замера холодности - отдельная метка" (Get-BuildKind 174 -1) "холодность не измерена"
+    # Мера обязана донести и метку, и число объектов до файла, который читает Get-PrevBuild:
+    # «холодная» запись в отчёте без основания хуже, чем отсутствие записи.
+    $coldLog = Join2 ([System.IO.Path]::GetTempPath()) "build-kit-selftest-cold.log"
+    Write-Utf8 $coldLog "[1/1] Building CXX object CMakeFiles/a.dir/a.cpp.obj"
+    $bldCold = [pscustomobject]@{ sec = 737.7; rc = 0; log_start = 0; log_bytes = (Get-Item $coldLog).Length }
+    $noGit = "C:/build-kit-selftest-нет-такого-дерева"
+    $mc = Set-EngineMeasure "strata" $noGit "C:/нет" $cfgStub $bldCold $coldLog `
+                            ([System.IO.Path]::GetTempPath()) 0
+    Chk "мера пустого дерева называет сборку холодной" $mc["build_kind"] "холодная сборка"
+    Chk "мера хранит число объектов до прогона" $mc["prebuilt_objects"] 0
+    $mcNoArg = Set-EngineMeasure "strata" $noGit "C:/нет" $cfgStub $bldCold $coldLog `
+                                 ([System.IO.Path]::GetTempPath())
+    Chk "мера без числа объектов не выдаёт холодную" $mcNoArg["build_kind"] "холодность не измерена"
+    # no-op обязан брать время из прежней ХОЛОДОЙ меры и открыто называть источник.
+    $mprev = Join2 ([System.IO.Path]::GetTempPath()) ("build-kit-prev-" +
+                [Guid]::NewGuid().ToString("N").Substring(0, 8))
+    New-Item -ItemType Directory -Force -Path $mprev | Out-Null
+    Write-Json ([ordered]@{ started = "2026-11-12 21:32:26"
+                            engines = [ordered]@{ strata = [ordered]@{ build_s = 737.7; build_kind = "холодная сборка" } } }) `
+               (Join2 $mprev "build-measure.json") 4
+    $mn = Set-EngineMeasure "strata" $noGit "C:/нет" $cfgStub $bldStub $emptyLog $mprev
+    Chk "no-op берёт время из прежней холодной меры" $mn["build_s"] 737.7
+    Chk "no-op называет файл-источник времени" $mn["build_s_from"] "build-measure.json"
+    Chk "no-op называет дату прежнего замера" $mn["build_s_at"] "2026-11-12 21:32:26"
+    Remove-Item $coldLog -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $mprev -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item $emptyLog -ErrorAction SilentlyContinue
     # И тот же класс по тексту скрипта: голая склейка Write-Host обязана быть запрещена, иначе
     # правка вернёт утечку в том месте, которое сейчас не исполняется.
@@ -540,6 +653,14 @@ if ($SelfTest) {
         ([regex]::Matches($code, '\' + $dollar + 'Out\b').Count -gt 0) $true
     Chk "в коде нет путей, выведенных из положения скрипта" `
         ($code.Contains('PSScript' + 'Root') -or $code.Contains('Split-Path ' + $dollar + 'PSCommandPath')) $false
+    # Метка холодности бессмысленна, если вызовы сборки её не вычисляют: правка, которая уберёт
+    # подсчёт объектов из одной ветки, вернёт ровно тот дефект, ради которого всё затевалось,
+    # а самоконтроль функций этого не увидит. Паттерны собираются из кусков - целый литерал
+    # совпал бы с самой проверкой.
+    Chk "холодность считают перед обеими сборками" `
+        @([regex]::Matches($code, 'Count-BuiltObjects\s+\' + $dollar + 'bd')).Count 2
+    Chk "обе меры получают число объектов до прогона" `
+        @([regex]::Matches($code, 'Set-EngineMeasure[^\r\n]*\' + $dollar + 'pre')).Count 2
     foreach ($p in @("Cuda", "Vs", "Out", "StrataSrc", "LlamaSrc", "GgmlDir",
                      "ProbeScript", "StrataBuildDir", "LlamaBuildDir")) {
         $m = [regex]::Match($code,
@@ -629,9 +750,10 @@ if ($SelfTest) {
 
     Write-Host "build_kit: $script:ok/$($script:ok + $script:bad) контролей пройдено"
     # нижняя граница числа контролей: выкинутый контроль обязан быть замечен, а не «менее 46».
-    # Фактическое число на 12.11 - 87 (стенд); 80 оставлены с запасом на правку, а не на молчание.
-    if (($script:ok + $script:bad) -lt 80) {
-        Write-Host "ОТКАЗ: контролей меньше 80 - мерка деградировала (проверка не состоялась)"
+    # Фактическое число на 12.11 - 105 (после контролей холодности); 100 оставлены с запасом
+    # на правку, а не на молчание.
+    if (($script:ok + $script:bad) -lt 100) {
+        Write-Host "ОТКАЗ: контролей меньше 100 - мерка деградировала (проверка не состоялась)"
         exit 2
     }
     exit $(if ($script:bad) { 1 } else { 0 })
@@ -819,12 +941,18 @@ if ($Engines -match 'strata') {
     if ($GgmlDir) { $cfgArgs += "-DSTRATA_GGML_DIR=$GgmlDir" }
     $tCfg = Invoke-BuildStep $log "настройка Страты" { & $cmake @cfgArgs }
     if ($tCfg.rc -ne 0) { Write-Host "ОТКАЗ: настройка Страты rc=$($tCfg.rc) (лог $log)"; Save-Measure "отказ: настройка Страты rc=$($tCfg.rc)"; exit 1 }
+    # Знаменатель ninja ([174/174]) - план ТЕКУЩЕГО вызова, а не размер графа, поэтому холодность
+    # им не измеряется. Единственный доступный до прогона факт - число готовых объектов реальных
+    # целей в дереве сборки.
+    $preStrata = Count-BuiltObjects $bd
     $tBuild = Invoke-BuildStep $log "сборка Страты" { & $cmake --build $bd --target strata strata-q36 -j 4 }
     if ($tBuild.rc -ne 0) { Write-Host "СБОРКА Страты упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
-    $measure.engines.strata = Set-EngineMeasure "strata" $src $bd $tCfg $tBuild $log $Out
+    $measure.engines.strata = Set-EngineMeasure "strata" $src $bd $tCfg $tBuild $log $Out $preStrata
     $sm = $measure.engines["strata"]
-    Write-Host ("strata: настройка {0} с, сборка {1} с ({2} компиляций, {3} линковок), rc={4}" -f `
-                $tCfg.sec, $sm.build_s, $sm.build_compiles, $sm.build_links, $tBuild.rc)
+    Write-Host ("strata: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
+                "объектов до прогона: {5}), rc={6}" -f `
+                $tCfg.sec, $sm.build_s, $sm.build_kind, $sm.build_compiles, $sm.build_links, `
+                $preStrata, $tBuild.rc)
 }
 
 if ($Engines -match 'llama') {
@@ -849,12 +977,15 @@ if ($Engines -match 'llama') {
                    "-DLLAMA_BUILD_EXAMPLES=OFF", "-DLLAMA_CURL=OFF")
     $tCfg = Invoke-BuildStep $log "настройка llama" { & $cmake @llamaArgs }
     if ($tCfg.rc -ne 0) { Write-Host "ОТКАЗ: настройка llama rc=$($tCfg.rc) (лог $log)"; Save-Measure "отказ: настройка llama rc=$($tCfg.rc)"; exit 1 }
+    $preLlama = Count-BuiltObjects $bd
     $tBuild = Invoke-BuildStep $log "сборка llama" { & $cmake --build $bd --target llama-server -j 4 }
     if ($tBuild.rc -ne 0) { Write-Host "СБОРКА llama упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
-    $measure.engines.llama = Set-EngineMeasure "llama" $src $bd $tCfg $tBuild $log $Out
+    $measure.engines.llama = Set-EngineMeasure "llama" $src $bd $tCfg $tBuild $log $Out $preLlama
     $lm = $measure.engines["llama"]
-    Write-Host ("llama: настройка {0} с, сборка {1} с ({2} компиляций, {3} линковок), rc={4}" -f `
-                $tCfg.sec, $lm.build_s, $lm.build_compiles, $lm.build_links, $tBuild.rc)
+    Write-Host ("llama: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
+                "объектов до прогона: {5}), rc={6}" -f `
+                $tCfg.sec, $lm.build_s, $lm.build_kind, $lm.build_compiles, $lm.build_links, `
+                $preLlama, $tBuild.rc)
 }
 
 if (-not $measure.engines.Count) {

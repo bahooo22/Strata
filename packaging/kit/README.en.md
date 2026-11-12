@@ -187,8 +187,18 @@ parity measurements on the bench. A lost marker is exit code 1 and a red run; an
 exit code 2, which reads as "the check did not happen".
 
 Actions does not measure anything that requires a GPU: serving a model and the per-architecture cost
-limit (`-SkipProbe`). The time limits (180 minutes for a push run, 240 for the release run) come
-from the bench numbers in build-measure.json: strata 712.6 s, llama 2788.8 s.
+limit (`-SkipProbe`). The time limits rest on cold builds: the `build_kind` label in build-measure is
+decided by the number of real target objects in the build tree BEFORE the run and tells apart
+"cold build", "partial build" (a warm-up after an edit), "no-op" and "coldness not measured" - a
+warm-up time does not state the price of a full compilation and cannot justify a limit. The cold
+numbers on hand are strata 737.7 s (160 compilations and 14 links out of a plan of 174, architecture
+86 only, run of 12.11) and llama 3321.0 s (315 compilations and 14 links out of a plan of 330,
+architecture 120a). The numbers this paragraph quoted before, strata 712.6 s and llama 2788.8 s, are
+warm-ups: 30 and 164 edges executed instead of 174 and 329. The 180 minutes of a push run are 14.6
+times the cold Strata build on 86 and 3.2 times the cold llama build, which was taken on 120a: the
+llama leg on 86 has not been measured. The release run gets 240 minutes and builds both legs on 86,
+89 and 120 in a single tree; the two measured cold builds sum to 67.6 minutes for one architecture
+per leg, and the cost of a three-architecture run still has to be measured.
 
 ## What is not here
 
