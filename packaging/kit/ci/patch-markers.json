@@ -1,0 +1,315 @@
+{
+ "version": 1,
+ "generated": "2026-11-12",
+ "measure": "ci_binary_markers2_2026-11-12.py (снимки 12.11 на стендовых сборках)",
+ "note": "Бинарник доказуемо несёт два класса имён: строковые литералы (переменные среды, CLI-флаги, тексты) и имена CUDA-ядер из fatbin. Локальные имена функций и переменных компилятор не сохраняет, поэтому коммиты без такого следа в реестр не входят - их отсутствие здесь не значит, что патч не собран.",
+ "engines": {
+  "strata": {
+   "upstream": "upstream/main",
+   "commits_ours": 72,
+   "candidates": 787,
+   "ours_unique": 589,
+   "markers": 23,
+   "commits_with_marker": 12,
+   "carriers": [
+    "strata-q36.exe",
+    "strata.exe"
+   ],
+   "carrier_note": "cubin-ядра Страты живут в strata-q36.exe и strata.exe",
+   "list": [
+    {
+     "token": "k_kv_f16_kv",
+     "kind": "kernel",
+     "commit": "28f39156",
+     "subject": "RU: q36: KV-кэш квантуется q4_0, q5_0, q5_1 и q8_0",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "k_route_count_scan",
+     "kind": "kernel",
+     "commit": "4569b243",
+     "subject": "RU: q36: count+scan маршрутизации в одном блоке",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": ", --mtp 0 (the MTP block's weights and buffers take VRAM)",
+     "kind": "literal",
+     "commit": "86200712",
+     "subject": "Подсказать --mtp 0 и STRATA_MMQ_KQ=0 в ошибке нехватки VRAM",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": ", or STRATA_MMQ_KQ=0 (the streamed-prompt staging becomes slots)",
+     "kind": "literal",
+     "commit": "86200712",
+     "subject": "Подсказать --mtp 0 и STRATA_MMQ_KQ=0 в ошибке нехватки VRAM",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "--cache-type-k",
+     "kind": "literal",
+     "commit": "9ecacd60",
+     "subject": "q36: флаги KV как у llama — --kv, --cache-type-k/-v, k8v4 отвергается",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "--cache-type-v",
+     "kind": "literal",
+     "commit": "9ecacd60",
+     "subject": "q36: флаги KV как у llama — --kv, --cache-type-k/-v, k8v4 отвергается",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "expert misses (E.d_miss)",
+     "kind": "literal",
+     "commit": "2e1c2a04",
+     "subject": "RU: q36: диагностика OOM при экспертных буферах",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "expert scratch (E.ecpu)",
+     "kind": "literal",
+     "commit": "2e1c2a04",
+     "subject": "RU: q36: диагностика OOM при экспертных буферах",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "expert slot table (H.slot_of_d)",
+     "kind": "literal",
+     "commit": "2033a9dc",
+     "subject": "RU: q36: диагностика OOM для слотов экспертов и staging",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "expert slots (L.blobs), layer",
+     "kind": "literal",
+     "commit": "2033a9dc",
+     "subject": "RU: q36: диагностика OOM для слотов экспертов и staging",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "expert slots, all in VRAM (L.blobs)",
+     "kind": "literal",
+     "commit": "2033a9dc",
+     "subject": "RU: q36: диагностика OOM для слотов экспертов и staging",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "no host memory for a layer's experts (",
+     "kind": "literal",
+     "commit": "4b679a76",
+     "subject": "RU: q36: pinned host-арена экспертов по слоям — 96k pp +73 %",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "prompt staging (E.stage[0])",
+     "kind": "literal",
+     "commit": "2e1c2a04",
+     "subject": "RU: q36: диагностика OOM при экспертных буферах",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "prompt staging (E.stage[1])",
+     "kind": "literal",
+     "commit": "2e1c2a04",
+     "subject": "RU: q36: диагностика OOM при экспертных буферах",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "strata-q36: --kv k8v4 wants a format per cache and q36 stores K and V in one",
+     "kind": "literal",
+     "commit": "9ecacd60",
+     "subject": "q36: флаги KV как у llama — --kv, --cache-type-k/-v, k8v4 отвергается",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_ATT_MB",
+     "kind": "literal",
+     "commit": "a00ab004",
+     "subject": "RU: q36: флаг --att-mb — размер attention-буфера без пересборки",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FA_CHECK",
+     "kind": "literal",
+     "commit": "cc4da32c",
+     "subject": "q36: FA-пилот — prompt attention на mma.m16n8k16 (fp16 K/V)",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FA_LAYER",
+     "kind": "literal",
+     "commit": "0b200472",
+     "subject": "RU: packaging: портативный комплект detect/classify/recommend в истории",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FA_LOG",
+     "kind": "literal",
+     "commit": "cc4da32c",
+     "subject": "q36: FA-пилот — prompt attention на mma.m16n8k16 (fp16 K/V)",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FA_TILE",
+     "kind": "literal",
+     "commit": "cc4da32c",
+     "subject": "q36: FA-пилот — prompt attention на mma.m16n8k16 (fp16 K/V)",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_PINNED_LAYERS",
+     "kind": "literal",
+     "commit": "53a8f8ca",
+     "subject": "RU: q36: доля pinned-арены — флаг STRATA_Q36_PINNED_LAYERS",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_PROFILE",
+     "kind": "literal",
+     "commit": "59855142",
+     "subject": "RU: q36: профилировщик attention/GDN/MoE по STRATA_Q36_PROFILE",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_SUPER_CHUNK",
+     "kind": "literal",
+     "commit": "0b200472",
+     "subject": "RU: packaging: портативный комплект detect/classify/recommend в истории",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    }
+   ]
+  },
+  "llama": {
+   "upstream": "origin/master",
+   "commits_ours": 12,
+   "candidates": 8,
+   "ours_unique": 5,
+   "markers": 5,
+   "commits_with_marker": 4,
+   "carriers": [
+    "ggml-base.dll",
+    "ggml-cuda.dll",
+    "llama.dll"
+   ],
+   "carrier_note": "маркеры llama-ноги распределены по ggml-cuda.dll, ggml-base.dll и llama.dll",
+   "list": [
+    {
+     "token": "GGML_CUDA_GRAPH_NODES",
+     "kind": "literal",
+     "commit": "1e54377d6",
+     "subject": "llama: GGML_CUDA_GRAPH_NODES — счётчик узлов и чанков decode-графа",
+     "bins": [
+      "ggml-cuda.dll",
+      "llama.dll"
+     ]
+    },
+    {
+     "token": "GGML_CUDA_UPLOAD_STREAM",
+     "kind": "literal",
+     "commit": "1c8daa768",
+     "subject": "ggml: keep the upload-stream test public and gate it by the CUDA env flag",
+     "bins": [
+      "ggml-cuda.dll"
+     ]
+    },
+    {
+     "token": "GGML_MOE_HIST",
+     "kind": "literal",
+     "commit": "8d3325728",
+     "subject": "llama: диагностика H2D и гистограмма экспертов в MoE",
+     "bins": [
+      "llama.dll"
+     ]
+    },
+    {
+     "token": "GGML_MOE_TRACE",
+     "kind": "literal",
+     "commit": "8d3325728",
+     "subject": "llama: диагностика H2D и гистограмма экспертов в MoE",
+     "bins": [
+      "llama.dll"
+     ]
+    },
+    {
+     "token": "GGML_SCHED_COPIES",
+     "kind": "literal",
+     "commit": "a418f346d",
+     "subject": "RU: llama-kit: перенесены n_copies планировщика и учёт закэшированных байт",
+     "bins": [
+      "ggml-base.dll"
+     ]
+    }
+   ]
+  }
+ }
+}
