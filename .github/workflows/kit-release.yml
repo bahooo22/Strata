@@ -1,0 +1,232 @@
+# =============================================================================
+# Portable-комплект gpu-infer-kit: полная сборка и публикация ассетом релиза.
+# =============================================================================
+# Отличие от kit-build.yml (сборка при пушах) здесь принципиальное:
+#   - собираются ОБА движка одним прогоном (-Engines "strata;llama"), потому что только
+#     такой прогон пишет объединённые build-measure.json / elf-proof.json. Парный прогон
+#     по движкам дал бы *.partial.json, а pack_kit.ps1 читает именно объединённые меры и
+#     при их отсутствии обязан отказать, а не упаковать половину доказательства;
+#   - архитектуры полные (86;89;120) - комплект рассчитан на разные карты, и -Arch здесь
+#     меняет содержимое архива, а не только ширину codegen;
+#   - zip проходит формат-гейт по байтам (verify_zip.sh) ДО публикации: под bash голый tar
+#     пишет POSIX-tar с кодом выхода 0, GitHub по расширению ставит application/zip, и
+#     мёртвый архив доезжает до пользователя;
+#   - маркеры наших патчей сверяются по байтам обоих ног: зелёная сборка сама по себе
+#     ничего не доказывает.
+# Версия комплекта: если запуск был по релизу, pack_kit.ps1 получает -Version = тег, и имя
+# архива строится из этой же версии (одна точка истины); при workflow_dispatch без тега
+# упаковщик берёт дату started из build-measure.json, а шаг публикации не выполняется.
+# Ассет загружается в УЖЕ СОЗДАННЫЙ релиз: gh release upload не создаёт релиз молча.
+name: "Kit release (portable gpu-infer-kit)"
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Тег существующего релиза для загрузки ассета (пусто = только сборка и артефакт)
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kit-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CUDA_VERSION: '13.3.1'
+  ARCH: '86;89;120'
+  GGML_REPO: 'bahooo22/llama.cpp'
+  GGML_PIN: '3cf03257f'
+  LLAMA_REPO: 'bahooo22/llama.cpp'
+  LLAMA_REF: 'kit-all-sync'
+  KIT_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+
+jobs:
+  kit:
+    name: Сборка двух движков, упаковка и публикация
+    runs-on: windows-2022
+    # Полная холодная сборка на стенде: strata 712.6 с + llama 2788.8 с (build-measure.json
+    # от 12.11) - около часа; плюс тулчейн CUDA и упаковка. 240 минут - с запасом на раннер.
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: strata }
+
+      - name: "Форк llama.cpp: llama-нога комплекта (наши патчи)"
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.LLAMA_REPO }}
+          ref: ${{ env.LLAMA_REF }}
+          path: llama
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: "ggml-пин Страты: K-quant template-instances (q2_k)"
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GGML_REPO }}
+          ref: ${{ env.GGML_PIN }}
+          path: ggml-pin
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Контроль входов до компиляции
+        shell: bash
+        run: |
+          for f in strata/packaging/kit/ci/build_kit.ps1 \
+                   strata/packaging/kit/ci/pack_kit.ps1 \
+                   strata/packaging/kit/ci/kit_dll_deps.py \
+                   strata/packaging/kit/ci/patch_markers.py \
+                   strata/packaging/kit/ci/verify_zip.sh \
+                   strata/packaging/kit/START.bat \
+                   ggml-pin/ggml/src/ggml-cuda/mma.cuh \
+                   llama/CMakeLists.txt; do
+            if [ ! -f "$f" ]; then echo "::error::нет $f - сборка не начата"; exit 2; fi
+          done
+          echo "входы: 8 файлов проверено"
+
+      - name: Кэш redist-архивов CUDA
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\cuda-dl
+          key: cuda-dl-${{ env.CUDA_VERSION }}-kit
+
+      - name: Тулчейн CUDA из redist-архивов
+        shell: pwsh
+        run: |
+          $ci = Join-Path $env:GITHUB_WORKSPACE 'strata\packaging\kit\ci'
+          & pwsh -NoProfile -NonInteractive -File $ci\install_cuda_redist.ps1 `
+              -Root (Join-Path $env:RUNNER_TEMP 'cuda') `
+              -CacheDir (Join-Path $env:RUNNER_TEMP 'cuda-dl') `
+              -CudaVersion $env:CUDA_VERSION
+          Write-Host "rc(install_cuda_redist)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: Сборка обоих движков под CUDA (полный набор архитектур)
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $ci = Join-Path $ws 'strata\packaging\kit\ci'
+          & pwsh -NoProfile -NonInteractive -File $ci\build_kit.ps1 `
+              -StrataSrc (Join-Path $ws 'strata') `
+              -LlamaSrc (Join-Path $ws 'llama') `
+              -GgmlDir (Join-Path $ws 'ggml-pin') `
+              -Cuda (Join-Path $env:RUNNER_TEMP 'cuda') `
+              -Out (Join-Path $env:RUNNER_TEMP 'kit') `
+              -Engines 'strata;llama' -Arch $env:ARCH -SkipProbe
+          Write-Host "rc(build_kit)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: "Гейт маркеров: наши патчи в собранных exe и dll"
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $pm = Join-Path $ws 'strata\packaging\kit\ci\patch_markers.py'
+          $bad = @()
+          python $pm --engine strata `
+              --bin (Join-Path $ws 'strata\build-kit\strata-q36.exe') `
+              --bin (Join-Path $ws 'strata\build-kit\strata.exe') `
+              --out (Join-Path $env:RUNNER_TEMP 'kit\markers-strata.json')
+          Write-Host "rc(patch_markers strata)=$LASTEXITCODE"
+          if ($LASTEXITCODE -ne 0) { $bad += 'strata' }
+          python $pm --engine llama `
+              --bin (Join-Path $ws 'llama\build-kit\bin\ggml-base.dll') `
+              --bin (Join-Path $ws 'llama\build-kit\bin\ggml-cuda.dll') `
+              --bin (Join-Path $ws 'llama\build-kit\bin\llama.dll') `
+              --out (Join-Path $env:RUNNER_TEMP 'kit\markers-llama.json')
+          Write-Host "rc(patch_markers llama)=$LASTEXITCODE"
+          if ($LASTEXITCODE -ne 0) { $bad += 'llama' }
+          if ($bad) { Write-Host "::error::маркеры потеряны в: $($bad -join ', ')"; exit 1 }
+
+      - name: Реестр нативных зависимостей бинарников
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $dumpbin = & $vswhere -latest -find '**\bin\Hostx64\x64\dumpbin.exe' | Select-Object -First 1
+          if (-not $dumpbin) { Write-Host 'ОТКАЗ: dumpbin.exe не найден через vswhere - проверка не состоялась'; exit 2 }
+          $bins = @('strata\build-kit\strata-q36.exe', 'strata\build-kit\strata.exe',
+                    'llama\build-kit\bin\llama-server.exe', 'llama\build-kit\bin\ggml-cuda.dll',
+                    'llama\build-kit\bin\ggml-base.dll', 'llama\build-kit\bin\llama.dll')
+          $a = @('strata\packaging\kit\ci\kit_dll_deps.py')
+          foreach ($b in $bins) { $a += @('--bin', (Join-Path $ws $b)) }
+          $a += @('--dumpbin', $dumpbin,
+                  '--cuda-bin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'),
+                  '--extra-dir', (Join-Path $ws 'llama\build-kit\bin'),
+                  '--out', (Join-Path $env:RUNNER_TEMP 'kit\runtime-deps.json'))
+          python @a
+          Write-Host "rc(kit_dll_deps)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: Раскладка и упаковка комплекта
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $ci = Join-Path $ws 'strata\packaging\kit\ci'
+          $a = @('-StrataBuild', (Join-Path $ws 'strata\build-kit'),
+                 '-LlamaBuild', (Join-Path $ws 'llama\build-kit'),
+                 '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
+                 '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
+                 '-CudaBin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'))
+          if ($env:KIT_TAG) { $a += @('-Version', $env:KIT_TAG) }
+          & pwsh -NoProfile -NonInteractive -File $ci\pack_kit.ps1 @a
+          Write-Host "rc(pack_kit)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
+      - name: "Формат-гейт архива по байтам (заголовок PK, EOCD, обязательные записи)"
+        shell: bash
+        run: |
+          files=( "$RUNNER_TEMP"/gpu-infer-kit-*.zip )
+          if [ ! -f "${files[0]}" ]; then
+            echo "::error::архив не найден в $RUNNER_TEMP - проверка не состоялась"; exit 2
+          fi
+          if [ "${#files[@]}" -gt 1 ]; then
+            echo "::error::архивов несколько (${#files[@]}) - неясно, какой публиковать"; exit 2
+          fi
+          bash strata/packaging/kit/ci/verify_zip.sh "${files[0]}"
+          rc=$?
+          echo "rc(verify_zip)=$rc"
+          [ "$rc" = 0 ] || exit "$rc"
+          echo "KIT_ZIP=${files[0]}" >> "$GITHUB_ENV"
+
+      - name: Меры, логи и архив как артефакт прогона
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kit-release-${{ github.run_number }}
+          path: |
+            ${{ env.KIT_ZIP }}
+            ${{ runner.temp }}\kit\build-measure.json
+            ${{ runner.temp }}\kit\elf-proof.json
+            ${{ runner.temp }}\kit\runtime-deps.json
+            ${{ runner.temp }}\kit\markers-strata.json
+            ${{ runner.temp }}\kit\markers-llama.json
+            ${{ runner.temp }}\kit\build-strata.log
+            ${{ runner.temp }}\kit\build-llama.log
+            ${{ runner.temp }}\stage\gpu-infer-kit\kit-weight.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Публикация ассетом релиза
+        shell: bash
+        run: |
+          if [ -z "${KIT_TAG:-}" ]; then
+            echo "Релизный тег не задан: сборка проверена, ассет не публикуется"
+            exit 0
+          fi
+          if [ ! -f "${KIT_ZIP:-}" ]; then
+            echo "::error::нет архива ${KIT_ZIP} - публиковать нечего"; exit 2
+          fi
+          gh release view "$KIT_TAG" >/dev/null || {
+            echo "::error::релиз $KIT_TAG не найден - ассет загружается только в существующий релиз"
+            exit 1
+          }
+          gh release upload "$KIT_TAG" "$KIT_ZIP" --clobber
+          rc=$?
+          echo "rc(gh release upload)=$rc - тег $KIT_TAG, архив $(basename "$KIT_ZIP")"
+          exit "$rc"
