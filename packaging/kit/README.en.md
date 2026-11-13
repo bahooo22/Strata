@@ -147,26 +147,27 @@ The CI variants of the same scripts live in `packaging\kit\ci\` and are called w
 cannot accidentally build something that works at home and fails in Actions. A missing mandatory
 parameter is a refusal with exit code 2, not a half-finished build.
 
-The entry point of these self-checks is pwsh 7 - the same one Actions calls them with: on it
-`pack_kit.ps1 -SelfTest` reports `ok=73 bad=0` (taken on 12.11). The same run under Windows
-PowerShell 5.1 reports `ok=69 bad=4` (it used to be `ok=63 bad=3`; the seven extra controls come
-from the portability fix, and both pairs were measured on one tree). The four FAILs sit on an entry
-that did not happen, not on packing: the test tree is never created because
-`Set-Content -Encoding utf8NoBOM` only exists from PowerShell 6 on, and `install_cuda_redist.ps1`
-does not parse in 5.1 at all (its source is UTF-8 without a BOM, which 5.1 reads as OEM). Red on
-that entry means "the check did not happen", and green there means nothing: two of the new controls
-wait for ZERO findings and pass idly on a tree that was never built. One more difference between the
-entries is a JSON round-trip: `ConvertTo-Json` writes the Double `3321.0` as `3321`, and
-`ConvertFrom-Json` returns Int32 in 5.1 where pwsh returns Double; `Chk` in `build_kit.ps1`
-compares fractional values as numbers under any types and prints the types in the FAIL line, so
-equal values are never compared as strings. The real packing path does not depend on the shell:
-measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($false)`, not
-`-Encoding`.
+The entry point of these self-checks is pwsh 7 - the same one Actions calls them with. Windows
+PowerShell 5.1 stopped being a separate story: `pack_kit`'s test tree is now written the same way the
+real measures are (`[System.IO.File]::WriteAllText` with `UTF8Encoding($false)`), because
+`-Encoding utf8NoBOM` on `Set-Content` only exists from PowerShell 6 on and on 5.1 the tree was never
+created at all - four controls failed on a tree that did not exist, and two of them waited for ZERO
+findings and passed idly (this entry used to report `ok=69 bad=4`). After the fix both entries give
+the same verdict: `pack_kit` 82/0 and `build_kit` 117/117 under pwsh 7 and under 5.1 alike (measured
+13.11 in one wrapper run, log files in `C:\tmp\kit417`). The only script that still does not parse in
+5.1 is `install_cuda_redist.ps1` (line 89): its source is UTF-8 without a BOM, which 5.1 reads as
+OEM. That is an entry boundary, not a packing regression: Actions calls all three scripts with pwsh,
+and the real packing path never depended on the shell - measures are written with `WriteAllText`, not
+`-Encoding`. One more difference between the entries is a JSON round-trip: `ConvertTo-Json` writes
+the Double `3321.0` as `3321`, and `ConvertFrom-Json` returns Int32 in 5.1 where pwsh returns Double;
+`Chk` in `build_kit.ps1` compares fractional values as numbers under any types and prints the types
+in the FAIL line, so equal values are never compared as strings.
 
 - `kit-build.yml` (this fork, a push to `main` touching `src/`, `include/`, `cmake/`,
-  `CMakeLists.txt` or `packaging/kit/`). The first job runs five controls without a toolchain and
+  `CMakeLists.txt` or `packaging/kit/`). The first job runs six controls without a toolchain and
   without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
-  `patch_markers.py --selftest` and `verify_zip.sh --selftest`. The second job builds CUDA 13.3.1
+  `patch_markers.py --selftest`, `kit_dll_deps.py --selftest` and `verify_zip.sh --selftest`. The
+  second job builds CUDA 13.3.1
   from redist archives (a pinned sha256 per archive, the download folder in actions/cache), compiles
   `strata.exe` and `strata-q36.exe` for architecture 86 and gates the markers byte-wise in both
   executables.
@@ -177,7 +178,7 @@ measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($fa
 - `kit-release.yml` (this fork, a published release by tag or a manual run with a tag) is the whole
   kit: both engines in ONE run (`-Engines 'strata;llama'`) for `86;89;120`, because only the paired
   run writes the merged build-measure.json and elf-proof.json that the packer reads; then the marker
-  gate for both legs, the native dependency registry over six binaries, packaging, a byte-level
+  gate for both legs, the native dependency registry over seven binaries, packaging, a byte-level
   format gate on the archive bytes (the PK header and the EOCD) and the upload as an asset of an
   already existing release. Without a tag it stays a run artifact. The upload runs `gh`, which does
   NOT inherit the automatic run token: the step must receive `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`
@@ -188,14 +189,59 @@ measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($fa
 
 Before any push, acceptance stays an offline measure made of two parts. The first is the `ci-gates`
 job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
-paths): `build_kit` 116/116 controls, `pack_kit` 73/0, `install_cuda_redist` 27/0,
-`patch_markers --selftest` 28/0, `verify_zip --selftest` 6/0 (measured 13.11). The second is the
-marker gate over the stand's binaries: 24/24 Strata markers across 12 commits and 5/5 in the llama
-leg across 3. Add to them a static audit of the three workflows: it catches GH_TOKEN-class defects
+paths): `build_kit` 117/117 controls, `pack_kit` 82/0, `install_cuda_redist` 27/0,
+`patch_markers --selftest` 44/0, `kit_dll_deps --selftest` 14/0, `verify_zip --selftest` 6/0
+(taken 13.11 in one wrapper run). The second is the marker gate over the stand's binaries:
+24/24 Strata markers across 12 commits and 5/5 in the llama leg across 3. Add to them a static audit
+of the three workflows: it catches GH_TOKEN-class defects
 before a long run starts, its own sabotage control (six buried failures plus a false-alarm
 control) gives 7/7, and over the three files it is clean except one warning - the llama leg takes
 the CI scripts at a floating `ref: main`, which is the price of one source of truth, not a forgotten
 pin.
+
+Three defects were found only by the live release run 43345549955 (13.11, the rehearsal branch
+`kit-ci-live` at commit `722299be`, `86;89;120`, toolchain 13.3.1): Strata built in 18.6 + 1147.8 s
+and llama in 8.8 + 2249.9 s, both `build_kind` labels read "cold build" with zero objects before the
+run, the marker gate was green on both legs (24/24 and 5/5) - and the run still failed.
+
+- `rc(kit_dll_deps)=1`: `llama-common.dll` and `llama-server-impl.dll` imported
+  `libssl-3-x64.dll` and `libcrypto-3-x64.dll`. The cause is the `LLAMA_OPENSSL=ON` default
+  (`CMakeLists.txt:145` of the pin): the runner image has OpenSSL and linked it, the bench does not
+  (`OPENSSL_INCLUDE_DIR-NOTFOUND` in the 12.11 CMakeCache), so on the bench the import tables are
+  clean and no local measure can see the defect. The llama leg now configures with
+  `-DLLAMA_OPENSSL=OFF`, and the control "openssl is off in llama" keeps that flag in the
+  configuration text; a control is not a substitute for a run - it fails if someone removes the
+  flag. Shipping someone else's dlls in the kit is not an option: their version would depend on the
+  runner image while everything else in the kit is pinned by sha256, and the kit needs no HTTPS -
+  the models are local.
+- The llama artifact held 4 of the 9 binaries the build produces: the `llama-server.exe` wrapper
+  does not start without `llama-server-impl.dll` and `llama-common.dll`, and `ggml.dll` and
+  `ggml-cpu.dll` are called by `ggml-base.dll` inside it. A push leg calls its artifact a set of
+  servers, so it has to be runnable, not a list of three marker carriers.
+- `strata_kq.dll` was in neither the kit nor the artifacts, and no earlier gate could see that: it
+  is loaded by code (`LoadLibraryA` next to the engine, `src/prefill/mmq_kq_loader.cpp:57-70`, the
+  name from `include/strata/prefill/mmq_kq_abi.hpp:9`), so it appears in no import table. Its
+  absence meant silent degradation: the K-quant experts of the prompt would fall back to the FP16
+  path while the build stayed green. Measured on the stand binary: `kit_dll_deps` reports exactly
+  one import for it - `KERNEL32.dll` (the CUDA runtime is linked statically,
+  `cmake/backends/cuda.cmake`), so it sits in the release gate's list because of how it is loaded,
+  not because of tricky dependencies.
+
+The class "the build produced it and the kit did not take it" is closed by a set-closure measure in
+`pack_kit`: the set of exe/dll files the build actually produced (a flat scan of the Strata root and
+`llama\bin`: under those trees sit `CMakeFiles\**\*.exe`, so a recursive walk would give false
+findings) is compared against the `bin\*` keys of the manifest, and a finding is a refusal with rc=2
+and the file list. A waiver (`$BIN_WAIVERS`) must carry its reason inside the dictionary: the only
+entry there, `test-cuda-upload-stream.exe`, appears only with `LLAMA_BUILD_TESTS=ON`, and CI builds
+with `OFF`. An empty or missing tree is rc=2 as well, not "zero findings". The `bin\strata_kq.dll`
+key was added to the manifest, to the format gate's mandatory file list (`verify_zip.sh`,
+false-alarm control - 12 mandatory files instead of 11) and to the Strata push artifact. Live
+acceptance of the measure (13.11, `pack_kit` driven by stand code over the real Strata and llama
+trees through a hardlink mirror - no gigabytes copied and no edits to the bench): the sabotage
+`orphan_probe.dll` gives rc=2 naming the file, the full run gives rc=0 and the line "produced 13
+exe/dll, 14 bin\ keys in the manifest, 1 waiver", the archive is 810.0 MiB and 26 entries including
+`bin/strata_kq.dll`, the format gate on it is green, and the thin run without the CUDA runtime gives
+rc=0 and "12 bin\ keys, 1 waiver" (a smaller manifest, the same closure finding).
 
 Log-line formatting is a class a green build never notices: `-f` binds tighter than `+`, so
 `"template {0}" + "tail {1}" -f a, b` substitutes into the second piece only. The live run of
@@ -206,7 +252,7 @@ and llama measure lines, the no-op line and the architecture-proof line with a s
 neighbouring `pack_kit` and `install_cuda_redist` come back clean under the same measure (0 hits).
 The class is closed in `-SelfTest` by two measures: a textual one over the script (with two sabotage
 inputs and one false-alarm control) and a behavioural one - the same template glue with and without
-parentheses. After the fix: 116/116.
+parentheses. After the fix: 117/117 on both entries (pwsh 7 and Windows PowerShell 5.1).
 
 Suitability of the component index (`redistrib_<version>.json`) is measured by structure: the release
 label must equal the requested version and the index must hold at least 20 components. The earlier
@@ -279,8 +325,12 @@ are warm-ups - 25+5 and 156+8 executed steps instead of 174 and 330.
 Hence the limits. The release run gets 240 minutes and builds both legs on 86, 89 and 120 in a single
 tree: the worst measured pair is 1774.1 + 3321.0 = 5095.1 s (84.9 minutes), the pair taken from one
 and the same run is 1686.2 + 3006.1 = 4692.3 s (78.2 minutes); 240 minutes is 2.8 times the worst
-pair, the rest goes to the CUDA toolchain, packaging and publishing the asset. A push run gets 180
-minutes and builds a single architecture (86 by default), and since 13.11 it has a direct
+pair, the rest goes to the CUDA toolchain, packaging and publishing the asset. Since 13.11 this limit
+has a direct measurement inside Actions itself: run 43345549955, on that same `86;89;120`
+configuration, gave 1147.8 s of Strata and 2249.9 s of llama - 3397.7 s (56.6 minutes) of pure
+compilation, and that is the full price of a build, because both legs completed there and the failure
+came later, at the native dependency gate; the margin is 14 400 / 3397.7 = 4.2 times. A push run
+gets 180 minutes and builds a single architecture (86 by default), and since 13.11 it has a direct
 measurement on that very configuration: the worse of the two legs on 86 is llama at 1370.2 s, so the
 margin is 10 800 / 1370.2 = 7.9 times, and for strata at 751.6 s it is 14.4 times. The earlier
 estimate rested on the 1774.1 s three-architecture build (a margin of 6.1 times) - an upper bound

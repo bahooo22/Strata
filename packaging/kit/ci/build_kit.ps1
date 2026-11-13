@@ -754,7 +754,8 @@ if ($SelfTest) {
                     "STRATA_PORTABLE") | Sort-Object
     $wantLlama = @("CMAKE_BUILD_TYPE", "CMAKE_CUDA_ARCHITECTURES", "CMAKE_CUDA_COMPILER",
                    "CMAKE_EXPORT_COMPILE_COMMANDS", "GGML_CUDA", "LLAMA_BUILD_EXAMPLES",
-                   "LLAMA_BUILD_SERVER", "LLAMA_BUILD_TESTS", "LLAMA_CURL") | Sort-Object
+                   "LLAMA_BUILD_SERVER", "LLAMA_BUILD_TESTS", "LLAMA_CURL",
+                   "LLAMA_OPENSSL") | Sort-Object
     foreach ($t in @(@{ v = "cfgArgs"; n = "Страты"; want = $wantStrata },
                      @{ v = "llamaArgs"; n = "llama"; want = $wantLlama })) {
         $got = @(); $err = ""
@@ -766,6 +767,7 @@ if ($SelfTest) {
         ($code.Contains($dollar + 'cfgArgs += "-DSTRATA_GGML_DIR=' + $dollar + 'GgmlDir"')) $true
     Chk "портативность включена по умолчанию" ($code.Contains('-DSTRATA_PORTABLE=' + $dollar + 'portable')) $true
     Chk "curl в llama выключён" ($code.Contains('-DLLAMA_CURL=OFF')) $true
+    Chk "openssl в llama выключён" ($code.Contains('-DLLAMA_OPENSSL=OFF')) $true
     Chk "цель Страты - обе программы" ($code.Contains('--target strata strata-q36')) $true
     Chk "цель llama - llama-server" ($code.Contains('--target llama-server')) $true
     Chk "bin тулчейна попадает в PATH безусловно" `
@@ -1034,7 +1036,16 @@ if ($Engines -match 'llama') {
                    "-DCMAKE_CUDA_ARCHITECTURES=$($archList -join ';')",
                    "-DCMAKE_CUDA_COMPILER=$nvcc",
                    "-DLLAMA_BUILD_SERVER=ON", "-DLLAMA_BUILD_TESTS=OFF",
-                   "-DLLAMA_BUILD_EXAMPLES=OFF", "-DLLAMA_CURL=OFF")
+                   "-DLLAMA_BUILD_EXAMPLES=OFF", "-DLLAMA_CURL=OFF",
+                   # ON по умолчанию: где в образе раннера есть OpenSSL, там он и подлинкован. Стенд
+                   # свой OpenSSL не нашёл (OPENSSL_INCLUDE_DIR-NOTFOUND в CMakeCache от 12.11), и
+                   # его импорт-таблицы чисты, а релизный прогон 43345549955 дал в
+                   # llama-common.dll и llama-server-impl.dll импорты libssl-3-x64.dll и
+                   # libcrypto-3-x64.dll - на машине пользователя сервер бы не стартовал.
+                   # Возить чужие dll в комплекте нельзя: их версия зависела бы от образа раннера,
+                   # тогда как весь остальной комплект пинован sha256. HTTPS комплекту не нужен -
+                   # модели локальные.
+                   "-DLLAMA_OPENSSL=OFF")
     $tCfg = Invoke-BuildStep $log "настройка llama" { & $cmake @llamaArgs }
     if ($tCfg.rc -ne 0) { Write-Host "ОТКАЗ: настройка llama rc=$($tCfg.rc) (лог $log)"; Save-Measure "отказ: настройка llama rc=$($tCfg.rc)"; exit 1 }
     $preLlama = Count-BuiltObjects $bd

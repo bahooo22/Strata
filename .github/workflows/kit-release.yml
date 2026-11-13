@@ -166,8 +166,12 @@ jobs:
           $dumpbin = & $vswhere -latest -find '**\bin\Hostx64\x64\dumpbin.exe' | Select-Object -First 1
           if (-not $dumpbin) { Write-Host 'ОТКАЗ: dumpbin.exe не найден через vswhere - проверка не состоялась'; exit 2 }
           $bins = @('strata\build-kit\strata-q36.exe', 'strata\build-kit\strata.exe',
+                    'strata\build-kit\strata_kq.dll',
                     'llama\build-kit\bin\llama-server.exe', 'llama\build-kit\bin\ggml-cuda.dll',
                     'llama\build-kit\bin\ggml-base.dll', 'llama\build-kit\bin\llama.dll')
+          # strata_kq.dll в этом списке не потому, что у неё трудные зависимости (импортов у неё
+          # ровно один - KERNEL32: CUDA-рантайм линкован статически, cmake/backends/cuda.cmake),
+          # а потому, что она грузится из кода по имени и без неё комплект деградирует молча.
           $a = @('strata\packaging\kit\ci\kit_dll_deps.py')
           foreach ($b in $bins) { $a += @('--bin', (Join-Path $ws $b)) }
           $a += @('--dumpbin', $dumpbin,

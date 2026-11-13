@@ -15,6 +15,10 @@
     Гейты до того, как архив считается готовым:
       1. каждый обязательный файл манифеста существует - иначе комплект доезжает до чужой машины
          с «модуль не найден» вместо предупреждения;
+      1b. замыкание набора в обратную сторону: каждый exe/dll, который сборка произвела, либо
+          лежит в bin\ комплекта, либо назван в $BIN_WAIVERS с причиной. Без этого потерянный
+          модуль уезжает молча: strata_kq.dll грузится из кода по имени, поэтому её нет ни в
+          одной импорт-таблице и ни один другой гейт её не увидит;
       2. переносимость: в текстовых файлах дерева нет абсолютных путей с литерой диска ни в
          одной форме записи (`C:\x`, `C:/x`, смешанный `C:\x/y`) - ни стенда, ни раннера;
       3. сайдкары читаются: elf-proof.json, runtime-deps.json, build-measure.json - валидный JSON
@@ -55,6 +59,12 @@ $EXCLUDE_DIRS = @('__pycache__', 'run', '.pytest_cache', 'logs')
 $EXCLUDE_EXT = @('.log', '.jsonl', '.pyc', '.err', '.tmp')
 # Меры, которые едут в комплект очищенными от путей стенда.
 $SIDECARS = @("elf-proof.json", "runtime-deps.json", "build-measure.json")
+# Что сборка производит, но в комплект не берёт по делу. Каждый пункт обязан иметь причину:
+# без неё waiver-список - это способ молча протащить потерянный файл мимо замыкания набора.
+$BIN_WAIVERS = @{
+    "test-cuda-upload-stream.exe" = "тест llama-ноги: в комплект не едет, появляется только в " +
+        "дереве, собранном с LLAMA_BUILD_TESTS=ON (CI собирает с OFF)"
+}
 # Пути, которые делают «портативный» непригодным на чужой машине: ЛЮБАЯ литера диска и ЛЮБОЙ
 # разделитель. Прежняя сигнатура ловила только обратные слеши трёх литер (D, F, E) и C:\Users,
 # поэтому молчала на реальных мерах: в elf-proof.json и build-measure.json значения записаны в
@@ -117,6 +127,11 @@ function Get-Manifest([string]$StrataBuild, [string]$LlamaBuild, [string]$KitSrc
     $m = [ordered]@{}
     $m["bin\strata.exe"] = Join2 $StrataBuild "strata.exe"
     $m["bin\strata-q36.exe"] = Join2 $StrataBuild "strata-q36.exe"
+    # strata_kq.dll грузится из кода: LoadLibraryA(папка движка + STRATA_KQ_LIB_NAME), поэтому её
+    # нет ни в одной импорт-таблице - ни гейт зависимостей, ни формат-гейт её не видят. Отсутствие
+    # молчаливое: в stderr пишется «not found next to the engine», а K-quant-эксперты идут
+    # FP16-путём промпта, то есть комплект работает медленнее стенда и не падает.
+    $m["bin\strata_kq.dll"] = Join2 $StrataBuild "strata_kq.dll"
     # llama-server.exe - тонкая обёртка (10 КиБ): вся логика в llama-server-impl.dll, и без неё
     # exe на чужой машине падает с «модуль не найден», а не с внятной причиной.
     $m["bin\llama-server.exe"] = Join2 $LlamaBuild "bin\llama-server.exe"
@@ -138,6 +153,34 @@ function Get-Manifest([string]$StrataBuild, [string]$LlamaBuild, [string]$KitSrc
     }
     foreach ($f in @("README.ru.md", "README.en.md")) { $m[$f] = Join2 $KitSrc $f }
     return $m
+}
+
+function Get-ProducedBins([string]$Dir, [string]$Label) {
+    # Плоско, без подкаталогов: сборка кладёт носители комплекта в корень дерева Страты и в bin
+    # llama-ноги, а под деревом лежат объектные и промежуточные файлы - обход дал бы ложные
+    # находки на законной сборке. Пустой список - это отказ, а не «нечего проверять»: молчание
+    # на пустом входе и есть тот способ, которым потерянный модуль проходит гейт.
+    if (-not (Test-Path -LiteralPath $Dir)) { throw "${Label}: нет каталога $Dir" }
+    $names = @(Get-ChildItem -LiteralPath $Dir -File |
+        Where-Object { $_.Extension -eq ".exe" -or $_.Extension -eq ".dll" } |
+        ForEach-Object { $_.Name })
+    if (-not $names.Count) { throw "${Label}: в $Dir нет ни одного exe или dll - сборка не производила бинарников" }
+    # Без ведущей запятой в return: `return ,@(...)` кладёт массив как ОДИН элемент конвейера, и
+    # вызывающий с @(...) получает длину 1 вместо списка (проверено живым прогоном: produced=2).
+    return @($names | Sort-Object -Unique)
+}
+
+function Test-BinClosure([string]$StrataBuild, [string]$LlamaBuild, $Manifest) {
+    # Обратная сторона манифеста: что произведено, но в комплект не взято. Для модулей, которые
+    # грузятся из кода по имени (strata_kq.dll), это единственная мерка - их нет ни в одной
+    # импорт-таблице, поэтому гейт зависимостей и формат-гейт их не видят вовсе.
+    $produced = @(Get-ProducedBins $StrataBuild "дерево сборки Страты")
+    $produced += @(Get-ProducedBins (Join2 $LlamaBuild "bin") "bin сборки llama")
+    $inKit = @($Manifest.Keys | Where-Object { $_ -like "bin\*" } |
+               ForEach-Object { ($_ -split '\\')[-1] })
+    $orphan = @($produced | Where-Object {
+        $inKit -notcontains $_ -and -not $BIN_WAIVERS.ContainsKey($_) })
+    return [pscustomobject]@{ orphan = $orphan; produced = $produced; inKit = $inKit }
 }
 
 function Remove-StandPaths($Node) {
@@ -239,6 +282,13 @@ if ($SelfTest) {
         else { $script:bad++; Write-Host "FAIL   ${Name}: получено '$Got', ожидалось '$Want'" }
     }
     Write-Host "pack_kit.ps1 selftest"
+    # -Encoding utf8NoBOM у Set-Content появился только в PowerShell 6+, и на 5.1 тестовое дерево
+    # не создавалось вовсе: первые четыре контроля падали на несозданном дереве, а два из них
+    # ждали НОЛЬ находок и проходили вхолостую. Тестовое дерево строится той же записью, что и
+    # реальные меры (WriteAllText без BOM), - тогда прогон не зависит от оболочки и на обоих входах.
+    function Write-NoBom([string]$Path, [string]$Value) {
+        [System.IO.File]::WriteAllText($Path, $Value, (New-Object System.Text.UTF8Encoding($false)))
+    }
     Chk "Join2 без слэша" (Join2 "C:\a" "b") "C:\a\b"
     Chk "Join2 с пустой базой" (Join2 "" "b\c") "b\c"
 
@@ -246,31 +296,31 @@ if ($SelfTest) {
                [Guid]::NewGuid().ToString("N").Substring(0, 8))
     New-Item -ItemType Directory -Force -Path (Join2 $tmp "kit\__pycache__") | Out-Null
     New-Item -ItemType Directory -Force -Path (Join2 $tmp "kit\run") | Out-Null
-    Set-Content -LiteralPath (Join2 $tmp "detect.py") -Value "print(1)" -Encoding utf8NoBOM
-    Set-Content -LiteralPath (Join2 $tmp "kit\__pycache__\detect.cpython-314.pyc") -Value "x" -Encoding utf8NoBOM
-    Set-Content -LiteralPath (Join2 $tmp "kit\run\config.json") -Value "{}" -Encoding utf8NoBOM
-    Set-Content -LiteralPath (Join2 $tmp "old.log") -Value "x" -Encoding utf8NoBOM
-    Set-Content -LiteralPath (Join2 $tmp "models.json") -Value '{"p": "x"}' -Encoding utf8NoBOM
+    Write-NoBom (Join2 $tmp "detect.py") "print(1)"
+    Write-NoBom (Join2 $tmp "kit\__pycache__\detect.cpython-314.pyc") "x"
+    Write-NoBom (Join2 $tmp "kit\run\config.json") "{}"
+    Write-NoBom (Join2 $tmp "old.log") "x"
+    Write-NoBom (Join2 $tmp "models.json") '{"p": "x"}'
     $keep = Get-KitFiles -Dir $tmp
     Chk "мусор отсеян списком" $keep.Count 2
     Chk "pycache не просочился" (@($keep | Where-Object { $_.FullName -match '__pycache__' }).Count) 0
     Chk "run не просочился" (@($keep | Where-Object { $_.FullName -match '\\run\\' }).Count) 0
     Chk "*.log не просочился" (@($keep | Where-Object { $_.Extension -eq '.log' }).Count) 0
 
-    Set-Content -LiteralPath (Join2 $tmp "models.json") -Value '{"p": "D:\models\x.gguf"}' -Encoding utf8NoBOM
+    Write-NoBom (Join2 $tmp "models.json") '{"p": "D:\models\x.gguf"}'
     $hits = Test-NoStandPaths -Dir $tmp
     Chk "путь стенда найден" $hits.Count 1
     Chk "найден именно models.json" (@($hits | Where-Object { $_ -like 'models.json*' }).Count) 1
     # Регрессия на прежнюю сигнатуру: реальные меры пишут путь как «литера, косая черта, дерево,
     # \\ перед именем», и прежний шаблон с обратными слэшами на такой форме молчал - гейт был
     # зелёным при четырнадцати путях машины в текстовых файлах комплекта.
-    Set-Content -LiteralPath (Join2 $tmp "models.json") -Value '{"p": "C:/build/x\\strata.exe"}' -Encoding utf8NoBOM
+    Write-NoBom (Join2 $tmp "models.json") '{"p": "C:/build/x\\strata.exe"}'
     Chk "косая черта после литеры тоже находка" (Test-NoStandPaths -Dir $tmp).Count 1
     # Обратная сторона: ссылка на CDN не является путём, и не должна красить зелёную сборку.
-    Set-Content -LiteralPath (Join2 $tmp "models.json") `
-        -Value '{"hf_url": "https://huggingface.co/x/y/resolve/main/model.gguf"}' -Encoding utf8NoBOM
+    Write-NoBom (Join2 $tmp "models.json") `
+        '{"hf_url": "https://huggingface.co/x/y/resolve/main/model.gguf"}'
     Chk "https-ссылка не находка" (Test-NoStandPaths -Dir $tmp).Count 0
-    Set-Content -LiteralPath (Join2 $tmp "models.json") -Value '{"p": "models/x.gguf"}' -Encoding utf8NoBOM
+    Write-NoBom (Join2 $tmp "models.json") '{"p": "models/x.gguf"}'
     Chk "чистое дерево - ноль находок" (Test-NoStandPaths -Dir $tmp).Count 0
 
     $bomPath = Join2 $tmp "sidecar.json"
@@ -298,6 +348,52 @@ if ($SelfTest) {
     $thin = Get-Manifest "Q:\нет\build-kit" "Q:\нет\llama" $tmp $tmp "Q:\нет\cuda" $false
     Chk "полный манифест содержит cublas" (@($fat.Keys | Where-Object { $_ -like '*cublas*' }).Count) 2
     Chk "тонкий манифест без cublas" (@($thin.Keys | Where-Object { $_ -like '*cublas*' }).Count) 0
+    Chk "strata_kq.dll в полном манифесте" ([bool]$fat.Contains("bin\strata_kq.dll")) $true
+    Chk "strata_kq.dll в тонком манифесте" ([bool]$thin.Contains("bin\strata_kq.dll")) $true
+
+    # Замыкание набора: без саботажа контроль неотличим от молчания, поэтому порядок - ложная
+    # тревога на полном наборе, посаженная находка, снятие саботажа, и два отказа на пустом входе.
+    # Наборы имён здесь сняты с реальных деревьев сборки (Linking-строки логов 43342630392 и
+    # 43345549955), а не на глаз: расхождение с тем, что производит сборка, дало бы красную
+    # сборку на законном файле.
+    $cbStrata = Join2 $tmp "closure\strata"
+    # Корень дерева сборки llama, а не его bin: и Get-Manifest, и Test-BinClosure добавляют bin
+    # сами. Проверено живым прогоном: передача ...\llama\bin дала ...\llama\bin\bin и отказ мерки.
+    $cbLlama = Join2 $tmp "closure\llama"
+    New-Item -ItemType Directory -Force -Path $cbStrata, (Join2 $cbLlama "bin") | Out-Null
+    foreach ($f in @("strata.exe", "strata-q36.exe", "strata_kq.dll")) {
+        Write-NoBom (Join2 $cbStrata $f) "x"
+    }
+    foreach ($f in @("llama-server.exe", "llama-server-impl.dll", "llama-common.dll", "llama.dll",
+                     "mtmd.dll", "ggml.dll", "ggml-base.dll", "ggml-cpu.dll", "ggml-cuda.dll",
+                     "test-cuda-upload-stream.exe")) {
+        Write-NoBom (Join2 (Join2 $cbLlama "bin") $f) "x"
+    }
+    $cbManifest = Get-Manifest $cbStrata $cbLlama $tmp $tmp "Q:\нет\cuda" $false
+    Chk "полный набор - ноль находок" (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan.Count) 0
+    Chk "произведено меркой 13 exe/dll" (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).produced.Count) 13
+    Write-NoBom (Join2 $cbStrata "strata_orphan.dll") "x"
+    Chk "посаженный потерянный dll найден" `
+        (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan -join ',') "strata_orphan.dll"
+    Remove-Item -LiteralPath (Join2 $cbStrata "strata_orphan.dll") -Force
+    Chk "саботаж снят - снова ноль находок" (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan.Count) 0
+    Write-NoBom (Join2 $cbStrata "strata_orphan.dll") "x"
+    $BIN_WAIVERS["strata_orphan.dll"] = "саботаж selftest: отпуск с причиной прячет тот же файл"
+    Chk "отпуск с причиной подавляет находку" `
+        (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan.Count) 0
+    $BIN_WAIVERS.Remove("strata_orphan.dll")
+    Remove-Item -LiteralPath (Join2 $cbStrata "strata_orphan.dll") -Force
+    # Пустое и несуществующее дерево обязаны отказывать, а не давать «ноль находок»: пустой вход,
+    # на котором мерка молчит, и есть способ, которым потерянный модуль уходит в комплект.
+    $cbEmpty = Join2 $tmp "closure\empty"
+    New-Item -ItemType Directory -Force -Path $cbEmpty | Out-Null
+    $threw = ""
+    try { Test-BinClosure $cbEmpty $cbLlama $cbManifest | Out-Null } catch { $threw = $_.Exception.Message }
+    Chk "пустое дерево - отказ, а не ноль находок" ($threw -like "*не производила бинарников*") $true
+    $threw = ""
+    try { Test-BinClosure (Join2 $tmp "closure\nosuch") $cbLlama $cbManifest | Out-Null }
+    catch { $threw = $_.Exception.Message }
+    Chk "несуществующее дерево - отказ по имени каталога" ($threw -like "*нет каталога*") $true
 
     # Очистка путей меряется отдельно от гейта: иначе «проход есть» неотличимо от «проход всё
     # съел» - контроль на прозе без путей ловит второй случай.
@@ -492,6 +588,21 @@ if ($withRuntime -and (-not $CudaBin -or -not (Test-Path -LiteralPath $CudaBin))
 
 $manifest = Get-Manifest $StrataBuild $LlamaBuild $KitSrc $Measures $CudaBin $withRuntime
 if (-not $manifest.Count) { Write-Host "ОТКАЗ: манифест пуст - проверка не состоялась"; exit 2 }
+
+# Замыкание набора меряется до раскладки: потерянный LoadLibrary-модуль не роняет сборку и не
+# виден в импорт-таблицах, а на машине пользователя молча меняет маршрут на FP16.
+try { $closure = Test-BinClosure $StrataBuild $LlamaBuild $manifest } catch {
+    Write-Host "ОТКАЗ: $($_.Exception.Message) - замыкание набора не мерилось, проверка не состоялась"
+    exit 2
+}
+if ($closure.orphan) {
+    Write-Host ("ОТКАЗ: сборка произвела, а комплект не берёт ({0}): {1}" -f `
+        $closure.orphan.Count, ($closure.orphan -join ', '))
+    Write-Host "      либо добавьте файл в Get-Manifest, либо в `$BIN_WAIVERS с причиной"
+    exit 2
+}
+Write-Host ("замыкание набора: произведено {0} exe/dll, в bin\ манифеста {1}, отпуск {2}" -f `
+    $closure.produced.Count, $closure.inKit.Count, $BIN_WAIVERS.Count)
 
 # Отсутствие файла - это отказ, а не «упакуем что есть»: половину комплекта можно терять молча,
 # и обнаружит это пользователь на чужой машине.

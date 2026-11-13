@@ -87,13 +87,14 @@ jobs:
           }
           if ($bad) { Write-Host "::error:selftest не прошёл: $($bad -join ', ')"; exit 1 }
 
-      - name: Реестр маркеров и формат-гейт zip
+      - name: Реестр маркеров, нативных зависимостей и формат-гейт zip
         shell: bash
         run: |
           python strata/packaging/kit/ci/patch_markers.py --selftest; rc1=$?
+          python strata/packaging/kit/ci/kit_dll_deps.py --selftest; rc3=$?
           bash strata/packaging/kit/ci/verify_zip.sh --selftest; rc2=$?
-          echo "rc(patch_markers --selftest)=$rc1 rc(verify_zip --selftest)=$rc2"
-          [ "$rc1" = 0 ] && [ "$rc2" = 0 ]
+          echo "rc(patch_markers --selftest)=$rc1 rc(verify_zip --selftest)=$rc2 rc(kit_dll_deps --selftest)=$rc3"
+          [ "$rc1" = 0 ] && [ "$rc2" = 0 ] && [ "$rc3" = 0 ]
 
   strata-cuda:
     name: Сборка strata + strata-q36 под CUDA
@@ -177,7 +178,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: strata-cuda-servers-${{ github.sha }}
+          # Тот же набор, что укладывает в комплект pack_kit: strata_kq.dll грузится из кода по
+          # имени (LoadLibrary рядом с движком), её нет ни в одной импорт-таблице, и артефакт без
+          # неё выглядел полным - а на машине пользователя K-quant-эксперты молча уходили бы в
+          # FP16-путь промпта. cublas приезжает из redist-архива, а не из этого дерева.
           path: |
             strata\build-kit\strata-q36.exe
             strata\build-kit\strata.exe
+            strata\build-kit\strata_kq.dll
           retention-days: 14
