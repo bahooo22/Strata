@@ -238,8 +238,9 @@ jobs:
           if [ "${#files[@]}" -gt 1 ]; then
             echo "::error::архивов несколько (${#files[@]}) - неясно, какой публиковать"; exit 2
           fi
-          bash strata/packaging/kit/ci/verify_zip.sh "${files[0]}"
-          rc=$?
+          # Тот же класс, что и шаг публикации: под `bash -eo pipefail` rc!=0 у verify_zip роняет
+          # шаг до строки с цифрой, и в красном логе не остаётся ни rc, ни KIT_ZIP.
+          bash strata/packaging/kit/ci/verify_zip.sh "${files[0]}" && rc=0 || rc=$?
           echo "rc(verify_zip)=$rc"
           [ "$rc" = 0 ] || exit "$rc"
           echo "KIT_ZIP=${files[0]}" >> "$GITHUB_ENV"
@@ -285,7 +286,8 @@ jobs:
             echo "::error::релиз $KIT_TAG не найден - ассет загружается только в существующий релиз"
             exit 1
           }
-          gh release upload "$KIT_TAG" "$KIT_ZIP" --clobber
-          rc=$?
+          # gh с rc!=0 под `bash -eo pipefail` (дефолт shell: bash) роняет шаг ДО строки с rc, и
+          # цифра публикации теряется ровно в том случае, когда она нужнее всего.
+          gh release upload "$KIT_TAG" "$KIT_ZIP" --clobber && rc=0 || rc=$?
           echo "rc(gh release upload)=$rc - тег $KIT_TAG, архив $(basename "$KIT_ZIP")"
           exit "$rc"
