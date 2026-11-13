@@ -91,7 +91,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Контроль входов до компиляции
+      - name: Контроль входных файлов до компиляции
         shell: bash
         run: |
           for f in strata/packaging/kit/ci/build_kit.ps1 \
@@ -234,7 +234,7 @@ jobs:
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
                  '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
                  '-CudaBin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'))
-          # Имя архива строится как "gpu-infer-kit-<версия>.zip", а релизный тег называется
+          # Имя архива строится как "gpu-infer-kit-<версия>.zip", а тег релиза называется
           # "kit-<дата>": передан как есть, он даёт "gpu-infer-kit-kit-<дата>.zip" - двойной
           # префикс в имени файла, которое пользователь показывает по ссылке. Шагам 7 и 16 нужен
           # точный тег, поэтому префикс снимается только здесь и только для -Version.
