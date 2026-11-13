@@ -587,13 +587,20 @@ remote of the current directory, and `$GITHUB_WORKSPACE` has no remote repositor
 `checkout` steps put the tree into subdirectories. The measure has lived in main since commit
 `04d6a4c2`; the tag `kit-2026-11-13` points at `370c93fa`, where `GH_REPO` is absent from the file
 (the measure over that edition: 0 matches), so the step printed the old line. Automatic publication is now
-proven by a live run: step 16 prints `rc(gh release upload)=0`. The boundary got narrower but it did not
-close: the tag `kit-2026-11-13` stands on `370c93fa` while the asset was built on `3483b929`, and the only
-run of `kit-release.yml` on the tagged tree is red. That is why the byte-level gate of the released asset
-gives two findings - "the tag `370c93fa` and `origin/main` differ by three README files" and "one run
-belongs to the release tree and none of them succeeded". Closing it is the owner's call: move the tag to a
-`main` commit after the final documentation edit and publish the asset again, otherwise the release page
-describes a tree the archive was not built from.
+proven by a live run: step 16 prints `rc(gh release upload)=0`. The boundary turned out to be about the way the check was done, not about
+the bytes: the confirming run was looked for by matching `head_sha` against the tag or `main`, so the
+publication was credited to the red `43415264688`, which never reached the upload, while the green
+`43444961732` stayed unfound. The measure was fixed (measured 13.11, 17:25Z): it takes the asset upload
+time (`created_at` 16:20:27Z, uploader `github-actions[bot]`) and looks for the green `kit-release.yml`
+run whose working window covers that moment - `43444961732` (14:40:26Z - 16:21:02Z, tree `3483b929`),
+whose step "Публикация ассетом релиза" ends with `success`. The tag `370c93fa` differs from that run's
+tree by three paths, all of them in `.md` or `.github/`, so the published binaries do correspond to the
+tag; the acceptance verdict is `находок=0` over 26 entries with all 12 mandatory ones. So that this zero
+is not vacuous, the control (`kit480`) replaces three conditions in a copy of the measure - the expected
+uploader name, the run window and the path filter - and each of them answers `rc=1` with its own finding
+line (caught 3 of 3). Separately the measure prints that the tag lags `main` by 7 commits: that is the
+owner's decision rather than a defect of the asset, and it depends on whether the release page has to
+match the current edition of the documentation.
 
 ## What is not here
 
