@@ -257,7 +257,22 @@ The `archs` field is empty in these measure files and `build_kind` still carries
 compilation" label: the snapshots were taken by code predating the coldness-label fix, so coldness
 and architecture coverage are proven by the logs and CMakeCache rather than by measure fields.
 
-The numbers this paragraph quoted before rested on unclosed measurements: strata 737.7 s has no
+The four numbers above are three-architecture runs, while a push job builds one architecture (86 by
+default) - that was the last open gap in the limit's justification. It is closed by a 13.11 run on
+clean clones taken from the GitHub remotes of both forks: the toolchain from the redist archives,
+the same `ci/build_kit.ps1` called with the same arguments, the architecture probe switched off
+explicitly (`-SkipProbe`) exactly as in the leg. strata - 751.6 s of compilation after 13.9 s of
+configure (carrier `gpu-infer-kit-strata-cold86`, commit `11cbea3`, 160 compilations and 14 links,
+174 of 174 edges executed in the log); llama - 1370.2 s after 12.1 s
+(`gpu-infer-kit-llama-cold86`, commit `39628e5`, 315 compilations and 14 links, 330 of 330 edges).
+Both measure files now carry correct fields: `archs` = `["86"]`, `build_kind` = "cold build",
+`prebuilt_objects` = 0 - coldness is proven by the field itself, not only by CMakeCache. The
+`elf-proof` of the same runs gives cubin on 86 only: 28 `sm_86` entries in `strata-q36.exe`, 71 in
+`strata.exe` and 149 in `ggml-cuda.dll`; the marker gate on those binaries is green - strata 24/24
+with 12 of 12 commits covered, llama 5/5 with 3 of 3, and the `markers-*.json` files sit next to
+the measures.
+
+The earlier version of the four-run paragraph rested on unclosed measurements: strata 737.7 s has no
 carrier file at all (only the run's stdout and commit bodies), and strata 712.6 s and llama 2788.8 s
 are warm-ups - 25+5 and 156+8 executed steps instead of 174 and 330.
 
@@ -265,9 +280,11 @@ Hence the limits. The release run gets 240 minutes and builds both legs on 86, 8
 tree: the worst measured pair is 1774.1 + 3321.0 = 5095.1 s (84.9 minutes), the pair taken from one
 and the same run is 1686.2 + 3006.1 = 4692.3 s (78.2 minutes); 240 minutes is 2.8 times the worst
 pair, the rest goes to the CUDA toolchain, packaging and publishing the asset. A push run gets 180
-minutes and builds a single architecture (86 by default), so the 1774.1 s three-architecture build
-serves as its upper bound: a margin of 6.1 times. There is no separate cold measurement on 86 with a
-carrier file, and the price of the llama leg on 86 has not been measured.
+minutes and builds a single architecture (86 by default), and since 13.11 it has a direct
+measurement on that very configuration: the worse of the two legs on 86 is llama at 1370.2 s, so the
+margin is 10 800 / 1370.2 = 7.9 times, and for strata at 751.6 s it is 14.4 times. The earlier
+estimate rested on the 1774.1 s three-architecture build (a margin of 6.1 times) - an upper bound
+rather than a measured price.
 
 ## What is not here
 
