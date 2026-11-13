@@ -13,9 +13,10 @@
 #     мёртвый архив доезжает до пользователя;
 #   - маркеры наших патчей сверяются по байтам обоих движков (Strata и llama.cpp): зелёная
 #     сборка сама по себе ничего не доказывает.
-# Версия комплекта: если запуск был по релизу, pack_kit.ps1 получает -Version = тег, и имя
-# архива строится из этой же версии (одна точка истины); при workflow_dispatch без тега
-# упаковщик берёт дату started из build-measure.json, а шаг публикации не выполняется.
+# Версия комплекта: если запуск был по релизу, pack_kit.ps1 получает -Version = тег без
+# префикса "kit-", и имя архива строится из этой же версии (одна точка истины); при
+# workflow_dispatch без тега упаковщик берёт дату started из build-measure.json, а шаг
+# публикации не выполняется.
 # Ассет загружается в УЖЕ СОЗДАННЫЙ релиз: gh release upload не создаёт релиз молча.
 name: "Kit release (portable gpu-infer-kit)"
 
@@ -233,7 +234,15 @@ jobs:
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
                  '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
                  '-CudaBin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'))
-          if ($env:KIT_TAG) { $a += @('-Version', $env:KIT_TAG) }
+          # Имя архива строится как "gpu-infer-kit-<версия>.zip", а релизный тег называется
+          # "kit-<дата>": передан как есть, он даёт "gpu-infer-kit-kit-<дата>.zip" - двойной
+          # префикс в имени файла, которое пользователь показывает по ссылке. Шагам 7 и 16 нужен
+          # точный тег, поэтому префикс снимается только здесь и только для -Version.
+          if ($env:KIT_TAG) {
+              $v = $env:KIT_TAG -replace '^kit-', ''
+              Write-Host "тег $env:KIT_TAG -> версия комплекта $v"
+              $a += @('-Version', $v)
+          }
           & pwsh -NoProfile -NonInteractive -File $ci\pack_kit.ps1 @a
           Write-Host "rc(pack_kit)=$LASTEXITCODE"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
