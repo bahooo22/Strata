@@ -120,6 +120,13 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gh берёт репозиторий из git remote текущей директории, а в $GITHUB_WORKSPACE remote
+          # нет: все три checkout кладут дерево в подкаталоги (path: strata, llama, ggml-pin).
+          # Без GH_REPO любой вызов gh падает с «no repository detected», и в прежнем коде это
+          # выглядело как «релиза нет», потому что stderr был съеден >/dev/null 2>&1.
+          # Замер 13.11, прогон события release 43415264688: REST по тегу kit-2026-11-13 = 200,
+          # а гейт красный за 49 с - то есть отсутствовал не релиз, а репозиторий для gh.
+          GH_REPO: ${{ github.repository }}
         run: |
           # Тот же класс, что и с GH_TOKEN: gh release upload не создаёт релиз молча, а без
           # этого гейта отказ приходил на последний шаг, то есть после двухчасовой сборки.
@@ -127,13 +134,16 @@ jobs:
             echo "тега нет: прогон только собирает и оставляет артефакт - публикация не требуется"
             exit 0
           fi
-          if gh release view "$KIT_TAG" >/dev/null 2>&1; then
+          # Сообщение gh печатается вместе с кодом возврата: «релиза нет», «нет прав» и
+          # «gh не нашёл репозиторий» лечатся по-разному, и различать их обязан лог шага.
+          gh release view "$KIT_TAG" >/dev/null 2>/tmp/gh-view.err && rc=0 || rc=$?
+          if [ "$rc" = 0 ]; then
             echo "релиз $KIT_TAG найден: ассет доедет в него"
             exit 0
           fi
-          echo "::error::релиза $KIT_TAG нет в этом репозитории: gh release upload не создаёт релиз сам."
-          echo "Создайте релиз с тегом $KIT_TAG и перезапустите прогон - компиляция до этого шага"
-          echo "не начиналась, минуты сборки не потрачены."
+          echo "rc(gh release view)=$rc: $(cat /tmp/gh-view.err)"
+          echo "::error::релиз $KIT_TAG недоступен gh (rc=$rc) - компиляция не начиналась,"
+          echo "минуты сборки не потрачены; текст ошибки выше."
           exit 1
 
       - name: Кэш redist-архивов CUDA
@@ -288,6 +298,9 @@ jobs:
           # «gh: To use GitHub CLI in a GitHub Actions workflow, set the GH_TOKEN environment
           # variable» - и падает последним, то есть после полной двухчасовой сборки.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Причина та же, что в дешёвом гейте перед компиляцией: в $GITHUB_WORKSPACE нет git
+          # remote (checkout идут в подкаталоги), поэтому gh обязан получить GH_REPO.
+          GH_REPO: ${{ github.repository }}
         run: |
           if [ -z "${KIT_TAG:-}" ]; then
             echo "Тег релиза не задан: сборка проверена, ассет не публикуется"
@@ -300,12 +313,20 @@ jobs:
           if [ ! -f "${KIT_ZIP:-}" ]; then
             echo "::error::нет архива ${KIT_ZIP} - публиковать нечего"; exit 2
           fi
-          gh release view "$KIT_TAG" >/dev/null || {
-            echo "::error::релиз $KIT_TAG не найден - ассет загружается только в существующий релиз"
+          gh release view "$KIT_TAG" >/dev/null 2>/tmp/gh-view2.err && rc=0 || rc=$?
+          if [ "$rc" != 0 ]; then
+            echo "rc(gh release view)=$rc: $(cat /tmp/gh-view2.err)"
+            echo "::error::релиз $KIT_TAG недоступен gh - ассет загружается только в существующий релиз"
             exit 1
           }
           # gh с rc!=0 под `bash -eo pipefail` (дефолт shell: bash) роняет шаг ДО строки с rc, и
           # цифра публикации теряется ровно в том случае, когда она нужнее всего.
           gh release upload "$KIT_TAG" "$KIT_ZIP" --clobber && rc=0 || rc=$?
           echo "rc(gh release upload)=$rc - тег $KIT_TAG, архив $(basename "$KIT_ZIP")"
+          [ "$rc" = 0 ] || exit "$rc"
+          # Ссылка на ассет прямо в логе прогона: это и есть то, что получает пользователь,
+          # и заодно доказательство, что загрузился именно архив комплекта, а не мера.
+          gh release view "$KIT_TAG" --json assets \
+            --jq '.assets[] | "ассет \(.name) \(.sizeBytes) Б \(.url)"' && rc=0 || rc=$?
+          echo "rc(gh release view --json assets)=$rc"
           exit "$rc"
