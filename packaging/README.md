@@ -148,8 +148,8 @@ The Terminal bundles a private Python and its dependencies for `windows-x86_64`,
 
 ## Release checks and gaps
 
-- This fork keeps only the kit workflows ([.github/workflows](../.github/workflows)): `kit-build.yml` compiles the CUDA servers on every push and
-  `kit-release.yml` packs the portable kit. The upstream workflows for scripts, Terminal checks, Metal builds and Docker images were removed here,
+- This fork keeps only the kit workflows ([.github/workflows](../.github/workflows)): `kit-build.yml` compiles the CUDA servers on demand
+  (`workflow_dispatch` only since 13.11, measured on the branch) and `kit-release.yml` packs the portable kit on a published release or on demand. The upstream workflows for scripts, Terminal checks, Metal builds and Docker images were removed here,
   so those checks run in the upstream repository. CI does not replace native desktop packaging, signing or real-GPU acceptance on every target
   either; some recipes still run by hand.
 - Signing needs the owner's credentials, which are never in this tree. The feed and every engine package are signed with the feed key

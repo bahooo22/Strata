@@ -273,7 +273,7 @@ it with our bench, computes the largest window and starts the server. The archiv
 and writes nothing outside its own folder.
 
 Both links were measured on 2026-11-13 with an anonymous request and no token: the release answers
-200 with `draft=false` and `prerelease=false`, and the download returns 852 112 426 bytes starting
+200 with `draft=false` and `prerelease=false`, and the download returns 852 018 219 bytes starting
 with the zip header `504b0304`. How the kit is built and checked in GitHub Actions, and every
 measurement behind it, is written up in
 [`packaging/kit/README.en.md`](packaging/kit/README.en.md).

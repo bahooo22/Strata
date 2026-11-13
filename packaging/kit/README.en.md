@@ -152,7 +152,7 @@ A finished kit does not have to be built: it sits there as an asset of the relea
 download link [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip).
 Both links were measured on 13.11 with an anonymous request and no token: the release answers 200 with
 `draft=false` and `prerelease=false`, and the download returns the header `504b0304` and a length of
-852 112 426 bytes - the same archive and the same bytes that the acceptance of run `43422717479`
+852 018 219 bytes - the same archive and the same bytes that the acceptance of run `43444961732`
 disassembles further down in this file.
 
 The entry point of these self-checks is pwsh 7 - the same one Actions calls them with. Windows
@@ -245,7 +245,10 @@ in the FAIL line, so equal values are never compared as strings.
   step, after a two-hour build, and the fork held zero releases on the morning of 13.11 (with a fully
   inherited tag list), so the scenario is not hypothetical. By the evening of the same day the release
   `kit-2026-11-13` exists (not a draft, zero assets at the time of measuring), so the green cheap
-  release check in run `43422717479` is a check against a real release rather than against nothing.
+  release check in run `43422717479` is a check against a real release rather than against nothing. In
+  run `43444961732` the same step costs 4 s and prints «релиз kit-2026-11-13 найден: ассет доедет в
+  него»: by the time of that build the release already held one asset, so the gate measured a filled
+  release rather than an empty tag.
 
 Before any push, acceptance stays an offline measure made of three parts. The first is the `ci-gates`
 job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
@@ -274,7 +277,10 @@ gate included). The measure is local now: `bash -n` over the text of every bash 
 workflows, with `${{ ... }}` substitutions collapsed into one token because for the shell that is not
 syntax. Acceptance of the measure runs on the real defect, not an invented one: over the edition still
 published on GitHub it prints `broken: 1` with exactly the log line that killed the run, and over the
-fixed one `blocks checked: 5, broken: 0` at rc=0. Two guards against a false verdict are built in: a
+fixed one `blocks checked: 5, broken: 0` at rc=0. The same class proven live: in run `43444961732` the
+"upload as an asset of the release" step took 29 s and prints `rc(gh release upload)=0 - тег
+kit-2026-11-13, архив gpu-infer-kit-2026-11-13.zip`, followed by `rc(gh release view --json assets)=0`.
+Two guards against a false verdict are built in: a
 bare `bash` in this window resolves to a WSL stub that answers `execvpe(/bin/bash) failed` with exit
 code 1 on HEALTHY text, so the measure takes the full path to a real GNU bash and verifies it through
 `--version`; and a non-zero exit without the word syntax in stderr reads as "the check did not happen"
@@ -466,17 +472,18 @@ Acceptance of that green run is measured by the fields of the carrier files and 
 of the build. The kit archive of run 6 (`43388763285`), `gpu-infer-kit-2026-11-13.zip`, weighs
 852 155 223 bytes and holds 26 entries; the run artifact `kit-release-6.zip` is 850 185 286 bytes with
 8 entries, and these are different quantities:
-the artifact carries the measures, the logs and the archive together. Further down this file there is a
-second kit - 852 112 426 bytes from run `43422717479`, and that is the one sitting on the release; the two
-weights differ by 42 797 bytes because the two runs packaged different builds, not because the numbers
-disagree. `verify_zip.sh` is green on the archive
+the artifact carries the measures, the logs and the archive together. Further down this file two more
+runs are disassembled - `43422717479` (852 112 426 bytes, tree `5db1fd60`) and `43444961732`
+(852 018 219 bytes, tree `3483b929`) - and the release holds the last one; the three weights differ not
+by a contradiction but because each was packaged by its own run from its own source tree.
+`verify_zip.sh` is green on the archive
 by the local-file-header signature, by EOCD and by all 12 required entries. The marker gate on binaries
 extracted from that very archive: strata 24/24 at 12 of 12 covered commits, llama 5/5 at 3 of 3.
 `elf-proof.json` proves cubin on all three architectures: `strata-q36.exe` has 28 `sm_86`, 28 `sm_89`,
 27 `sm_120` and 1 `sm_120a` records; `strata.exe` - 71, 71, 70 and 1; `ggml-cuda.dll` - 149 on each of
 `sm_86`, `sm_89`, `sm_120a`; `llama-server.exe` is 11 264 bytes with no CUDA code, because the code lives in
 `ggml-cuda.dll`. The closure of the set: the `missing` field is empty, and the kit carries
-`cublas64_13.dll` (52 697 712 bytes) and `cublaslt64_13.dll` (463 655 536) - 516 353 248 bytes of CUDA
+`cublas64_13.dll` (52 697 712 bytes) and `cublasLt64_13.dll` (463 655 536) - 516 353 248 bytes of CUDA
 runtime in total. The step "Публикация ассетом релиза" (publish as a release asset) took 0 s along the branch
 "release tag not set": the build was verified, nothing was uploaded, and the fork had no releases at that
 moment.
@@ -531,10 +538,23 @@ from this same archive: Strata 24/24 across 12 of 12 covered commits, llama.cpp 
 `strata-q36.exe`, `strata.exe` and `ggml-cuda.dll`), while `llama-server.exe` is 11 264 bytes with
 no CUDA code, because that code lives in `ggml-cuda.dll`.
 
-The release asset is published: `gpu-infer-kit-2026-11-13.zip`, 852 112 426 bytes, `state=uploaded`,
+Acceptance of run `43444961732` (number 12, `workflow_dispatch` on `main`, tree `3483b929`, composition
+`86;89;120`) rests on the lines of the job log, not on the colour of the steps: job `131951900593` ran
+6030 s, the whole run 6036 s (14:40:26Z -> 16:21:02Z), of which the "build both engines for CUDA" step
+took 5830 s. The cheap steps stand before the compilation: input control 0 s, kit text portability 1 s,
+release existence 4 s. The marker gate takes 1 s and prints `strata: маркеров 24/24, коммитов с
+подтверждённым маркером 12 из 12` and `llama: маркеров 5/5, коммитов с подтверждённым маркером 3 из 3` -
+the patches are visible in the exe and dll built by this very run, not derived from a list of commits.
+The native dependency registry takes 46 s, staging and packaging 33 s, the format gate 0 s with the line
+`verify_zip: OK ... 26 записей, все 12 обязательных на месте`, the run artifact 30 s, publication 29 s.
+For comparison: run `43422717479` on tree `5db1fd60` ran 6732 s (5891 s of compilation) and went red
+exactly at the publication step, in 0 s.
+
+The release asset is published: `gpu-infer-kit-2026-11-13.zip`, 852 018 219 bytes, `state=uploaded`,
 `content_type=application/zip`, and accepting the released file by bytes - not through the local
 copy but with partial HTTP range requests against the download address - gives the same 26 entries
-and all 12 mandatory ones. It was uploaded by hand from the artifact of run 11, and the reason the
+and all 12 mandatory ones. The current edition of the asset was uploaded automatically by run
+`43444961732`; before it the file lay there as a manual upload from the artifact of run 11. The reason the
 upload had to be manual is measured by the `release` event: run `43415264688` (number 7, 47 s in
 total) is red at the cheap release-existence gate with the line «релиза kit-2026-11-13 нет в этом
 репозитории», although by that hour the release had lived for 41 seconds (`published_at` 11:12:59Z
@@ -543,10 +563,14 @@ the release but the repository for `gh`: without `GH_REPO` it looks the reposito
 remote of the current directory, and `$GITHUB_WORKSPACE` has no remote repository - all three
 `checkout` steps put the tree into subdirectories. The measure has lived in main since commit
 `04d6a4c2`; the tag `kit-2026-11-13` points at `370c93fa`, where `GH_REPO` is absent from the file
-(the measure over that edition: 0 matches), so the step printed the old line. Hence the honest
-boundary: the asset is in place and checked from outside, but automatic publication by step 16 is not
-yet proven - it needs a release whose tag sits on a commit carrying both edits (`GH_REPO` and the
-`fi` in the publication condition).
+(the measure over that edition: 0 matches), so the step printed the old line. Automatic publication is now
+proven by a live run: step 16 prints `rc(gh release upload)=0`. The boundary got narrower but it did not
+close: the tag `kit-2026-11-13` stands on `370c93fa` while the asset was built on `3483b929`, and the only
+run of `kit-release.yml` on the tagged tree is red. That is why the byte-level gate of the released asset
+gives two findings - "the tag `370c93fa` and `origin/main` differ by three README files" and "one run
+belongs to the release tree and none of them succeeded". Closing it is the owner's call: move the tag to a
+`main` commit after the final documentation edit and publish the asset again, otherwise the release page
+describes a tree the archive was not built from.
 
 ## What is not here
 
