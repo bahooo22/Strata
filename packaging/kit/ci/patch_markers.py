@@ -4,11 +4,12 @@
 Мера нужна потому, что зелёная сборка в GitHub Actions не доказывает наличие наших патчей:
  Actions может собрать чистое дерево апстрима (не тот ref, не тот worktree, потерянная ветка),
  и лог сборки выглядел бы ровно так же. Реестр `patch-markers.json` снят 12.11 по-настоящему
- меркой (`ci_binary_markers2_2026-11-12.py`) со стендовых сборок и содержит только те имена,
+ меркой (`registry_counts.py`, локально: ей нужна git-история) со стендовых сборок и содержит
+ только те имена,
  которые бинарник Способен нести: строковые литералы (имена переменных среды, CLI-флаги,
  тексты ошибок) и имена `__global__`-ядер из fatbin. Локальные имена функций компилятор не
  сохраняет, поэтому покрытие коммитов меньше их числа - и это зафиксировано в реестре, а не
- прячется за «все 72 коммита проверены».
+ прячется за «все наши коммиты проверены».
 
 Вызов:
     python packaging/kit/ci/patch_markers.py --engine strata --bin <путь к exe> [--bin ...]
@@ -33,6 +34,14 @@ from pathlib import Path
 # Маркер обязан быть ASCII: побайтный поиск по exe/dll не видит кириллицу (она живёт в UTF-16
 # секции #US), и не-ASCII маркер вечно светился бы красным при собранном патче.
 ASCII_ONLY = True
+
+# Числа наших коммитов в раннере не переснять (actions/checkout стоит с fetch-depth: 1), поэтому
+# гейт меряет только ФОРМУ снимка: поля на месте, хеш нужной длины, команда называет те же три
+# утилиты, сговор не пустой. Настоящую сверку снимка с историей делает registry_counts.py локально.
+SNAPSHOT = ("commits_ours", "commits_ours_cmd", "commits_ours_base",
+            "commits_ours_head", "commits_ours_at", "commits_ours_note")
+SNAPSHOT_CMD = ("merge-base", "rev-list", "--no-merges")
+HEX = set("0123456789abcdef")
 
 
 def load_registry(path: Path) -> dict:
@@ -59,7 +68,39 @@ def load_registry(path: Path) -> dict:
                 raise ValueError(
                     f"маркер '{m['token'][:40]}' не ASCII: побайтный поиск по exe/dll его "
                     "не увидит даже при собранном патче (кириллица живёт в UTF-16 #US)")
+        snap_check(name, eng)
     return reg
+
+
+def snap_check(name: str, eng: dict) -> None:
+    """Форма снимка чисел; отказ - исключением, а не зелёным на испорченном реестре.
+
+    Испорченный снимок гейт молча проглотил бы и печатал «покрыто N из M» по выдуманному
+    знаменателю: числа в раннере не переснять, поэтому их форму всё равно обязано держать.
+    """
+    for key in SNAPSHOT:
+        if key not in eng:
+            raise ValueError(f"у движка '{name}' нет поля снимка '{key}' - знаменатель меры "
+                             "неоткуда взять, проверка не состоялась")
+    if not isinstance(eng["commits_ours"], int) or isinstance(eng["commits_ours"], bool):
+        raise ValueError(f"у движка '{name}' commits_ours не целое: {eng['commits_ours']!r}")
+    for key in ("commits_ours_base", "commits_ours_head"):
+        sha = str(eng[key])
+        if not (7 <= len(sha) <= 40 and all(c in HEX for c in sha)):
+            raise ValueError(f"у движка '{name}' {key} = '{sha}' не hex 7-40 знаков: "
+                             "снимок нельзя повторить ни одной командой")
+    cmd = str(eng["commits_ours_cmd"])
+    for word in SNAPSHOT_CMD:
+        if word not in cmd:
+            raise ValueError(f"у движка '{name}' команда съёмки не называет '{word}': {cmd} - "
+                             "неоткуда знать, что знаменатель меры - число наших коммитов")
+    if not str(eng["commits_ours_note"]).strip():
+        raise ValueError(f"у движка '{name}' пустая оговорка снимка: число есть, а почему ему "
+                         "нельзя доверять в Actions - нет")
+    date = str(eng["commits_ours_at"])
+    if len(date) != 10 or date[4] != "-" or date[7] != "-":
+        raise ValueError(f"у движка '{name}' дата снимка '{date}' не ГГГГ-ММ-ДД: "
+                         "снимок нельзя привязать ко времени")
 
 
 def carriers(eng: dict) -> list[str]:
@@ -213,6 +254,42 @@ def selftest() -> int:
             eng["commits_with_marker"] <= eng["commits_ours"], True)
         chk(f"{e_name}: правило съёмки записано в реестре", bool(eng.get("marker_rule")), True)
 
+    # Форма снимка чисел - единственное, что гейт в раннере обязан держать: истории с
+    # fetch-depth: 1 нет, поэтому переснять число он не может и берёт его из реестра. Молча
+    # довериться выдуманному знаменателю нельзя - иначе печать «покрыто 12 из N» повиснет
+    # на пустом месте, а зелёный код возврата накроем не доказан.
+    def snap_fail(eng: dict, key: str, value) -> bool:
+        """True - испорченное поле снимка привело к отказу меры, а не к зелёному прогону."""
+        e = json.loads(json.dumps(eng))
+        if value is None:
+            e.pop(key, None)
+        else:
+            e[key] = value
+        try:
+            snap_check("x", e)
+        except ValueError:
+            return True
+        return False
+
+    SABOTAGE = [
+        ("commits_ours_base", "13eedf552x"),
+        ("commits_ours_head", "ggghhhh"),
+        ("commits_ours_head", None),
+        ("commits_ours", "89"),
+        ("commits_ours_cmd", "git rev-list main"),
+        ("commits_ours_note", "   "),
+        ("commits_ours_at", "13.11.2026"),
+    ]
+    for e_name, eng in reg["engines"].items():
+        try:
+            snap_check(e_name, eng)
+            shape_ok = True
+        except ValueError as e:
+            shape_ok = f"отказ: {e}"
+        chk(f"{e_name}: настоящая форма снимка чисел проходит", shape_ok, True)
+        for key, value in SABOTAGE:
+            chk(f"саботаж {e_name}: '{key}'='{value}' - отказ", snap_fail(eng, key, value), True)
+
     # Подложка: бинарник, в который вручную положены ВСЕ маркеры движка, обязан дать zero missing.
     tmp = Path(tempfile.mkdtemp(prefix="patch-markers-"))
     try:
@@ -284,8 +361,8 @@ def selftest() -> int:
 
     print(f"patch_markers selftest: ok={ok} bad={bad}")
     # Обрезанный или изменённый блок выглядел бы как «провалов нет»: порог проверок - часть меры.
-    if (ok + bad) < 24:
-        print("ИТОГ: проверок меньше 24 - мера не состоялась")
+    if (ok + bad) < 40:
+        print("ИТОГ: проверок меньше 40 - мера не состоялась")
         return 2
     return 1 if bad else 0
 

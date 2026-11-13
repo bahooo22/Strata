@@ -1,12 +1,17 @@
 {
  "version": 1,
  "generated": "2026-11-12",
- "measure": "pm_registry_audit_2026-11-12.py + pm_attr_check_2026-11-12.py: имена взяты из «+»-строк наших диффов, отфильтрованы по отсутствию в базе апстрима и подтверждены побайтно в носителях комплекта",
+ "measure": "registry_counts.py (рядом со скриптом гейта): числа сняты ею и переснимаются той же командой; имена маркеров взяты из «+»-строк наших диффов, отфильтрованы по отсутствию в базе апстрима и подтверждены побайтно в носителях комплекта",
  "note": "Бинарник доказуемо несёт два класса имён: строковые литералы (переменные среды, CLI-флаги, тексты) и имена CUDA-ядер из fatbin. Локальные имена функций и переменных компилятор не сохраняет, поэтому коммиты без такого следа в реестр не входят - их отсутствие здесь не значит, что патч не собран.",
  "engines": {
   "strata": {
    "upstream": "upstream/main",
-   "commits_ours": 81,
+   "commits_ours": 89,
+   "commits_ours_cmd": "b=$(git merge-base upstream/main main); git rev-list --count --no-merges $b..8ca5f124",
+   "commits_ours_base": "13eedf552",
+   "commits_ours_head": "8ca5f124",
+   "commits_ours_at": "2026-11-13",
+   "commits_ours_note": "снимок на названный head: число считается по истории, которой в Actions нет (actions/checkout с fetch-depth: 1), поэтому это документация, а не гейт; head - родитель коммита, несущего эту запись (коммит не может записать собственный хеш), поэтому число привязано к названной голове и не ползёт от новых коммитов; пересъёмка - отдельный прогон registry_counts.py",
    "markers": 24,
    "commits_with_marker": 12,
    "carriers": [
@@ -66,7 +71,7 @@
      ]
     },
     {
-     "token": "--cache-type-k",
+     "token": "strata-q36: --cache-type takes fp32, q8_0, q5_1, q5_0 or q4_0",
      "kind": "literal",
      "commit": "9ecacd60",
      "subject": "q36: флаги KV как у llama — --kv, --cache-type-k/-v, k8v4 отвергается",
@@ -76,7 +81,7 @@
      ]
     },
     {
-     "token": "--cache-type-v",
+     "token": "strata-q36: --cache-type-k and --cache-type-v only work as a pair",
      "kind": "literal",
      "commit": "9ecacd60",
      "subject": "q36: флаги KV как у llama — --kv, --cache-type-k/-v, k8v4 отвергается",
@@ -260,7 +265,12 @@
   },
   "llama": {
    "upstream": "origin/master",
-   "commits_ours": 14,
+   "commits_ours": 15,
+   "commits_ours_cmd": "b=$(git merge-base origin/master kit-all-sync); git rev-list --count --no-merges $b..39628e5a4",
+   "commits_ours_base": "81f21f4b2",
+   "commits_ours_head": "39628e5a4",
+   "commits_ours_at": "2026-11-13",
+   "commits_ours_note": "тот же снимок и та же оговорка, что у Страты: числа в Actions не переснимаются (нет истории), гейт меряет маркеры в dll; head у llama - живой tip kit-all-sync, реестр лежит в репе Страты, поэтому само-ссылки, как у Страты, нет",
    "markers": 5,
    "commits_with_marker": 3,
    "carriers": [
