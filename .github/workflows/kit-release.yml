@@ -327,7 +327,7 @@ jobs:
             echo "rc(gh release view)=$rc: $(cat /tmp/gh-view2.err)"
             echo "::error::релиз $KIT_TAG недоступен gh - ассет загружается только в существующий релиз"
             exit 1
-          }
+          fi
           # gh с rc!=0 под `bash -eo pipefail` (дефолт shell: bash) роняет шаг ДО строки с rc, и
           # цифра публикации теряется ровно в том случае, когда она нужнее всего.
           gh release upload "$KIT_TAG" "$KIT_ZIP" --clobber && rc=0 || rc=$?

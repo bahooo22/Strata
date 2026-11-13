@@ -181,6 +181,20 @@ in the FAIL line, so equal values are never compared as strings.
   build: the scripts and the marker registry are checked out from this fork, because a copy would
   diverge at the first edit; `-Engines llama`, then the gate over ggml-base.dll, ggml-cuda.dll and
   llama.dll.
+  The build file must also sit on the default branch `master`, not only on the working
+  `kit-all-sync` branch: the Actions interface builds its workflow list from the default branch, so
+  the manual "Run workflow" button is only visible there, and pressing it runs the text of the file
+  as it exists on that branch. Measured 13.11 after the synchronization: on GitHub both branches
+  serve the same blob `07f54bd27` - 11 226 bytes, 198 lines - and the Actions list holds exactly one
+  kit workflow in state active. A local, behind `master` checkout still shows the previous revision
+  at 7 616 bytes, 3 610 smaller: it has neither `env.ARTIFACT_FILES` nor the "the artifact set is
+  complete" gate; its binary upload step does not set `if-no-files-found` at all, and the default is a
+  warning, so a run stayed green even on an incomplete set - the path list held four files instead of
+  nine, and the red composition went through. The one deliberate `warn` in that edition sits in the
+  "measures and logs" step under `if: always()`, and it survives in the current edition: empty measures
+  are a symptom of an already failed job, not a new cause. That same spot is what let the red
+  composition through, so this is checked against the repository on GitHub, not against one's own
+  checkout.
 - `kit-release.yml` (this fork, a published release by tag or a manual run with a tag) is the whole
   kit: both engines in ONE run (`-Engines 'strata;llama'`) for `86;89;120`, because only the paired
   run writes the merged build-measure.json and elf-proof.json that the packer reads; then the marker
@@ -191,27 +205,74 @@ in the FAIL line, so equal values are never compared as strings.
   (the workflow already declares `contents: write`). Without that line the LAST step dies - after a
   two-hour build - with "set the GH_TOKEN environment variable"; an empty token is caught by a
   separate guard that returns rc=2 with its own reason, so the refusal reads as "the publication did
-  not happen" rather than as "our patches are missing". The portability gate over the text inputs
+  not happen" rather than as "our patches are missing". The second character of the same class: `gh`
+  does receive a token and still does not know which repository to address unless the step is given
+  `GH_REPO: ${{ github.repository }}`. Measured 13.11 on the `release`-event run `43415264688` - the
+  REST call for the tag answers 200 (the release exists), yet the cheap guard is red: the step
+  itself 5 s (11:13:35Z -> 11:13:40Z), the whole run 47 s; what
+  was missing was not the release but the repository for `gh`. Hence the rule about the tag - a
+  `release`-event run executes the workflow FROM THE REVISION THE TAG POINTS AT, so the tag must sit
+  on a commit carrying the needed edition of `.github/workflows/kit-release.yml`. That tag pointed at
+  `370c93fad` - three commits before the tip - and the `GH_REPO` fix never reached the run; all three
+  commits touched only the workflow, so the built binaries still match the tag: exactly one path
+  changed, and it lies under `.github/workflows/`.
+  The portability gate over the text inputs
   (`pack_kit.ps1 -TextGate` over the `packaging/kit` sources) is a separate cheap step in this
-  workflow too, and it runs before both the toolchain and the release check. Whether a release
+  workflow too, and it runs before both the toolchain and the release check. The CI-eligibility of the
+  scripts themselves is not measured by that gate: the `ci\` directory is not in the manifest list and
+  does not travel in the archive, while each build script carries its own two controls inside
+  `-SelfTest` - "no stand path literals in the code" (`build_kit.ps1:672`, `pack_kit.ps1:506`) and "no
+  references to a root derived from the script location" (`build_kit.ps1:673`, `pack_kit.ps1:507`). Both
+  measure the script's own text with comments and doc blocks cut out beforehand, and the literals are
+  assembled in code from two pieces: whole they would stay in that same file, and the measure would find
+  its own explanations instead of the build code (checked on a red run - all 7 findings were its own).
+  Live run 13.11: `build_kit.ps1 -SelfTest` gives 117/117 and rc=0. The subject of those two controls is
+  stand literals specifically, not any absolute path: legitimate runner paths under `ci\` are not the
+  gate's complaint, which is also why `ci\` does not enter the manifest list (`pack_kit.ps1:125`), and
+  invented directories appear in the selftest fixtures by the tens. Whether a release
   exists for the asset is checked by an early cheap step, before the CUDA toolchain: the same
   `gh release view`, with the run's `GH_TOKEN`. An empty tag reads "no publication needed", a found release reads "the asset
   will land in it", and a missing one fails within seconds, hinting that the release must be
   created and never starting the compiler. Without that gate the same refusal arrived as the last
-  step, after a two-hour build, and the fork held zero releases on 13.11 (with a fully inherited
-  tag list), so the scenario is not hypothetical.
+  step, after a two-hour build, and the fork held zero releases on the morning of 13.11 (with a fully
+  inherited tag list), so the scenario is not hypothetical. By the evening of the same day the release
+  `kit-2026-11-13` exists (not a draft, zero assets at the time of measuring), so the green cheap
+  release check in run `43422717479` is a check against a real release rather than against nothing.
 
-Before any push, acceptance stays an offline measure made of two parts. The first is the `ci-gates`
+Before any push, acceptance stays an offline measure made of three parts. The first is the `ci-gates`
 job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
 paths): `build_kit` 117/117 controls, `pack_kit` 89/0, `install_cuda_redist` 27/0,
 `patch_markers --selftest` 44/0, `kit_dll_deps --selftest` 14/0, `verify_zip --selftest` 6/0
 (taken 13.11 in one wrapper run). The second is the marker gate over the stand's binaries:
-24/24 Strata markers across 12 commits and 5/5 for llama.cpp across 3. Add to them a static audit
+24/24 Strata markers across 12 commits and 5/5 for llama.cpp across 3. The third compares the two
+format gates of the archive with each other: `verify_zip.sh` measures the zip inside the run, while
+the python gate measures the released asset from outside. Both must demand the same thing, otherwise
+a green verdict from one says nothing about the other. Measured 13.11 over the sources of both gates:
+12 mandatory entries each, the lower bound on the entry count 20 in both, and the same set in the
+same order. That bound sits deliberately below the live kit (25 entries, 26 with `bin/strata_kq.dll`)
+so the gate catches incomplete packaging instead of tracking the current contents. Add to them a static audit
 of the three workflows: it catches GH_TOKEN-class defects
 before a long run starts, its own sabotage control (six buried failures plus a false-alarm
 control) gives 7/7, and over the three files it is clean except one warning - the llama.cpp build takes
 the CI scripts at a floating `ref: main`, which is the price of one source of truth, not a forgotten
 pin.
+
+A fourth class closed only now: the "upload as an asset of the release" step in run `43422717479`
+died seconds before the upload - the `if`/`then` scope in that shell block was closed with a brace
+instead of `fi`, and the log reads `syntax error near unexpected token '}'` on line 17. No YAML parser
+sees this: only the runner's shell parses the block, and it does so as the LAST step, after the build
+already cost 112 minutes (the 15 steps before it are green, marker gate and byte-level archive format
+gate included). The measure is local now: `bash -n` over the text of every bash block of both
+workflows, with `${{ ... }}` substitutions collapsed into one token because for the shell that is not
+syntax. Acceptance of the measure runs on the real defect, not an invented one: over the edition still
+published on GitHub it prints `broken: 1` with exactly the log line that killed the run, and over the
+fixed one `blocks checked: 5, broken: 0` at rc=0. Two guards against a false verdict are built in: a
+bare `bash` in this window resolves to a WSL stub that answers `execvpe(/bin/bash) failed` with exit
+code 1 on HEALTHY text, so the measure takes the full path to a real GNU bash and verifies it through
+`--version`; and a non-zero exit without the word syntax in stderr reads as "the check did not happen"
+(rc=2), not as a finding. The remaining six blocks of the two files are PowerShell: there is no separate
+local syntax control for them, but run `43422717479` already proved they parse - every one of those
+steps ran green.
 
 Three defects were found only by the live release run 43345549955 (13.11, the rehearsal branch
 `kit-ci-live` at commit `722299be`, `86;89;120`, toolchain 13.3.1): Strata built in 18.6 + 1147.8 s
@@ -443,6 +504,37 @@ have one trigger, `workflow_dispatch`, with an `arch` input. The measure: the pu
 (main of this fork) and `b206f728c` (`kit-all-sync` in the llama.cpp fork) at 07:38Z on 13.11
 created no run at all - `GET /actions/runs?created=>2026-11-13T07:35Z` answers `total_count=0` in
 both forks, and the newest runs there are dated 05:53Z and 04:42Z, that is, before those pushes.
+
+Acceptance of run `43422717479` (number 11, artifact `kit-release-11`) rests on the fields of the
+measures inside the artifact, not on the colour of the steps. `kit-weight.json`: the kit is
+852 112 426 bytes over 26 entries, 516 353 248 of them being the CUDA runtime, packaging verdict
+"green". The same archive checked locally by the byte-level format gate: header and EOCD present,
+all 12 mandatory entries found. Both builds carry `build_kind` = "cold build" with
+`prebuilt_objects: 0`: Strata `5db1fd6` (main) - configure 33.9 s and build 2113.8 s, 160 compiles
+and 14 links; llama.cpp `b206f72` (`kit-all-sync`) - 12.9 s and 3710.3 s, 315 compiles and 14 links.
+This is the most expensive measured pair so far - 5824.1 s (97.1 minutes) against the previous
+5095.1 s - and the 240-minute limit stands 2.47 times above it. The marker gate over binaries taken
+from this same archive: Strata 24/24 across 12 of 12 covered commits, llama.cpp 5/5 across 3 of 3;
+`elf-proof.json` proves cubin for all three architectures (84, 213 and 447 entries in
+`strata-q36.exe`, `strata.exe` and `ggml-cuda.dll`), while `llama-server.exe` is 11 264 bytes with
+no CUDA code, because that code lives in `ggml-cuda.dll`.
+
+The release asset is published: `gpu-infer-kit-2026-11-13.zip`, 852 112 426 bytes, `state=uploaded`,
+`content_type=application/zip`, and accepting the released file by bytes - not through the local
+copy but with partial HTTP range requests against the download address - gives the same 26 entries
+and all 12 mandatory ones. It was uploaded by hand from the artifact of run 11, and the reason the
+upload had to be manual is measured by the `release` event: run `43415264688` (number 7, 47 s in
+total) is red at the cheap release-existence gate with the line «релиза kit-2026-11-13 нет в этом
+репозитории», although by that hour the release had lived for 41 seconds (`published_at` 11:12:59Z
+against a start at 11:13:01Z) and the REST call for that tag answers 200. What was missing was not
+the release but the repository for `gh`: without `GH_REPO` it looks the repository up in the git
+remote of the current directory, and `$GITHUB_WORKSPACE` has no remote repository - all three
+`checkout` steps put the tree into subdirectories. The measure has lived in main since commit
+`04d6a4c2`; the tag `kit-2026-11-13` points at `370c93fa`, where `GH_REPO` is absent from the file
+(the measure over that edition: 0 matches), so the step printed the old line. Hence the honest
+boundary: the asset is in place and checked from outside, but automatic publication by step 16 is not
+yet proven - it needs a release whose tag sits on a commit carrying both edits (`GH_REPO` and the
+`fi` in the publication condition).
 
 ## What is not here
 
