@@ -518,11 +518,34 @@ turns red in 35 s (05:53:47Z -> 05:54:22Z) with the line "релиза probe-no-
 репозитории", and every expensive step is `skipped`: a publish refusal is readable in seconds
 rather than after a two-hour build.
 
-Engine compilation no longer starts on a push: since 13.11 `kit-build.yml` and `kit-build-cuda.yml`
-have one trigger, `workflow_dispatch`, with an `arch` input. The measure: the pushes `5256c062`
-(main of this fork) and `b206f728c` (`kit-all-sync` in the llama.cpp fork) at 07:38Z on 13.11
-created no run at all - `GET /actions/runs?created=>2026-11-13T07:35Z` answers `total_count=0` in
-both forks, and the newest runs there are dated 05:53Z and 04:42Z, that is, before those pushes.
+Engine compilation no longer starts on a push. Our files have one trigger, `workflow_dispatch`
+with an `arch` input: in tree `509a2e66` (main of this fork) `kit-build.yml` gives
+`workflow_dispatch`, `kit-release.yml` gives `release` and `workflow_dispatch` (the second one
+publishes on a release event, it does not build). The pushes `5256c062` (main of this fork) and
+`b206f728c` (`kit-all-sync` in the llama.cpp fork) at 07:38Z on 13.11 created no run at all -
+`GET /actions/runs?created=>2026-11-13T07:35Z` answers `total_count=0` in both forks, and the
+newest runs there are dated 05:53Z and 04:42Z, that is, before those pushes.
+
+That paragraph was not enough: it described only our files and stayed silent about the ones
+inherited from upstream, which made it wrong for the second branch of the same fork. `bench-3060ti`
+carried 51 inherited files (not counting `.disabled`), 42 of which started on their own - on
+`push`, `schedule`, `pull_request` or `release` (snapshot of tree `dc171e129`, script `kit474`).
+The documentation push `dc171e129` at 16:53Z on 13.11 raised run `43467376805` in that branch:
+event `push`, workflow `.github/workflows/build-cann.yml`, created at 16:54:15Z. Runner minutes
+went to a build the owner never asked for.
+
+Closed by commit `0b745627e` in the same branch: 51 files deleted, `git show --numstat` gives
+`+0/-8355`, and `.github/workflows` keeps only `bench.yml.disabled`. The method comes from the
+precedent `39628e5a4` in `kit-all-sync` - files get deleted, `.disabled` stays. Acceptance
+(`kit466`) measures two windows: after the removal push (17:03Z) there are 0 runs in both forks
+(`bahooo22/Strata`: 29 in total, 0 after the threshold; `bahooo22/llama.cpp`: 66 in total, 0 after
+the threshold); in the window after 16:53Z exactly the run named above stays, and the measure may
+count only that one, by id. Control (`kit473`): the same code with its threshold moved back to
+16:00Z catches `43467376805` and prints `расхождений=1`, so the green verdict of the acceptance
+is not an empty one. Remainder: seven files in that branch still link the five removed names
+(README.md, docs/docker.md, docs/release.md, docs/backend/SYCL.md, scripts/release.sh,
+scripts/make-release-checks.sh, scripts/make-release-desc.sh) - they are upstream texts and
+scripts, they build nothing themselves, and they are handled separately.
 
 Acceptance of run `43422717479` (number 11, artifact `kit-release-11`) rests on the fields of the
 measures inside the artifact, not on the colour of the steps. `kit-weight.json`: the kit is
