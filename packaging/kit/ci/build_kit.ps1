@@ -364,9 +364,9 @@ function Set-EngineMeasure([string]$EngineName, [string]$Src, [string]$BuildDir,
             $m.build_s_this_run = $Build.sec
             $m.build_s_at = $prev.started
             $m.build_s_from = $prev.from
-            Write-Host ("  ${EngineName}: прогон ничего не компилировал ({0} с) - время сборки " +
-                        "взято из холодной сборки {1} с (замер {2}, {3})" -f `
-                        $Build.sec, $prev.build.build_s, $prev.started, $prev.from)
+            Write-Host (("  ${EngineName}: прогон ничего не компилировал ({0} с) - время сборки " +
+                         "взято из холодной сборки {1} с (замер {2}, {3})") -f `
+                         $Build.sec, $prev.build.build_s, $prev.started, $prev.from)
         } else {
             $m.build_s = $null
             Write-Host ("  ВНИМАНИЕ ${EngineName}: прогон ничего не компилировал, а прежней меры " +
@@ -686,6 +686,38 @@ if ($SelfTest) {
         @([regex]::Matches($code, 'Count-BuiltObjects\s+\' + $dollar + 'bd')).Count 2
     Chk "обе меры получают число объектов до прогона" `
         @([regex]::Matches($code, 'Set-EngineMeasure[^\r\n]*\' + $dollar + 'pre')).Count 2
+    # Тот же класс, но в месте, которое живёт только в прогоне сборки: у -f приоритет выше, чем у +,
+    # поэтому «литерал + литерал -f аргументы» подставляет аргументы только во второй литерал.
+    # Живой лог 12.11 (build-strata.log прогона kit378) показал в строке меры Страты литеральные
+    # {0}..{4}: холодные числа в Actions стали нечитаемыми, хотя JSON-меры остались целыми.
+    # Скобка вокруг склейки - единственная форма, при которой -f видит весь шаблон.
+    $gluePat = '\+[ \t]*(?:\r?\n[ \t]*)?"[^"]*"[ \t]*(?:\r?\n[ \t]*)?-f\b'
+    Chk "ни одна склейка литералов не берёт -f без скобки" `
+        @([regex]::Matches($code, $gluePat)).Count 0
+    # «0 находок» без саботажа неотличимо от битого паттерна. Посадочные входы собираются из
+    # кусков через $q: целый литерал дефектной формы остался бы в этом же файле, и текстовая
+    # мера выше нашла бы собственную проверку вместо кода сборки (та же схема, что с $standLits).
+    $q = [char]34
+    Chk "мера находит дефектную склейку в одну строку" `
+        @([regex]::Matches('Write-Host (' + $q + 'a{0}' + $q + ' + ' + $q + 'b{1}' + $q +
+                           ' -f 1, 2)', $gluePat)).Count 1
+    Chk "мера находит дефектную склейку через перенос" `
+        @([regex]::Matches('Write-Host (' + $q + 'a{0}' + $q + ' +' + "`r`n" + '  ' +
+                           $q + 'b{1}' + $q + ' -f' + "`r`n" + '  1, 2)', $gluePat)).Count 1
+    Chk "мера не трогает правильную форму со скобкой" `
+        @([regex]::Matches('Write-Host ((' + $q + 'a{0}' + $q + ' + ' + $q + 'b{1}' + $q +
+                           ') -f 1, 2)', $gluePat)).Count 0
+    # Тот же дефект, но измеренный исполнением, а не текстом: шаблон собирается из переменных,
+    # поэтому текстовая мера выше не видит собственных строк. Без этого контроля правка,
+    # вернувшая скобки в одном месте и убравшая их в другом, осталась бы зелёной.
+    $gTplA = "купе {0} и {1}"
+    $gTplB = " хвост {2}"
+    Chk "без скобок -f съедает только хвост склейки" `
+        (($gTplA + $gTplB -f "A", "B", "C").Contains("{0}")) $true
+    Chk "со скобками -f раскрывает всю склейку" `
+        ((($gTplA + $gTplB) -f "A", "B", "C").Contains("{0}")) $false
+    Chk "правильная форма раскрывает и хвост" `
+        ((($gTplA + $gTplB) -f "A", "B", "C").Contains("хвост C")) $true
     foreach ($p in @("Cuda", "Vs", "Out", "StrataSrc", "LlamaSrc", "GgmlDir",
                      "ProbeScript", "StrataBuildDir", "LlamaBuildDir")) {
         $m = [regex]::Match($code,
@@ -974,10 +1006,13 @@ if ($Engines -match 'strata') {
     if ($tBuild.rc -ne 0) { Write-Host "СБОРКА Страты упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
     $measure.engines.strata = Set-EngineMeasure "strata" $src $bd $tCfg $tBuild $log $Out $preStrata
     $sm = $measure.engines["strata"]
-    Write-Host ("strata: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
-                "объектов до прогона: {5}), rc={6}" -f `
-                $tCfg.sec, $sm.build_s, $sm.build_kind, $sm.build_compiles, $sm.build_links, `
-                $preStrata, $tBuild.rc)
+    # Скобки вокруг склейки обязательны: без них -f связывается сильнее + и подставляет аргументы
+    # только во второй литерал, поэтому в логе Actions читались литеральные {0}..{4} вместо
+    # холодных чисел (проверено 12.11 на build-strata.log живого прогона kit378).
+    Write-Host (("strata: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
+                 "объектов до прогона: {5}), rc={6}") -f `
+                 $tCfg.sec, $sm.build_s, $sm.build_kind, $sm.build_compiles, $sm.build_links, `
+                 $preStrata, $tBuild.rc)
 }
 
 if ($Engines -match 'llama') {
@@ -1007,10 +1042,10 @@ if ($Engines -match 'llama') {
     if ($tBuild.rc -ne 0) { Write-Host "СБОРКА llama упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
     $measure.engines.llama = Set-EngineMeasure "llama" $src $bd $tCfg $tBuild $log $Out $preLlama
     $lm = $measure.engines["llama"]
-    Write-Host ("llama: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
-                "объектов до прогона: {5}), rc={6}" -f `
-                $tCfg.sec, $lm.build_s, $lm.build_kind, $lm.build_compiles, $lm.build_links, `
-                $preLlama, $tBuild.rc)
+    Write-Host (("llama: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
+                 "объектов до прогона: {5}), rc={6}") -f `
+                 $tCfg.sec, $lm.build_s, $lm.build_kind, $lm.build_compiles, $lm.build_links, `
+                 $preLlama, $tBuild.rc)
 }
 
 if (-not $measure.engines.Count) {
@@ -1114,8 +1149,8 @@ foreach ($g in $groups) {
             Write-Host ("  {0}: доказано {1}" -f $g.name, (($pm.Keys | ForEach-Object {
                 if ($pm[$_]) { "$_<=$($pm[$_])" } else { "$_=нет" } }) -join ' '))
             if ($sfx) {
-                Write-Host ("  {0}: для $(($sfx -join ',')) cubin только в форме с суффиксом -" +
-                            " код той же вычислительной способности, но на 120-железе не запускался" -f $g.name)
+                Write-Host (("  {0}: для $(($sfx -join ',')) cubin только в форме с суффиксом -" +
+                            " код той же вычислительной способности, но на 120-железе не запускался") -f $g.name)
             }
         }
         if (-not $g.carries) {

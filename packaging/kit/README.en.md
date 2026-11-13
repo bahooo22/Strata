@@ -188,7 +188,7 @@ measures are written with `[System.IO.File]::WriteAllText` and `UTF8Encoding($fa
 
 Before any push, acceptance stays an offline measure made of two parts. The first is the `ci-gates`
 job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
-paths): `build_kit` 109/109 controls, `pack_kit` 73/0, `install_cuda_redist` 27/0,
+paths): `build_kit` 116/116 controls, `pack_kit` 73/0, `install_cuda_redist` 27/0,
 `patch_markers --selftest` 28/0, `verify_zip --selftest` 6/0 (measured 13.11). The second is the
 marker gate over the stand's binaries: 24/24 Strata markers across 12 commits and 5/5 in the llama
 leg across 3. Add to them a static audit of the three workflows: it catches GH_TOKEN-class defects
@@ -196,6 +196,17 @@ before a long run starts, its own sabotage control (six buried failures plus a f
 control) gives 7/7, and over the three files it is clean except one warning - the llama leg takes
 the CI scripts at a floating `ref: main`, which is the price of one source of truth, not a forgotten
 pin.
+
+Log-line formatting is a class a green build never notices: `-f` binds tighter than `+`, so
+`"template {0}" + "tail {1}" -f a, b` substitutes into the second piece only. The live run of
+12.11 (`build-strata.log` of the kit378 rehearsal) printed literal `{0}`...`{4}` in the Strata
+measure line: the JSON measures stayed intact, and what became unreadable in Actions were exactly
+the cold numbers the `build_kind` label exists to justify. Four such sites are fixed - the strata
+and llama measure lines, the no-op line and the architecture-proof line with a suffix - and the
+neighbouring `pack_kit` and `install_cuda_redist` come back clean under the same measure (0 hits).
+The class is closed in `-SelfTest` by two measures: a textual one over the script (with two sabotage
+inputs and one false-alarm control) and a behavioural one - the same template glue with and without
+parentheses. After the fix: 116/116.
 
 Suitability of the component index (`redistrib_<version>.json`) is measured by structure: the release
 label must equal the requested version and the index must hold at least 20 components. The earlier
