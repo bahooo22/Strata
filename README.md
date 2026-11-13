@@ -262,3 +262,19 @@ two baselines, then super-chunk N=4, then the working kernel with flash attentio
 written-up version, with the table every point came from, is
 [`docs/research/kernel-progress.md`](docs/research/kernel-progress.md).
 
+## Portable kit: both engines, no build step
+
+Both engines of this fork, built for `sm_86`, `sm_89` and `sm_120` and bundled with the CUDA runtime
+they need, are published as an asset of a release:
+[the release page](https://github.com/bahooo22/Strata/releases/tag/kit-2026-11-13) and the direct
+download [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip).
+Unpack it, double-click `START.bat`, point it at a `.gguf` file: the kit reads the hardware, compares
+it with our bench, computes the largest window and starts the server. The archive carries no models
+and writes nothing outside its own folder.
+
+Both links were measured on 2026-11-13 with an anonymous request and no token: the release answers
+200 with `draft=false` and `prerelease=false`, and the download returns 852 112 426 bytes starting
+with the zip header `504b0304`. How the kit is built and checked in GitHub Actions, and every
+measurement behind it, is written up in
+[`packaging/kit/README.en.md`](packaging/kit/README.en.md).
+

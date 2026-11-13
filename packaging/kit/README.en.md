@@ -147,6 +147,14 @@ The CI variants of the same scripts live in `packaging\kit\ci\` and are called w
 cannot accidentally build something that works at home and fails in Actions. A missing mandatory
 parameter is a refusal with exit code 2, not a half-finished build.
 
+A finished kit does not have to be built: it sits there as an asset of the release `kit-2026-11-13` -
+[the release page](https://github.com/bahooo22/Strata/releases/tag/kit-2026-11-13) and the direct
+download link [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip).
+Both links were measured on 13.11 with an anonymous request and no token: the release answers 200 with
+`draft=false` and `prerelease=false`, and the download returns the header `504b0304` and a length of
+852 112 426 bytes - the same archive and the same bytes that the acceptance of run `43422717479`
+disassembles further down in this file.
+
 The entry point of these self-checks is pwsh 7 - the same one Actions calls them with. Windows
 PowerShell 5.1 stopped being a separate story: `pack_kit`'s test tree is now written the same way the
 real measures are (`[System.IO.File]::WriteAllText` with `UTF8Encoding($false)`), because
@@ -455,9 +463,13 @@ estimate rested on the 1774.1 s three-architecture build (a margin of 6.1 times)
 rather than a measured price.
 
 Acceptance of that green run is measured by the fields of the carrier files and by bytes, not by the colour
-of the build. The kit archive `gpu-infer-kit-2026-11-13.zip` weighs 852 155 223 bytes and holds 26 entries;
-the run artifact `kit-release-6.zip` is 850 185 286 bytes with 8 entries, and these are different quantities:
-the artifact carries the measures, the logs and the archive together. `verify_zip.sh` is green on the archive
+of the build. The kit archive of run 6 (`43388763285`), `gpu-infer-kit-2026-11-13.zip`, weighs
+852 155 223 bytes and holds 26 entries; the run artifact `kit-release-6.zip` is 850 185 286 bytes with
+8 entries, and these are different quantities:
+the artifact carries the measures, the logs and the archive together. Further down this file there is a
+second kit - 852 112 426 bytes from run `43422717479`, and that is the one sitting on the release; the two
+weights differ by 42 797 bytes because the two runs packaged different builds, not because the numbers
+disagree. `verify_zip.sh` is green on the archive
 by the local-file-header signature, by EOCD and by all 12 required entries. The marker gate on binaries
 extracted from that very archive: strata 24/24 at 12 of 12 covered commits, llama 5/5 at 3 of 3.
 `elf-proof.json` proves cubin on all three architectures: `strata-q36.exe` has 28 `sm_86`, 28 `sm_89`,
