@@ -6,6 +6,7 @@
         pwsh -File packaging/kit/ci/pack_kit.ps1 -StrataBuild <dir> -LlamaBuild <dir> -Measures <dir> -Stage <dir> -Zip <file>
         pwsh -File packaging/kit/ci/pack_kit.ps1 ... -NoCudaRuntime     # тонкая версия без cublas
         pwsh -File packaging/kit/ci/pack_kit.ps1 -SelfTest              # контроли без сборки и железа
+        pwsh -File packaging/kit/ci/pack_kit.ps1 -TextGate              # гейт текстовых входов до сборки
 
     Почему по манифесту, а не «скопировать папку»: в dist\gpu-infer-kit лежат build-логи на
     мегабайты, рядом с ними - run\ и __pycache__, созданные самим комплектом при прогонах. Копия
@@ -42,6 +43,7 @@ param(
     [string]$CudaBin = "",
     [string]$Version = "",
     [switch]$NoCudaRuntime,
+    [switch]$TextGate,
     [switch]$SelfTest
 )
 
@@ -92,21 +94,55 @@ function Get-KitFiles([string]$Dir) {
     })
 }
 
+function Get-StandPathHit([string]$Path) {
+    # Пустой ответ - «не найдено», а не «файл пуст»: вызывающий печатает первую строку находки,
+    # и различать эти два случая нужно здесь, а не в каждом гейте отдельно.
+    $t = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
+    if (-not $t) { return "" }
+    if ($t -notmatch $STAND_PATH_RE) { return "" }
+    return (@($t -split "`r?`n" | Where-Object { $_ -match $STAND_PATH_RE })[0]).Trim()
+}
+
 function Test-NoStandPaths([string]$Dir) {
     # Читаем только текстовые файлы: в бинарниках путь сборки живёт в отладочной секции и на запуск
     # не влияет, а «найти подстроку в 300 МиБ» не является меркой переносимости.
     $hits = @()
     foreach ($f in (Get-KitFiles -Dir $Dir) | Where-Object {
                    $_.Extension -in @('.py', '.ps1', '.bat', '.json', '.md', '.txt', '.cmd') }) {
-        $t = Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8
-        if (-not $t) { continue }
-        if ($t -match $STAND_PATH_RE) {
-            $line = @($t -split "`r?`n" | Where-Object { $_ -match $STAND_PATH_RE })[0]
+        $line = Get-StandPathHit $f.FullName
+        if ($line) {
             $rel = $f.FullName.Substring($Dir.Length).TrimStart('\', '/')
-            $hits += ("{0}: {1}" -f $rel, $line.Trim())
+            $hits += ("{0}: {1}" -f $rel, $line)
         }
     }
     return $hits
+}
+
+function Test-KitSourceTexts([string]$Src) {
+    # Ранняя версия гейта 2: текстовые входы меряются до компиляции, по дереву исходников.
+    # Перечень берётся из Get-Manifest - вторая копия списка файлов это ровно тот класс дефекта,
+    # что закрывали для ARTIFACT_FILES в push-ногах. ci\ в тот перечень не входит, поэтому
+    # законные пути раннера в CI-скриптах гейт не красит.
+    if (-not (Test-Path -LiteralPath $Src)) { throw "нет каталога -KitSrc: $Src" }
+    $m = Get-Manifest -StrataBuild "_" -LlamaBuild "_" -KitSrc $Src -Measures "_" -Cuda "_" `
+                      -WithCudaRuntime $false
+    $prefix = $Src.TrimEnd('\', '/')
+    $hits = @()
+    $checked = 0
+    foreach ($k in $m.Keys) {
+        $src = [string]$m[$k]
+        if (-not $src.StartsWith($prefix + [IO.Path]::DirectorySeparatorChar, `
+                                 [StringComparison]::OrdinalIgnoreCase)) { continue }
+        if ([IO.Path]::GetExtension($src) -notin @('.py', '.ps1', '.bat', '.json', '.md',
+                                                   '.txt', '.cmd')) { continue }
+        if (-not (Test-Path -LiteralPath $src)) { throw "нет входного файла -KitSrc: $src" }
+        $checked++
+        $line = Get-StandPathHit $src
+        if ($line) {
+            $hits += ("{0}: {1}" -f $src.Substring($prefix.Length).TrimStart('\', '/'), $line)
+        }
+    }
+    return [pscustomobject]@{ Checked = $checked; Hits = $hits }
 }
 
 function Read-JsonNoBom([string]$Path, [string]$Label) {
@@ -524,6 +560,34 @@ if ($SelfTest) {
     Chk "отказ по -Stage в коде ровно один" `
         ([regex]::Matches($code, [regex]::Escape('ОТКАЗ: ' + '-Stage')).Count) 1
 
+    # --- ранний гейт текстовых входов (-TextGate) -------------------------------------------
+    # Класс закрыт живым прогоном: репетиция 43359812438 упала на шаге упаковки из-за пути стенда
+    # в README, то есть после 5454 с компиляции. Гейт обязан мерить те же файлы до сборки, а
+    # перечень - приходить из манифеста: переписанный список был бы вторым носителем истины.
+    $tgDir = Join2 $tmp "kit-src"
+    New-Item -ItemType Directory -Force -Path $tgDir | Out-Null
+    foreach ($f in @("detect.py", "classify.py", "gguf_meta.py", "recommend.py", "models.json",
+                     "start.ps1", "START.bat", "README.ru.md", "README.en.md")) {
+        Write-NoBom (Join2 $tgDir $f) "переносимо"
+    }
+    $tg = Test-KitSourceTexts -Src $tgDir
+    Chk "текстовые входы: меряются все 9 файлов манифеста" $tg.Checked 9
+    Chk "текстовые входы: на чистом дереве ноль находок" $tg.Hits.Count 0
+    Write-NoBom (Join2 $tgDir "README.en.md") 'logs in D:\tmp\x'
+    $tgBad = Test-KitSourceTexts -Src $tgDir
+    Chk "текстовые входы: путь в README найден" $tgBad.Hits.Count 1
+    Chk "текстовые входы: находка названа файлом" `
+        (@($tgBad.Hits | Where-Object { $_ -like 'README.en.md*' }).Count) 1
+    # ci\ лежит в том же дереве исходников, но в архив не едет: находка вне перечня манифеста не
+    # имеет права красить прогон, иначе гейт падает на законном дереве.
+    New-Item -ItemType Directory -Force -Path (Join2 $tgDir "ci") | Out-Null
+    Write-NoBom (Join2 $tgDir "ci\helper.ps1") 'D:\a\_temp\stage'
+    Chk "текстовые входы: ci-скрипт вне перечня не меряется" `
+        (Test-KitSourceTexts -Src $tgDir).Hits.Count 1
+    $prTg = Invoke-EntryProbe @("-TextGate", "-KitSrc", $noDir)
+    Chk "отказ по входу (-TextGate без каталога) даёт rc=2" $prTg.rc 2
+    Chk "отказ по входу (-TextGate) называет KitSrc" ($prTg.out.Contains("KitSrc")) $true
+
     Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
     Write-Host "selftest: ok=$script:ok bad=$script:bad"
     # нижняя граница ЧИСЛА контролей (а не числа пройденных): упавший контроль уже даёт rc=1,
@@ -540,6 +604,36 @@ if ($SelfTest) {
 
 # ---------------- основной поток ----------------
 
+# Единственная привязка к положению скрипта: исходники комплекта лежат соседним каталогом к ci\
+# внутри того же репозитория, и эта связь одинакова на стенде, в Actions и у любого, кто клонирует
+# форк. -TextGate меряет только их и выходит до любой дорогой работы: путь стенда в
+# распространяемом README стоил репетиции 43359812438 - она упала на шаге упаковки после 5454 с
+# компиляции, то есть гейт обязан стоять в начале, а не в конце.
+if (-not $KitSrc) { $KitSrc = Split-Path -Parent $PSScriptRoot }
+if ($TextGate) {
+    try {
+        $tg = Test-KitSourceTexts -Src $KitSrc
+    } catch {
+        Write-Host "ОТКАЗ: -TextGate: $($_.Exception.Message) - проверка не состоялась"
+        exit 2
+    }
+    if ($tg.Checked -eq 0) {
+        Write-Host ("ОТКАЗ: -TextGate: ни одного текстового входа комплекта не мерилось " +
+                    "- проверка не состоялась")
+        exit 2
+    }
+    if ($tg.Hits) {
+        Write-Host ("ВНИМАНИЕ: в текстовых входах комплекта остались пути стенда ({0}):" -f `
+                    $tg.Hits.Count)
+        foreach ($h in $tg.Hits) { Write-Host "      $h" }
+        Write-Host ("текстовые входы: проверено {0} файлов, находок {1} - компиляция не начата" -f `
+                    $tg.Checked, $tg.Hits.Count)
+        exit 1
+    }
+    Write-Host "текстовые входы: путей стенда нет, проверено $($tg.Checked) файлов"
+    exit 0
+}
+
 # Входы - только параметрами. В стендовой версии недостающие каталоги подставлялись от $root,
 # выведенного из положения скрипта, и на чужом дереве это давало отказ по несуществующему пути,
 # а не сообщение о том, какой параметр не передан. Путь, выведенный из расположения файла, один:
@@ -555,7 +649,6 @@ foreach ($t in @(
         exit 2
     }
 }
-if (-not $KitSrc) { $KitSrc = Split-Path -Parent $PSScriptRoot }
 if (-not $CudaBin) {
     # CUDA-тулчейн берётся из мер сборки: угадывать его путь нельзя, а без него тонкая версия
     # комплектуется молча и «портативность» превращается в требование установить CUDA вручную.

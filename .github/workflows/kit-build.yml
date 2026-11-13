@@ -92,6 +92,12 @@ jobs:
             Write-Host "rc($s -SelfTest)=$LASTEXITCODE"
             if ($LASTEXITCODE -ne 0) { $bad += $s }
           }
+          # Тот же класс, что упал в репетиции 43359812438: путь стенда в распространяемом README
+          # обнаруживался только на шаге упаковки, то есть после долгой компиляции.
+          & pwsh -NoProfile -NonInteractive -File "$ci\pack_kit.ps1" -TextGate `
+              -KitSrc "strata\packaging\kit"
+          Write-Host "rc(pack_kit -TextGate)=$LASTEXITCODE"
+          if ($LASTEXITCODE -ne 0) { $bad += 'pack_kit.ps1 -TextGate' }
           if ($bad) { Write-Host "::error:selftest не прошёл: $($bad -join ', ')"; exit 1 }
 
       - name: Реестр маркеров, нативных зависимостей и формат-гейт zip

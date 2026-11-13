@@ -105,6 +105,17 @@ jobs:
           done
           echo "входы: 8 файлов проверено"
 
+      - name: "Гейт переносимости текстовых входов (дешёвый, до компиляции)"
+        shell: pwsh
+        run: |
+          # Репетиция 43359812438 упала на шаге упаковки из-за пути стенда в README - после 5454 с
+          # компиляции. Тот же гейт №2 живёт в pack_kit.ps1, здесь он вызван раньше и по исходникам:
+          # перечень файлов берётся из манифеста, второй копии списка нет.
+          & pwsh -NoProfile -NonInteractive -File "strata\packaging\kit\ci\pack_kit.ps1" `
+              -TextGate -KitSrc "strata\packaging\kit"
+          Write-Host "rc(pack_kit -TextGate)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
       - name: "Релиз под ассет существует (дешёвый гейт до компиляции)"
         shell: bash
         env:

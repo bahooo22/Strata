@@ -153,8 +153,8 @@ real measures are (`[System.IO.File]::WriteAllText` with `UTF8Encoding($false)`)
 `-Encoding utf8NoBOM` on `Set-Content` only exists from PowerShell 6 on and on 5.1 the tree was never
 created at all - four controls failed on a tree that did not exist, and two of them waited for ZERO
 findings and passed idly (this entry used to report `ok=69 bad=4`). After the fix both entries give
-the same verdict: `pack_kit` 82/0 and `build_kit` 117/117 under pwsh 7 and under 5.1 alike (measured
-13.11 in one wrapper run, log files in `C:\tmp\kit417`). The only script that still does not parse in
+the same verdict: `pack_kit` 89/0 and `build_kit` 117/117 under pwsh 7 and under 5.1 alike (measured
+13.11, one run per entry). The only script that still does not parse in
 5.1 is `install_cuda_redist.ps1` (line 89): its source is UTF-8 without a BOM, which 5.1 reads as
 OEM. That is an entry boundary, not a packing regression: Actions calls all three scripts with pwsh,
 and the real packing path never depended on the shell - measures are written with `WriteAllText`, not
@@ -166,7 +166,10 @@ in the FAIL line, so equal values are never compared as strings.
 - `kit-build.yml` (this fork, a push to `main` touching `src/`, `include/`, `cmake/`,
   `CMakeLists.txt` or `packaging/kit/`). The first job runs six controls without a toolchain and
   without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
-  `patch_markers.py --selftest`, `kit_dll_deps.py --selftest` and `verify_zip.sh --selftest`. The
+  `patch_markers.py --selftest`, `kit_dll_deps.py --selftest` and `verify_zip.sh --selftest`. The same
+  pwsh step then calls `pack_kit.ps1 -TextGate` over the `packaging/kit` tree, right after the
+  selftest loop: it measures the inputs themselves rather than the controls - the nine text files of
+  the manifest - and it too needs no toolchain and no compilation. The
   second job builds CUDA 13.3.1
   from redist archives (a pinned sha256 per archive, the download folder in actions/cache), compiles
   `strata.exe` and `strata-q36.exe` for architecture 86 and gates the markers byte-wise in both
@@ -185,9 +188,11 @@ in the FAIL line, so equal values are never compared as strings.
   (the workflow already declares `contents: write`). Without that line the LAST step dies - after a
   two-hour build - with "set the GH_TOKEN environment variable"; an empty token is caught by a
   separate guard that returns rc=2 with its own reason, so the refusal reads as "the publication did
-  not happen" rather than as "our patches are missing". Whether a release exists for the asset is
-  checked by an early cheap step, before the CUDA toolchain: the same `gh release view`, with the
-  run's `GH_TOKEN`. An empty tag reads "no publication needed", a found release reads "the asset
+  not happen" rather than as "our patches are missing". The portability gate over the text inputs
+  (`pack_kit.ps1 -TextGate` over the `packaging/kit` sources) is a separate cheap step in this
+  workflow too, and it runs before both the toolchain and the release check. Whether a release
+  exists for the asset is checked by an early cheap step, before the CUDA toolchain: the same
+  `gh release view`, with the run's `GH_TOKEN`. An empty tag reads "no publication needed", a found release reads "the asset
   will land in it", and a missing one fails within seconds, hinting that the release must be
   created and never starting the compiler. Without that gate the same refusal arrived as the last
   step, after a two-hour build, and the fork held zero releases on 13.11 (with a fully inherited
@@ -195,7 +200,7 @@ in the FAIL line, so equal values are never compared as strings.
 
 Before any push, acceptance stays an offline measure made of two parts. The first is the `ci-gates`
 job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
-paths): `build_kit` 117/117 controls, `pack_kit` 82/0, `install_cuda_redist` 27/0,
+paths): `build_kit` 117/117 controls, `pack_kit` 89/0, `install_cuda_redist` 27/0,
 `patch_markers --selftest` 44/0, `kit_dll_deps --selftest` 14/0, `verify_zip --selftest` 6/0
 (taken 13.11 in one wrapper run). The second is the marker gate over the stand's binaries:
 24/24 Strata markers across 12 commits and 5/5 in the llama leg across 3. Add to them a static audit
@@ -232,7 +237,13 @@ run, the marker gate was green on both legs (24/24 and 5/5) - and the run still 
   An empty list gives rc=2 ("nothing to measure") rather than a green "0 files in place". The measure
   is accepted by running the real step text taken from the YAML over a synthetic tree (13.11):
   16/16, the sabotages "1 of 9 gone" and "typo in the directory" go red naming the file, an empty
-  list gives rc=2, and the false-alarm control is green.
+  list gives rc=2, and the false-alarm control is green. Live runs confirmed the gate on both push
+  legs: the Strata leg `43367282553` (push to `main` at commit `71f5e49a`, 13.11, job 04:42:51Z -
+  04:56:24Z, 813 s; the gate step itself 04:56:13Z - 04:56:14Z) prints "artifact set: 3 files in
+  place", and the llama leg `43367290681` (push to `kit-all-sync`, 13.11, job 04:42:56Z - 05:08:45Z,
+  1549 s; the gate step itself 05:08:36Z) prints "artifact set: 9 files in place" - both green. The
+  named paths reconciled against the numbers in those same logs (`kit418_artifact_count.py`) give
+  `[4, 3]` against `[4, 3]` and `[4, 9]` against `[4, 9]` with zero "no files", rc=0 in both runs.
 - `strata_kq.dll` was in neither the kit nor the artifacts, and no earlier gate could see that: it
   is loaded by code (`LoadLibraryA` next to the engine, `src/prefill/mmq_kq_loader.cpp:57-70`, the
   name from `include/strata/prefill/mmq_kq_abi.hpp:9`), so it appears in no import table. Its
@@ -257,6 +268,32 @@ trees through a hardlink mirror - no gigabytes copied and no edits to the bench)
 exe/dll, 14 bin\ keys in the manifest, 1 waiver", the archive is 810.0 MiB and 26 entries including
 `bin/strata_kq.dll`, the format gate on it is green, and the thin run without the CUDA runtime gives
 rc=0 and "12 bin\ keys, 1 waiver" (a smaller manifest, the same closure finding).
+
+A fourth class - the text of the kit itself - was found by the release run `43359812438` (13.11, a
+manual run from the rehearsal branch `kit-ci-live`): job 03:34:02Z - 05:07:07Z, 5585 s, of which
+5454 s were the compilation of both legs; it failed on the step "Layout and packing of the kit"
+(35 s, 05:06:24Z - 05:06:59Z) with the line "WARNING: the kit still contains stand paths (2)" and
+`rc(pack_kit)=1`, while the archive format gate was skipped. The findings were `README.en.md` and
+`README.ru.md` - the very text that describes this gate: commit `aab79d10` had put an absolute path
+to the directory of an earlier rehearsal into it. The README pair physically travels inside the
+archive (`pack_kit.ps1:190`), and `Remove-StandPaths` scrubs only the measure sidecars (`$SIDECARS`,
+`:732`) - so a document has to be left clean by its author, and that has to be checked before the
+compiler runs, not after it.
+
+The class is closed by the `pack_kit.ps1 -TextGate` entry. The file list comes from the same
+`Get-Manifest` that drives the real packing: a second copy of the list would be exactly the defect
+that was closed for `env.ARTIFACT_FILES`. Text extensions are measured (`.py`, `.ps1`, `.bat`,
+`.json`, `.md`, `.txt`, `.cmd`), a finding prints the relative file name and the offending line, and
+a missing `-KitSrc` directory, a missing input file or an empty measured set is a refusal with rc=2
+("the check did not happen"), not "zero findings". Acceptance over four entries (13.11): `-SelfTest`
+gives `ok=89 bad=0` (it used to be 82/0; the selftest now holds 69 controlling calls instead of 62),
+the run over the live `packaging/kit` tree gives rc=0 and the line "text inputs: no stand paths left,
+9 files checked", the sabotage (a copy of the tree with an absolute path planted in it) gives rc=1
+naming the file relatively and without the copy's own path in the output, and a missing directory
+gives rc=2. Both shell entries, pwsh 7 and Windows PowerShell 5.1, give the same 89/0. The same call
+now stands in the first job of the push leg and as its own cheap step in the release leg - before
+the CUDA toolchain and before the release check - so a run that has to fail on this class costs
+seconds instead of 5585 s.
 
 Log-line formatting is a class a green build never notices: `-f` binds tighter than `+`, so
 `"template {0}" + "tail {1}" -f a, b` substitutes into the second piece only. The live run of
