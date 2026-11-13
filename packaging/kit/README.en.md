@@ -163,9 +163,11 @@ the Double `3321.0` as `3321`, and `ConvertFrom-Json` returns Int32 in 5.1 where
 `Chk` in `build_kit.ps1` compares fractional values as numbers under any types and prints the types
 in the FAIL line, so equal values are never compared as strings.
 
-- `kit-build.yml` (this fork, a push to `main` touching `src/`, `include/`, `cmake/`,
-  `CMakeLists.txt` or `packaging/kit/`). The first job runs six controls without a toolchain and
-  without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
+- `kit-build.yml` (this fork, started on demand only: Actions → "Kit build (Strata CUDA servers)"
+  → Run workflow, with the `arch` input defaulting to 86). Tying the compile to a push is what was
+  dropped on purpose: the run pulls in the CUDA toolchain and a full engine build, while composition
+  and markers are what has to be checked pointwise. The first job runs six controls without a
+  toolchain and without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
   `patch_markers.py --selftest`, `kit_dll_deps.py --selftest` and `verify_zip.sh --selftest`. The same
   pwsh step then calls `pack_kit.ps1 -TextGate` over the `packaging/kit` tree, right after the
   selftest loop: it measures the inputs themselves rather than the controls - the nine text files of
@@ -174,7 +176,8 @@ in the FAIL line, so equal values are never compared as strings.
   from redist archives (a pinned sha256 per archive, the download folder in actions/cache), compiles
   `strata.exe` and `strata-q36.exe` for architecture 86 and gates the markers byte-wise in both
   executables.
-- `kit-build-cuda.yml` (the llama.cpp fork, a push to `kit-all-sync`) does the same for the llama.cpp
+- `kit-build-cuda.yml` (the llama.cpp fork, on demand too, from the `kit-all-sync` branch) does the
+  same for the llama.cpp
   build: the scripts and the marker registry are checked out from this fork, because a copy would
   diverge at the first edit; `-Engines llama`, then the gate over ggml-base.dll, ggml-cuda.dll and
   llama.dll.
@@ -227,8 +230,8 @@ run, the marker gate was green on both engines (24/24 and 5/5) - and the run sti
   the models are local.
 - The llama artifact held 4 of the 9 binaries the build produces: the `llama-server.exe` wrapper
   does not start without `llama-server-impl.dll` and `llama-common.dll`, and `ggml.dll` and
-  `ggml-cpu.dll` are called by `ggml-base.dll` inside it. A push build calls its artifact a set of
-  servers, so it has to be runnable, not a list of three marker carriers. The class is closed by a
+  `ggml-cpu.dll` are called by `ggml-base.dll` inside it. What a build run uploads is called a set
+  of servers, so it has to be runnable, not a list of three marker carriers. The class is closed by a
   per-file gate, not by a flag: the primary source of `actions/upload-artifact`
   (`src/upload/upload-artifact.ts:31`) turns `if-no-files-found` on only for an empty set, and its
   search is a single glob over all paths at once (`src/shared/search.ts:82-91`) - with 4 files out of
@@ -237,8 +240,8 @@ run, the marker gate was green on both engines (24/24 and 5/5) - and the run sti
   An empty list gives rc=2 ("nothing to measure") rather than a green "0 files in place". The measure
   is accepted by running the real step text taken from the YAML over a synthetic tree (13.11):
   16/16, the sabotages "1 of 9 gone" and "typo in the directory" go red naming the file, an empty
-  list gives rc=2, and the false-alarm control is green. Live runs confirmed the gate on both push
-  builds: the Strata run `43367282553` (push to `main` at commit `71f5e49a`, 13.11, job 04:42:51Z -
+  list gives rc=2, and the false-alarm control is green. Live runs confirmed the gate in both build
+  workflows: the Strata run `43367282553` (push to `main` at commit `71f5e49a`, 13.11, job 04:42:51Z -
   04:56:24Z, 813 s; the gate step itself 04:56:13Z - 04:56:14Z) prints "artifact set: 3 files in
   place", and the llama.cpp run `43367290681` (push to `kit-all-sync`, 13.11, job 04:42:56Z - 05:08:45Z,
   1549 s; the gate step itself 05:08:36Z) prints "artifact set: 9 files in place" - both green. The
@@ -261,8 +264,8 @@ and the file list. A waiver (`$BIN_WAIVERS`) must carry its reason inside the di
 entry there, `test-cuda-upload-stream.exe`, appears only with `LLAMA_BUILD_TESTS=ON`, and CI builds
 with `OFF`. An empty or missing tree is rc=2 as well, not "zero findings". The `bin\strata_kq.dll`
 key was added to the manifest, to the format gate's mandatory file list (`verify_zip.sh`,
-false-alarm control - 12 mandatory files instead of 11) and to the Strata push artifact. Live
-acceptance of the measure (13.11, `pack_kit` driven by stand code over the real Strata and llama
+false-alarm control - 12 mandatory files instead of 11) and to the Strata artifact of `kit-build.yml`.
+Live acceptance of the measure (13.11, `pack_kit` driven by stand code over the real Strata and llama
 trees through a hardlink mirror - no gigabytes copied and no edits to the bench): the sabotage
 `orphan_probe.dll` gives rc=2 naming the file, the full run gives rc=0 and the line "produced 13
 exe/dll, 14 bin\ keys in the manifest, 1 waiver", the archive is 810.0 MiB and 26 entries including
@@ -291,7 +294,7 @@ the run over the live `packaging/kit` tree gives rc=0 and the line "text inputs:
 9 files checked", the sabotage (a copy of the tree with an absolute path planted in it) gives rc=1
 naming the file relatively and without the copy's own path in the output, and a missing directory
 gives rc=2. Both shell entries, pwsh 7 and Windows PowerShell 5.1, give the same 89/0. The same call
-now stands in the first job of the push build and as its own cheap step in the release run - before
+now stands in the first job of `kit-build.yml` and as its own cheap step in the release run - before
 the CUDA toolchain and before the release check - so a run that has to fail on this class costs
 seconds instead of 5585 s.
 
@@ -355,7 +358,7 @@ The `archs` field is empty in these measure files and `build_kind` still carries
 compilation" label: the snapshots were taken by code predating the coldness-label fix, so coldness
 and architecture coverage are proven by the logs and CMakeCache rather than by measure fields.
 
-The four numbers above are three-architecture runs, while a push build takes one architecture (86 by
+The four numbers above are three-architecture runs; `kit-build.yml` builds one architecture (86 by
 default) - that was the last open gap in the limit's justification. It is closed by a 13.11 run on
 clean clones taken from the GitHub remotes of both forks: the toolchain from the redist archives,
 the same `ci/build_kit.ps1` called with the same arguments, the architecture probe switched off
@@ -381,7 +384,7 @@ pair, the rest goes to the CUDA toolchain, packaging and publishing the asset. S
 has a direct measurement inside Actions itself: run 43345549955, on that same `86;89;120`
 configuration, gave 1147.8 s of Strata and 2249.9 s of llama - 3397.7 s (56.6 minutes) of pure
 compilation, and that is the full price of a build, because both engines completed there and the failure
-came later, at the native dependency gate; the margin is 14 400 / 3397.7 = 4.2 times. A push run
+came later, at the native dependency gate; the margin is 14 400 / 3397.7 = 4.2 times. `kit-build.yml`
 gets 180 minutes and builds a single architecture (86 by default), and since 13.11 it has a direct
 measurement on that very configuration: the worse of the two engines on 86 is llama at 1370.2 s, so the
 margin is 10 800 / 1370.2 = 7.9 times, and for strata at 751.6 s it is 14.4 times. The earlier

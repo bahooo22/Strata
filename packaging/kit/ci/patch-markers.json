@@ -278,7 +278,7 @@
     "ggml-cuda.dll",
     "llama.dll"
    ],
-   "carrier_note": "маркеры llama-ноги распределены по ggml-cuda.dll, ggml-base.dll и llama.dll",
+   "carrier_note": "маркеры сборки llama распределены по ggml-cuda.dll, ggml-base.dll и llama.dll",
    "list": [
     {
      "token": "GGML_CUDA_GRAPH_NODES",

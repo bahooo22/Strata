@@ -121,7 +121,7 @@ function Test-NoStandPaths([string]$Dir) {
 function Test-KitSourceTexts([string]$Src) {
     # Ранняя версия гейта 2: текстовые входы меряются до компиляции, по дереву исходников.
     # Перечень берётся из Get-Manifest - вторая копия списка файлов это ровно тот класс дефекта,
-    # что закрывали для ARTIFACT_FILES в сборках по push. ci\ в тот перечень не входит, поэтому
+    # что закрывали для ARTIFACT_FILES в сборках по требованию. ci\ в тот перечень не входит, поэтому
     # законные пути раннера в CI-скриптах гейт не красит.
     if (-not (Test-Path -LiteralPath $Src)) { throw "нет каталога -KitSrc: $Src" }
     $m = Get-Manifest -StrataBuild "_" -LlamaBuild "_" -KitSrc $Src -Measures "_" -Cuda "_" `
