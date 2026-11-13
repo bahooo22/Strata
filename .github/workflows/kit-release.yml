@@ -58,7 +58,7 @@ jobs:
   kit:
     name: Сборка двух движков, упаковка и публикация
     runs-on: windows-2022
-    # Обоснование лимита - холодные прогоны того же состава на стенде, archs = 86;89;120. Носители
+    # Обоснование лимита - прогоны с нуля того же состава на стенде, archs = 86;89;120. Носители
     # чисел лежат в dist\ каждого снимка, а состав доказан CMakeCache.txt деревьев сборки и fatbin
     # бинарников (поле archs в этих measure пустое - они сняты прежним кодом): strata 1686.2 с
     # (160 компиляций и 14 линковок из плана 174, 174/174 рёбер лога, commit 0f37b86e) и повтор
@@ -103,9 +103,9 @@ jobs:
                    llama/CMakeLists.txt; do
             if [ ! -f "$f" ]; then echo "::error::нет $f - сборка не начата"; exit 2; fi
           done
-          echo "входы: 8 файлов проверено"
+          echo "проверено 8 файлов комплекта"
 
-      - name: "Гейт переносимости текстовых входов (дешёвый, до компиляции)"
+      - name: "Проверка переносимости текстов комплекта (дешёвая, до компиляции)"
         shell: pwsh
         run: |
           # Репетиция 43359812438 упала на шаге упаковки из-за пути стенда в README - после 5454 с
@@ -226,7 +226,20 @@ jobs:
           if ($env:KIT_TAG) { $a += @('-Version', $env:KIT_TAG) }
           & pwsh -NoProfile -NonInteractive -File $ci\pack_kit.ps1 @a
           Write-Host "rc(pack_kit)=$LASTEXITCODE"
-          exit $LASTEXITCODE
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Класс «сборка произвела, а прогон не показал»: kit-weight.json пишется в каталог мер,
+          # а в списке артефакта прогона 43388763285 значился путь из каталога раскладки. Файл не
+          # доехал молча, потому что if-no-files-found стоит в warn. Теперь отсутствие любой меры
+          # красит шаг упаковки, а не теряется в логе загрузки артефакта.
+          $mdirs = Join-Path $env:RUNNER_TEMP 'kit'
+          $need = @("build-measure.json", "elf-proof.json", "runtime-deps.json", "kit-weight.json")
+          $miss = @($need | Where-Object { -not (Test-Path -LiteralPath (Join-Path $mdirs $_)) })
+          if ($miss.Count) {
+              Write-Host ("ОТКАЗ: после rc=0 нет мер " + ($miss -join ", ") + " - проверка не состоялась")
+              exit 2
+          }
+          Write-Host "меры упаковки на месте: 4 файла"
+          exit 0
 
       - name: "Формат-гейт архива по байтам (заголовок PK, EOCD, обязательные записи)"
         shell: bash
@@ -250,6 +263,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kit-release-${{ github.run_number }}
+          # kit-weight.json - по пути МЕРЫ (runner.temp\kit), а не раскладки: pack_kit.ps1 пишет
+          # его в -Measures. Прежняя строка со stage\gpu-infer-kit никогда не совпадала с файлом,
+          # а if-no-files-found: warn оставлял прогон зелёным без замера веса.
+          # Внутри блок-скаляра path: | строка с # - это не комментарий, а литеральный путь,
+          # поэтому объяснение стоит НАД path, а список ниже содержит только файлы.
           path: |
             ${{ env.KIT_ZIP }}
             ${{ runner.temp }}\kit\build-measure.json
@@ -259,7 +277,7 @@ jobs:
             ${{ runner.temp }}\kit\markers-llama.json
             ${{ runner.temp }}\kit\build-strata.log
             ${{ runner.temp }}\kit\build-llama.log
-            ${{ runner.temp }}\stage\gpu-infer-kit\kit-weight.json
+            ${{ runner.temp }}\kit\kit-weight.json
           retention-days: 30
           if-no-files-found: warn
 
@@ -272,7 +290,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -z "${KIT_TAG:-}" ]; then
-            echo "Релизный тег не задан: сборка проверена, ассет не публикуется"
+            echo "Тег релиза не задан: сборка проверена, ассет не публикуется"
             exit 0
           fi
           if [ -z "${GH_TOKEN:-}" ]; then

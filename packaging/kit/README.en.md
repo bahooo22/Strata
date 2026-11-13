@@ -378,18 +378,45 @@ carrier file at all (only the run's stdout and commit bodies), and strata 712.6 
 are warm-ups - 25+5 and 156+8 executed steps instead of 174 and 330.
 
 Hence the limits. The release run gets 240 minutes and builds both engines on 86, 89 and 120 in a single
-tree: the worst measured pair is 1774.1 + 3321.0 = 5095.1 s (84.9 minutes), the pair taken from one
-and the same run is 1686.2 + 3006.1 = 4692.3 s (78.2 minutes); 240 minutes is 2.8 times the worst
-pair, the rest goes to the CUDA toolchain, packaging and publishing the asset. Since 13.11 this limit
-has a direct measurement inside Actions itself: run 43345549955, on that same `86;89;120`
-configuration, gave 1147.8 s of Strata and 2249.9 s of llama - 3397.7 s (56.6 minutes) of pure
-compilation, and that is the full price of a build, because both engines completed there and the failure
-came later, at the native dependency gate; the margin is 14 400 / 3397.7 = 4.2 times. `kit-build.yml`
+tree. Since 13.11 this limit has a full live measurement inside Actions itself: run `43388763285`
+(`workflow_dispatch` on commit `e5bcd9c3`, architecture set `86;89;120`) closed green after 6044 s
+(07:51:38Z -> 09:32:22Z, 16 of 16 steps `success`), and its `build-measure.json` gives pure compilation of
+2108.9 s for Strata (configure 21.3 s) and 3704.5 s for llama (configure 12.7 s) - 5813.4 s (96.9 minutes) -
+with `build_kind` = "cold build" on both engines. The margin is 14 400 / 5813.4 = 2.5 times, half of the
+earlier estimate, because that estimate was built on runs with a single engine or with warm caches. The worst
+previous pair is 1774.1 + 3321.0 = 5095.1 s (84.9 minutes), and run `43345549955` (1147.8 + 2249.9 =
+3397.7 s, a margin of 4.2 times) is now an incomplete measurement rather than an upper bound: both engines
+finished there, but the failure came later, at the native dependency gate. `kit-build.yml`
 gets 180 minutes and builds a single architecture (86 by default), and since 13.11 it has a direct
 measurement on that very configuration: the worse of the two engines on 86 is llama at 1370.2 s, so the
 margin is 10 800 / 1370.2 = 7.9 times, and for strata at 751.6 s it is 14.4 times. The earlier
 estimate rested on the 1774.1 s three-architecture build (a margin of 6.1 times) - an upper bound
 rather than a measured price.
+
+Acceptance of that green run is measured by the fields of the carrier files and by bytes, not by the colour
+of the build. The kit archive `gpu-infer-kit-2026-11-13.zip` weighs 852 155 223 bytes and holds 26 entries;
+the run artifact `kit-release-6.zip` is 850 185 286 bytes with 8 entries, and these are different quantities:
+the artifact carries the measures, the logs and the archive together. `verify_zip.sh` is green on the archive
+by the local-file-header signature, by EOCD and by all 12 required entries. The marker gate on binaries
+extracted from that very archive: strata 24/24 at 12 of 12 covered commits, llama 5/5 at 3 of 3.
+`elf-proof.json` proves cubin on all three architectures: `strata-q36.exe` has 28 `sm_86`, 28 `sm_89`,
+27 `sm_120` and 1 `sm_120a` records; `strata.exe` - 71, 71, 70 and 1; `ggml-cuda.dll` - 149 on each of
+`sm_86`, `sm_89`, `sm_120a`; `llama-server.exe` is 11 264 bytes with no CUDA code, because the code lives in
+`ggml-cuda.dll`. The closure of the set: the `missing` field is empty, and the kit carries
+`cublas64_13.dll` (52 697 712 bytes) and `cublaslt64_13.dll` (463 655 536) - 516 353 248 bytes of CUDA
+runtime in total. The step "Публикация ассетом релиза" (publish as a release asset) took 0 s along the branch
+"release tag not set": the build was verified, nothing was uploaded, and the fork had no releases at that
+moment.
+
+The same run surfaced a defect that a green build does not show: `kit-weight.json`, the kit weight measure
+that `pack_kit.ps1` writes into the measures directory, did not reach the artifact, because the
+`upload-artifact` path list named a path in the staging directory, while `if-no-files-found: warn` kept the
+run green without the measure. Since 13.11 the path points at the measures directory, and the packaging step
+checks that all four measures are present (`build-measure.json`, `elf-proof.json`, `runtime-deps.json`,
+`kit-weight.json`) and otherwise exits with `rc=2` and the line "the check did not happen". The workflow
+syntax was verified separately after the edit: the YAML parses, all six pwsh steps are read by the PowerShell
+parser without errors, and the artifact path list contains no comment lines - inside the `path: |` block
+scalar a `#` would be a literal path, not a comment.
 
 The full rehearsal of the release job, run `43373203768` (13.11, `workflow_dispatch` on commit
 `f6e09d27`, architecture set `86;89;120`), gave the first live price of a three-architecture Strata
@@ -401,8 +428,10 @@ stopped: the run closed as `conclusion=cancelled` in its 89th minute, and the AP
 who cancelled it. Strata had already completed inside that step, llama had been running 3331 s
 without a final measure, so the rehearsal left no merged build-measure.json or elf-proof.json: the
 marker gate, the native dependency registry, packaging and the format gate stayed `skipped`, and the
-`kit-release-4` artifact is 2 files of 30 363 bytes. The 240-minute limit therefore still rests on
-run `43345549955`, where both engines finished, not on this rehearsal.
+`kit-release-4` artifact is 30 363 bytes holding two log files (971 907 and 3 233 bytes) and no kit
+archive. The 240-minute limit rests on
+run `43388763285`, where both engines completed and packaging ran, not on this rehearsal and not on
+`43345549955`, where the build also completed in full but the failure came at the native dependency gate.
 
 The same job in run `43374984065` (the release-existence gate probed with a deliberately wrong tag)
 turns red in 35 s (05:53:47Z -> 05:54:22Z) with the line "релиза probe-no-such-release нет в этом

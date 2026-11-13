@@ -113,7 +113,7 @@ def resolve(name: str, cuda_bin: Path | None, system_root: Path, extra_dirs: lis
 
 def closure(seed: list[tuple[Path, list[str]]], dumpbin: Path, cuda_bin: Path | None,
             system_root: Path, extra_dirs: list[Path], max_rounds: int = 8) -> tuple[dict, list[str]]:
-    """Транзитивное замыкание CUDA-зависимостей.
+    """Полный транзитивный набор CUDA-зависимостей.
 
     Плоский список импортов врёт: cublas64_13.dll сама импортирует cublasLt64_13.dll (460 МиБ),
     и комплект, собранный по первому слою, падает на чужой машине с «модуль не найден». Поэтому
