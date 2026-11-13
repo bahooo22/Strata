@@ -223,7 +223,16 @@ run, the marker gate was green on both legs (24/24 and 5/5) - and the run still 
 - The llama artifact held 4 of the 9 binaries the build produces: the `llama-server.exe` wrapper
   does not start without `llama-server-impl.dll` and `llama-common.dll`, and `ggml.dll` and
   `ggml-cpu.dll` are called by `ggml-base.dll` inside it. A push leg calls its artifact a set of
-  servers, so it has to be runnable, not a list of three marker carriers.
+  servers, so it has to be runnable, not a list of three marker carriers. The class is closed by a
+  per-file gate, not by a flag: the primary source of `actions/upload-artifact`
+  (`src/upload/upload-artifact.ts:31`) turns `if-no-files-found` on only for an empty set, and its
+  search is a single glob over all paths at once (`src/shared/search.ts:82-91`) - with 4 files out of
+  9 the set is not empty and the flag stays silent. The set lives in `env.ARTIFACT_FILES`, and the
+  step's `path:` is fed the very same value: a second copy of the list would be exactly this defect.
+  An empty list gives rc=2 ("nothing to measure") rather than a green "0 files in place". The measure
+  is accepted by running the real step text taken from the YAML over a synthetic tree (13.11):
+  16/16, the sabotages "1 of 9 gone" and "typo in the directory" go red naming the file, an empty
+  list gives rc=2, and the false-alarm control is green.
 - `strata_kq.dll` was in neither the kit nor the artifacts, and no earlier gate could see that: it
   is loaded by code (`LoadLibraryA` next to the engine, `src/prefill/mmq_kq_loader.cpp:57-70`, the
   name from `include/strata/prefill/mmq_kq_abi.hpp:9`), so it appears in no import table. Its

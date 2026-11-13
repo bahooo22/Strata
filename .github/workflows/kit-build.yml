@@ -63,6 +63,13 @@ env:
   # (actions/checkout input-helper.ts:92). Короткий pin в 9 знаков трактуется как имя ref, и
   # fetch отвечает «fatal: couldn't find remote ref» с rc=128 - прогон красный ещё до компиляции.
   GGML_PIN: '3cf03257f219afbe7334045ff7c6a06ac68c627d'
+  # Набор серверов пуш-ноги ОДНИМ списком: его читает и гейт полноты, и upload-artifact.
+  # Две раздельные копии (paths в шаге + список в гейте) - это ровно класс «названные пути
+  # ≠ загруженные файлы», и он же расходится молча, когда список правят только в одном месте.
+  ARTIFACT_FILES: |
+    strata\build-kit\strata-q36.exe
+    strata\build-kit\strata.exe
+    strata\build-kit\strata_kq.dll
 
 jobs:
   ci-gates:
@@ -173,6 +180,30 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
+      - name: Гейт «набор артефакта собран полностью»
+        shell: pwsh
+        run: |
+          # why not if-no-files-found: error: первичник actions/upload-artifact
+          # (src/upload/upload-artifact.ts:31) включает его только на ПУСТОЕ множество
+          # (filesToUpload.length === 0), а поиск - один глоб по всем путям сразу
+          # (src/shared/search.ts:82-91). Красный прогон 43345549955 утащил llama-артефакт
+          # из 4 бинарников вместо 9 именно так: множество непустое, и флаг молчит.
+          # Здесь меряется наличие каждого названного файла, а не «есть ли хоть один».
+          $files = @($env:ARTIFACT_FILES -split '\r?\n' | Where-Object { $_ })
+          if ($files.Count -eq 0) {
+              Write-Host "::error::ARTIFACT_FILES пуст - набор не назван, мерять нечего"
+              exit 2
+          }
+          $missing = @($files | Where-Object {
+              -not (Test-Path -LiteralPath (Join-Path $env:GITHUB_WORKSPACE $_))
+          })
+          if ($missing) {
+              Write-Host ("::error::нет {0} файлов из набора ({1} названо): {2}" -f
+                  $missing.Count, $files.Count, ($missing -join ', '))
+              exit 1
+          }
+          Write-Host "набор артефакта: $($files.Count) файлов на месте"
+
       - name: Бинарники серверов
         if: success()
         uses: actions/upload-artifact@v4
@@ -182,8 +213,10 @@ jobs:
           # имени (LoadLibrary рядом с движком), её нет ни в одной импорт-таблице, и артефакт без
           # неё выглядел полным - а на машине пользователя K-quant-эксперты молча уходили бы в
           # FP16-путь промпта. cublas приезжает из redist-архива, а не из этого дерева.
-          path: |
-            strata\build-kit\strata-q36.exe
-            strata\build-kit\strata.exe
-            strata\build-kit\strata_kq.dll
+          # Список лежит в env.ARTIFACT_FILES: его же проверяет гейт полноты выше.
+          path: ${{ env.ARTIFACT_FILES }}
           retention-days: 14
+          # Пустое множество - отдельная поломка (сборка не произвела ничего), и она обязана
+          # быть красной, а не warn. Шаги мер выше остаются на warn осознанно: у них
+          # if: always(), и пустой лог меры - симптом уже упавшего job, а не новая причина.
+          if-no-files-found: error
