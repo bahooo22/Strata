@@ -185,7 +185,13 @@ in the FAIL line, so equal values are never compared as strings.
   (the workflow already declares `contents: write`). Without that line the LAST step dies - after a
   two-hour build - with "set the GH_TOKEN environment variable"; an empty token is caught by a
   separate guard that returns rc=2 with its own reason, so the refusal reads as "the publication did
-  not happen" rather than as "our patches are missing".
+  not happen" rather than as "our patches are missing". Whether a release exists for the asset is
+  checked by an early cheap step, before the CUDA toolchain: the same `gh release view`, with the
+  run's `GH_TOKEN`. An empty tag reads "no publication needed", a found release reads "the asset
+  will land in it", and a missing one fails within seconds, hinting that the release must be
+  created and never starting the compiler. Without that gate the same refusal arrived as the last
+  step, after a two-hour build, and the fork held zero releases on 13.11 (with a fully inherited
+  tag list), so the scenario is not hypothetical.
 
 Before any push, acceptance stays an offline measure made of two parts. The first is the `ci-gates`
 job on a clean tree export (`git archive main packaging/kit | tar -x`, with no `.git` and no stand
