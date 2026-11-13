@@ -391,6 +391,30 @@ margin is 10 800 / 1370.2 = 7.9 times, and for strata at 751.6 s it is 14.4 time
 estimate rested on the 1774.1 s three-architecture build (a margin of 6.1 times) - an upper bound
 rather than a measured price.
 
+The full rehearsal of the release job, run `43373203768` (13.11, `workflow_dispatch` on commit
+`f6e09d27`, architecture set `86;89;120`), gave the first live price of a three-architecture Strata
+build inside Actions itself: "configure 20.4 s, build 1909.7 s [cold build] (160 compilations, 14
+links, objects before the run: 0), rc=0". The cheap steps ran before the compilation:
+`rc(pack_kit -TextGate)=0` one second later, and the CUDA toolchain from the redist archives took
+22 s. The step "Build both engines for CUDA" lasted 5269 s (05:38:07Z -> 07:05:56Z) and was
+stopped: the run closed as `conclusion=cancelled` in its 89th minute, and the API does not answer
+who cancelled it. Strata had already completed inside that step, llama had been running 3331 s
+without a final measure, so the rehearsal left no merged build-measure.json or elf-proof.json: the
+marker gate, the native dependency registry, packaging and the format gate stayed `skipped`, and the
+`kit-release-4` artifact is 2 files of 30 363 bytes. The 240-minute limit therefore still rests on
+run `43345549955`, where both engines finished, not on this rehearsal.
+
+The same job in run `43374984065` (the release-existence gate probed with a deliberately wrong tag)
+turns red in 35 s (05:53:47Z -> 05:54:22Z) with the line "релиза probe-no-such-release нет в этом
+репозитории", and every expensive step is `skipped`: a publish refusal is readable in seconds
+rather than after a two-hour build.
+
+Engine compilation no longer starts on a push: since 13.11 `kit-build.yml` and `kit-build-cuda.yml`
+have one trigger, `workflow_dispatch`, with an `arch` input. The measure: the pushes `5256c062`
+(main of this fork) and `b206f728c` (`kit-all-sync` in the llama.cpp fork) at 07:38Z on 13.11
+created no run at all - `GET /actions/runs?created=>2026-11-13T07:35Z` answers `total_count=0` in
+both forks, and the newest runs there are dated 05:53Z and 04:42Z, that is, before those pushes.
+
 ## What is not here
 
 - models (the archive contains no `.gguf` file);
