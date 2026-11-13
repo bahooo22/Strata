@@ -64,7 +64,7 @@ $SIDECARS = @("elf-proof.json", "runtime-deps.json", "build-measure.json")
 # Что сборка производит, но в комплект не берёт по делу. Каждый пункт обязан иметь причину:
 # без неё waiver-список - это способ молча протащить потерянный файл мимо замыкания набора.
 $BIN_WAIVERS = @{
-    "test-cuda-upload-stream.exe" = "тест llama-ноги: в комплект не едет, появляется только в " +
+    "test-cuda-upload-stream.exe" = "тест сборки llama.cpp: в комплект не едет, появляется только в " +
         "дереве, собранном с LLAMA_BUILD_TESTS=ON (CI собирает с OFF)"
 }
 # Пути, которые делают «портативный» непригодным на чужой машине: ЛЮБАЯ литера диска и ЛЮБОЙ
@@ -121,7 +121,7 @@ function Test-NoStandPaths([string]$Dir) {
 function Test-KitSourceTexts([string]$Src) {
     # Ранняя версия гейта 2: текстовые входы меряются до компиляции, по дереву исходников.
     # Перечень берётся из Get-Manifest - вторая копия списка файлов это ровно тот класс дефекта,
-    # что закрывали для ARTIFACT_FILES в push-ногах. ci\ в тот перечень не входит, поэтому
+    # что закрывали для ARTIFACT_FILES в сборках по push. ci\ в тот перечень не входит, поэтому
     # законные пути раннера в CI-скриптах гейт не красит.
     if (-not (Test-Path -LiteralPath $Src)) { throw "нет каталога -KitSrc: $Src" }
     $m = Get-Manifest -StrataBuild "_" -LlamaBuild "_" -KitSrc $Src -Measures "_" -Cuda "_" `
@@ -193,7 +193,7 @@ function Get-Manifest([string]$StrataBuild, [string]$LlamaBuild, [string]$KitSrc
 
 function Get-ProducedBins([string]$Dir, [string]$Label) {
     # Плоско, без подкаталогов: сборка кладёт носители комплекта в корень дерева Страты и в bin
-    # llama-ноги, а под деревом лежат объектные и промежуточные файлы - обход дал бы ложные
+    # сборки llama.cpp, а под деревом лежат объектные и промежуточные файлы - обход дал бы ложные
     # находки на законной сборке. Пустой список - это отказ, а не «нечего проверять»: молчание
     # на пустом входе и есть тот способ, которым потерянный модуль проходит гейт.
     if (-not (Test-Path -LiteralPath $Dir)) { throw "${Label}: нет каталога $Dir" }
