@@ -40,6 +40,22 @@ function Fail([string]$msg, [int]$rc) {
     exit $rc
 }
 
+# Windows PowerShell 5.1 отдаёт код выхода процесса, заведённого через Start-Process -PassThru
+# БЕЗ -Wait, только если у объекта включено уведомление о выходе: без $proc.EnableRaisingEvents
+# свойство ExitCode молча пустое (не исключение!), и живой отказ печатался как «сервер не
+# поднялся (код )». Замер 14.11 зондом на `cmd /c exit 7` при запуске без -Wait: ExitCode как
+# есть - пусто; коснуться $proc.Handle - пусто; WaitForExit() после HasExited - пусто;
+# EnableRaisingEvents=$true сразу после старта - 7; он же плюс WaitForExit() - 7. У живого
+# процесса HasExited ложен и код недоступен - поэтому «недоступен» остаётся честным ответом
+# для случая, когда процесс ещё жив или обход не сработал: это не «код 0» и не «кода нет».
+function Get-ProcExitCode($p) {
+    if (-not $p.HasExited) { return $null }
+    try { $p.WaitForExit() } catch { }
+    $code = $p.ExitCode
+    if ($null -eq $code -or $code -eq '') { return $null }
+    return $code
+}
+
 # Раскладка комплекта и дерева стенда различаются одним уровнем (kit\ лежит рядом с bin\
 # в архиве и сам является $root при запуске из исходников), поэтому каталог ищется, а не
 # зашивается: зашить - значит выдать одну рабочую раскладку за единственно возможную.
@@ -211,6 +227,9 @@ Write-Host "Журнал: $log"
 $proc = Start-Process -FilePath $exe -ArgumentList (($tail | ForEach-Object { Quote-Arg ([string]$_) }) -join " ") `
         -NoNewWindow -PassThru -WorkingDirectory $root `
         -RedirectStandardOutput $log -RedirectStandardError $errLog
+# Включить ДО цикла ожидания: позже уже нельзя - момент выхода пропущен, и ExitCode останется
+# пустым, а отказ - без числа.
+$proc.EnableRaisingEvents = $true
 
 $url = "http://127.0.0.1:" + $rec.launch.port
 Write-Host "Сервер поднимается, webui будет по адресу $url (модель 18-23 ГиБ грузится минутами)."
@@ -227,13 +246,15 @@ while ((Get-Date) -lt $deadline) {
     } catch { Start-Sleep -Seconds 3 }
 }
 if ($proc.HasExited) {
+    $code = Get-ProcExitCode $proc
+    $shown = if ($null -eq $code) { "недоступен" } else { [string]$code }
     Write-Host ""
-    Write-Host "Сервер завершился с кодом $($proc.ExitCode). Хвост журнала:"
+    Write-Host "Сервер завершился с кодом $shown. Хвост журнала:"
     if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log -Tail 25 | ForEach-Object { Write-Host $_ } }
     if (Test-Path -LiteralPath $errLog) {
         Get-Content -LiteralPath $errLog -Tail 25 | ForEach-Object { Write-Host $_ }
     }
-    Fail "сервер не поднялся (код $($proc.ExitCode)); разбор - по $log и README.ru.md рядом с START.bat" 1
+    Fail "сервер не поднялся (код $shown); разбор - по $log и README.ru.md рядом с START.bat" 1
 }
 if (-not $ready) {
     Write-Host "ПРЕДУПРЕЖДЕНИЕ: порт $($rec.launch.port) не отвечает через $StartTimeoutSec с - процесс жив."
