@@ -595,11 +595,19 @@ time (`created_at` 16:20:27Z, uploader `github-actions[bot]`) and looks for the 
 run whose working window covers that moment - `43444961732` (14:40:26Z - 16:21:02Z, tree `3483b929`),
 whose step "Публикация ассетом релиза" ends with `success`. The tag `370c93fa` differs from that run's
 tree by three paths, all of them in `.md` or `.github/`, so the published binaries do correspond to the
-tag; the acceptance verdict is `находок=0` over 26 entries with all 12 mandatory ones. So that this zero
+tag; the acceptance verdict is `находок=0` over 26 entries with all 12 mandatory ones. This boundary has
+a flip side that must not be lost: besides the binaries the archive also carries the README pair, and
+that pair sits there as the edition of the run tree `3483b929`, not of `main`. The central directory
+proves it: `README.ru.md` is 61 733 bytes and `README.en.md` is 42 764 there, while the same files weigh
+61 217 and 42 216 bytes in the run tree, and the difference equals exactly the line counts (516 and 548)
+- packing converts the line endings to CRLF. So this evening's text edits are absent from the published
+archive, and that is not a defect: the asset was accepted as it already stands, and no re-release for
+the sake of texts was done. So that this zero
 is not vacuous, the control (`kit480`) replaces three conditions in a copy of the measure - the expected
 uploader name, the run window and the path filter - and each of them answers `rc=1` with its own finding
-line (caught 3 of 3). Separately the measure prints that the tag lags `main` by 7 commits: that is the
-owner's decision rather than a defect of the asset, and it depends on whether the release page has to
+line (caught 3 of 3). Separately the measure prints by how many commits the tag lags `main`; that number
+changes with every commit, so it is not fixed in the text (measured 13.11, 17:38Z - 8): it is the owner's
+decision rather than a defect of the asset, and it depends on whether the release page has to
 match the current edition of the documentation.
 
 ## What is not here
