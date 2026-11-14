@@ -727,19 +727,32 @@ function Get-RuntimeTrimPlan([string]$Dir) {
     # $RUNTIME_CUT_*. Возвращает Paths - относительные пути файлов, которые будут удалены.
     if (-not (Test-Path -LiteralPath $Dir -PathType Container)) { throw "нет дерева интерпретатора $Dir" }
     $plan = [ordered]@{}
+    # Корзины считаются тем же проходом, что и план: таблица в комментарии у $RUNTIME_CUT_* -
+    # это замер прогона, а не отдельная мера, которая может разойтись с фактической обрезкой.
+    $baskets = [ordered]@{}
     foreach ($it in @(Get-ChildItem -LiteralPath $Dir -File -Force -Recurse)) {
         $rel = $it.FullName.Substring($Dir.Length).TrimStart('\', '/').Replace('/', '\')
         $segs = @($rel -split '\\')
         $dirs = @($segs[0..($segs.Count - 2)])
-        $hit = $false
-        foreach ($d in ($RUNTIME_CUT_DIRS + $RUNTIME_CUT_ANY)) { if ($dirs -contains $d) { $hit = $true; break } }
-        if (-not $hit) { foreach ($g in $RUNTIME_CUT_GLOBS) { if ($rel -like $g) { $hit = $true; break } } }
-        if (-not $hit) { foreach ($f in $RUNTIME_CUT_FILES) { if ($rel -eq $f) { $hit = $true; break } } }
-        if (-not $hit) { foreach ($e in $RUNTIME_CUT_EXT) { if ($it.Extension -eq $e) { $hit = $true; break } } }
-        if ($hit) { $plan[$rel] = $it.Length }
+        $hit = ""
+        # Корзины каталогов сравниваются с ПУТЁМ: "Lib\venv" - это два сегмента, и проверка
+        # `$dirs -contains $d` никогда не совпадала. Замер 14.11: Lib\venv, tkinter, idlelib,
+        # lib2to3, turtledemo и ensurepip оставались в комплекте (215 файлов / 4 265 249 Б).
+        foreach ($d in $RUNTIME_CUT_DIRS) { if ($rel -like "$d\*") { $hit = $d; break } }
+        if (-not $hit) { foreach ($d in $RUNTIME_CUT_ANY) { if ($dirs -contains $d) { $hit = "$d (везде)"; break } } }
+        if (-not $hit) { foreach ($g in $RUNTIME_CUT_GLOBS) { if ($rel -like $g) { $hit = $g; break } } }
+        if (-not $hit) { foreach ($f in $RUNTIME_CUT_FILES) { if ($rel -eq $f) { $hit = $f; break } } }
+        if (-not $hit) { foreach ($e in $RUNTIME_CUT_EXT) { if ($it.Extension -eq $e) { $hit = "*$e"; break } } }
+        if ($hit) {
+            $plan[$rel] = $it.Length
+            if (-not $baskets.Contains($hit)) { $baskets[$hit] = [pscustomobject]@{ Files = 0; Bytes = [long]0 } }
+            $baskets[$hit].Files++
+            $baskets[$hit].Bytes += $it.Length
+        }
     }
     return [pscustomobject]@{ Paths = @($plan.Keys); Files = $plan.Count
-                              Bytes = [long](@($plan.Values) | Measure-Object -Sum).Sum }
+                              Bytes = [long](@($plan.Values) | Measure-Object -Sum).Sum
+                              Baskets = $baskets }
 }
 
 function Remove-RuntimeBallast([string]$Dir) {
@@ -773,7 +786,8 @@ function Remove-RuntimeBallast([string]$Dir) {
     $after = @(Get-ChildItem -LiteralPath $Dir -File -Force -Recurse)
     $bytesAfter = [long](@($after | ForEach-Object { $_.Length }) | Measure-Object -Sum).Sum
     return [pscustomobject]@{ cutFiles = $plan.Files; cutBytes = $plan.Bytes; keptFiles = $after.Count
-                              keptBytes = $bytesAfter; allFiles = $before.Count; allBytes = $bytesBefore }
+                              keptBytes = $bytesAfter; allFiles = $before.Count; allBytes = $bytesBefore
+                              Baskets = $plan.Baskets }
 }
 
 function Request-PythonArchive([string]$Cache) {
@@ -2437,6 +2451,12 @@ Write-Host (("интерпретатор: пин {0} сверен с packaging\p
              "sha256 {2}; обрезка {3} файлов / {4} Б; в архив {5} файлов / {6} Б ({7} МиБ)") -f
             $PYTHON_ARCH_NAME, $rt.Archive.Bytes, $rt.Archive.Sha256, $rt.Trim.cutFiles,
             $rt.Trim.cutBytes, $rt.Trim.keptFiles, $rt.Trim.keptBytes, (Format-Mib $rt.Trim.keptBytes))
+# Корзины печатаются из того же плана, что и обрезка: таблица в комментарии у $RUNTIME_CUT_*
+# обязана сверяться с логом, а не жить отдельным замером.
+foreach ($k in $rt.Trim.Baskets.Keys) {
+    $b = $rt.Trim.Baskets[$k]
+    Write-Host ("      обрезка {0}: {1} файлов / {2} Б" -f $k, $b.Files, $b.Bytes)
+}
 # Печатается исход по файлу, а не одно слово «проверено»: ._pth и сайдкар .pth - разные механизмы,
 # и на них держатся разные строки; «ни одного» после Set-VendorResolution быть не может (вторая
 # ветка бросает отказ), поэтому молчаливый PYTHONPATH здесь неотличим от поломки.
