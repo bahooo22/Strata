@@ -440,7 +440,11 @@ function Get-WebPayload([string]$Repo, [bool]$Required) {
     # -RepoSrc в CI относительный ("strata"), а ключ строится через Substring($base.Length) от
     # АБСОЛЮТНОГО FullName: без нормализации срезалось начало пути и ключи выходили вида
     # "kit\serve\ects\Strata-3060Ti\engine\serve\__init__.py" (замер 14.11, прогон 14).
-    $Repo = (Get-Item -LiteralPath $Repo -ErrorAction Stop).FullName
+    # Нормализуем только существующий каталог: кейс selftest с несуществующим -RepoSrc обязан
+    # падать своим отказом по входу, а не исключением Get-Item.
+    if (Test-Path -LiteralPath $Repo -PathType Container) {
+        $Repo = (Get-Item -LiteralPath $Repo).FullName
+    }
     foreach ($spec in $WEB_SPECS) {
         $base = Join2 $Repo ($spec.dir.Replace('/', '\'))
         $found = @()
