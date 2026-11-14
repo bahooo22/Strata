@@ -179,6 +179,25 @@ jobs:
           Write-Host "rc(install_cuda_redist)=$LASTEXITCODE"
           exit $LASTEXITCODE
 
+      - name: "Кэш каталогов сборки движков (инкрементальная пересборка)"
+        uses: actions/cache@v4
+        with:
+          # Компиляция - самый долгий шаг прогона, и она каждый раз начиналась с пустого
+          # каталога. Замер 14.11 на стенде: при готовых объектах build_kit считает только
+          # изменившиеся единицы (Страта 772 с при 21 компиляции, llama 6 с при 1) - то есть
+          # кэш между прогонами снимает именно ту часть, которая идёт часами.
+          # Ключ несёт хэш всех CMakeLists: правка конфигурации даёт точный промах и полную
+          # пересборку, а restore-keys поднимает предыдущий каталог - остальное cmake
+          # перестраивает по mtime, поэтому «старые объекты молча протухнуть» не могут.
+          # CUDA и ARCH в ключе потому, что смена тулчейна или набора архитектур меняет ABI
+          # и набор cubin: делить такой кэш между ними нельзя.
+          path: |
+            strata\build-kit
+            llama\build-kit
+          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt', 'llama/CMakeLists.txt', 'llama/**/CMakeLists.txt', 'ggml-pin/CMakeLists.txt', 'ggml-pin/**/CMakeLists.txt') }}
+          restore-keys: |
+            build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-
+
       - name: Сборка обоих движков под CUDA (полный набор архитектур)
         shell: pwsh
         run: |
