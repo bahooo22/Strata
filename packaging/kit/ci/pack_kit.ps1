@@ -1185,6 +1185,13 @@ function Test-KitSourceTexts([string]$Src, [string]$Repo = "") {
                       -WithCudaRuntime $false -RepoSrc $Repo -VendorStage ""
     $prefixes = @($Src.TrimEnd('\', '/'))
     if ($Repo) { $prefixes += $Repo.TrimEnd('\', '/') }
+    # Манифест отдаёт АБСОЛЮТНЫЕ пути, а в CI -KitSrc/-RepoSrc относительные ("strata\packaging\kit",
+    # "strata"): без разворота ни один вход не сопоставлялся, и вместо сотни файлов мерилось 9 -
+    # а отпуска пути стенда оставались неиспользованными (прогон 15).
+    $prefixes = @($prefixes | ForEach-Object {
+        if ($_ -and (Test-Path -LiteralPath $_ -PathType Container)) { (Get-Item -LiteralPath $_).FullName }
+        else { $_ }
+    })
     # Разделители нормализуются с обеих сторон: манифест собирает пути через Join2 (обратною косая),
     # а вызывающий вправе передать -RepoSrc "C:/tmp/mirror/engine". Прежнее сравнение искали
     # "$pf\" literal'ом, поэтому на прямых слэшах ряд из 182 входов сжимался до 9 (мерка по
