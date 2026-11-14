@@ -213,6 +213,20 @@ jobs:
           Write-Host "rc(build_kit)=$LASTEXITCODE"
           exit $LASTEXITCODE
 
+      - name: "Сохранение каталогов сборки в кэш (и при красном прогоне)"
+        # Автоматическое сохранение actions/cache живёт в post-шаге и не выполняется, когда job
+        # красный: прогон 18 собрал движки за 74 мин, упал на упаковке и кэш не сохранил - следующий
+        # прогон снова холодный. Здесь сохранение явное и безусловное, а key обязан совпадать с
+        # шагом restore выше: это две записи одного ключа, разъехаться они не должны.
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            strata\build-kit
+            llama\build-kit
+          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt', 'llama/CMakeLists.txt', 'llama/**/CMakeLists.txt', 'ggml-pin/CMakeLists.txt', 'ggml-pin/**/CMakeLists.txt') }}
+
       - name: "Гейт маркеров: наши патчи в собранных exe и dll"
         shell: pwsh
         run: |
