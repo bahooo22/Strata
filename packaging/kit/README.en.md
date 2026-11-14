@@ -150,10 +150,11 @@ parameter is a refusal with exit code 2, not a half-finished build.
 A finished kit does not have to be built: it sits there as an asset of the release `kit-2026-11-13` -
 [the release page](https://github.com/bahooo22/Strata/releases/tag/kit-2026-11-13) and the direct
 download link [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip).
-Both links were measured on 13.11 with an anonymous request and no token: the release answers 200 with
-`draft=false` and `prerelease=false`, and the download returns the header `504b0304` and a length of
-852 018 219 bytes - the same archive and the same bytes that the acceptance of run `43444961732`
-disassembles further down in this file.
+Both links were measured on 14.11 with an anonymous request and no token: the release answers 200 with
+`draft=false` and `prerelease=false`, and the asset `id=747571828` answers `state=uploaded` with a
+length of 867 303 928 bytes (`created` 13:26:19Z, `updated` 13:26:40Z) - that is the archive of run
+`43594623885` disassembled further down in this file; measure `kit364` renders `ИНВЕНТАРЬ OK` and
+confirms the workflow on GitHub matches the tree byte for byte.
 
 The entry point of these self-checks is pwsh 7 - the same one Actions calls them with. Windows
 PowerShell 5.1 stopped being a separate story: `pack_kit`'s test tree is now written the same way the
@@ -472,10 +473,11 @@ Acceptance of that green run is measured by the fields of the carrier files and 
 of the build. The kit archive of run 6 (`43388763285`), `gpu-infer-kit-2026-11-13.zip`, weighs
 852 155 223 bytes and holds 26 entries; the run artifact `kit-release-6.zip` is 850 185 286 bytes with
 8 entries, and these are different quantities:
-the artifact carries the measures, the logs and the archive together. Further down this file two more
-runs are disassembled - `43422717479` (852 112 426 bytes, tree `5db1fd60`) and `43444961732`
-(852 018 219 bytes, tree `3483b929`) - and the release holds the last one; the three weights differ not
-by a contradiction but because each was packaged by its own run from its own source tree.
+the artifact carries the measures, the logs and the archive together. Further down this file three more
+runs are disassembled - `43422717479` (852 112 426 bytes, tree `5db1fd60`), `43444961732`
+(852 018 219 bytes, tree `3483b929`) and `43594623885` (867 303 928 bytes, tree `f2dccad4`) - and the
+release holds the last one; the four weights differ not by a contradiction but because each was
+packaged by its own run from its own source tree.
 `verify_zip.sh` is green on the archive
 by the local-file-header signature, by EOCD and by all 12 required entries. The marker gate on binaries
 extracted from that very archive: strata 24/24 at 12 of 12 covered commits, llama 5/5 at 3 of 3.
@@ -573,11 +575,30 @@ The native dependency registry takes 46 s, staging and packaging 33 s, the forma
 For comparison: run `43422717479` on tree `5db1fd60` ran 6732 s (5891 s of compilation) and went red
 exactly at the publication step, in 0 s.
 
-The release asset is published: `gpu-infer-kit-2026-11-13.zip`, 852 018 219 bytes, `state=uploaded`,
-`content_type=application/zip`, and accepting the released file by bytes - not through the local
-copy but with partial HTTP range requests against the download address - gives the same 26 entries
-and all 12 mandatory ones. The current edition of the asset was uploaded automatically by run
-`43444961732`; before it the file lay there as a manual upload from the artifact of run 11. The reason the
+Acceptance of run `43594623885` (number 19, `workflow_dispatch` on `main`, tree `f2dccad4`, same
+composition `86;89;120`) - this is the edition that sits in the asset now. The whole run took 62.9
+minutes (12:23:57Z -> 13:26:52Z), of which the "build both engines for CUDA" step took 3566 s. Both
+builds are cold, `prebuilt_objects: 0`: Strata - configure 16.7 s and build 1203.8 s over 160
+compiles and 14 links; llama.cpp - 8.5 s and 2323.6 s over 315 and 14. Together 3552.6 s
+(59.2 minutes). The marker gate prints the same `24/24` over `12 of 12` and `5/5` over `3 of 3`;
+`elf-proof.json` - the same 84, 213 and 447 cubin entries for `sm_120 sm_120a sm_86 sm_89`;
+`llama-server.exe` - 11 264 bytes. The dependency registry takes 9 s, packaging 35 s (`вес: дерево
+1240.9 МиБ, zip 827.1 МиБ, CUDA-рантайм 492.4 МиБ, файлов 929`, `ИТОГ: комплект упакован, гейты
+зелёные`), the format gate 0 s with `verify_zip: OK ... 929 записей, все 12 обязательных на месте`,
+live acceptance of the unpacked archive 9 s: 929 files / 1,301,153,615 B unpacked in 2 s, the model of
+1,185,376 B downloaded in 1 s, `GET /props` answers 200 with `n_ctx=512`, the page is served,
+`rc(smoke_kit)=0`; publication 22 s.
+
+Separately about the build-directory cache: the save step took 8 s, yet this run is still cold -
+the cache was empty because run 18 (id `43579521162`) failed at packing and its post-save did not run.
+The cache effect is read from the duration of the "build both engines" step in the next run.
+
+The release asset is published: `gpu-infer-kit-2026-11-13.zip`, `id=747571828`, 867 303 928 bytes,
+`state=uploaded`, `content_type=application/zip`, `created` 13:26:19Z and `updated` 13:26:40Z (that is,
+a 21 s upload); the `kit364` inventory renders `ИНВЕНТАРЬ OK`, and the same measure confirms that
+`kit-release.yml` on GitHub matches the tree byte for byte. The current edition of the asset was
+uploaded automatically by run `43594623885`, and before it by run `43444961732`; even earlier the file
+lay there as a manual upload from the artifact of run 11. The reason the
 upload had to be manual is measured by the `release` event: run `43415264688` (number 7, 47 s in
 total) is red at the cheap release-existence gate with the line «релиза kit-2026-11-13 нет в этом
 репозитории», although by that hour the release had lived for 41 seconds (`published_at` 11:12:59Z
@@ -612,7 +633,7 @@ match the current edition of the documentation.
 
 ## A file bundle for an already built kit
 
-If `gpu-infer-kit-2026-11-13.zip` is already downloaded, there is no need to rebuild 852 MiB just for
+If `gpu-infer-kit-2026-11-13.zip` is already downloaded, there is no need to rebuild 827 MiB just for
 the web UI: a separate carrier bundles exactly the groups that archive lacked or that changed -
 `kit\serve` (the `serve.server` Python closure and `serve\web` statics per the `webfiles.py`
 whitelist), `kit\strata_control`, `kit\strata_cli`, `kit\tools`, `kit\runtime` (the standalone
