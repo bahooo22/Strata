@@ -660,9 +660,14 @@ function Get-PythonPinFromSource([string]$Path) {
     # единственный способ не завести второй носитель дайджеста, который молча устареет.
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw "нет носителя пина: $Path" }
     $t = [System.IO.File]::ReadAllText($Path)
-    $pin = [ordered]@{ release = ""; version = ""; file = ""; sha256 = ""; exe = "" }
+    $pin = [ordered]@{ release = ""; version = ""; file = ""; sha256 = ""; exe = ""; base = "" }
     if ($t -match '(?m)^PBS_RELEASE\s*=\s*"([^"]*)"') { $pin.release = $Matches[1] }
     if ($t -match '(?m)^PYTHON_VERSION\s*=\s*"([^"]*)"') { $pin.version = $Matches[1] }
+    # База скачивания в первоисточнике - f-строка с сегментом релиза; разбор берёт литеральную часть
+    # вокруг подстановки, поэтому потерянный сегмент виден как расхождение, а не как 404 в CI.
+    if ($t -match '(?m)^PBS_BASE\s*=\s*f"([^"{]*)\{PBS_RELEASE\}([^"]*)"') {
+        $pin.base = $Matches[1] + $pin.release + $Matches[2]
+    }
     if ($t -match ('(?ms)"' + [regex]::Escape($PYTHON_TARGET) + '":\s*\{(?<b>.*?)^\s*\},')) {
         $b = $Matches['b']
         if ($b -match '"file":\s*f?"(?<v>[^"]*)"') { $pin.file = $Matches['v'] }
@@ -691,6 +696,11 @@ function Get-PythonPinDiff([string]$Path) {
     }
     $want = $pin.file.Replace('{PYTHON_VERSION}', $pin.version).Replace('{PBS_RELEASE}', $pin.release)
     if ($want -ne $PYTHON_ARCH_NAME) { $d += ("имя архива: первоисточник '{0}', упаковщик '{1}'" -f $want, $PYTHON_ARCH_NAME) }
+    # База скачивания: прогон 18 упал на 404, потому что упаковщик собирал URL без сегмента релиза.
+    # Сверка идёт по сформированному адресу, а не по куску кода, поэтому потеря сегмента видна здесь,
+    # а не только на чистом раннере при живом скачивании.
+    $ours = $PBS_URL_BASE + $PBS_RELEASE + "/"
+    if ($pin.base -ne $ours) { $d += ("база скачивания: первоисточник '{0}', упаковщик '{1}'" -f $pin.base, $ours) }
     return [pscustomobject]@{ Pin = $pin; Diff = @($d) }
 }
 
@@ -800,7 +810,11 @@ function Request-PythonArchive([string]$Cache) {
     }
     $arch = Join2 $Cache $PYTHON_ARCH_CACHED
     if (-not (Test-Path -LiteralPath $arch -PathType Leaf)) {
-        $url = $PBS_URL_BASE + $PYTHON_ARCH_NAME.Replace("+", "%2B")
+        # Сегмент релиза обязателен: первоисточник собирает PBS_BASE как ".../download/{PBS_RELEASE}/"
+        # (package_terminal.py:64), а упаковщик его терял - URL вёл на "/download/<имя архива>" и
+        # отвечал 404. Прогон 18 вскрыл это только на чистом раннере: при готовом кэше скачивание
+        # не выполняется вовсе.
+        $url = $PBS_URL_BASE + $PBS_RELEASE + "/" + $PYTHON_ARCH_NAME.Replace("+", "%2B")
         Write-Host ("интерпретатор: скачиваю {0}" -f $url)
         $part = $arch + ".part"
         try {
