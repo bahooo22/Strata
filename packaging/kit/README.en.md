@@ -627,6 +627,19 @@ byte-wise, sha256 `26d5f056861cdfbd3c7aa265db523b55a8ebae3c13e29f8fb90cea226cbf5
 append to a zip created with `-a`, and a second relative `-C` in the same call resolves against the
 already changed directory.
 
+## What was verified for the llama leg
+
+The llama build comes from the fork (`LLAMA_REF: kit-all-sync`, ggml pin `3cf03257f`), architectures
+`86;89;120a`. Live check on 14.11 against the built tree: `llama-server.exe --version` prints
+`1.0.0-dev (build 1337, commit d9eed0832)`; with the tiny CI model the process stays alive for 30 s,
+with the working `Qwen3.6-35B-A3B-UD-IQ3_S` (15,346,432,288 bytes) for 25 s without crashing; in the
+kit `/props` answers 200 and `/` returns 12,658 bytes of the page with the built-in `index.html`.
+
+The previous kit revision crashed with `0xC0000005` right after `load_model` on any model: the culprit
+was upstream `9d340ec34` "Windows unbuffered model load (#26014)" inside `llama.dll`. It is reverted
+(`0e6d62315` in the fork `kit-all-sync` and `master`), because unbuffered reads without aligned
+buffers kill the process before any tensor is read.
+
 ## What is not here
 
 - models (the archive contains no `.gguf` file);
