@@ -128,7 +128,7 @@ jobs:
           # компиляции. Тот же гейт №2 живёт в pack_kit.ps1, здесь он вызван раньше и по исходникам:
           # перечень файлов берётся из манифеста, второй копии списка нет.
           & pwsh -NoProfile -NonInteractive -File "strata\packaging\kit\ci\pack_kit.ps1" `
-              -TextGate -KitSrc "strata\packaging\kit"
+              -TextGate -KitSrc "strata\packaging\kit" -RepoSrc "strata"
           Write-Host "rc(pack_kit -TextGate)=$LASTEXITCODE"
           exit $LASTEXITCODE
 
