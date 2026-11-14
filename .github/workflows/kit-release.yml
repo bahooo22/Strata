@@ -11,6 +11,10 @@
 #   - zip проходит формат-гейт по байтам (verify_zip.sh) ДО публикации: под bash голый tar
 #     пишет POSIX-tar с кодом выхода 0, GitHub по расширению ставит application/zip, и
 #     мёртвый архив доезжает до пользователя;
+#   - распакованный zip прогоняется ЖИВЫМ движком (smoke_kit.ps1) ДО публикации: формат-гейт и
+#     гейты состава меряют байты и имена, а комплектный llama-server.exe умирал с 0xC0000005
+#     в первые ~50 мс, уже на «initializing ...» - то есть архив был целым, а движок в нём
+#     мёртвым (замеры kit374/kit375/kit379/kit380/kit390 в E:\tmp\);
 #   - маркеры наших патчей сверяются по байтам обоих движков (Strata и llama.cpp): зелёная
 #     сборка сама по себе ничего не доказывает.
 # Версия комплекта: если запуск был по релизу, pack_kit.ps1 получает -Version = тег без
@@ -54,6 +58,16 @@ env:
   LLAMA_REPO: 'bahooo22/llama.cpp'
   LLAMA_REF: 'kit-all-sync'
   KIT_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+  # Крошечная GGUF для живой приёмки движка - НЕ выдуманная: тот же вход, что берёт CI llama.cpp
+  # для тестов самого llama-server (первичник форка: llama-master/tools/server/tests/utils.py:55-56
+  # model_hf_repo='ggml-org/models', model_hf_file='tinyllamas/stories260K.gguf'; там же
+  # tools/server/tests/README.md:79 и .github/workflows/build-ibm.yml:103 для соседа -be).
+  # Доступность мерилась живым HEAD 14.11: 307 -> 302 -> 200, X-Linked-Size и content-length =
+  # 1 185 376 Б (тот же размер, что у стендового E:\tmp\stories260K.gguf в замерах kit375/380/390).
+  # 1.2 МиБ вместо гигабайт: веб-морда llama.cpp встроена в llama-server-impl.dll и не зависит от
+  # весов, а мёртвый kit (kit375) падает на этой модели ровно так же, как на 15 ГиБ.
+  TINY_GGUF_URL: 'https://huggingface.co/ggml-org/models/resolve/main/tinyllamas/stories260K.gguf'
+  TINY_GGUF_BYTES: '1185376'
 
 jobs:
   kit:
@@ -96,6 +110,7 @@ jobs:
         run: |
           for f in strata/packaging/kit/ci/build_kit.ps1 \
                    strata/packaging/kit/ci/pack_kit.ps1 \
+                   strata/packaging/kit/ci/smoke_kit.ps1 \
                    strata/packaging/kit/ci/kit_dll_deps.py \
                    strata/packaging/kit/ci/patch_markers.py \
                    strata/packaging/kit/ci/verify_zip.sh \
@@ -104,7 +119,7 @@ jobs:
                    llama/CMakeLists.txt; do
             if [ ! -f "$f" ]; then echo "::error::нет $f - сборка не начата"; exit 2; fi
           done
-          echo "проверено 8 файлов комплекта"
+          echo "проверено 9 файлов комплекта"
 
       - name: "Проверка переносимости текстов комплекта (дешёвая, до компиляции)"
         shell: pwsh
@@ -276,6 +291,72 @@ jobs:
           echo "rc(verify_zip)=$rc"
           [ "$rc" = 0 ] || exit "$rc"
           echo "KIT_ZIP=${files[0]}" >> "$GITHUB_ENV"
+
+      - name: "Живая приёмка распакованного комплекта: движок обязан подняться"
+        shell: pwsh
+        run: |
+          # Гейт, которого не было: архив собирается, гейты состава и формат-гейт зелёные - и
+          # мёртвый бинарник доезжает до релиза. Замеры 13-14.11 (E:\tmp\kit374-watch.verdict.txt,
+          # kit375-localize.verdict.txt, kit379-forensics.verdict.txt, kit380-split.verdict.txt,
+          # kit390-cuda-env.verdict.txt): комплектный llama-server.exe (10 752 Б, stub рядом с
+          # llama-server-impl.dll 7 632 896 Б) падает с 0xC0000005 в первые ~50 мс, stderr обрывается
+          # на «srv  llama_server: initializing ...», то есть ДО загрузки модели; CUDA-бэкенд ни при чём.
+          # Ни одна прежняя проверка этого не ловит, потому что ничего не запускалась: мерить надо
+          # процесс и HTTP-ответ, а не наличие файла и не размер zip.
+          #
+          # Меряется РАСПАКОВАННЫЙ бандл - ровно то, что получит пользователь, а не дерево сборки:
+          # дефект живёт между сборкой и носителем (kit379: dll в dist побайтово равны сборке).
+          # Проверка осмысленна на CPU: у windows-раннера дискретного GPU нет, поэтому llama-нога
+          # идёт с -ngl 0 (мёртвый kit краснеет и на CPU - kit380/kit390), а Страта-нога снимает
+          # морду с сервера kit\serve\server.py; движок Страты на безгитарном раннере подниматься
+          # не обязан, и smoke_kit.ps1 печатает это ОТДЕЛЬНЫМ исходом, а не пропуском.
+          $ErrorActionPreference = 'Stop'
+          $zip = ${env:KIT_ZIP}
+          if (-not $zip -or -not (Test-Path -LiteralPath $zip)) {
+              Write-Host "::error::нет архива '$zip' - живой прогон не состоялся (шаг формат-гейта не назвал KIT_ZIP)"
+              exit 2
+          }
+          $un = Join-Path $env:RUNNER_TEMP ('smoke-unpack-' + [System.IO.Path]::GetRandomFileName().Replace('.', ''))
+          New-Item -ItemType Directory -Path $un -Force | Out-Null
+          # Именно Expand-Archive, а не выборочная распаковка: пользователь достает архив целиком,
+          # и «распаковывается ли он вообще» - часть того же класса дефектов (verify_zip меряет
+          # байты заголовка, а не читаемость дерева).
+          $t0 = Get-Date
+          Expand-Archive -LiteralPath $zip -DestinationPath $un
+          $items = @(Get-ChildItem -LiteralPath $un -Recurse -File -ErrorAction SilentlyContinue)
+          $bytes = 0L
+          foreach ($i in $items) { $bytes += $i.Length }
+          Write-Host ("распаковано: {0} файлов, {1:N0} Б за {2:N0} с - корень: $un" -f $items.Count, $bytes, ((Get-Date) - $t0).TotalSeconds)
+          if ($items.Count -lt 20) {
+              Write-Host "::error::распаковка дала только $($items.Count) файлов - комплекту нечем подниматься"
+              exit 1
+          }
+
+          $gguf = Join-Path $env:RUNNER_TEMP 'stories260K.gguf'
+          if (-not (Test-Path -LiteralPath $gguf)) {
+              $t1 = Get-Date
+              Invoke-WebRequest -Uri $env:TINY_GGUF_URL -OutFile $gguf -UseBasicParsing -TimeoutSec 300
+              Write-Host ("модель скачана: {0} Б за {1:N0} с ({2})" -f (Get-Item $gguf).Length, ((Get-Date) - $t1).TotalSeconds, $env:TINY_GGUF_URL)
+          } else {
+              Write-Host "модель уже в раннере: $gguf"
+          }
+          $sz = (Get-Item $gguf).Length
+          Write-Host "размер модели: $sz Б (ожидалось $($env:TINY_GGUF_BYTES) по живому HEAD 14.11)"
+
+          $sk = Join-Path $env:GITHUB_WORKSPACE 'strata\packaging\kit\ci\smoke_kit.ps1'
+          if (-not (Test-Path -LiteralPath $sk)) { Write-Host "::error::нет $sk - приёмка не состоялась"; exit 2 }
+          & pwsh -NoProfile -NonInteractive -File $sk -KitDir $un -Model $gguf -Strata auto -WaitSec 240 -PortStart 18100
+          # Код возврата снимается отдельно и ПЕЧАТАЕТСЯ: rc=0/1/2 у этого гейта означают
+          # «зелёное» / «находка» / «прогон не состоялся», и красный лог обязан различать их.
+          $rc = $LASTEXITCODE
+          Write-Host "rc(smoke_kit)=$rc"
+          if ($rc -eq 0) { Write-Host 'комплект живой: движок поднялся, /props и страница отдаются' }
+          if ($rc -eq 1) { Write-Host '::error::движок из распакованного комплекта не поднялся или не отдал страницу - публикация запрещена' }
+          if ($rc -eq 2) { Write-Host '::error::живая приёмка не состоялась (плохие входы): публиковать не проверено' }
+          # Временное дерево (до ~1.3 ГиБ) убирается за собой даже при красном rc: следующий шаг
+          # грузит меры и архив, и место на системном диске раннера не бесконечно.
+          Remove-Item -LiteralPath $un -Recurse -Force -ErrorAction SilentlyContinue
+          exit $rc
 
       - name: Меры, логи и архив как артефакт прогона
         if: always()

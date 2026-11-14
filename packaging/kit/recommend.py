@@ -36,6 +36,7 @@ import argparse
 import json
 import pathlib
 import sys
+import tempfile
 from dataclasses import dataclass, field
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -125,6 +126,39 @@ STRATA_NOT_CALIBRATED = (
     "а не по факту VRAM max; окно 256k ограничено временем (88 мин при 45 pp), а не памятью")
 
 PORTS = {"strata": 8082, "llama": 8081}
+HOST = "127.0.0.1"
+
+# Пути внутри комплекта - ОТНОСИТЕЛЬНЫЕ к его корню, таким, каким их видит start.ps1:
+# комплект переносимый, и абсолютный путь стенда в строке запуска - тот же дефект, что
+# зашитая буква диска (контроль «в выводе нет пути стенда» в --selftest). Обратно-косой
+# разделитель: раскладка Windows, стартер - start.ps1 на PowerShell 5.1.
+# Веб-морду Страты держит не strata-q36.exe, а питоновский serve/server.py: движок он
+# запускает подпроцессом сам и сам добавляет режим --serve (serve/server.py:1230), а без
+# него бинарник HTTP не поднимает и падает с «--tokens, --serve or --bench-pp is required».
+SEP = "\\"
+# Режимный флаг движка: сервер подставляет его САМ, когда поднимает движок подпроцессом
+# ([exe, "--serve", *args], serve/server.py:1230), поэтому в config["args"] его нет - но
+# печатная строка обязана быть копировуемой целиком (см. render_text).
+STRATA_MODE = "--serve"
+# Автономный интерпретатор комплекта: python-build-standalone, у этой сборки нет `._pth`,
+# поэтому PYTHONPATH стартера работает (embeddable-сборку отвергли именно из-за него).
+RUNTIME_PY = "runtime" + SEP + "python" + SEP + "python.exe"
+
+
+def py_exe(kit_dir: pathlib.Path | None = None) -> str:
+    """Интерпретатор для строки запуска. Комплект автономен и обязан работать там, где Python
+    в системе не ставился вовсе (боевой лог 15.11: RTX 5080 + Ryzen AI 9 HX 370, системного
+    `python` нет). Если рядом с этим файлом лежит докачанный runtime - берём его; путь
+    относительный к корню комплекта, как у всех прочих путей вывода."""
+    base = pathlib.Path(__file__).resolve().parent if kit_dir is None else pathlib.Path(kit_dir)
+    return RUNTIME_PY if (base / "runtime" / "python" / "python.exe").is_file() else "python"
+
+
+PY_EXE = py_exe()                        # маркер: стартер подставит тот, что сам нашёл
+STRATA_SERVER = "serve" + SEP + "server.py"      # команда запуска веб-морды
+STRATA_CONFIG = "run" + SEP + "strata.json"      # её тело отдаётся отдельным ключом config
+STRATA_TOKENIZER = "run" + SEP + "tokenizer"     # готовая папка токенизатора (см. vocab.json)
+STRATA_LOG = "run" + SEP + "strata-server.log"   # журнал движка, который поднимет сервер
 
 
 class RecommendError(ValueError):
@@ -265,31 +299,74 @@ def fit_llama(geom: dict, window: int, rule: dict,
                       "src": rule["src"], "engine": "llama"})
 
 
+def engine_cwd(exe: str) -> str:
+    """Рабочий каталог движка для конфига: для абсолютного пути - папка бинарника, для
+    относительного - корень комплекта («.»). Сервер резолвит относительный `exe` именно от
+    `cwd` (serve/server.py:10353), поэтому «bin\\strata-q36.exe» + cwd «bin» дало бы
+    несуществующий bin\\bin\\strata-q36.exe - отказ вместо запуска."""
+    p = pathlib.PurePath(exe)
+    return str(p.parent) if p.is_absolute() else "."
+
+
 def build_args(engine: str, gguf_path: str, window: int, rule: dict, exe: str,
-               threads: int | None = None, kv_type: str = KV_TYPE) -> dict:
+               threads: int | None = None, kv_type: str = KV_TYPE,
+               gpu: int | str | None = None) -> dict:
     if engine == "strata":
         fixed = STRATA_FIXED
-        args = [exe, "--native", gguf_path,
-                "--max-context", str(window),
-                "--chunk", str(fixed["chunk"]), "--batch", str(fixed["batch"]),
-                "--no-graph", "--prefill", str(fixed["prefill"]),
-                "--mtp", str(rule["mtp"]), "--draft-vocab", str(fixed["draft_vocab"]),
-                "--kv-type", kv_type,
-                "--vram-reserve-mib", str(rule["reserve_mib"]),
-                "--att-mb", str(rule["att_mb"])]
+        # Аргументы движка БЕЗ имени бинарника и БЕЗ флага режима: --serve добавляет сервер,
+        # когда поднимает движок подпроцессом (serve/server.py:1230). Прежний вид возврата
+        # (argv strata-q36.exe как строка запуска) и есть тот дефект, который ловит контроль
+        # в --selftest: бинарник HTTP не отдаёт вообще.
+        engine_args = ["--native", gguf_path,
+                       "--max-context", str(window),
+                       "--chunk", str(fixed["chunk"]), "--batch", str(fixed["batch"]),
+                       "--no-graph", "--prefill", str(fixed["prefill"]),
+                       "--mtp", str(rule["mtp"]), "--draft-vocab", str(fixed["draft_vocab"]),
+                       "--kv-type", kv_type,
+                       "--vram-reserve-mib", str(rule["reserve_mib"]),
+                       "--att-mb", str(rule["att_mb"])]
         env = {"STRATA_Q36_FA_LAYER": fixed["fa_layer"],
                "STRATA_Q36_SUPER_CHUNK": str(rule["super_chunk"])}
-        return {"exe": exe, "args": args, "env": env, "port": PORTS["strata"]}
+        # Тело run\strata.json: ключи и их чтение - по первичнику сервера. exe - путь из
+        # --exe-strata, как его дал вызывающий; tokenizer сервер читает только как ГОТОВУЮ
+        # папку с vocab.json (:10256), извлекает её упаковщик, не подбор.
+        config = {"exe": exe, "args": engine_args, "cwd": engine_cwd(exe),
+                  "tokenizer": STRATA_TOKENIZER,
+                  "model_name": pathlib.PurePath(gguf_path).name,
+                  "log": STRATA_LOG, "env": dict(env), "host": HOST,
+                  "port": PORTS["strata"]}
+        # Картинку называем только когда её действительно сняли: сервер по `gpu` выставляет
+        # CUDA_VISIBLE_DEVICES (:3757), а догадаться про индекс нуля на многокартной машине
+        # - значит молча переложить прогон на чужую карту.
+        if gpu is not None:
+            config["gpu"] = gpu
+        return {"exe": PY_EXE,
+                "args": [STRATA_SERVER, "--engine", "strata", "--config", STRATA_CONFIG,
+                         "--host", HOST, "--port", str(PORTS["strata"])],
+                "env": env, "port": PORTS["strata"], "config": config}
     args = [exe, "-m", gguf_path,
             "--ctx-size", str(window), "-ngl", "99",
             "--n-cpu-moe", str(rule["ncmoe"]), "-b", str(rule["b"]), "-ub", str(rule["ub"]),
             "-ctk", kv_type, "-ctv", kv_type, "-fa", "on",
-            "--temp", "0", "--host", "127.0.0.1", "--port", str(PORTS["llama"])]
+            "--temp", "0", "--host", HOST, "--port", str(PORTS["llama"])]
     # -t на стенде равнялся числу ФИЗИЧЕСКИХ ядер (4) - на другой машине это другое число,
     # и зашивать его значит выдать замеренное за универсальное.
     if threads:
-        args[7:7] = ["-t", str(threads)]
+        # Вставка по индексу (было args[7:7)) держалась формы строки: стоит добавить или
+        # снять флаг - и -t уедет в чужое место. Якорь - имя флага, позиция больше не часть
+        # контракта; результат для теперешней формы совпадает с прежним байт в байт.
+        anchor = args.index("--n-cpu-moe") if "--n-cpu-moe" in args else len(args)
+        args[anchor:anchor] = ["-t", str(threads)]
     return {"exe": exe, "args": args, "env": {}, "port": PORTS["llama"]}
+
+
+def engine_argv(launch: dict) -> list:
+    """argv движка из строки запуска: у Страты он переехал в конфиг (config["args"], без бинарника
+    и без --serve), у llama он и есть строка, только начиная с флага -m. Разбор - по признаку
+    формы возврата, а не по позиции флага, чтобы смена команды не ломала читающих."""
+    if "config" in launch:
+        return list(launch["config"]["args"])
+    return list(launch["args"])[1:]
 
 
 def rules_for(engine: str) -> list[dict]:
@@ -348,6 +425,9 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
     warnings: list[str] = []
     phys = (cfg.get("cpu") or {}).get("physical")
     threads = int(phys) if phys else None
+    # Индекс карты из съёмки железа: у detect.py его нет (nvidia-smi снимает одну строку),
+    # поэтому в ход комплекта он входит только если конфиг прислали с этим полем сами.
+    gpu_index = (cfg.get("gpu") or {}).get("index")
     if threads is None:
         warnings.append("число физических ядер не снято: -t не подставляется, llama.cpp возьмёт "
                         "свой дефолт, а наши замеры сделаны с -t 4 (= ядра стенда)")
@@ -415,7 +495,7 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
                                "measured": b_window == want_window,
                                "launch": build_args(eng, gguf_path, want_window, step,
                                                     exe_strata if eng == "strata" else exe_llama,
-                                                    threads, kv_type)})
+                                                    threads, kv_type, gpu_index)})
             if not fits:
                 msg = (f"{eng}: окно {want_window} требует {round(fw.total_mib)} МиБ "
                        f"> {round(vram)}")
@@ -472,7 +552,7 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
                            "measured": basis == "measured",
                            "launch": build_args(eng, gguf_path, f.window, rule,
                                                 exe_strata if eng == "strata" else exe_llama,
-                                                threads, kv_type)})
+                                                threads, kv_type, gpu_index)})
 
     if not candidates:
         if kv_skipped:
@@ -514,6 +594,22 @@ def recommend(geom: dict, cfg: dict, models: dict, engine: str = "auto",
             "ladder": list(LADDER), "warnings": warnings}
 
 
+def engine_cmd_of(launch: dict) -> list:
+    """Полная команда движка ДЛЯ ПЕЧАТИ: бинарник + режимный флаг + аргументы из конфига.
+    Отдельная функция, потому что проверять её обязаны и глазами, и тестом: печатная строка
+    живёт рядом с пояснением, и присутствие флага в пояснении ничего не доказывает. В самом
+    config["args"] флага нет - сервер добавляет его сам ([exe, "--serve", *args],
+    serve/server.py:1230); здесь он дописан, чтобы скопированная строка работала без сервера."""
+    c = launch.get("config") or {}
+    return ([c["exe"]] if c.get("exe") else []) + [STRATA_MODE] + list(c.get("args", []))
+
+
+def join_cmd(argv: list) -> str:
+    """argv в одну строку: аргумент с пробелом - в кавычки. Вывод читают глазами И копируют
+    в cmd, поэтому разделительный пробел не должен терять смысл."""
+    return " ".join(f'"{x}"' if " " in str(x) else str(x) for x in argv)
+
+
 def render_text(res: dict) -> str:
     """Человеческий вывод: что предложено, почему, чем мерить."""
     r = res["rule"]
@@ -537,7 +633,17 @@ def render_text(res: dict) -> str:
     lines.append(f"первичник правила: {r['src']}    "
                  f"параметры подобраны по замеру: {res['measured']}")
     l = res["launch"]
-    lines.append("запуск: " + " ".join(f'"{x}"' if " " in str(x) else str(x) for x in l["args"]))
+    # Строка запуска: у Страты exe - маркер интерпретатора, а не argv[0], поэтому он
+    # дописывается впереди; у llama exe и есть args[0], и вывод не меняется.
+    cmd = [l["exe"]] + l["args"] if l["exe"] != l["args"][0] else list(l["args"])
+    lines.append("запуск: " + join_cmd(cmd))
+    if l.get("config"):
+        # Режимный флаг обязан БЫТЬ В ПЕЧАТИ: строку копируют руками, а бинарник без него HTTP
+        # не поднимает и умирает с «--tokens, --serve or --bench-pp is required» (боевой лог
+        # 15.11). Прежний вывод переносил отказ на бумагу: команды в нём не было, а пояснение
+        # «добавит сервер» описывало конфиг, а не копируемую строку.
+        lines.append("конфиг движка: " + join_cmd(engine_cmd_of(l)) +
+                     "   (тот же флаг подставляет сервер, когда поднимает движок)")
     if l["env"]:
         lines.append("окружение: " + " ".join(f"{k}={v}" for k, v in l["env"].items()))
     if res["model_link"]:
@@ -669,11 +775,42 @@ def selftest(models_path: pathlib.Path | None = None) -> int:
           ("formula", False))
     check("на чужом кванте есть предупреждение про реестр",
           any("реестр окон сняты" in w for w in q51["warnings"]), True)
+    kvargv = [str(x) for x in engine_argv(q51["launch"])]
     check("строка запуска несёт выбранный квант",
-          q51["launch"]["args"][q51["launch"]["args"].index("--kv-type") + 1], "q5_1")
+          kvargv[kvargv.index("--kv-type") + 1], "q5_1")
     check("llama принимает квант, которого нет у Страты",
           recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", engine="llama",
                     kv_type="q4_1")["fit"]["parts"]["kv_type"], "q4_1")
+
+    # ------- строка запуска Страты: команда питонового сервера, а не бинарника движка -------
+    # Прежний дефект (боевой лог чужой RTX 5080, heretic Q4_K_M): подбор отдавал argv
+    # strata-q36.exe, а тот HTTP не поднимает вообще и падает с «--tokens, --serve or
+    # --bench-pp is required» - веб-морду Страты держит serve/server.py, и уже он запускает
+    # движок подпроцессом с --serve (serve/server.py:1230). Контроль ровно один и ловит
+    # именно это: вернись прежняя форма - и args[0] снова укажет на бинарник, а --engine
+    # strata с --config из строки запуска пропадут.
+    st = recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf", engine="strata")
+    sl = st["launch"]
+    sa = [str(x) for x in sl.get("args") or []]
+    ea = [str(x) for x in engine_argv(sl)]
+    bad = []
+    if not sa or pathlib.PurePath(sa[0]).name != "server.py":
+        bad.append("args[0] не указывает на serve/server.py")
+    if "--engine" not in sa or sa[sa.index("--engine") + 1:][:1] != ["strata"]:
+        bad.append("в args нет --engine strata")
+    if "--config" not in sa:
+        bad.append("в args нет --config")
+    if ea[:1] != ["--native"]:
+        bad.append("config[args] не начинается с --native")
+    if str(st["window"]) not in ea:
+        bad.append(f"в config[args] нет выбранного окна {st['window']}")
+    if "--kv-type" not in ea:
+        bad.append("в config[args] нет --kv-type")
+    if "--serve" in ea:
+        bad.append("--serve в config[args]: флаг режима добавляет сервер, не подбор")
+    check("Страта: запуск - команда serve/server.py с --engine strata и --config, argv движка "
+          "лежит в config[args] без --serve (ловит прежний дефект: комплект отдавал argv "
+          "бинарника strata-q36.exe, который HTTP не поднимает)", bad, [])
 
     # Модель не из реестра: ответ обязан остаться, но «измеренность» и ссылка - нет.
     res_unknown = recommend(fake_geom(), cfg_base, models, gguf_path="other.gguf")
@@ -801,6 +938,32 @@ def selftest(models_path: pathlib.Path | None = None) -> int:
                      ensure_ascii=False, sort_keys=True),
           json.dumps(recommend(fake_geom(), cfg_base, models, gguf_path="model.gguf"),
                      ensure_ascii=False, sort_keys=True))
+
+    # Печатная строка движка - носитель дефекта 15.11: её копируют руками, и без режимного
+    # флага копия даёт ровно прежний отказ «--tokens, --serve or --bench-pp is required».
+    # Меряется по КОМАНДЕ, а не по строке целиком: флаг в пояснительной скодке ничего не
+    # доказывает (саботаж «верни старый рендер» при проверке по всей строке оставался зелёным).
+    ecmd = engine_cmd_of(res["launch"])
+    check("команда движка начинается с бинарника конфига", ecmd[0], res["launch"]["config"]["exe"])
+    check("команда движка содержит режимный флаг", STRATA_MODE in ecmd, True)
+    printed_cmd = next((ln.split("   (")[0] for ln in render_text(res).splitlines()
+                        if ln.startswith("конфиг движка")), "")
+    check("напечатанная команда (до пояснения) содержит режимный флаг",
+          STRATA_MODE in printed_cmd, True)
+    check("напечатанная команда (до пояснения) содержит бинарник",
+          "bin" + slash + "strata-q36.exe" in printed_cmd, True)
+    # Обратная сторона: в теле конфига флага быть НЕ должно - сервер добавляет его сам
+    # ([exe, "--serve", *args], serve/server.py:1230), иначе он уехал бы в движок дважды.
+    check("в config[args] режимного флага нет - его добавляет сервер",
+          STRATA_MODE in res["launch"]["config"]["args"], False)
+    # Автономность: интерпретатор берётся из kit\runtime\python, только когда он докачан.
+    with tempfile.TemporaryDirectory() as td:
+        fake_kit = pathlib.Path(td)
+        check("без докачанного runtime интерпретатор - системный python", py_exe(fake_kit), "python")
+        (fake_kit / "runtime" / "python").mkdir(parents=True)
+        (fake_kit / "runtime" / "python" / "python.exe").write_bytes(b"")
+        check("с докачанным runtime берётся он, путём относительно корня комплекта",
+              py_exe(fake_kit), RUNTIME_PY)
 
     print(f"\nselftest recommend: {'OK' if not fails else 'ПРОВАЛЕНО ' + str(len(fails)) + ': ' + ', '.join(fails)}")
     return 0 if not fails else 1

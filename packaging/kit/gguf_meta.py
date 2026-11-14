@@ -268,7 +268,13 @@ def geometry(out: dict, min_bytes: int = 4096) -> dict:
     lin_layers = sorted({layer_of(t["name"]) for t in tensors
                          if suffix(t["name"]) == "attn_qkv.weight"} - {None} - set(kv_layers))
     head_kv = meta("attention.head_count_kv", 0)
-    kl = meta("attention.key_length") or meta("attention.head_length") or 0
+    n_head = meta("attention.head_count") or 0
+    embd = meta("embedding_length") or 0
+    # Ключа key_length в заголовке может и не быть: llama.cpp в load_hparams берёт тогда
+    # n_embd_head_k = n_embd / n_head (у stories260K: 64/8 = 8, ключей нет вовсе). Без этого
+    # фолбэка KV выходил 0 байт на валидном заголовке, а recommend отказывался подбирать окно.
+    kl = (meta("attention.key_length") or meta("attention.head_length")
+          or (embd // n_head if n_head else 0))
     vl = meta("attention.value_length") or kl
     heads_by_layer = dict(enumerate(head_kv)) if isinstance(head_kv, list) else None
 
@@ -423,6 +429,18 @@ def selftest() -> int:
     check("линейных (GDN) слоёв", g["linear_layers"], 1)
     check("KV q4_0 на токен = 1*(8+8)*18/32", round(g["kv_bytes_per_token"]["q4_0"], 3), 9.0)
     check("KV q8_0 на токен = 1*(8+8)*34/32", round(g["kv_bytes_per_token"]["q8_0"], 3), 17.0)
+    # Фолбэк head_length мерится мутацией: у того же заголовка отбираются явные key_length и
+    # value_length - если расчёт остался 9.0/17.0 (embedding 16 / head_count 2 = 8), фолбэк
+    # живой, а не «проверка проходит за счёт явно заданного ключа».
+    mut = dict(out["metadata"])
+    pfx = g["arch"] + "."
+    for k in (pfx + "attention.key_length", pfx + "attention.value_length"):
+        mut.pop(k, None)
+    g_mut = geometry({**out, "metadata": mut}, min_bytes=64)
+    check("KV без явного key_length - тот же q4_0", round(g_mut["kv_bytes_per_token"]["q4_0"], 3), 9.0)
+    check("KV без явного key_length - тот же q8_0", round(g_mut["kv_bytes_per_token"]["q8_0"], 3), 17.0)
+    check("ключей key_length в мутированном заголовке не осталось",
+          sum(1 for k in mut if k.endswith("attention.key_length")), 0)
     check("GDN на слой f32 = 4*8*8*4 + (2*16+16)*3*4", round(g["gdn_mib_total"] * MIB, 1),
           round(4 * 8 * 8 * 4 + (2 * 16 + 16) * 3 * 4, 1))
     check("квант экспертов - самый тяжёлый тип", g["quant"], "q4_K+iq4_xs")

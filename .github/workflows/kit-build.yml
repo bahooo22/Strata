@@ -22,6 +22,13 @@
 # Что в Actions отсутствует по сравнению со стендом и потому не мерится: предельная цена
 # каждой архитектуры (-ProbeScript живёт в harness и время жрёт), запуск серверов
 # прогоном с моделью (GPU-раннеров нет). Оба пропуска печатаются явно.
+#
+# Чего здесь НЕ МОЖЕТ БЫТЬ в принципе: живой приёмки распакованного комплекта
+# (smoke_kit.ps1 с настоящим прогоном движка). Этот workflow не собирает zip и ничего не
+# публикует ассетом релиза - мерить «что получит пользователь» нечем, а публикуют именно
+# kit-release.yml, и гейт стоит там: распаковка готового архива, запуск llama-server.exe из
+# него и проверка, что /props и веб-страница отдаются. Здесь же smoke_kit.ps1 участвует
+# только своим -SelfTest (битый носитель обязан краснеть), тулчейн и исходники ему не нужны.
 name: Kit build (Strata CUDA servers)
 
 on:
@@ -80,7 +87,13 @@ jobs:
         run: |
           $ci = "strata\packaging\kit\ci"
           $bad = @()
-          foreach ($s in @('build_kit.ps1', 'pack_kit.ps1', 'install_cuda_redist.ps1')) {
+          # Здесь меряется ТОЛЬКО самоконтроль smoke_kit.ps1 (битый носитель обязан дать rc=1,
+          # плохие входы - rc=2): он не требует ни тулчейна, ни исходников, ни архива.
+          # Живой прогон распакованного комплекта физически возможен лишь в kit-release.yml -
+          # только там есть шаг упаковки zip и публикация ассета релиза; в этом workflow нет ни
+          # того, ни другого (сборка серверов уходит в artifacts), поэтому мерить «что получит
+          # пользователь» здесь нечем. Публикацию гейтит kit-release.yml.
+          foreach ($s in @('build_kit.ps1', 'pack_kit.ps1', 'install_cuda_redist.ps1', 'smoke_kit.ps1')) {
             & pwsh -NoProfile -NonInteractive -File "$ci\$s" -SelfTest
             Write-Host "rc($s -SelfTest)=$LASTEXITCODE"
             if ($LASTEXITCODE -ne 0) { $bad += $s }
@@ -93,14 +106,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { $bad += 'pack_kit.ps1 -TextGate' }
           if ($bad) { Write-Host "::error:selftest не прошёл: $($bad -join ', ')"; exit 1 }
 
-      - name: Реестр маркеров, нативных зависимостей и формат-гейт zip
+      - name: Реестр маркеров, нативных зависимостей, замыкание импортов и формат-гейт zip
         shell: bash
         run: |
           python strata/packaging/kit/ci/patch_markers.py --selftest; rc1=$?
           python strata/packaging/kit/ci/kit_dll_deps.py --selftest; rc3=$?
+          python strata/packaging/kit/ci/web_closure.py --selftest; rc4=$?
           bash strata/packaging/kit/ci/verify_zip.sh --selftest; rc2=$?
-          echo "rc(patch_markers --selftest)=$rc1 rc(verify_zip --selftest)=$rc2 rc(kit_dll_deps --selftest)=$rc3"
-          [ "$rc1" = 0 ] && [ "$rc2" = 0 ] && [ "$rc3" = 0 ]
+          echo "rc(patch_markers --selftest)=$rc1 rc(verify_zip --selftest)=$rc2"
+          echo "rc(kit_dll_deps --selftest)=$rc3 rc(web_closure --selftest)=$rc4"
+          # web_closure - носитель AST-семантики для гейта 1c: его код 2 означает «проверка не
+          # состоялась» (битый вход), а не «находок нет», поэтому шаг требует ровно 0.
+          [ "$rc1" = 0 ] && [ "$rc2" = 0 ] && [ "$rc3" = 0 ] && [ "$rc4" = 0 ]
 
   strata-cuda:
     name: Сборка strata + strata-q36 под CUDA
