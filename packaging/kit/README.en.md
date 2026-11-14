@@ -610,6 +610,23 @@ changes with every commit, so it is not fixed in the text (measured 13.11, 17:38
 decision rather than a defect of the asset, and it depends on whether the release page has to
 match the current edition of the documentation.
 
+## A file bundle for an already built kit
+
+If `gpu-infer-kit-2026-11-13.zip` is already downloaded, there is no need to rebuild 852 MiB just for
+the web UI: a separate carrier bundles exactly the groups that archive lacked or that changed -
+`kit\serve` (the `serve.server` Python closure and `serve\web` statics per the `webfiles.py`
+whitelist), `kit\strata_control`, `kit\strata_cli`, `kit\tools`, `kit\runtime` (the standalone
+interpreter with the `Lib\site-packages\strata_kit_vendor.pth` sidecar), `kit\vendor`
+(jinja2/markupsafe/regex wheels), `kit\start.ps1`, `kit\recommend.py`; next to the kit it places
+`ci\pack_kit.ps1`, `ci\web_closure.py` and `ci\smoke_kit.ps1`, so the test machine can re-check the
+composition and bring up both engines.
+
+Measurement of 14.11: **1123 entries, 16,059,295 bytes**, PK and EOCD `504b0506` signatures verified
+byte-wise, sha256 `26d5f056861cdfbd3c7aa265db523b55a8ebae3c13e29f8fb90cea226cbf5aa2`, input
+46,797,625 bytes. The archive is written in a single bsdtar call from a single root: bsdtar cannot
+append to a zip created with `-a`, and a second relative `-C` in the same call resolves against the
+already changed directory.
+
 ## What is not here
 
 - models (the archive contains no `.gguf` file);
