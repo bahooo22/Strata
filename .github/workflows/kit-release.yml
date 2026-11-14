@@ -239,6 +239,18 @@ jobs:
           Write-Host "rc(kit_dll_deps)=$LASTEXITCODE"
           exit $LASTEXITCODE
 
+      - name: "Колёса веб-морды: распаковка по ABI (до компиляции)"
+        shell: pwsh
+        run: |
+          # Колёса jinja2/markupsafe/regex нужны, чтобы морда поднялась на машине без Python:
+          # без них архив собирается урезанным и падает у пользователя. Режим отдельный и до
+          # компиляции - недоступность PyPI обязана стоить секунд, а не двух часов сборки.
+          $out = Join-Path $env:RUNNER_TEMP 'kit\vendor'
+          & pwsh -NoProfile -NonInteractive -File "strata\packaging\kit\ci\pack_kit.ps1" `
+              -VendorWheels -VendorOut $out
+          Write-Host "rc(pack_kit -VendorWheels)=$LASTEXITCODE"
+          exit $LASTEXITCODE
+
       - name: Раскладка и упаковка комплекта
         shell: pwsh
         run: |
@@ -248,6 +260,7 @@ jobs:
                  '-LlamaBuild', (Join-Path $ws 'llama\build-kit'),
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
                  '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
+                 '-VendorStage', (Join-Path $env:RUNNER_TEMP 'kit\vendor'),
                  '-CudaBin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'))
           # Имя архива строится как "gpu-infer-kit-<версия>.zip", а тег релиза называется
           # "kit-<дата>": передан как есть, он даёт "gpu-infer-kit-kit-<дата>.zip" - двойной
