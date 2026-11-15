@@ -132,6 +132,55 @@ function Assert-FreshCache([string]$BuildDir, [string]$SrcDir) {
     }
 }
 
+function Assert-CudaGraph([string]$BuildDir, [string]$CudaKey) {
+    # Гейт ПОСЛЕ настройки и ДО компиляции. Смена -Cuda на путь, которого нет в кэше, заставляет
+    # CMake напечатать «You have changed variables that require your cache to be deleted» и
+    # перенастроиться БЕЗ наших -D: 14.11 так и вышло - в кэше остались GGML_CUDA=OFF и
+    # CMAKE_BUILD_TYPE=Debug, в build.ninja - ноль рёбер ggml-cuda, а «сборка llama-server»
+    # вернула rc=0, потому что собрала ровно ту часть графа, которая от CUDA не зависит.
+    # Молчание обошлось часом: прогон был принят как обновлённая сборка.
+    $cache = Join2 $BuildDir "CMakeCache.txt"
+    $ninja = Join2 $BuildDir "build.ninja"
+    foreach ($p in @($cache, $ninja)) {
+        if (-not (Test-Path $p)) { throw "после настройки нет $p - генерация графа не состоялась" }
+    }
+    foreach ($kv in @("CMAKE_BUILD_TYPE=Release", "$CudaKey=ON")) {
+        $k = $kv.Split("=")[0]; $want = $kv.Split("=")[1]
+        $line = Select-String -Path $cache -Pattern ('^{0}:[^=]*=(.*)$' -f [regex]::Escape($k)) | Select-Object -First 1
+        $got = if ($line) { $line.Matches[0].Groups[1].Value.Trim() } else { "строки нет" }
+        if ($got -ne $want) {
+            throw ("граф не соответствует запросу: в кэше {0}={1}, а просили {2} - CMake перенастроился" +
+                   " без наших -D (обычно после смены компилятора). Удали каталог сборки $BuildDir" +
+                   " и повтори: иначе соберётся чужая конфигурация, а rc будет нулевым") -f $k, $got, $want
+        }
+    }
+    # Строка ребра (снята 15.11 с двух живых графов):
+    # build ggml\src\ggml-cuda\CMakeFiles\ggml-cuda.dir\acc.cu.obj: CUDA_COMPILER__ggml-cuda_...
+    # .Count снимается с массива строк, а не с вывода Measure-Object: " @(x | Measure-Object).Count"
+    # равно 1 при любом содержимом (Measure-Object всегда выдаёт ОДИН объект), и проверка
+    # «рёбер нет» молчала бы вечно - поймано контролем на двух рёбрах 15.11.
+    $edges = @(Select-String -Path $ninja -Pattern '\.cu\.obj: ').Count
+    if ($edges -lt 1) {
+        throw ("в build.ninja ($BuildDir) ни одного CUDA-ребра (.cu.obj) при {0}=ON - значит CUDA-цели" +
+               " в графе нет и собираемый таргет к видеопамяти отношения не имеет") -f $CudaKey
+    }
+    return $edges
+}
+
+function Get-FreshnessVerdict([string]$Path, [datetime]$RunStart) {
+    # "" - файл написан этим прогоном; иначе - именованная находка. Без этого условия
+    # доказательство архитектур способно мерять dll прошлого прогона: 14.11 в bin\ лежал
+    # ggml-cuda.dll от 12.11, cuobjdump честно нашёл в нём sm_86/sm_89/sm_120a, и прогон
+    # объявил архитектуры доказанными для графа, в котором этих целей не было.
+    if (-not (Test-Path $Path)) { return "файла нет" }
+    $wt = (Get-Item $Path).LastWriteTime
+    if ($wt -lt $RunStart) {
+        return ("этот прогон файл не писал: датирован {0}, начало прогона {1}" -f `
+                $wt.ToString("yyyy-MM-dd HH:mm:ss"), $RunStart.ToString("yyyy-MM-dd HH:mm:ss"))
+    }
+    return ""
+}
+
 function Split-FatbinLines([string[]]$Lines) {
     # Разбор вывода cuobjdump 13.3: `ELF file 12: strata-q36.12.sm_86.cubin` и
     # `PTX file 12: ….sm_86.ptx` - НЕ `arch = sm_86`. Прежний парсер ждал именно `arch =`,
@@ -576,6 +625,58 @@ if ($SelfTest) {
     try { Assert-FreshCache $cacheDir "C:\proj\src" } catch { $threw = $_.Exception.Message }
     Chk "кэш без домашней строки отклонён" ($threw -like "*нет CMAKE_HOME_DIRECTORY*") $true
     Remove-Item -Recurse -Force $cacheDir -ErrorAction SilentlyContinue
+    # --- гейт графа после настройки и метка свежести бинарника ---------------------------------
+    # Класс дефекта снят 15.11 с ложно-зелёного прогона: CMake перенастроил чужой кэш без наших -D,
+    # в CMakeCache остались GGML_CUDA=OFF и CMAKE_BUILD_TYPE=Debug, в build.ninja не было ни одного
+    # ребра ggml-cuda, "cmake --build --target llama-server" честно вернул rc=0, а cuobjdump нашёл
+    # sm_86/sm_89/sm_120a в dll, которую этот прогон не писал (она лежала в bin\ с 12.11).
+    $gDir = Join2 ([System.IO.Path]::GetTempPath()) "build-kit-selftest-graph"
+    New-Item -ItemType Directory -Force -Path $gDir | Out-Null
+    $cuEdge = 'build ggml\src\ggml-cuda\CMakeFiles\ggml-cuda.dir\acc.cu.obj: ' +
+              'CUDA_COMPILER__ggml-cuda_unscanned_Release C$:\proj\acc.cu || cmake_object_order_depends_target_ggml-cuda'
+    function Write-Graph([string]$CacheBody, [string]$NinjaBody) {
+        [System.IO.File]::WriteAllText((Join2 $gDir "CMakeCache.txt"), $CacheBody + "`n", (New-Object System.Text.UTF8Encoding($false)))
+        # Пустой NinjaBody - это «файла нет»: [string]-параметр превращает $null в "", поэтому
+        # сверять надо с пустотой, а не с $null (иначе удаление недостижимо).
+        if (-not $NinjaBody) { Remove-Item -Force (Join2 $gDir "build.ninja") -ErrorAction SilentlyContinue }
+        else { [System.IO.File]::WriteAllText((Join2 $gDir "build.ninja"), $NinjaBody + "`n", (New-Object System.Text.UTF8Encoding($false))) }
+    }
+    $okCache = 'CMAKE_BUILD_TYPE:STRING=Release' + "`n" + 'GGML_CUDA:BOOL=ON'
+    Write-Graph $okCache ($cuEdge + "`n" + $cuEdge.Replace('acc.cu', 'mmvq.cu'))
+    $threw = ""; $edges = 0
+    try { $edges = Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
+    Chk "здоровый граф принят без отказа" $threw ""
+    Chk "здоровый граф считает CUDA-рёбра" $edges 2
+    Write-Graph ('CMAKE_BUILD_TYPE:STRING=Release' + "`n" + 'GGML_CUDA:BOOL=OFF') 'build bin\llama-server.exe: CXX_EXECUTABLE_LINKER__llama-server_Release'
+    $threw = ""
+    try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
+    Chk "ложно-зелёный прогон отклонён по GGML_CUDA" ($threw -like "*GGML_CUDA=OFF*") $true
+    Write-Graph ('CMAKE_BUILD_TYPE:STRING=Debug' + "`n" + 'GGML_CUDA:BOOL=ON') ($cuEdge)
+    $threw = ""
+    try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
+    Chk "отклонён и Debug вместо Release" ($threw -like "*CMAKE_BUILD_TYPE=Debug*") $true
+    Write-Graph $okCache 'build bin\llama-server.exe: CXX_EXECUTABLE_LINKER__llama-server_Release'
+    $threw = ""
+    try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
+    Chk "CUDA=ON без единого .cu.obj отклонён" ($threw -like "*.cu.obj*") $true
+    Write-Graph $okCache $null
+    $threw = ""
+    try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
+    Chk "отсутствие build.ninja названо отказом" ($threw -like "*build.ninja*") $true
+    Write-Graph ('CMAKE_BUILD_TYPE:STRING=Release' + "`n" + 'STRATA_ENABLE_CUDA:BOOL=ON') $cuEdge
+    $threw = ""
+    try { Assert-CudaGraph $gDir "STRATA_ENABLE_CUDA" } catch { $threw = $_.Exception.Message }
+    Chk "ключ Страты принимается, а не только llama" $threw ""
+    $dllF = Join2 $gDir "ggml-cuda.dll"
+    [System.IO.File]::WriteAllText($dllF, "x", (New-Object System.Text.UTF8Encoding($false)))
+    $now = Get-Date
+    # Начало прогона на сутки ПОЗЖЕ времени файла - это и есть «файл из прежнего прогона».
+    Chk "dll прошлого прогона названа несвежей" `
+        ((Get-FreshnessVerdict $dllF $now.AddDays(1)) -like "*не писал*") $true
+    (Get-Item $dllF).LastWriteTime = $now
+    Chk "свежая dll признана написанной этим прогоном" (Get-FreshnessVerdict $dllF $now.AddSeconds(-5)) ""
+    Chk "отсутствующий бинарник назван, а не промолчан" (Get-FreshnessVerdict (Join2 $gDir "absent.dll") $now) "файла нет"
+    Remove-Item -Recurse -Force $gDir -ErrorAction SilentlyContinue
     # Класс дефекта, который 12.11 испорчил measure-файл убитого прогона: в Windows PowerShell 5.1
     # строка `Write-Host "a" +` не продолжается на следующую строку - та становится отдельным
     # выражением и уходит в поток вывода функции. Set-EngineMeasure возвращала Object[] из двух
@@ -929,14 +1030,16 @@ if (-not (Get-Command $cmake -ErrorAction SilentlyContinue) -and -not (Test-Path
 # NativeCommandError и падение при Stop. Успех нативной команды меряем только кодом возврата.
 $ErrorActionPreference = "Continue"
 
+$runStart = Get-Date
 $measure = [ordered]@{
     archs            = $archList
     cuda             = $Cuda
     portable         = (-not $NoPortable)
     ggml_dir         = $GgmlDir
-    started          = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    started          = $runStart.ToString("yyyy-MM-dd HH:mm:ss")
     engines          = @{}
     arch_probe       = @{}
+    cuda_edges       = @{}
     binaries         = @()
 }
 $rc_total = 0
@@ -1000,6 +1103,11 @@ if ($Engines -match 'strata') {
     if ($GgmlDir) { $cfgArgs += "-DSTRATA_GGML_DIR=$GgmlDir" }
     $tCfg = Invoke-BuildStep $log "настройка Страты" { & $cmake @cfgArgs }
     if ($tCfg.rc -ne 0) { Write-Host "ОТКАЗ: настройка Страты rc=$($tCfg.rc) (лог $log)"; Save-Measure "отказ: настройка Страты rc=$($tCfg.rc)"; exit 1 }
+    try { $measure.cuda_edges.strata = Assert-CudaGraph $bd "STRATA_ENABLE_CUDA" } catch {
+        Write-Host "ОТКАЗ: $($_.Exception.Message)"
+        Save-Measure "отказ: граф Страты не соответствует запросу"; exit 2
+    }
+    Write-Host ("граф Страты: CUDA-рёбер {0} (STRATA_ENABLE_CUDA=ON, Release)" -f $measure.cuda_edges.strata)
     # Знаменатель ninja ([174/174]) - план ТЕКУЩЕГО вызова, а не размер графа, поэтому по нему состояние кэша
     # им не определяют. Единственный доступный до прогона факт - число готовых объектов реальных
     # целей в дереве сборки.
@@ -1048,6 +1156,11 @@ if ($Engines -match 'llama') {
                    "-DLLAMA_OPENSSL=OFF")
     $tCfg = Invoke-BuildStep $log "настройка llama" { & $cmake @llamaArgs }
     if ($tCfg.rc -ne 0) { Write-Host "ОТКАЗ: настройка llama rc=$($tCfg.rc) (лог $log)"; Save-Measure "отказ: настройка llama rc=$($tCfg.rc)"; exit 1 }
+    try { $measure.cuda_edges.llama = Assert-CudaGraph $bd "GGML_CUDA" } catch {
+        Write-Host "ОТКАЗ: $($_.Exception.Message)"
+        Save-Measure "отказ: граф llama не соответствует запросу"; exit 2
+    }
+    Write-Host ("граф llama: CUDA-рёбер {0} (GGML_CUDA=ON, Release)" -f $measure.cuda_edges.llama)
     $preLlama = Count-BuiltObjects $bd
     $tBuild = Invoke-BuildStep $log "сборка llama" { & $cmake --build $bd --target llama-server -j 4 }
     if ($tBuild.rc -ne 0) { Write-Host "СБОРКА llama упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
@@ -1126,11 +1239,20 @@ foreach ($g in $groups) {
         continue
     }
     $b = $b[0]
-    $sz = (Get-Item $b).Length
+    $it = Get-Item $b
+    $sz = $it.Length
+    # Файл на правильном пути ещё не значит «его написал этот прогон»: см. Get-FreshnessVerdict.
+    $stale = Get-FreshnessVerdict $b $runStart
+    if ($stale) {
+        Write-Host "  ВНИМАНИЕ: $($g.name): $stale - доказательство архитектур относится к прежней сборке"
+        $rc_total = 1
+    }
     $item = [ordered]@{
         name          = $g.name
         path          = $b
         bytes         = $sz
+        mtime         = $it.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+        this_run      = (-not $stale)
         carries_cuda  = [bool]$g.carries
         cubin         = @()
         cubin_files   = @{}
@@ -1172,6 +1294,7 @@ foreach ($g in $groups) {
         # константу в исходнике, пережившую пересборку под другой список архитектур.
         $elfProof.binaries += [ordered]@{
             label = $g.name; path = $b; bytes = $sz; carries_cuda = [bool]$g.carries
+            mtime = $item.mtime; written_by_this_run = $item.this_run
             rc_list_elf = $e.rc; rc_list_ptx = $p.rc
             cubin_archs = @($e.counts.Keys | Where-Object { $_ -like "sm_*" } | Sort-Object)
             proven_by   = (Get-ArchProofMap @($e.counts.Keys | Where-Object { $_ -like "sm_*" } | Sort-Object) $archList)
