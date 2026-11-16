@@ -338,8 +338,6 @@ $WEB_STAND_WAIVERS = [ordered]@{
         why = 'запас переменной ProgramFiles при поиске nvml.dll: r-C:\Program Files читается, только если переменная окружения пуста' }
     'kit\serve\loader_diag.py' = @{ hits = 1
         why = 'запас SystemRoot (C:\Windows) в диагностике загрузчика' }
-    'kit\strata_control\app_policy.py' = @{ hits = 1
-        why = 'литерал-заглушка реестра политик _MODELS (exe C:/x/strata-dsv41.exe); в замыкании импортов сервера файла нет' }
     'kit\strata_control\folders.py' = @{ hits = 3
         why = 'три строки подсказки пользователю «наберите, например, D:\Strata-models» - образец ввода, а не путь' }
     'kit\strata_control\longpath.py' = @{ hits = 3
