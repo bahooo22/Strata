@@ -852,7 +852,7 @@ if ($SelfTest) {
     }
     $wantStrata = @("CMAKE_BUILD_TYPE", "CMAKE_CUDA_ARCHITECTURES", "CMAKE_CUDA_COMPILER",
                     "CMAKE_EXPORT_COMPILE_COMMANDS", "STRATA_BUILD_TESTS", "STRATA_ENABLE_CUDA",
-                    "STRATA_PORTABLE") | Sort-Object
+                    "STRATA_MMQ", "STRATA_PORTABLE") | Sort-Object
     $wantLlama = @("CMAKE_BUILD_TYPE", "CMAKE_CUDA_ARCHITECTURES", "CMAKE_CUDA_COMPILER",
                    "CMAKE_EXPORT_COMPILE_COMMANDS", "GGML_CUDA", "LLAMA_BUILD_EXAMPLES",
                    "LLAMA_BUILD_SERVER", "LLAMA_BUILD_TESTS", "LLAMA_CURL",
@@ -869,6 +869,7 @@ if ($SelfTest) {
     Chk "портативность включена по умолчанию" ($code.Contains('-DSTRATA_PORTABLE=' + $dollar + 'portable')) $true
     Chk "curl в llama выключён" ($code.Contains('-DLLAMA_CURL=OFF')) $true
     Chk "openssl в llama выключён" ($code.Contains('-DLLAMA_OPENSSL=OFF')) $true
+    Chk "MMQ-путь Страты включён" ($code.Contains('-DSTRATA_MMQ=' + 'ON')) $true
     Chk "цель Страты - обе программы" ($code.Contains('--target strata strata-q36')) $true
     Chk "цель llama - llama-server" ($code.Contains('--target llama-server')) $true
     Chk "bin тулчейна попадает в PATH безусловно" `
@@ -1095,9 +1096,13 @@ if ($Engines -match 'strata') {
     }
     $portable = if ($NoPortable) { "OFF" } else { "ON" }
     $log = Join2 $Out "build-strata.log"
+    # P4-SPLIT: апстрим перевёл STRATA_MMQ в дефолт OFF (CMakeLists.txt:112) и велел упаковочным
+    # скриптам передавать значение явно; манифест комплекта требует strata_kq.dll, а она рождается
+    # только в MMQ-ветке (cuda.cmake: _strata_kq_dso). Без этого флага холодный configure молча
+    # теряет и strata_mmq, и strata_kq.
     $cfgArgs = @("-S", $src, "-B", $bd, "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release",
                  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DSTRATA_ENABLE_CUDA=ON",
-                 "-DSTRATA_BUILD_TESTS=OFF", "-DSTRATA_PORTABLE=$portable",
+                 "-DSTRATA_MMQ=ON", "-DSTRATA_BUILD_TESTS=OFF", "-DSTRATA_PORTABLE=$portable",
                  "-DCMAKE_CUDA_ARCHITECTURES=$($archList -join ';')",
                  "-DCMAKE_CUDA_COMPILER=$nvcc")
     if ($GgmlDir) { $cfgArgs += "-DSTRATA_GGML_DIR=$GgmlDir" }

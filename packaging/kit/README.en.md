@@ -631,6 +631,28 @@ changes with every commit, so it is not fixed in the text (measured 13.11, 17:38
 decision rather than a defect of the asset, and it depends on whether the release page has to
 match the current edition of the documentation.
 
+Full local build on 16.11 after syncing with both remotes: Strata's `main` moved to the upstream
+from `82f30fb8a` to `c930ed15d` (+742 commits), the llama fork's `kit-all-sync` from `0f94ea775`
+to `c9f6a82fe` (+22), and the fork's `master` from `ff9b2f619` to `268bb277a` (+52). The `kit502`
+carrier (measures -> dependency registry -> packaging -> stage acceptance) passed with rc=0, but
+not on the first attempt: the upstream switched the `STRATA_MMQ` default to OFF
+(`CMakeLists.txt:112`) and told the packaging scripts to pass the value explicitly, while a cold
+configure without the flag silently drops the MMQ branch - packaging went red at the gate "нет
+обязательных файлов (2): bin\strata_kq.dll, runtime-deps.json". The fix landed in
+`ci/build_kit.ps1` (`-DSTRATA_MMQ=ON`, SelfTest 128/128 with a needle on this flag) - the same CI
+legs call this same carrier; the `kit_dll_deps.py` registry step was added to the local carrier as
+a mirror of the kit-release.yml step. The freshness gate was passed honestly: the no-op llama leg
+did not rewrite its binaries (the "Provisioning UI assets" edge has `restat = 1`, so propagation
+stops), so the run deleted the four measured outputs and relinked them from ready objects - all
+four now `this_run=True`. Measures: `result: собрано и доказано`, cubin lines 87/216/447 for
+`strata-q36.exe`/`strata.exe`/`ggml-cuda.dll`, `strata_kq.dll` 40,835,072 bytes,
+`runtime-deps.json` 4405 bytes, the archive `gpu-infer-kit-2026-11-16.zip` 874,293,894 bytes
+(922 entries; "вес: дерево 1248,1 МиБ, zip 833,8 МиБ"). Live acceptance on heretic Q4_K_M from
+SSD (D:, 21,233,608,512 bytes): Strata 4k - 427.7 tok/s on a 1055-token prompt and 27.7 tok/s
+generation; 96k - 1542.8 tok/s on 35,799 tokens, with "super-chunk 4 x 2048" and "K-quant prompt
+kernels from ... strata_kq.dll (STRATA_MMQ_KQ=1)" in the engine log - direct proof of a live MMQ
+branch; the llama leg - rc=0 on both windows (256 tokens, finish=length).
+
 ## A file bundle for an already built kit
 
 If `gpu-infer-kit-2026-11-13.zip` is already downloaded, there is no need to rebuild 827 MiB just for
@@ -660,6 +682,12 @@ The previous kit revision crashed with `0xC0000005` right after `load_model` on 
 was upstream `9d340ec34` "Windows unbuffered model load (#26014)" inside `llama.dll`. It is reverted
 (`0e6d62315` in the fork `kit-all-sync` and `master`), because unbuffered reads without aligned
 buffers kill the process before any tensor is read.
+
+Check on 16.11 after the upstream merge (`kit-all-sync` = `c9f6a82fe`): the revert survives
+blob-by-blob - `src/llama-mmap.cpp` in this tree and in `0e6d62315` give the same blob
+`4d1cd31e`; `llama-server.exe --version` prints `1.0.0-dev (build 312, commit c9f6a82fe)`;
+heretic Q4_K_M (21,233,608,512 bytes) produced 256 tokens to finish=length on both windows
+(4k and 96k), and `/props` answered 200 with the requested `n_ctx`.
 
 ## What is not here
 
