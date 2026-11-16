@@ -653,6 +653,24 @@ generation; 96k - 1542.8 tok/s on 35,799 tokens, with "super-chunk 4 x 2048" and
 kernels from ... strata_kq.dll (STRATA_MMQ_KQ=1)" in the engine log - direct proof of a live MMQ
 branch; the llama leg - rc=0 on both windows (256 tokens, finish=length).
 
+The second sync cycle the same day, same `kit502` carrier into fresh directories (`sync1636-*`).
+The upstreams had moved further overnight: Strata `main` merged in `c77572806` (45 commits,
+merge `74da7cf82`, 120 paths +2643/-414), llama `kit-all-sync` - `6b01a4767` (27 commits,
+merge `c5645b4a6`, 16 paths +176/-29), and the fork `master` - with the same parent
+(`42d80425a`). One ritual carrier fix (`-TextGate`, `83ab1c4a3`) landed on top of the merges -
+the same defect class as the one fixed in the preflight. The build passed with rc=0 (Strata
+incremental from 155 accepted objects, llama fully cold): all four measured binaries
+`this_run=true`, CUDA edges 102 and 149, the same cubin line counts 87/216/447,
+`strata_kq.dll` 40,835,072 bytes, archive 874,076,977 bytes (922 files; "вес: дерево 1247,9
+МиБ, zip 833,6 МиБ"); the standalone `build_kit -SelfTest` - 128/128. Marker gate over the new
+binaries: strata 24/24 markers and 12/12 commits, llama 5/5 and 3/3. Liveness A-D on the same
+model (heretic Q4_K_M, D:): /props 200 and n_ctx=4096 with the engine alive; 4k - 670.5 tok/s
+on a 1753-token prompt and 26.2 tok/s generation; 96k with super-chunk 8 - 1855.7 tok/s on
+22,188 tokens and 19.9 tok/s, the engine log showing "super-chunk 8 x 2048" and "K-quant prompt
+kernels ... (STRATA_MMQ_KQ=1)"; the llama leg - /props 200, n_ctx=512, short completion. The
+speed figures were taken on a warmed load page and are not comparable with the first cycle:
+this is integrity acceptance, not a grid.
+
 ## A file bundle for an already built kit
 
 If `gpu-infer-kit-2026-11-13.zip` is already downloaded, there is no need to rebuild 827 MiB just for
