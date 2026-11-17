@@ -22,6 +22,8 @@ wants to finish them.
 | [llama-fork-report.md](llama-fork-report.md) | report | llama.cpp at the pinned `3cf03257f`: tuning by window, our patches, the pp collapse on Q4_K_M | The other half of the bench; its stock base is `stock-vs-fork-2026-11-08.md` |
 | [sweeps-appendix-ncmoe.md](sweeps-appendix-ncmoe.md) | appendix | Raw sweeps grouped by family: `ncmoe`, `ub`, `reserve`, `kv-types`, `windows-ladder`, `stock`, `by-model`, `grid-llama` | One page cannot hold the sweep corpus, so each family is its own pair `sweeps-appendix-*.md` / `sweeps-appendix-*.ru.md` |
 | [stock-vs-fork-2026-11-08.md](stock-vs-fork-2026-11-08.md) | measurement | The even stock/fork pair on one flag set, captured with a 64-token answer | Predecessor of the 11.11 grid; the 256-token re-shoot never entered it because the prompt came out off canon |
+| [MEASUREMENTS_2026-11-08.md](MEASUREMENTS_2026-11-08.md) | measurement | Stock `3cf03257` against this fork on Q4_K_M experts: 08.11 grids, greedy 256, primary source named per section | The llama half of the 08.11 evening had no note here; the full grid lives in the stand's `docs/measurements/grid-2026-11-08.md` |
+| [VRAM_HEADROOM.md](VRAM_HEADROOM.md) | research | Why prefill collapses on 8 GiB: VRAM headroom per window, not context length | 149 numbers re-checked against the cited source lines by `glm/scripts/chart_data.py` (0 mismatches, selftest 19/19); Russian twin `VRAM_HEADROOM.ru.md` |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
 (`pacc` under T ≤ 8, L2-ordered split-K, per-layer pinned arena, `--att-mb`,
