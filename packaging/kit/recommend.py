@@ -324,9 +324,15 @@ def build_args(engine: str, gguf_path: str, window: int, rule: dict, exe: str,
                        "--mtp", str(rule["mtp"]), "--draft-vocab", str(fixed["draft_vocab"]),
                        "--kv-type", kv_type,
                        "--vram-reserve-mib", str(rule["reserve_mib"]),
-                       "--att-mb", str(rule["att_mb"])]
-        env = {"STRATA_Q36_FA_LAYER": fixed["fa_layer"],
-               "STRATA_Q36_SUPER_CHUNK": str(rule["super_chunk"])}
+                       "--att-mb", str(rule["att_mb"]),
+                       "--fa", str(fixed["fa_layer"]),
+                       "--super-chunk", str(rule["super_chunk"])]
+        # FA и super-chunk идут аргументами, а не окружением: значение попадает сразу в три носителя -
+        # run\strata.json, командную строку процесса и строку `engine started` в логе сервера
+        # (serve/server.py:1162). Прежний env в журнале не появлялся вообще, и прогон с FA=all был
+        # неотличим от дефолтного. Движок по-прежнему читает STRATA_Q36_* (чужие профили и комплект
+        # на старых бинарниках), но аргумент его перекрывает и говорит об этом в логе.
+        env = {}
         # Тело run\strata.json: ключи и их чтение - по первичнику сервера. exe - путь из
         # --exe-strata, как его дал вызывающий; tokenizer сервер читает только как ГОТОВУЮ
         # папку с vocab.json (:10256), извлекает её упаковщик, не подбор.
