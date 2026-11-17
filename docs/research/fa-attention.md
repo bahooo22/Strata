@@ -22,14 +22,17 @@ read/write race — see the file comment), parametric causality `j <= p0 + i`, `
 `P % kSlice != 0`. K and V share one staged buffer (`S.kv`); the barrier between the
 score MMA and the V load makes the reuse safe.
 
-Four tile variants (`STRATA_Q36_FA_TILE`): 4x32, 8x32, 4x64, 8x64 (queries x KV slice),
-shared 41 216 / 65 536 / 64 256 / 94 720 B. The launcher re-derives the shape and
+Four tile variants (`--fa-tile`, or `STRATA_Q36_FA_TILE`): 4x32, 8x32, 4x64, 8x64
+(queries x KV slice), shared 41 216 / 65 536 / 64 256 / 94 720 B. The launcher re-derives the shape and
 declines foreign geometry, so the caller keeps the cuBLAS branch.
 
 ## Wiring
 
-`STRATA_Q36_FA_LAYER`: -1 = cuBLAS (default), N = layer N only, `all` = every attention
-layer. `STRATA_Q36_FA_TILE` 0..3. `STRATA_Q36_FA_LOG=1` prints the launch line;
+`--fa` / `STRATA_Q36_FA_LAYER`: -1 = cuBLAS (default), N = layer N only, `all` = every
+attention layer. `--fa-tile` / `STRATA_Q36_FA_TILE` 0..3. `--read-windows` /
+`STRATA_Q36_READ_WINDOWS` and `--pinned-layers` / `STRATA_Q36_PINNED_LAYERS` follow the same
+rule: the argument beats the environment, the environment beats the engine's own value, and
+the winner is printed at start-up. `STRATA_Q36_FA_LOG=1` prints the launch line;
 `STRATA_Q36_FA_CHECK=1` runs both branches on the FA layer and prints per-head
 `max_abs` / `cos` against cuBLAS before the gate.
 

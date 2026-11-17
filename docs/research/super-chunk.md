@@ -12,8 +12,8 @@ matmuls, dominate prefill on a hybrid MoE placement.
 
 ## What
 
-`STRATA_Q36_SUPER_CHUNK=N` (1..64, default 1 = the old path) groups N chunks into one
-super-chunk and walks the model **layer-major**:
+`--super-chunk N` — or, as before, `STRATA_Q36_SUPER_CHUNK=N` (1..64, default 1 = the old
+path) — groups N chunks into one super-chunk and walks the model **layer-major**:
 
 1. embed all T = N×2048 rows into `xsuper`, run `k_rms` into `hsuper`;
 2. for each layer: `stream_take` once, then for each sub-chunk copy `hsuper[off] → h`,
@@ -109,9 +109,9 @@ lever.
 ## How to run
 
 ```
-set STRATA_Q36_SUPER_CHUNK=4
-strata-q36.exe --native <model> --max-context 98304 --prefill 2048 --mtp 0 ...
+strata-q36.exe --native <model> --max-context 98304 --prefill 2048 --mtp 0 --super-chunk 4 ...
 ```
 
-Without the variable (or with 1) the old path runs bit-for-bit; the rollback is
-removing the env variable.
+Without the flag and the variable (or with 1) the old path runs bit-for-bit; the rollback is
+removing the flag. Given both carriers, the flag wins and the engine prints in the log which
+`STRATA_Q36_SUPER_CHUNK` value it ignored.

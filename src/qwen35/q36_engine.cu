@@ -1426,6 +1426,45 @@ struct Engine {
     // STRATA_Q36_PROFILE=1: time the mixer (attention / GDN) and MoE blocks per layer; off by default
     bool profile = false;
     int att_mb = 0;   // the scores buffer, MiB of att_s: --att-mb, the STRATA_Q36_ATT_MB env is the fallback
+    // ---- the five levers that used to have the environment as their only carrier: --super-chunk, --fa, --fa-tile,
+    // --pinned-layers, --read-windows.  One rule for all of them (knob()): the command line beats the environment,
+    // the environment beats the engine's own value.  The parser fills the cli_* fields before init(); kKnobUnset
+    // means the flag was not given, so an env-only profile keeps the value it always had.
+    static constexpr int kKnobUnset = -2147483640;
+    int cli_super_chunk = kKnobUnset, cli_fa_layer = kKnobUnset, cli_fa_tile = kKnobUnset;
+    int cli_pinned_layers = kKnobUnset, cli_read_windows = kKnobUnset;
+    int pinned_layers = 0;    // 0: pin every layer the driver allows, -1: none, N: at most N
+    int read_windows = 1;     // decode windows of the other slots between two chunks of a prompt read
+    std::vector<std::string> knob_lines;   // the banner: every lever away from its default, with its carrier
+    struct Knob { int value; const char* source; };
+    /// The one rule for every lever: cli is kKnobUnset when the flag was not given, all_word names the environment's
+    /// word for the lowest value ("all" for --fa).  Outside lo..hi the value is clamped and said; both carriers set
+    /// means the flag wins and the ignored environment value is said; every lever that ends up away from def adds a
+    /// line to lines - so an empty list can only mean "defaults held", never "the banner did not run".
+    static Knob knob(const char* flag, const char* env_name, int cli, int lo, int hi, int def,
+                     std::vector<std::string>& lines, const char* all_word = nullptr) {
+        const char* ev = std::getenv(env_name);
+        int value = def;
+        const char* source = "auto";
+        if (cli != kKnobUnset) {
+            value = cli, source = "cli";
+            if (ev != nullptr) std::fprintf(stderr, "strata-q36: %s is given, %s=%s is ignored\n", flag, env_name, ev);
+        } else if (ev != nullptr) {
+            value = (all_word != nullptr && std::strcmp(ev, all_word) == 0) ? lo : std::atoi(ev);
+            source = "env";
+        }
+        if (value < lo || value > hi) {
+            std::fprintf(stderr, "strata-q36: %s from %s takes %d .. %d, got %d: clamped\n",
+                         flag, source, lo, hi, value);
+            value = value < lo ? lo : hi;
+        }
+        if (value != def) {
+            char line[160];
+            std::snprintf(line, sizeof line, "knob %s = %d from %s (default %d)", flag, value, source, def);
+            lines.push_back(line);
+        }
+        return {value, source};
+    }
     cudaEvent_t prof_a = nullptr, prof_b = nullptr;
     cudaEvent_t prof_c = nullptr, prof_d = nullptr;   // the whole forward pass
     cudaEvent_t prof_e = nullptr, prof_f = nullptr;   // MMQ quantize / SwiGLU staging copies
@@ -1631,11 +1670,13 @@ struct Engine {
             CK(cudaEventCreate(&prof_h));
         }
         x = dalloc(T * N); h = dalloc(T * N); y = dalloc(T * N); hmain = dalloc(T * N);
-        if (const char* v = std::getenv("STRATA_Q36_SUPER_CHUNK")) super_n = std::max(1, std::min(64, std::atoi(v)));
-        if (const char* v = std::getenv("STRATA_Q36_FA_LAYER"))
-            fa_layer = std::strcmp(v, "all") == 0 ? -2 : std::atoi(v);
-        if (const char* v = std::getenv("STRATA_Q36_FA_TILE"))
-            fa_tile = std::max(0, std::min(3, std::atoi(v)));
+        super_n = knob("--super-chunk", "STRATA_Q36_SUPER_CHUNK", cli_super_chunk, 1, 64, 1, knob_lines).value;
+        fa_layer = knob("--fa", "STRATA_Q36_FA_LAYER", cli_fa_layer, -2, 4096, -1, knob_lines, "all").value;
+        fa_tile = knob("--fa-tile", "STRATA_Q36_FA_TILE", cli_fa_tile, 0, 3, 0, knob_lines).value;
+        pinned_layers = knob("--pinned-layers", "STRATA_Q36_PINNED_LAYERS", cli_pinned_layers, -1, 4096, 0, knob_lines).value;
+        read_windows = knob("--read-windows", "STRATA_Q36_READ_WINDOWS", cli_read_windows, 0, 64, 1, knob_lines).value;
+        if (knob_lines.empty()) std::fprintf(stderr, "strata-q36: knobs: defaults held\n");
+        else for (const std::string& l : knob_lines) std::fprintf(stderr, "strata-q36: %s\n", l.c_str());
         fa_check = std::getenv("STRATA_Q36_FA_CHECK") != nullptr;
         if (super_n > 8) {   // xsuper + hsuper take 32 MiB per 2048-token chunk, 2 GiB at N=64
             std::fprintf(stderr, "strata-q36: super-chunk capped at 8 (requested %d)\n", super_n);
@@ -3548,10 +3589,7 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     for (Layer* L : all)
         if (!mtp_only || L == &m.mtp) host += L->stride * (size_t) ne + kMmqTail;
     int pinned_layers = 0, arena_layers = 0;
-    static const int pinned_limit = [] {   // STRATA_Q36_PINNED_LAYERS=N: pin at most N layers (0: all, -1: none)
-        const char* e = std::getenv("STRATA_Q36_PINNED_LAYERS");
-        return e != nullptr ? std::atoi(e) : 0;
-    }();
+    const int pinned_limit = E.pinned_layers;   // --pinned-layers / STRATA_Q36_PINNED_LAYERS: pin at most N layers (0: all, -1: none)
     size_t off = 0;
     const size_t T = (size_t) E.tmax, N = (size_t) g.n_embd, Kp = (size_t) m.top_k;
     auto alloc_vram = [&](void** p, size_t bytes, const char* what) -> bool {
@@ -3830,7 +3868,7 @@ struct Serve {
     int read_windows = 1;
 
     explicit Serve(Engine& e) : E(e), slots((size_t) e.n_sess) {
-        if (const char* v = std::getenv("STRATA_Q36_READ_WINDOWS")) read_windows = std::max(0, std::min(64, std::atoi(v)));
+        read_windows = E.read_windows;   // --read-windows / STRATA_Q36_READ_WINDOWS, resolved once in Engine::init
     }
 
     /// BSTOP / BYIELD lines among the queued ones: applied now (a window is a moment away at most).
@@ -4392,6 +4430,10 @@ int strata::qwen35::run(int argc, char** argv) {
     int expert_slots = 0, batch = 0, draft_vocab = -1, vram_reserve_mib = 768;
     bool serve_mode = false, graph = true, vision = false, batch_mtp = false;
     int kv_type = KV_F32;
+    // the five levers from the command line: kKnobUnset leaves the environment and the engine's own value in play
+    int cli_super_chunk = Engine::kKnobUnset, cli_fa_layer = Engine::kKnobUnset, cli_fa_tile = Engine::kKnobUnset,
+        cli_pinned_layers = Engine::kKnobUnset, cli_read_windows = Engine::kKnobUnset;
+    bool chunk_given = false;   // --chunk beats STRATA_Q36_CHUNK, as every other lever does
     std::string ck, cv;   // --cache-type-k / --cache-type-v, kept aside: they only make sense as a pair
     // strata's KV names on this engine's formats: int8 is our q8_0 (a 34 B block of 32 values), and there is no
     // fp16 cache here, so f16 lands on fp32
@@ -4419,7 +4461,7 @@ int strata::qwen35::run(int argc, char** argv) {
         else if (a == "--greedy") {}            // --tokens decodes greedily here anyway
         else if (a == "--serve") serve_mode = true;
         else if (a == "--max-context" || a == "--ctx") ctx = std::atoi(next().c_str());
-        else if (a == "--chunk" || a == "--prefill") { const std::string v = next(); chunk = v == "auto" ? 0 : std::atoi(v.c_str()); }
+        else if (a == "--chunk" || a == "--prefill") { const std::string v = next(); chunk = v == "auto" ? 0 : std::atoi(v.c_str()); chunk_given = true; }
         else if (a == "--tokens") tokens = next();
         else if (a == "--n") n_gen = std::atoi(next().c_str());
         else if (a == "--force") force = next();
@@ -4437,6 +4479,11 @@ int strata::qwen35::run(int argc, char** argv) {
                                       "drafts)\n", v.c_str());
         }
         else if (a == "--draft-vocab") draft_vocab = std::atoi(next().c_str());   // the MTP drafts pick among the first N token ids
+        else if (a == "--super-chunk") cli_super_chunk = std::atoi(next().c_str());   // N prompt chunks in one pass (see super_n)
+        else if (a == "--fa") { const std::string v = next(); cli_fa_layer = v == "all" ? -2 : std::atoi(v.c_str()); }
+        else if (a == "--fa-tile") cli_fa_tile = std::atoi(next().c_str());   // 0: 4x32, 1: 8x32, 2: 4x64, 3: 8x64
+        else if (a == "--pinned-layers") cli_pinned_layers = std::atoi(next().c_str());   // 0: all, -1: none, N: at most N
+        else if (a == "--read-windows") cli_read_windows = std::atoi(next().c_str());   // decode windows between two prompt chunks
         else if (a == "--vision") vision = true;                                  // pictures (GENI): the encoder is strata-vision's
         else if (a == "--batch" || a == "--slots") batch = std::atoi(next().c_str());   // sessions decoding together
         else if (a == "--batch-mtp") batch_mtp = true;                                  // ... each verifying an MTP proposal
@@ -4472,6 +4519,8 @@ int strata::qwen35::run(int argc, char** argv) {
         } else {
             std::fprintf(stderr,
                          "usage: strata-q36 --model GGUF [--max-context 32768] [--chunk 512] [--no-graph]\n"
+                         "       [--super-chunk N] [--fa all|N] [--fa-tile 0..3] [--pinned-layers N] "
+                         "[--read-windows N]\n"
                          "       (--serve | --tokens IDS [--n 64] [--force IDS] [--dump-full-logits F] | --bench-pp N "
                          "--bench-tg N)\n");
             return 2;
@@ -4510,6 +4559,11 @@ int strata::qwen35::run(int argc, char** argv) {
     Engine E;
     E.att_mb = att_mb;
     E.use_graph = graph;
+    E.cli_super_chunk = cli_super_chunk;
+    E.cli_fa_layer = cli_fa_layer;
+    E.cli_fa_tile = cli_fa_tile;
+    E.cli_pinned_layers = cli_pinned_layers;
+    E.cli_read_windows = cli_read_windows;
     if (chunk == 0) {
         // auto: the largest chunk (4096 .. 1024) that fits beside every expert in VRAM; 2048 when they will not all fit (a prompt chunk streams every layer's
         // experts over PCIe once, so a bigger chunk pays that once for more tokens)
@@ -4554,6 +4608,9 @@ int strata::qwen35::run(int argc, char** argv) {
             std::fprintf(stderr, "strata-q36: chunk rule: free %.2f GiB (raw %.2f, with %.2f packed), main experts %.2f GiB, chunk %d\n",
                          fr / 1073741824.0, fr_raw / 1073741824.0, packed / 1073741824.0, experts / 1073741824.0, chunk);
     }
+    else if (const char* cv = std::getenv("STRATA_Q36_CHUNK"))
+        // the same rule as for every other lever: the argument wins, and the value it wins over is said, not dropped
+        std::fprintf(stderr, "strata-q36: --chunk %d is given, STRATA_Q36_CHUNK=%s is ignored\n", chunk, cv);
     E.init(m, ctx, chunk, batch, vision, kv_type);
     if (!place_experts(m, E, expert_vram, cpu_threads, hybrid_rows, expert_slots, (size_t) vram_reserve_mib << 20, err)) {
         std::fprintf(stderr, "strata-q36: %s\n", err.c_str());
