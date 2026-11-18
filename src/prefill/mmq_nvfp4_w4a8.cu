@@ -19,6 +19,13 @@ DECL_MMQ_CASE(GGML_TYPE_NVFP4);
 
 namespace strata::prefill::mmq {
 void run_nvfp4_w4a8(ggml_backend_cuda_context& ctx, const mmq_args& a, cudaStream_t s) {
+#if defined(STRATA_MMQ_API_V2)
+    // llama.cpp's mul_mat_q_case took prec_src1 as a second template parameter after the pinned tree; the
+    // engine quantizes activations first, so Q8. This TU is Blackwell-hidden anyway (above), so the declared
+    // instance above is the plain-arch one: DECL_MMQ_CASE expands to <type, GGML_PREC_Q8> in both trees.
+    strata_w4a8_mul_mat_q_case<GGML_TYPE_NVFP4, GGML_PREC_Q8>(ctx, a, s);
+#else
     strata_w4a8_mul_mat_q_case<GGML_TYPE_NVFP4>(ctx, a, s);
+#endif
 }
 }  // namespace strata::prefill::mmq

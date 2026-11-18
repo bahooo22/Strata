@@ -2,11 +2,18 @@
 // and quantize code reference, for the MMQ kernels compiled into strata_mmq without the rest of ggml-cuda.cu.
 #include "strata/core/emulate.hpp"
 #include "common.cuh"
+#if defined(STRATA_MMQ_API_V2)
+// The checkout's ggml_backend_cuda_context owns a std::unique_ptr<ggml_cuda_stream_context> whose destructor
+// this file instantiates; the complete type lives in graph.cuh (common.cuh only forward-declares it).
+#include "graph.cuh"
+#endif
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstdint>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 [[noreturn]] void ggml_cuda_error(const char * stmt, const char * func, const char * file, int line, const char * msg) {
@@ -140,8 +147,89 @@ struct CachingPool : ggml_cuda_pool {
 };
 }  // namespace
 
+// The engine replaces ggml-cuda's pool with its own caching pool; the checkout's common.cuh passes the context
+// as the first argument (after 57d04820d the context knows the stream), the pinned tree does not.
+#if defined(STRATA_MMQ_API_V2)
+std::unique_ptr<ggml_cuda_pool> ggml_backend_cuda_context::new_pool_for_device(ggml_backend_cuda_context&, int, int) {
+#else
 std::unique_ptr<ggml_cuda_pool> ggml_backend_cuda_context::new_pool_for_device(int, int) {
+#endif
     return std::unique_ptr<ggml_cuda_pool>(new CachingPool());
 }
+
+#if defined(STRATA_MMQ_API_V2)
+#if defined(GGML_CUDA_USE_PDL)
+// The checkout's launch helper reaches PDL support through a symbol defined in ggml-cuda.cu, which
+// the MMQ kit does not build; the definition copies the checkout's own body (env gate, per-device
+// cache, PTX-version guard).
+bool ggml_cuda_kernel_can_use_pdl(const void * kernel) {
+    static const bool env_pdl_enabled = []() {
+        const char * env = getenv("GGML_CUDA_PDL");
+        return env == nullptr || std::atoi(env) != 0;
+    }();
+    if (!env_pdl_enabled) {
+        return false;
+    }
+
+    const int device = ggml_cuda_get_device();
+
+    struct cache_key {
+        int          device;
+        const void * kernel;
+
+        bool operator==(const cache_key & other) const { return device == other.device && kernel == other.kernel; }
+    };
+
+    struct cache_key_hash {
+        static size_t hash_mix(size_t x) {
+            std::uint64_t       y = x;
+            const std::uint64_t m = 0xe9846af9b1a615d;
+
+            y ^= y >> 32;
+            y *= m;
+            y ^= y >> 32;
+            y *= m;
+            y ^= y >> 28;
+
+            return static_cast<size_t>(y);
+        }
+
+        size_t operator()(const cache_key & key) const {
+            size_t h = 42;
+            h = hash_mix(h + key.device);
+            h = hash_mix(h + reinterpret_cast<size_t>(key.kernel));
+            return h;
+        }
+    };
+
+    static std::mutex                                          cache_mutex;
+    static std::unordered_map<cache_key, bool, cache_key_hash> cache;
+
+    const cache_key             key = { device, kernel };
+    std::lock_guard<std::mutex> lock(cache_mutex);
+    const auto                  it = cache.find(key);
+    if (it != cache.end()) {
+        return it->second;
+    }
+
+    cudaFuncAttributes attr = {};
+    CUDA_CHECK(cudaFuncGetAttributes(&attr, kernel));
+
+    // PDL device-side primitives are emitted only for PTX versions >= 90; guard on the loaded
+    // kernel's PTX version so forward-JIT'ed kernels do not opt into PDL.
+    const bool can_use_pdl = attr.ptxVersion >= 90;
+    cache.emplace(key, can_use_pdl);
+    return can_use_pdl;
+}
+#endif // defined(GGML_CUDA_USE_PDL)
+
+// The checkout moved the context constructor from common.cuh into ggml-cuda.cu, which the MMQ kit
+// does not build; the definition copies the checkout's own body (device, name, stream context).
+ggml_backend_cuda_context::ggml_backend_cuda_context(int device) :
+    device(device),
+    name(GGML_CUDA_NAME + std::to_string(device)),
+    concurrent_stream_context(std::make_unique<ggml_cuda_stream_context>()) {
+}
+#endif
 
 ggml_backend_cuda_context::~ggml_backend_cuda_context() {}

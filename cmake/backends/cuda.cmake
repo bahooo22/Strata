@@ -174,6 +174,27 @@ macro(strata_cuda_mmq)
     # compiled at configure time, and a llama.cpp tree with another scheduler turns the feature off instead of
     # failing the build.  _strata_mmq_tab_known: the hashes moe_mmq_tab.cuh was verified against (3cf03257, the
     # pinned commit, which is also what third_party/strata-ggml holds).
+    # STRATA_MMQ_API_V2: llama.cpp's MMQ host API changed after the pinned tree (3cf03257): mmq_args carries
+    # tile_spec/ntj/J_best instead of expert_bounds/ncols_max/ncols_opt and mul_mat_q_case takes the src1 precision
+    # as a second template parameter.  Text probe like the tab mirror's, nothing compiled at configure time; the
+    # probe string is the new scheduler's mmq_args field line.
+    set(_strata_mmq_api_v2 OFF)
+    if(EXISTS ${_strata_mmq}/mmq.cuh)
+      file(READ ${_strata_mmq}/mmq.cuh _strata_mmq_v2_src)
+      string(FIND "${_strata_mmq_v2_src}" "ggml_cuda_mm_id_tile_spec * tile_spec" _strata_mmq_v2_hit)
+      if(_strata_mmq_v2_hit GREATER -1)
+        set(_strata_mmq_api_v2 ON)
+      endif()
+      unset(_strata_mmq_v2_src)
+    endif()
+    if(_strata_mmq_api_v2)
+      target_compile_definitions(strata_mmq PRIVATE STRATA_MMQ_API_V2=1)
+      # strata_mmq_w4a4's add_library block sits above the probe, so its define is set here, after the
+      # probe has produced _strata_mmq_api_v2 (18.11: a define set before the probe stayed off and the
+      # one-parameter call inside mmq_nvfp4_w4a4.cu failed against the two-parameter template).
+      target_compile_definitions(strata_mmq_w4a4 PRIVATE STRATA_MMQ_API_V2=1)
+      message(STATUS "STRATA_MMQ_API_V2 on: mmq_args is tile_spec/ntj/J_best, mul_mat_q_case takes prec_src1")
+    endif()
     set(_strata_mmq_tab_on OFF)
     if(STRATA_MMQ_TAB AND NOT STRATA_HIP_GFX906)   # gfx906 compiles no .cu from here (its HIP glob): no tab at all
       if(NOT STRATA_GGML_DIR)
@@ -245,6 +266,9 @@ macro(strata_cuda_mmq)
       endforeach()
       target_include_directories(strata_kq PRIVATE ${_strata_gg}/include ${_strata_gg}/src ${_strata_mmq}
                                  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+      if(_strata_mmq_api_v2)
+        target_compile_definitions(strata_kq PRIVATE STRATA_MMQ_API_V2=1)
+      endif()
       target_compile_options(strata_kq PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda -use_fast_math>)
       if(MSVC)
         target_compile_options(strata_kq PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=/bigobj>)

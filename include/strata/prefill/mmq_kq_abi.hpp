@@ -3,7 +3,10 @@
 // meaning changes; the argument block (ggml's mmq_args) is checked by its size.
 #pragma once
 
-#define STRATA_KQ_ABI_VERSION 1
+// 2: llama.cpp's mmq_args changed after the pinned tree (tile_spec/ntj/J_best instead of expert_bounds/
+// ncols_max/ncols_opt) and mul_mat_q_case takes prec_src1.  sizeof(mmq_args) is part of strata_kq_abi()'s
+// return value, so a mismatching pair refuses to load; the version bump documents the format change.
+#define STRATA_KQ_ABI_VERSION 2
 
 #if defined(_WIN32)
 #define STRATA_KQ_LIB_NAME "strata_kq.dll"

@@ -239,6 +239,53 @@ bool supported(int t) {
     }
 }
 
+namespace {
+#if defined(STRATA_MMQ_API_V2)
+// llama.cpp's MMQ host API changed after the pinned tree (cmake/backends/cuda.cmake probes it into
+// STRATA_MMQ_API_V2): mmq_args carries tile_spec/ntj/J_best instead of expert_bounds/ncols_max/ncols_opt and
+// mul_mat_q_case takes prec_src1 as a second template parameter.  The engine's activations are already quantized,
+// so prec_src1 is always GGML_PREC_Q8.
+inline ggml_cuda_mmq_config mmq_config_for(ggml_type t, int J, bool fallback, int cc) {
+    return ggml_cuda_mmq_get_config(t, J, fallback, cc, GGML_PREC_Q8);
+}
+template <ggml_type T>
+void launch_case(ggml_backend_cuda_context& ctx, const mmq_args& a, cudaStream_t s) {
+    mul_mat_q_case<T, GGML_PREC_Q8>(ctx, a, s);
+}
+// llama.cpp's mmq.cu picks the tile width with ggml_cuda_mmq_get_J_best (static there): the same loop here.
+int moe_mmq_j_best(ggml_type t, int64_t ncols_opt, bool fallback, int cc, size_t smpbo) {
+    int J_best = 0, ntiles_best = INT_MAX;
+    for (int J = 8; J <= kMmqTileColsMax && ntiles_best > 1; J += kMmqTileColsStep) {
+        const ggml_cuda_mmq_config c = mmq_config_for(t, J, fallback, cc);
+        if (c.type == GGML_TYPE_COUNT || mmq_get_nbytes_shared(c, cc) > smpbo) continue;
+        const int ntiles_x = (int) ((ncols_opt + c.J - 1) / c.J);
+        if (ntiles_x < ntiles_best) { J_best = J; ntiles_best = ntiles_x; }
+    }
+    return J_best;
+}
+// The checkout's ids path takes tile_spec (tile -> (expert, row range)) instead of the pinned tree's
+// expert_bounds.  The engine's rows are already grouped by expert (bounds), so one thread cuts every expert's
+// range into J_best-wide tiles; the rest of the ntj upper bound (roundup(rows/J) + n, llama.cpp's own) is padded
+// with empty tiles (col_low == col_high: the kernel returns before reading y or dst).
+__global__ void moe_tile_spec_kernel(const int32_t* bounds, int n, int J, int upper, ggml_cuda_mm_id_tile_spec* ts) {
+    int idx = 0;
+    for (int e = 0; e < n; ++e) {
+        const int lo = bounds[e], hi = bounds[e + 1];
+        for (int c = lo; c < hi; c += J) ts[idx++] = ggml_cuda_mm_id_tile_spec{e, c, c + J < hi ? c + J : hi, 0};
+    }
+    for (; idx < upper; ++idx) ts[idx] = ggml_cuda_mm_id_tile_spec{0, 0, 0, 0};
+}
+#else
+inline ggml_cuda_mmq_config mmq_config_for(ggml_type t, int J, bool fallback, int cc) {
+    return ggml_cuda_mmq_get_config(t, J, fallback, cc);
+}
+template <ggml_type T>
+void launch_case(ggml_backend_cuda_context& ctx, const mmq_args& a, cudaStream_t s) {
+    mul_mat_q_case<T>(ctx, a, s);
+}
+#endif
+}  // namespace
+
 bool fits(int t, int64_t w_rows) {
     if (!supported(t)) return false;
     // mul_mat_q_case's choice: the "fallback" configs when the rows are not a multiple of 128; then
@@ -250,7 +297,7 @@ bool fits(int t, int64_t w_rows) {
         const size_t smpbo = info.devices[id].smpbo;
         bool any = false;
         for (int J = 8; J <= kMmqTileColsMax && !any; J += kMmqTileColsStep) {
-            const ggml_cuda_mmq_config c = ggml_cuda_mmq_get_config((ggml_type) t, J, fallback, cc);
+            const ggml_cuda_mmq_config c = mmq_config_for((ggml_type) t, J, fallback, cc);
             any = c.type != GGML_TYPE_COUNT && mmq_get_nbytes_shared(c, cc) <= smpbo;
         }
         if (!any) {
@@ -369,13 +416,34 @@ void Context::run(const Product& p, void* stream) {
 #endif
     const ggml_type t = (ggml_type) p.type;
     const int64_t qk = type_blck((int) t), bpr = p.w_cols / qk;
+    auto& ctx = *(ggml_backend_cuda_context*) ctx_;
+    const cudaStream_t s = (cudaStream_t) stream;
+#if defined(STRATA_MMQ_API_V2)
+    // the checkout's ids path: tiles are cut at expert bounds and J_best multiples, the launch walks tiles
+    // (nchannels_y = 1, zt comes from tile_spec), not experts.  J_best is picked against the mean rows per expert,
+    // llama.cpp's own ncols_opt for MUL_MAT_ID.
+    int dev = 0;
+    cudaGetDevice(&dev);
+    const bool fallback = ggml_cuda_mmq_needs_fallback(p.w_rows);
+    const int J = moe_mmq_j_best(t, (p.total_rows + p.n - 1) / p.n, fallback,
+                                 ggml_cuda_info().devices[dev].cc, ggml_cuda_info().devices[dev].smpbo);
+    GGML_ASSERT(J > 0);
+    const int64_t ntj = (p.total_rows + J - 1) / J + p.n;
+    ggml_cuda_pool_alloc<ggml_cuda_mm_id_tile_spec> ts(ctx.pool(), (size_t) ntj);
+    moe_tile_spec_kernel<<<1, 1, 0, s>>>(p.bounds, p.n, J, (int) ntj, ts.get());
+    ck(cudaGetLastError(), "moe tile spec");
+    const mmq_args a = {(const char*) p.w, t, (const int*) p.xq, p.ids, ts.get(), p.dst, p.y_scale,
+                        p.w_cols, p.w_rows, p.total_rows, bpr, p.total_rows, p.ld_dst,
+                        p.n, 1, p.tab ? 0 : (int64_t) (p.expert_bytes / type_bytes((int) t)), 0, 0,
+                        1, 1, 0, 0, 0,
+                        ntj, J};
+#else
     const mmq_args a = {(const char*) p.w, t, (const int*) p.xq, p.ids, p.bounds, p.dst, p.y_scale,
                         p.w_cols, p.w_rows, p.total_rows, bpr, p.total_rows, p.ld_dst,
                         p.n, p.n, p.tab ? 0 : (int64_t) (p.expert_bytes / type_bytes((int) t)), 0, 0,
                         1, 1, 0, 0, 0,
                         p.max_rows, p.max_rows};
-    auto& ctx = *(ggml_backend_cuda_context*) ctx_;
-    const cudaStream_t s = (cudaStream_t) stream;
+#endif
     if (p.tab) {
         if (p.n > kGatherGroupMax) {
             std::fprintf(stderr, "prefill mmq: a pointer table holds at most %d experts (got %d)\n", kGatherGroupMax, p.n);
@@ -397,26 +465,26 @@ void Context::run(const Product& p, void* stream) {
     }
     switch (t) {
 #ifdef STRATA_ORCA_Q4KS_MMQ
-        case GGML_TYPE_Q5_0: mul_mat_q_case<GGML_TYPE_Q5_0>(ctx, a, s); break;
+        case GGML_TYPE_Q5_0: launch_case<GGML_TYPE_Q5_0>(ctx, a, s); break;
 #endif
-        case GGML_TYPE_Q2_0: mul_mat_q_case<GGML_TYPE_Q2_0>(ctx, a, s); break;
-        case GGML_TYPE_IQ2_XXS: mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, a, s); break;
-        case GGML_TYPE_IQ2_XS: mul_mat_q_case<GGML_TYPE_IQ2_XS>(ctx, a, s); break;
-        case GGML_TYPE_IQ2_S: mul_mat_q_case<GGML_TYPE_IQ2_S>(ctx, a, s); break;
-        case GGML_TYPE_IQ3_XXS: mul_mat_q_case<GGML_TYPE_IQ3_XXS>(ctx, a, s); break;
-        case GGML_TYPE_IQ3_S: mul_mat_q_case<GGML_TYPE_IQ3_S>(ctx, a, s); break;
-        case GGML_TYPE_IQ4_NL: mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, a, s); break;
-        case GGML_TYPE_IQ4_XS: mul_mat_q_case<GGML_TYPE_IQ4_XS>(ctx, a, s); break;
-        case GGML_TYPE_Q8_0: mul_mat_q_case<GGML_TYPE_Q8_0>(ctx, a, s); break;
+        case GGML_TYPE_Q2_0: launch_case<GGML_TYPE_Q2_0>(ctx, a, s); break;
+        case GGML_TYPE_IQ2_XXS: launch_case<GGML_TYPE_IQ2_XXS>(ctx, a, s); break;
+        case GGML_TYPE_IQ2_XS: launch_case<GGML_TYPE_IQ2_XS>(ctx, a, s); break;
+        case GGML_TYPE_IQ2_S: launch_case<GGML_TYPE_IQ2_S>(ctx, a, s); break;
+        case GGML_TYPE_IQ3_XXS: launch_case<GGML_TYPE_IQ3_XXS>(ctx, a, s); break;
+        case GGML_TYPE_IQ3_S: launch_case<GGML_TYPE_IQ3_S>(ctx, a, s); break;
+        case GGML_TYPE_IQ4_NL: launch_case<GGML_TYPE_IQ4_NL>(ctx, a, s); break;
+        case GGML_TYPE_IQ4_XS: launch_case<GGML_TYPE_IQ4_XS>(ctx, a, s); break;
+        case GGML_TYPE_Q8_0: launch_case<GGML_TYPE_Q8_0>(ctx, a, s); break;
 #ifdef STRATA_MMQ_TQ
-        case GGML_TYPE_TQ2_T: mul_mat_q_case<GGML_TYPE_TQ2_T>(ctx, a, s); break;
-        case GGML_TYPE_TQK6: mul_mat_q_case<GGML_TYPE_TQK6>(ctx, a, s); break;
-        case GGML_TYPE_TQK7: mul_mat_q_case<GGML_TYPE_TQK7>(ctx, a, s); break;
+        case GGML_TYPE_TQ2_T: launch_case<GGML_TYPE_TQ2_T>(ctx, a, s); break;
+        case GGML_TYPE_TQK6: launch_case<GGML_TYPE_TQK6>(ctx, a, s); break;
+        case GGML_TYPE_TQK7: launch_case<GGML_TYPE_TQK7>(ctx, a, s); break;
 #endif
 #ifdef STRATA_MMQ_TQP
-        case GGML_TYPE_TQP5: mul_mat_q_case<GGML_TYPE_TQP5>(ctx, a, s); break;
-        case GGML_TYPE_TQP6: mul_mat_q_case<GGML_TYPE_TQP6>(ctx, a, s); break;
-        case GGML_TYPE_TQP7: mul_mat_q_case<GGML_TYPE_TQP7>(ctx, a, s); break;
+        case GGML_TYPE_TQP5: launch_case<GGML_TYPE_TQP5>(ctx, a, s); break;
+        case GGML_TYPE_TQP6: launch_case<GGML_TYPE_TQP6>(ctx, a, s); break;
+        case GGML_TYPE_TQP7: launch_case<GGML_TYPE_TQP7>(ctx, a, s); break;
 #endif
 #if defined(STRATA_MMQ_KQUANTS) && defined(STRATA_KQ_DSO)
         case GGML_TYPE_Q2_K: case GGML_TYPE_Q4_K: case GGML_TYPE_Q5_K: case GGML_TYPE_Q6_K: case GGML_TYPE_Q5_1: {
@@ -428,11 +496,11 @@ void Context::run(const Product& p, void* stream) {
             break;
         }
 #elif defined(STRATA_MMQ_KQUANTS)
-        case GGML_TYPE_Q2_K: mul_mat_q_case<GGML_TYPE_Q2_K>(ctx, a, s); break;
-        case GGML_TYPE_Q4_K: mul_mat_q_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
-        case GGML_TYPE_Q5_K: mul_mat_q_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
-        case GGML_TYPE_Q6_K: mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, a, s); break;
-        case GGML_TYPE_Q5_1: mul_mat_q_case<GGML_TYPE_Q5_1>(ctx, a, s); break;
+        case GGML_TYPE_Q2_K: launch_case<GGML_TYPE_Q2_K>(ctx, a, s); break;
+        case GGML_TYPE_Q4_K: launch_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
+        case GGML_TYPE_Q5_K: launch_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
+        case GGML_TYPE_Q6_K: launch_case<GGML_TYPE_Q6_K>(ctx, a, s); break;
+        case GGML_TYPE_Q5_1: launch_case<GGML_TYPE_Q5_1>(ctx, a, s); break;
 #endif
 #if !defined(GGML_USE_HIP)   // NVFP4: CUDA only (no HIP instance, no W4A8 unit)
         case GGML_TYPE_NVFP4:
@@ -474,7 +542,7 @@ size_t overread_bytes(int t, int64_t cols) {
     const ggml_cuda_device_info& info = ggml_cuda_info();
     for (int id = 0; id < info.device_count; ++id)
         for (int J = 8; J <= kMmqTileColsMax; J += kMmqTileColsStep) {
-            const ggml_cuda_mmq_config c = ggml_cuda_mmq_get_config((ggml_type) t, J, false, info.devices[id].cc);
+            const ggml_cuda_mmq_config c = mmq_config_for((ggml_type) t, J, false, info.devices[id].cc);
             if (c.type != GGML_TYPE_COUNT) blocks = std::max<int64_t>(blocks, over(c.K_vram));
         }
     return (size_t) blocks * type_bytes((int) t);
@@ -491,9 +559,9 @@ bool whole_tiles(int t, int64_t w_rows, int n_experts) {
         const int cc = info.devices[id].cc, nsm = info.devices[id].nsm;
         const size_t smpbo = info.devices[id].smpbo;
         bool any = false, stream_k = false;
-        ggml_cuda_mmq_config c0 = ggml_cuda_mmq_get_config((ggml_type) t, 8, false, cc);
+        ggml_cuda_mmq_config c0 = mmq_config_for((ggml_type) t, 8, false, cc);
         for (int J = 8; J <= kMmqTileColsMax; J += kMmqTileColsStep) {
-            const ggml_cuda_mmq_config c = ggml_cuda_mmq_get_config((ggml_type) t, J, false, cc);
+            const ggml_cuda_mmq_config c = mmq_config_for((ggml_type) t, J, false, cc);
             if (c.type == GGML_TYPE_COUNT || mmq_get_nbytes_shared(c, cc) > smpbo) continue;
             if (!any) c0 = c;
             any = true;
@@ -526,7 +594,7 @@ bool launch_splits_k(int t, int64_t w_rows, int64_t max_rows, int n_experts) {
     bool best_stream_k = false;
     int64_t ntiles_best = INT64_MAX;
     for (int J = 8; J <= 128 && ntiles_best > 1; J += 8) {
-        const ggml_cuda_mmq_config c = ggml_cuda_mmq_get_config((ggml_type) t, J, false, cc);
+        const ggml_cuda_mmq_config c = mmq_config_for((ggml_type) t, J, false, cc);
         if (c.type == GGML_TYPE_COUNT || mmq_get_nbytes_shared(c, cc) > smpbo) continue;
         const int64_t ntx = (max_rows + c.J - 1) / c.J;
         if (ntx < ntiles_best) { ntiles_best = ntx; best_I = c.I; best_stream_k = c.stream_k; }

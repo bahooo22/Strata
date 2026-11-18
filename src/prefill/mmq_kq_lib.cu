@@ -28,6 +28,18 @@ ggml_backend_cuda_context* ctx_for(int dev) {
     if (g_ctx[dev] == nullptr) g_ctx[dev] = new ggml_backend_cuda_context(dev);
     return g_ctx[dev];
 }
+
+// llama.cpp's MMQ host API changed after the pinned tree (see moe_mmq.cu): mul_mat_q_case takes the src1
+// precision as a second template parameter there.  The engine quantizes activations first, so it is always
+// GGML_PREC_Q8.
+template <ggml_type T>
+void kq_case(ggml_backend_cuda_context& ctx, const mmq_args& a, cudaStream_t s) {
+#if defined(STRATA_MMQ_API_V2)
+    mul_mat_q_case<T, GGML_PREC_Q8>(ctx, a, s);
+#else
+    mul_mat_q_case<T>(ctx, a, s);
+#endif
+}
 }  // namespace
 
 // the interface version and the argument block's size: both sides are compiled from the same mmq.cuh
@@ -51,11 +63,11 @@ STRATA_KQ_EXPORT int strata_kq_run(int device, int type, const void* args, void*
     const mmq_args& a = *(const mmq_args*) args;
     const cudaStream_t s = (cudaStream_t) stream;
     switch ((ggml_type) type) {
-        case GGML_TYPE_Q2_K: mul_mat_q_case<GGML_TYPE_Q2_K>(ctx, a, s); break;
-        case GGML_TYPE_Q4_K: mul_mat_q_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
-        case GGML_TYPE_Q5_K: mul_mat_q_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
-        case GGML_TYPE_Q5_1: mul_mat_q_case<GGML_TYPE_Q5_1>(ctx, a, s); break;
-        case GGML_TYPE_Q6_K: mul_mat_q_case<GGML_TYPE_Q6_K>(ctx, a, s); break;
+        case GGML_TYPE_Q2_K: kq_case<GGML_TYPE_Q2_K>(ctx, a, s); break;
+        case GGML_TYPE_Q4_K: kq_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
+        case GGML_TYPE_Q5_K: kq_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
+        case GGML_TYPE_Q5_1: kq_case<GGML_TYPE_Q5_1>(ctx, a, s); break;
+        case GGML_TYPE_Q6_K: kq_case<GGML_TYPE_Q6_K>(ctx, a, s); break;
         default: return -1;
     }
     return (int) cudaGetLastError();
