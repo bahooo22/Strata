@@ -167,6 +167,39 @@ function Assert-CudaGraph([string]$BuildDir, [string]$CudaKey) {
     return $edges
 }
 
+function Assert-CxxO2Parity([string]$BuildDir) {
+    # Гейт паритета флагов ПОСЛЕ настройки и ДО компиляции (18.11): build-api-v2 прошёл configure
+    # с CMAKE_BUILD_TYPE=Release, но все CXX-правила в build.ninja записаны без /O2 /Ob2 /DNDEBUG -
+    # host-C++ компилировался с /Od, а сборка вернула rc=0. Ни rc, ни кэш этот класс не ловят -
+    # ловит только разбор FLAGS готового графа. Классификация FLAGS та же, что в мерке
+    # cxx_flags_parity_gate_2026-11-18.ps1: CUDA-правила первыми (их форма -std=c++20 со знаком
+    # равенства не должна попадать в host-класс), затем host-C++ по -std:c++, C не проверяется.
+    $ninja = Join2 $BuildDir "build.ninja"
+    if (-not (Test-Path $ninja)) { throw "после настройки нет $ninja - паритет флагов проверить не на чем" }
+    $cxx = @(); $cu = 0; $cuO2 = 0
+    foreach ($line in (Get-Content $ninja)) {
+        if ($line -notmatch '^\s+FLAGS\s=\s(.*)$') { continue }
+        $f = $matches[1]
+        if ($f -match '--generate-code|-gencode') { $cu++; if ($f -match '-Xcompiler=.?-O2') { $cuO2++ } }
+        elseif ($f -match '-std:c\+\+') { $cxx += $f }
+    }
+    if (@($cxx).Count -eq 0 -or $cu -eq 0) {
+        throw ("в build.ninja ($BuildDir) классификация FLAGS пуста (CXX {0}, CUDA {1}) - гейт не " +
+               "состоялся, а не «чисто»") -f @($cxx).Count, $cu
+    }
+    $o2 = @($cxx | Where-Object { $_ -match '(^|\s)/O2(\s|$)' }).Count
+    if ($o2 -ne @($cxx).Count) {
+        throw ("{0} из {1} CXX-правил в {2} без /O2 - host-C++ собирался бы с /Od (класс дефекта " +
+               "build-api-v2 18.11): удали каталог сборки и повтори, измерение на таком дереве запрещено") `
+               -f (@($cxx).Count - $o2), @($cxx).Count, $BuildDir
+    }
+    if ($cuO2 -ne $cu) {
+        throw ("{0} из {1} CUDA-правил в {2} без -Xcompiler=-O2 - ядро собиралось бы без оптимизации") `
+               -f ($cu - $cuO2), $cu, $BuildDir
+    }
+    return @($cxx).Count
+}
+
 function Get-FreshnessVerdict([string]$Path, [datetime]$RunStart) {
     # "" - файл написан этим прогоном; иначе - именованная находка. Без этого условия
     # доказательство архитектур способно мерять dll прошлого прогона: 14.11 в bin\ лежал
@@ -667,6 +700,36 @@ if ($SelfTest) {
     $threw = ""
     try { Assert-CudaGraph $gDir "STRATA_ENABLE_CUDA" } catch { $threw = $_.Exception.Message }
     Chk "ключ Страты принимается, а не только llama" $threw ""
+    # --- гейт паритета флагов (класс build-api-v2 18.11): Release в кэше, все CXX без /O2 --------
+    # Отдельно проверяется, что CUDA-форма -std=c++20 (через знак равенства) не попадает в
+    # host-класс: иначе число CXX-правил растёт на CUDA-строку, а гейт молчит или врёт.
+    $flagsCu = ' FLAGS = -D_GLIBCXX_USE_CXX11_ABI=0 --generate-code=arch=compute_86,code=[sm_86] ' +
+               '-std=c++17 -Xcompiler=-O2,-Ob2 /showIncludes'
+    $flagsCxxOk = ' FLAGS = /TP -std:c++20 /O2 /Ob2 /DNDEBUG /GR-'
+    $flagsCxxBad = ' FLAGS = /TP -std:c++20 /Ob2 /DNDEBUG /GR-'
+    $flagsCOnly = ' FLAGS = /TC -std:c11'
+    $twoNinja = $flagsCxxOk + "`n" + $flagsCxxOk.Replace('a.cpp', 'b.cpp') + "`n" + $flagsCu + "`n" + $flagsC
+    Write-Graph $okCache $twoNinja
+    $threw = ""; $cxF = 0
+    try { $cxF = Assert-CxxO2Parity $gDir } catch { $threw = $_.Exception.Message }
+    Chk "здоровые CXX+CUDA+C флаги приняты" $threw ""
+    Chk "счёт CXX не съел CUDA-форму -std=c++20" $cxF 2
+    Write-Graph $okCache ($flagsCxxBad + "`n" + $flagsCu)
+    $threw = ""
+    try { Assert-CxxO2Parity $gDir } catch { $threw = $_.Exception.Message }
+    Chk "CXX без /O2 отклонён" ($threw -like "*без /O2*") $true
+    Write-Graph $okCache ($flagsCxxOk + "`n" + ' FLAGS = -D_GLIBCXX_USE_CXX11_ABI=0 --generate-code=arch=compute_86,code=[sm_86] -Xcompiler=-Od')
+    $threw = ""
+    try { Assert-CxxO2Parity $gDir } catch { $threw = $_.Exception.Message }
+    Chk "CUDA без -Xcompiler=-O2 отклонён" ($threw -like "*без оптимизации*") $true
+    Write-Graph $okCache $flagsCOnly
+    $threw = ""
+    try { Assert-CxxO2Parity $gDir } catch { $threw = $_.Exception.Message }
+    Chk "пустая классификация названа «не состоялся», не «чисто»" ($threw -like "*не состоялся*") $true
+    Write-Graph $okCache $null
+    $threw = ""
+    try { Assert-CxxO2Parity $gDir } catch { $threw = $_.Exception.Message }
+    Chk "нет build.ninja назван отказом гейта флагов" ($threw -like "*проверить не на чем*") $true
     $dllF = Join2 $gDir "ggml-cuda.dll"
     [System.IO.File]::WriteAllText($dllF, "x", (New-Object System.Text.UTF8Encoding($false)))
     $now = Get-Date
@@ -1041,6 +1104,7 @@ $measure = [ordered]@{
     engines          = @{}
     arch_probe       = @{}
     cuda_edges       = @{}
+    cxx_flags        = @{}
     binaries         = @()
 }
 $rc_total = 0
@@ -1113,6 +1177,11 @@ if ($Engines -match 'strata') {
         Save-Measure "отказ: граф Страты не соответствует запросу"; exit 2
     }
     Write-Host ("граф Страты: CUDA-рёбер {0} (STRATA_ENABLE_CUDA=ON, Release)" -f $measure.cuda_edges.strata)
+    try { $measure.cxx_flags.strata = Assert-CxxO2Parity $bd } catch {
+        Write-Host "ОТКАЗ: $($_.Exception.Message)"
+        Save-Measure "отказ: CXX-правила Страты без /O2"; exit 2
+    }
+    Write-Host ("паритет флагов Страты: {0} CXX-правил с /O2" -f $measure.cxx_flags.strata)
     # Знаменатель ninja ([174/174]) - план ТЕКУЩЕГО вызова, а не размер графа, поэтому по нему состояние кэша
     # им не определяют. Единственный доступный до прогона факт - число готовых объектов реальных
     # целей в дереве сборки.
@@ -1166,6 +1235,11 @@ if ($Engines -match 'llama') {
         Save-Measure "отказ: граф llama не соответствует запросу"; exit 2
     }
     Write-Host ("граф llama: CUDA-рёбер {0} (GGML_CUDA=ON, Release)" -f $measure.cuda_edges.llama)
+    try { $measure.cxx_flags.llama = Assert-CxxO2Parity $bd } catch {
+        Write-Host "ОТКАЗ: $($_.Exception.Message)"
+        Save-Measure "отказ: CXX-правила llama без /O2"; exit 2
+    }
+    Write-Host ("паритет флагов llama: {0} CXX-правил с /O2" -f $measure.cxx_flags.llama)
     $preLlama = Count-BuiltObjects $bd
     $tBuild = Invoke-BuildStep $log "сборка llama" { & $cmake --build $bd --target llama-server -j 4 }
     if ($tBuild.rc -ne 0) { Write-Host "СБОРКА llama упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
