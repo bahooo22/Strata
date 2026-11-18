@@ -325,8 +325,8 @@ x24,5 × x1,80 как «ускорение фикса» в этом докуме
 <!-- NEEDLES -->
 | линия | попаданий | токенов в промпте | снято | строка первичника |
 | --- | ---: | --- | --- | --- |
-| heretic-q4km-128k | 4/4 | 117 000 | 2026-11-10 | artifacts/benchmarks/needle-strata-heretic-q4km-128k-2026-11-10.jsonl |
-| heretic-q4km-96k | 3/4 | 78 000 | 2026-11-10 | artifacts/benchmarks/needle-strata-heretic-q4km-96k-2026-11-10.jsonl |
+| heretic-q4km-128k HDD* | 4/4 | 117 000 | 2026-11-10 | artifacts/benchmarks/needle-strata-heretic-q4km-128k-2026-11-10.jsonl |
+| heretic-q4km-96k HDD* | 3/4 | 78 000 | 2026-11-10 | artifacts/benchmarks/needle-strata-heretic-q4km-96k-2026-11-10.jsonl |
 | kat-iq4xs-128k | 5/7 | 127 000 | 2026-11-05 | artifacts/benchmarks/needle-end-128k.jsonl |
 | kat-iq4xs-160k | 7/7 | 159 000 | 2026-11-05 | artifacts/benchmarks/needle-end-160k.jsonl |
 | kat-iq4xs-96k-base | 7/7 | 96 000 | 2026-11-05 | artifacts/benchmarks/needle-end-96k.jsonl |
@@ -452,11 +452,11 @@ x24,5 × x1,80 как «ускорение фикса» в этом докуме
 | Страта форка, UD-IQ3_S (q3) / 96k | 1099.8 | 14.2 | 2026-11-10 | artifacts/benchmarks/grid-udiq3s-2026-11-10.jsonl:23 |
 | Страта форка, UD-IQ3_S (q3) / 128k | 945.1 | 13.3 | 2026-11-10 | artifacts/benchmarks/grid-udiq3s-2026-11-10.jsonl:35 |
 | Страта форка, UD-IQ3_S (q3) / 160k | 869.7 | 12.5 | 2026-11-10 | artifacts/benchmarks/grid-udiq3s-2026-11-10.jsonl:29 |
-| Страта форка, heretic Q4_K_M (q4) / 64k | 1338.8 | 16.6 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:17 |
-| Страта форка, heretic Q4_K_M (q4) / 80k | 1225.0 | 17.0 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:20 |
-| Страта форка, heretic Q4_K_M (q4) / 96k | 1178.0 | 16.6 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:23 |
-| Страта форка, heretic Q4_K_M (q4) / 128k | 1005.0 | 14.8 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:26 |
-| Страта форка, heretic Q4_K_M (q4) / 160k | 914.0 | 13.9 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:29 |
+| Страта форка, heretic Q4_K_M (q4) / 64k HDD* | 1338.8 | 16.6 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:17 |
+| Страта форка, heretic Q4_K_M (q4) / 80k HDD* | 1225.0 | 17.0 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:20 |
+| Страта форка, heretic Q4_K_M (q4) / 96k HDD* | 1178.0 | 16.6 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:23 |
+| Страта форка, heretic Q4_K_M (q4) / 128k HDD* | 1005.0 | 14.8 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:26 |
+| Страта форка, heretic Q4_K_M (q4) / 160k HDD* | 914.0 | 13.9 | 2026-11-10 | artifacts/benchmarks/grid-hereticq4km-2026-11-10.jsonl:29 |
 | Страта форка, HauhauCS IQ4_XS (эталон) / 64k | 1499.7 | 17.3 | 2026-11-08 | artifacts/benchmarks/grid-hauhaucsiq4xs-2026-11-08.jsonl:11 |
 | Страта форка, HauhauCS IQ4_XS (эталон) / 80k | 1092.5 | 18.0 | 2026-11-10 | artifacts/benchmarks/grid-hauhaucsiq4xs-2026-11-10.jsonl:8 |
 | Страта форка, HauhauCS IQ4_XS (эталон) / 96k | 1303.5 | 13.6 | 2026-11-08 | artifacts/benchmarks/grid-hauhaucsiq4xs-2026-11-08.jsonl:14 |
@@ -467,11 +467,11 @@ x24,5 × x1,80 как «ускорение фикса» в этом докуме
 | llama форка, UD-IQ3_S (q3) / 96k | 1052.6 | 16.5 | 2026-11-10 | artifacts/benchmarks/grid-ud-iq3s-2026-11-10.jsonl:3 |
 | llama форка, UD-IQ3_S (q3) / 128k | 973.1 | 16.6 | 2026-11-10 | artifacts/benchmarks/grid-ud-iq3s-2026-11-10.jsonl:4 |
 | llama форка, UD-IQ3_S (q3) / 160k | 937.9 | 16.5 | 2026-11-10 | artifacts/benchmarks/grid-ud-iq3s-2026-11-10.jsonl:5 |
-| llama форка, heretic Q4_K_M (q4) / 64k | 879.0 | 19.9 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:2 |
-| llama форка, heretic Q4_K_M (q4) / 80k | 853.7 | 19.5 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:4 |
-| llama форка, heretic Q4_K_M (q4) / 96k | 845.1 | 19.7 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:6 |
-| llama форка, heretic Q4_K_M (q4) / 128k | 792.7 | 18.9 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:8 |
-| llama форка, heretic Q4_K_M (q4) / 160k | 766.4 | 17.9 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:10 |
+| llama форка, heretic Q4_K_M (q4) / 64k HDD* | 879.0 | 19.9 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:2 |
+| llama форка, heretic Q4_K_M (q4) / 80k HDD* | 853.7 | 19.5 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:4 |
+| llama форка, heretic Q4_K_M (q4) / 96k HDD* | 845.1 | 19.7 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:6 |
+| llama форка, heretic Q4_K_M (q4) / 128k HDD* | 792.7 | 18.9 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:8 |
+| llama форка, heretic Q4_K_M (q4) / 160k HDD* | 766.4 | 17.9 | 2026-11-10 | artifacts/benchmarks/grid-heretic-q4km-2026-11-10.jsonl:10 |
 | llama форка, HauhauCS IQ4_XS / 64k | 975.8 | 19.8 | 2026-11-10 | artifacts/benchmarks/grid-hauhaucs-iq4xs-2026-11-10.jsonl:2 |
 | llama форка, HauhauCS IQ4_XS / 80k | 936.8 | 19.2 | 2026-11-10 | artifacts/benchmarks/grid-hauhaucs-iq4xs-2026-11-10.jsonl:4 |
 | llama форка, HauhauCS IQ4_XS / 96k | 908.9 | 19.2 | 2026-11-10 | artifacts/benchmarks/grid-hauhaucs-iq4xs-2026-11-10.jsonl:6 |
@@ -497,3 +497,15 @@ python -X utf8 glm\scripts\report_tables_2026-11-11.py --verify docs\reports\202
 
 Пустой ответ меры считается провалом проверки, а не «расхождений нет»: генератор печатает число
 проверенных строк.
+
+## Пометка `HDD*` (добавлено 18.11)
+
+Строки с маркером `HDD*` взяты из первичников, где носитель прогона не записан: в журналах
+Q4_K_M сетки и игл 10.11 есть только `cfg`, `pass`, `rc`, `window` и цитата строки движка в
+`src` - ни пути модели, ни каталога сборки. Проверено 18.11 по полям
+`grid-hereticq4km-2026-11-10.jsonl:17`.
+
+С 16.11 файл `Qwen3.6-35B-A3B-uncensored-heretic-Q4_K_M.gguf` (20 695 252 КБ) лежит на G:, а
+это HDD; на D: SSD его копии нет. Следствие: эти строки нельзя переснять в тех условиях, в
+каких они сняты, и любое новое число Q4_K_M не сопоставимо с SSD-семействами этих же таблиц.
+Помеченные строки - исторический контекст, а не база для процента.
