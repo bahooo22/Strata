@@ -78,15 +78,25 @@ function(strata_ggml_tq_overlay LLAMA OUT)
   endforeach()
 
   # ---- ggml.h: the three enumerators (values above GGML_TYPE_COUNT: ggml's own tables never see them) ---------------------
+  # The anchor is the enum line resolved by name, not the literal "GGML_TYPE_COUNT   = 43,": upstream raised the
+  # value to 44, and a literal anchor silently turned the whole overlay off on any newer llama.cpp (18.11 - the
+  # v2 tree lost all six trellis MMQ instances and read trellis prompts through the FP16 path).
   _tq_read(_h "${_inc}/ggml.h")
-  _tq_edit(_h BEFORE "        GGML_TYPE_COUNT   = 43,"
-    "        GGML_TYPE_TQ2_T   = 144, // Agention trellis types (Strata overlay; the fork's ids)
+  string(REGEX MATCHALL "[^\n]*GGML_TYPE_COUNT[^\n]*=[^\n]*,\n" _tq_cnt_lines "${_h}")
+  list(LENGTH _tq_cnt_lines _tq_n_cnt)
+  if(NOT _tq_n_cnt EQUAL 1)
+    set(_tq_fail "ggml.h: the GGML_TYPE_COUNT enum line is not unique (found ${_tq_n_cnt}, need 1)")
+  else()
+    string(REPLACE "\n" "" _tq_cnt_anchor "${_tq_cnt_lines}")
+    _tq_edit(_h BEFORE "${_tq_cnt_anchor}"
+      "        GGML_TYPE_TQ2_T   = 144, // Agention trellis types (Strata overlay; the fork's ids)
         GGML_TYPE_TQK6    = 145,
         GGML_TYPE_TQK7    = 146,
         GGML_TYPE_TQP5    = 147, // Gyro-L pair trellis (the same fork's 147-149)
         GGML_TYPE_TQP6    = 148,
         GGML_TYPE_TQP7    = 149,
 ")
+  endif()
   file(WRITE "${OUT}/include/ggml.h" "${_h}")
 
   # ---- mmq.cuh: routing of the trellis types as IQ2_XS ----------------------------------------------------------------
