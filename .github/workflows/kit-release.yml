@@ -108,13 +108,13 @@ jobs:
       - name: Контроль входных файлов до компиляции
         shell: bash
         run: |
-          for f in strata/packaging/kit/ci/build_kit.ps1 \
-                   strata/packaging/kit/ci/pack_kit.ps1 \
-                   strata/packaging/kit/ci/smoke_kit.ps1 \
-                   strata/packaging/kit/ci/kit_dll_deps.py \
-                   strata/packaging/kit/ci/patch_markers.py \
-                   strata/packaging/kit/ci/verify_zip.sh \
-                   strata/packaging/kit/START.bat \
+          for f in strata/tools/packaging/kit/ci/build_kit.ps1 \
+                   strata/tools/packaging/kit/ci/pack_kit.ps1 \
+                   strata/tools/packaging/kit/ci/smoke_kit.ps1 \
+                   strata/tools/packaging/kit/ci/kit_dll_deps.py \
+                   strata/tools/packaging/kit/ci/patch_markers.py \
+                   strata/tools/packaging/kit/ci/verify_zip.sh \
+                   strata/tools/packaging/kit/START.bat \
                    ggml-pin/ggml/src/ggml-cuda/mma.cuh \
                    llama/CMakeLists.txt; do
             if [ ! -f "$f" ]; then echo "::error::нет $f - сборка не начата"; exit 2; fi
@@ -127,8 +127,8 @@ jobs:
           # Репетиция 43359812438 упала на шаге упаковки из-за пути стенда в README - после 5454 с
           # компиляции. Тот же гейт №2 живёт в pack_kit.ps1, здесь он вызван раньше и по исходникам:
           # перечень файлов берётся из манифеста, второй копии списка нет.
-          & pwsh -NoProfile -NonInteractive -File "strata\packaging\kit\ci\pack_kit.ps1" `
-              -TextGate -KitSrc "strata\packaging\kit" -RepoSrc "strata"
+          & pwsh -NoProfile -NonInteractive -File "strata\tools\packaging\kit\ci\pack_kit.ps1" `
+              -TextGate -KitSrc "strata\tools\packaging\kit" -RepoSrc "strata\terminal"
           Write-Host "rc(pack_kit -TextGate)=$LASTEXITCODE"
           exit $LASTEXITCODE
 
@@ -171,7 +171,7 @@ jobs:
       - name: Тулчейн CUDA из redist-архивов
         shell: pwsh
         run: |
-          $ci = Join-Path $env:GITHUB_WORKSPACE 'strata\packaging\kit\ci'
+          $ci = Join-Path $env:GITHUB_WORKSPACE 'strata\tools\packaging\kit\ci'
           & pwsh -NoProfile -NonInteractive -File $ci\install_cuda_redist.ps1 `
               -Root (Join-Path $env:RUNNER_TEMP 'cuda') `
               -CacheDir (Join-Path $env:RUNNER_TEMP 'cuda-dl') `
@@ -202,9 +202,9 @@ jobs:
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          $ci = Join-Path $ws 'strata\packaging\kit\ci'
+          $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
           & pwsh -NoProfile -NonInteractive -File $ci\build_kit.ps1 `
-              -StrataSrc (Join-Path $ws 'strata') `
+              -StrataSrc (Join-Path $ws 'strata\engine') `
               -LlamaSrc (Join-Path $ws 'llama') `
               -GgmlDir (Join-Path $ws 'ggml-pin') `
               -Cuda (Join-Path $env:RUNNER_TEMP 'cuda') `
@@ -231,7 +231,7 @@ jobs:
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          $pm = Join-Path $ws 'strata\packaging\kit\ci\patch_markers.py'
+          $pm = Join-Path $ws 'strata\tools\packaging\kit\ci\patch_markers.py'
           $bad = @()
           python $pm --engine strata `
               --bin (Join-Path $ws 'strata\build-kit\strata-q36.exe') `
@@ -262,7 +262,7 @@ jobs:
           # strata_kq.dll в этом списке не потому, что у неё трудные зависимости (импортов у неё
           # ровно один - KERNEL32: CUDA-рантайм линкован статически, cmake/backends/cuda.cmake),
           # а потому, что она грузится из кода по имени и без неё комплект деградирует молча.
-          $a = @('strata\packaging\kit\ci\kit_dll_deps.py')
+          $a = @('strata\tools\packaging\kit\ci\kit_dll_deps.py')
           foreach ($b in $bins) { $a += @('--bin', (Join-Path $ws $b)) }
           $a += @('--dumpbin', $dumpbin,
                   '--cuda-bin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'),
@@ -279,7 +279,7 @@ jobs:
           # без них архив собирается урезанным и падает у пользователя. Режим отдельный и до
           # компиляции - недоступность PyPI обязана стоить секунд, а не двух часов сборки.
           $out = Join-Path $env:RUNNER_TEMP 'kit\vendor'
-          & pwsh -NoProfile -NonInteractive -File "strata\packaging\kit\ci\pack_kit.ps1" `
+          & pwsh -NoProfile -NonInteractive -File "strata\tools\packaging\kit\ci\pack_kit.ps1" `
               -VendorWheels -VendorOut $out
           Write-Host "rc(pack_kit -VendorWheels)=$LASTEXITCODE"
           exit $LASTEXITCODE
@@ -288,7 +288,7 @@ jobs:
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          $ci = Join-Path $ws 'strata\packaging\kit\ci'
+          $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
           $a = @('-StrataBuild', (Join-Path $ws 'strata\build-kit'),
                  '-LlamaBuild', (Join-Path $ws 'llama\build-kit'),
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
@@ -333,7 +333,7 @@ jobs:
           fi
           # Тот же класс, что и шаг публикации: под `bash -eo pipefail` rc!=0 у verify_zip роняет
           # шаг до строки с цифрой, и в красном логе не остаётся ни rc, ни KIT_ZIP.
-          bash strata/packaging/kit/ci/verify_zip.sh "${files[0]}" && rc=0 || rc=$?
+          bash strata/tools/packaging/kit/ci/verify_zip.sh "${files[0]}" && rc=0 || rc=$?
           echo "rc(verify_zip)=$rc"
           [ "$rc" = 0 ] || exit "$rc"
           echo "KIT_ZIP=${files[0]}" >> "$GITHUB_ENV"
@@ -389,7 +389,7 @@ jobs:
           $sz = (Get-Item $gguf).Length
           Write-Host "размер модели: $sz Б (ожидалось $($env:TINY_GGUF_BYTES) по живому HEAD 14.11)"
 
-          $sk = Join-Path $env:GITHUB_WORKSPACE 'strata\packaging\kit\ci\smoke_kit.ps1'
+          $sk = Join-Path $env:GITHUB_WORKSPACE 'strata\tools\packaging\kit\ci\smoke_kit.ps1'
           if (-not (Test-Path -LiteralPath $sk)) { Write-Host "::error::нет $sk - приёмка не состоялась"; exit 2 }
           & pwsh -NoProfile -NonInteractive -File $sk -KitDir $un -Model $gguf -Strata auto -WaitSec 240 -PortStart 18100
           # Код возврата снимается отдельно и ПЕЧАТАЕТСЯ: rc=0/1/2 у этого гейта означают
