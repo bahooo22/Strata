@@ -2612,7 +2612,7 @@ bool gu_covered(int t) {
         ;
 }
 bool d_covered(int t) {
-    return t == T_Q2_0 || t == T_IQ4_NL
+    return t == T_Q2_0 || t == T_IQ4_NL || t == T_IQ4_XS   // 0216-accel P2: the IQ4_XS packs' down (KAT, Huihui)
 #if defined(__HIPCC__)
            || ((t == T_Q5_1 || t == T_Q8_0) && kq_on())
 #endif

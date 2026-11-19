@@ -646,6 +646,7 @@ const std::vector<Pair>& all_pairs() {
         {GGML_TYPE_IQ2_XS, GGML_TYPE_IQ4_NL, "IQ2_XS / IQ4_NL"}, {GGML_TYPE_IQ4_XS, GGML_TYPE_Q2_0, "IQ4_XS / Q2_0"},
         {GGML_TYPE_IQ2_S, GGML_TYPE_IQ4_NL, "IQ2_S / IQ4_NL"},   {GGML_TYPE_IQ3_XXS, GGML_TYPE_Q2_0, "IQ3_XXS / Q2_0"},
         {GGML_TYPE_IQ3_S, GGML_TYPE_Q2_0, "IQ3_S / Q2_0"},       {GGML_TYPE_IQ4_XS, GGML_TYPE_IQ4_NL, "IQ4_XS / IQ4_NL"},
+        {GGML_TYPE_IQ4_XS, GGML_TYPE_IQ4_XS, "IQ4_XS / IQ4_XS"},   // 0216-accel P2: the KAT/Huihui packs
         {GGML_TYPE_IQ2_XXS, GGML_TYPE_IQ4_NL, "IQ2_XXS / IQ4_NL"},
         // the Coder IQ1_M pack: IQ1_M gate/up (the down pairing is not verified against a pack here)
         {GGML_TYPE_IQ1_M, GGML_TYPE_IQ4_NL, "IQ1_M / IQ4_NL"},   {GGML_TYPE_IQ1_M, GGML_TYPE_Q2_0, "IQ1_M / Q2_0"},
