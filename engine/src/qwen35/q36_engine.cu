@@ -1387,6 +1387,7 @@ struct Engine {
     float *xsuper = nullptr, *hsuper = nullptr;
     int32_t *tok_super = nullptr, *pos_super = nullptr;
     void *q8, *xq, *escr;
+    void *i8xq = nullptr, *i8scr = nullptr;   // 0216-accel P1: int8 expert path (activations, scratch)
     int32_t *ids, *grp_start, *n_groups, *ent_dst, *ent_tok, *tok, *pos0, *pick;
     int32_t* hpin = nullptr;   // pinned staging: [0] decode token, [1] position, [2..9] picks, [10] max rows, [16..] tokens
     unsigned long long* grp_ptr;
@@ -1790,6 +1791,12 @@ struct Engine {
             }
         }
         CK(cudaMalloc(&escr, K::native_expert_scratch_bytes((int64_t) (T * Kp), (int64_t) FF)));
+        if (!use_mmq) {   // 0216-accel P1: the int8 prompt kernels' activation image and scratch
+            const int64_t nent = (int64_t) T * Kp;
+            const int64_t capg = std::min<int64_t>(nent, (int64_t) g.n_expert) + 1;
+            CK(cudaMalloc(&i8xq, (size_t) T * (size_t) (N / 32) * 36));
+            CK(cudaMalloc(&i8scr, K::native_expert_i8_scratch_bytes(nent, capg, (int64_t) FF)));
+        }
         ids = dalloc_t<int32_t>(T * Kp);
         grp_ptr = dalloc_t<unsigned long long>(std::min<size_t>(T * Kp, (size_t) g.n_expert) + 1);
         grp_start = dalloc_t<int32_t>(std::min<size_t>(T * Kp, (size_t) g.n_expert) + 1);
@@ -2155,13 +2162,13 @@ struct Engine {
         }
     }
     void group_old(const Layer& L, const int32_t* slot_of, int T, unsigned long long* o_ptr, int32_t* o_start, int32_t* o_ng,
-                   int32_t* o_dst, int32_t* o_tok) {
+                   int32_t* o_dst, int32_t* o_tok, const uint8_t* base = nullptr) {
         const int Kp = (int) m->top_k, n_ent = T * Kp;
         if (slot_of)
-            k_group_hy<<<1, kThreads, 0, st>>>(ids, n_ent, Kp, (int) m->g.n_expert, slot_of, L.blobs, L.stride, o_ptr, o_start,
+            k_group_hy<<<1, kThreads, 0, st>>>(ids, n_ent, Kp, (int) m->g.n_expert, slot_of, base ? base : L.blobs, L.stride, o_ptr, o_start,
                                                o_ng, o_dst, o_tok);
         else
-            k_group<<<1, kThreads, 0, st>>>(ids, n_ent, Kp, (int) m->g.n_expert, L.blobs, L.stride, o_ptr, o_start, o_ng, o_dst,
+            k_group<<<1, kThreads, 0, st>>>(ids, n_ent, Kp, (int) m->g.n_expert, base ? base : L.blobs, L.stride, o_ptr, o_start, o_ng, o_dst,
                                             o_tok);
     }
     /// VERIFY: the old grouping of the current `ids` into scratch, compared with grp_ptr / grp_start / n_groups / ent_dst / ent_tok.
@@ -2228,7 +2235,7 @@ struct Engine {
         return true;
     }
     /// The routed entries of T rows grouped per expert (k_group; with slot_of the hybrid mode's k_group_hy).
-    void group_entries(const Layer& L, const int32_t* slot_of, int T) {
+    void group_entries(const Layer& L, const int32_t* slot_of, int T, const uint8_t* base = nullptr) {   // 0216-accel P0: base = a streamed layer
         if (grouped_by_route) {   // route_group did it
             grouped_by_route = false;
             return;
@@ -2236,15 +2243,15 @@ struct Engine {
         const int Kp = (int) m->top_k, n_ent = T * Kp;
         if (fast_k && n_ent <= 64) {
             if (slot_of)
-                q36k::k_group_small<true><<<1, 64, 0, st>>>(ids, n_ent, Kp, slot_of, L.blobs, L.stride, grp_ptr, grp_start,
+                q36k::k_group_small<true><<<1, 64, 0, st>>>(ids, n_ent, Kp, slot_of, base ? base : L.blobs, L.stride, grp_ptr, grp_start,
                                                             n_groups, ent_dst, ent_tok);
             else
-                q36k::k_group_small<false><<<1, 64, 0, st>>>(ids, n_ent, Kp, nullptr, L.blobs, L.stride, grp_ptr, grp_start,
+                q36k::k_group_small<false><<<1, 64, 0, st>>>(ids, n_ent, Kp, nullptr, base ? base : L.blobs, L.stride, grp_ptr, grp_start,
                                                              n_groups, ent_dst, ent_tok);
             if (verify_k) group_verify(L, slot_of, T);
             return;
         }
-        group_old(L, slot_of, T, grp_ptr, grp_start, n_groups, ent_dst, ent_tok);
+        group_old(L, slot_of, T, grp_ptr, grp_start, n_groups, ent_dst, ent_tok, base);
     }
     void* vgrp = nullptr;
     float *vx_ = nullptr, *vh_ = nullptr;
@@ -2520,9 +2527,12 @@ struct Engine {
         // a layer without MMQ keeps the hybrid-rows path: the grouped kernel addresses blobs by the full expert id,
         // while a hybrid layer holds only its slots there
         const bool layer_mmq = use_mmq && mmq_layer[li] != 0;
-        const bool hy_rows = lhy(li) && (T <= hybrid_t || !main_hybrid || !layer_mmq);
+        // 0216-accel P0: a build without MMQ streams the prompt layer (stage[b]) and runs its experts on the GPU
+        // grouped kernels; decode keeps the slots + the CPU pool (hy_rows).
+        const bool grp_prompt = !use_mmq && T > kGemmT && K::native_expert_supported(L.L.gu_type, L.L.d_type, N, FF);
+        const bool hy_rows = lhy(li) && (T <= hybrid_t || !main_hybrid || (!layer_mmq && !grp_prompt));
         const bool mmq_rows = !hy_rows && T > kGemmT && layer_mmq;
-        if (!(!mmq_rows && route_group(L, hy_rows ? hy[li].slot_of_d : nullptr, T, ext ? (int) g.n_expert + 1 : (int) g.n_expert)))
+        if (!(!(mmq_rows || grp_prompt) && route_group(L, hy_rows ? hy[li].slot_of_d : nullptr, T, ext ? (int) g.n_expert + 1 : (int) g.n_expert)))
             K::native_router_topk(logits_r, ids, ewts, (int) g.n_expert, Kp, T, st);
         const int64_t n_ent = (int64_t) T * Kp;
         const int32_t* prow = nullptr;
@@ -2573,6 +2583,21 @@ struct Engine {
             mctx->run(dn, st);
             if (!stream_base && lhy(li)) stream_done();
             prow = rinv;
+        } else if (grp_prompt) {   // 0216-accel P0: the streamed layer's experts, grouped by the full expert id
+            const uint8_t* wbase = stream_base ? stream_base : (lhy(li) ? stream_take((int) li) : L.blobs);
+            group_entries(L, nullptr, T, wbase);
+            if (!xq_post) quant(h, N, T, xq);
+            const bool i8_l = i8xq && K::native_expert_i8_supported(L.L) &&
+                              K::native_expert_i8_prompt(L.L, n_ent / std::max<int64_t>(1, ((int64_t) g.n_expert + 15) / 16));   // entries per 16-expert group
+            if (i8_l) {   // 0216-accel P1: our int8 dot-product kernels (DP4A on sm_86)
+                K::native_expert_i8_quantize(h, T, N, i8xq, st);
+                K::native_expert_i8(L.L, grp_ptr, grp_start, n_groups, ent_dst, ent_tok,
+                                    std::min<int64_t>(n_ent, g.n_expert) + 1, n_ent, i8xq, i8scr, eparts, st);
+            } else {
+                K::native_expert_grouped(L.L, grp_ptr, grp_start, n_groups, ent_dst, ent_tok,
+                                         std::min<int64_t>(n_ent, g.n_expert), n_ent, xq, escr, eparts, st);
+            }
+            if (!stream_base && lhy(li)) stream_done();
         } else {
             group_entries(L, nullptr, T);
             if (!xq_post) quant(h, N, T, xq);   // the experts' and the shared expert's input
@@ -2614,10 +2639,10 @@ struct Engine {
         const auto& g = m->g;
         const int N = (int) g.n_embd;
         if (profile) cudaEventRecord(prof_c, st);
-        if (main_hybrid && T > hybrid_t && use_mmq) {
+        if (main_hybrid && T > hybrid_t) {   // 0216-accel P0: the stream is armed without MMQ too
             std::vector<int> seq;
             for (size_t l = 0; l < m->layers.size(); ++l)
-                if (lhy(l) && mmq_layer[l] != 0) seq.push_back((int) l);
+                if (lhy(l) && (mmq_layer[l] != 0 || !use_mmq)) seq.push_back((int) l);
             stream_begin(seq);
         }
         K::iq_embed_rows(m->embd_type, m->embd, m->embd_row, tok, T, N, x, st);
@@ -2646,10 +2671,10 @@ struct Engine {
         const auto& g = m->g;
         const int N = (int) g.n_embd;
         if (profile) cudaEventRecord(prof_c, st);
-        if (main_hybrid && use_mmq) {
+        if (main_hybrid) {   // 0216-accel P0: super-chunk streams without MMQ too
             std::vector<int> seq;
             for (size_t l = 0; l < m->layers.size(); ++l)
-                if (lhy(l) && mmq_layer[l] != 0) seq.push_back((int) l);
+                if (lhy(l) && (mmq_layer[l] != 0 || !use_mmq)) seq.push_back((int) l);
             stream_begin(seq);
         }
         K::iq_embed_rows(m->embd_type, m->embd, m->embd_row, tok_super, T, N, xsuper, st);
@@ -2661,7 +2686,7 @@ struct Engine {
         for (size_t l = 0; l < m->layers.size(); ++l) {
             const bool last = l + 1 == m->layers.size();
             // stream_take only when the streamed path is armed: stream_begin() above needs main_hybrid && use_mmq,
-            const uint8_t* sb = (main_hybrid && use_mmq && lhy(l) && mmq_layer[l] != 0) ? stream_take((int) l) : nullptr;
+            const uint8_t* sb = (main_hybrid && lhy(l) && (mmq_layer[l] != 0 || !use_mmq)) ? stream_take((int) l) : nullptr;   // 0216-accel P0
             const float* wn = last ? m->out_norm : m->layers[l + 1].attn_norm;
             int k = 0;
             for (int off = 0; off < T; off += chunk, ++k) {
@@ -3563,8 +3588,8 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     if (E.main_hybrid) E.use_graph = false;   // the host takes part in every layer
     E.mtp_graph = false;                      // the MTP block's layer is hybrid either way
     E.hybrid_t = std::max(1, std::min(hybrid_t, E.use_mmq ? E.tmax : E.tmax));
-    if (!E.use_mmq) E.hybrid_t = E.tmax;   // no streamed prompt path: every batch on slots + the pool
-    const size_t staging = E.use_mmq && E.main_hybrid ? 2 * (max_layer + kMmqTail) : 0;
+    // 0216-accel P0: the prompt chunks stream even without MMQ (they no longer fall back to the CPU pool)
+    const size_t staging = E.main_hybrid ? 2 * (max_layer + kMmqTail) : 0;   // 0216-accel P0: the prompt stream exists without MMQ
     size_t slot_bytes = budget2 > staging ? budget2 - staging : 0;
     if (slot_bytes + staging + ((size_t) 256 << 20) > fr) slot_bytes = fr > staging + ((size_t) 512 << 20) ? fr - staging - ((size_t) 512 << 20) : 0;
     // --expert-slots: that many per layer (tests: the same split with and without the MTP block)

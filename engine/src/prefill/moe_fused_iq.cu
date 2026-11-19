@@ -2231,7 +2231,9 @@ struct DevInfo {
     bool q8d = false;   // sm_80+ with STRATA_PF_FUSED_Q8D=1: the same Q8_0 down kernels behind an i-quant gate/up (opt-in, phase 4; their occupancy is occ_kq8)
     bool q8gu = false;  // sm_80+ with STRATA_PF_FUSED_Q8GU=1: the Q8_0 gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
     int occ_q8gu = 1;   // the Q8_0 gate/up kernels' blocks per multiprocessor (the down keeps occ_kq8)
-    bool q6k = false;   // sm_80+ with STRATA_PF_FUSED_Q6K=1: the Q6_K gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
+    bool q6k = false;  // sm_80+ with STRATA_PF_FUSED_Q6K=1: the Q6_K gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
+    bool q4nlgu = false;   // 0216-accel P3: STRATA_PF_FUSED_Q4NL=1 - an IQ4_NL gate/up (the HauhauCS pack)
+    int occ_q4nlgu = 1;
     int occ_q6k = 1;    // the Q6_K gate/up kernels' blocks per multiprocessor (the down keeps occ_kq8)
     bool tq = false;    // the trellis kernels (TQK6 / TQ2_T gate/up, TQK7 / TQ2_T down) are set up: by default on sm_86 with 80+ SMs, STRATA_PF_FUSED_TQ=1 on any sm_80+ (fused_tq_default.hpp)
     int occ_tq_gu = 1, occ_tq_d = 1;   // their blocks per multiprocessor (their own)
@@ -2468,6 +2470,11 @@ const DevInfo& dev_info() {
                 d.occ_q6k = o9;
                 d.occ_kq8 = o10;
             }
+            static const bool q4nlgu = [] {   // 0216-accel P3
+                const char* v = std::getenv("STRATA_PF_FUSED_Q4NL");
+                return v != nullptr && v[0] == '1';
+            }();
+            if (int o11 = 1 << 20; q4nlgu && setup_ww<T_IQ4_NL, true, 2>(o11)) { d.q4nlgu = true; d.occ_q4nlgu = o11; }
         }
         d.occ = d.ok ? occ : 1;
         cudaGetLastError();
@@ -2594,6 +2601,7 @@ bool q6k_hip_requested();    // (STRATA_PF_FUSED_Q6K on HIP: below)
 #endif
 bool gu_covered(int t) {
     return t == T_IQ2_XXS || t == T_IQ2_XS || t == T_IQ2_S || t == T_IQ3_XXS || t == T_IQ3_S || t == T_IQ4_XS
+           || (t == T_IQ4_NL && dev_info().q4nlgu)   // 0216-accel P3: opt-in IQ4_NL gate/up (HauhauCS)
 #if !defined(__HIPCC__)
            || (t == T_Q2_0 && (dev_info().t75 || dev_info().q2n))   // Q2_0 gate/up: the Turing opt-in, or STRATA_PF_FUSED_Q2N=1 on sm_80+
            || ((t == T_Q4_K || t == T_Q5_K) && dev_info().kq)       // STRATA_PF_FUSED_KQ=1 and its kernels set up
@@ -2612,7 +2620,7 @@ bool gu_covered(int t) {
         ;
 }
 bool d_covered(int t) {
-    return t == T_Q2_0 || t == T_IQ4_NL
+    return t == T_Q2_0 || t == T_IQ4_NL || t == T_IQ4_XS   // 0216-accel P2: the IQ4_XS packs' down (KAT, Huihui)
 #if defined(__HIPCC__)
            || ((t == T_Q5_1 || t == T_Q8_0) && kq_on())
 #endif

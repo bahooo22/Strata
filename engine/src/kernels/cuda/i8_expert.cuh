@@ -59,7 +59,7 @@ __host__ __device__ constexpr bool i8_unit_scale(int t) { return t == 20 || t ==
 __host__ __device__ constexpr bool i8_wide_scale(int t) { return t == 23; }   // scale -32..31: |sum x scale| can pass 2^23, plain 32-bit multiply
 __host__ __device__ constexpr bool i8_sign_type(int t) { return t == 16 || t == 17 || t == 18 || t == 21 || t == 22; }
 __host__ __device__ constexpr bool i8_gu_type(int t) { return t == 16 || t == 17 || t == 18 || t == 21 || t == 22 || t == 23 || t == 29 || t == 42 || t == 12 || t == 13 || t == 14 || t == 8; }   // (42: the Q2_0 pack gate/up; 8: Q8_0 gate/up of the Qwen3.6 Q8_0 set and the one Q8_0 layer of UD-Q6_K_XL)
-__host__ __device__ constexpr bool i8_d_type(int t) { return t == 20 || t == 42 || t == 6 || t == 8 || t == 7 || t == 13 || t == 14; }   // (13, 14: Q5_K / Q6_K down of UD-Q4_K_XL; n_ff must be a whole number of 256-value super-blocks, native_expert_i8_supported)
+__host__ __device__ constexpr bool i8_d_type(int t) { return t == 20 || t == 42 || t == 6 || t == 8 || t == 7 || t == 13 || t == 14 || t == 23; }   // 23: IQ4_XS down (0216-accel P2)   // (13, 14: Q5_K / Q6_K down of UD-Q4_K_XL; n_ff must be a whole number of 256-value super-blocks, native_expert_i8_supported)
 // Third wave: the K-quants Q4_K (12), Q5_K (13), Q6_K (14) as gate/up and Q5_1 (7) as down.  Q4_K / Q5_K / Q5_1 have a per-32-value minimum: w = base * s * q + min, so
 // sum w x = d_x (base s sum(q a) + min sum(a)): the kernel keeps d_x * sum(a) of every activation block in shared memory (s_as, summed with dp4a when the block is staged) and
 // the decode puts the float `min` (-dmin * m, or + m for Q5_1) in the fourth word of the scale record: one fma more per (row, entry, sub-block).  Q6_K has two int8 scales per 32
