@@ -24,6 +24,7 @@ wants to finish them.
 | [stock-vs-fork-2026-11-08.md](stock-vs-fork-2026-11-08.md) | measurement | The even stock/fork pair on one flag set, captured with a 64-token answer | Predecessor of the 11.11 grid; the 256-token re-shoot never entered it because the prompt came out off canon |
 | [MEASUREMENTS_2026-11-08.md](MEASUREMENTS_2026-11-08.md) | measurement | Stock `3cf03257` against this fork on Q4_K_M experts: 08.11 grids, greedy 256, primary source named per section | The llama half of the 08.11 evening had no note here; the full grid lives in the stand's `docs/measurements/grid-2026-11-08.md` |
 | [VRAM_HEADROOM.md](VRAM_HEADROOM.md) | research | Why prefill collapses on 8 GiB: VRAM headroom per window, not context length | 149 numbers re-checked against the cited source lines by `glm/scripts/chart_data.py` (0 mismatches, selftest 19/19); Russian twin `VRAM_HEADROOM.ru.md` |
+| [mmq-removed-by-upstream.md](mmq-removed-by-upstream.md) | closed | Upstream `3e26b4e15` deleted the MMQ build path, and merged main loses 160k prefill with it | Pair taken 6 minutes apart in one state: 596,5 pp on pin `c930ed15d` against 53,8 pp on merged `c8f9562ed`, same ggml pin, both Release with `/O2`; the MMQ carrier is the `v0.2.15` tag; Russian twin `mmq-removed-by-upstream.ru.md` |
 
 The applied optimizations are in `engine/docs/profile-q36.md` and in the commit history
 (`pacc` under T ≤ 8, L2-ordered split-K, per-layer pinned arena, `--att-mb`,

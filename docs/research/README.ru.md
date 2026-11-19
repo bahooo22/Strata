@@ -22,6 +22,7 @@
 | [sweeps-appendix-ncmoe.ru.md](sweeps-appendix-ncmoe.ru.md) | приложение | Сырые свипы по семействам: `ncmoe`, `ub`, `reserve`, `kv-types`, `windows-ladder`, `stock`, `by-model`, `grid-llama` | Весь корпус свипов на страницу не лезет, поэтому у семейства своя пара `sweeps-appendix-*.md` / `sweeps-appendix-*.ru.md` |
 | [stock-vs-fork-2026-11-08.ru.md](stock-vs-fork-2026-11-08.ru.md) | замеры | Ровная пара «сток против форка» на одном наборе флагов, снята с ответом 64 токена | Предшественник сетки 11.11; пересъём на 256 токенах в неё не вошёл — промпт вышел не по канону |
 | [VRAM_HEADROOM.ru.md](VRAM_HEADROOM.ru.md) | замеры | Почему prefill обваливается на 8 ГиБ: важен запас видеопамяти на окно, а не длина контекста | 149 чисел перепроверены `glm/scripts/chart_data.py` по строкам источников (расхождений 0, саботаж-контроль 19/19); база — `VRAM_HEADROOM.md` |
+| [mmq-removed-by-upstream.ru.md](mmq-removed-by-upstream.ru.md) | закрыто | Апстрим `3e26b4e15` вырезал путь сборки MMQ, и слитый main теряет вместе с ним prefill на 160k | Пара снята в одном состоянии с разрывом 6 минут: 596,5 pp на пине `c930ed15d` против 53,8 pp на слитом `c8f9562ed`, один ggml-пин, обе Release с `/O2`; носитель MMQ — тег `v0.2.15`; база — `mmq-removed-by-upstream.md` |
 
 Применённые оптимизации — в `engine/docs/profile-q36.md` и в истории коммитов
 (`pacc` при T ≤ 8, L2-порядок split-K, per-layer pinned арена, `--att-mb`,
