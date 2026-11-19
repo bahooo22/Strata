@@ -1387,6 +1387,7 @@ struct Engine {
     float *xsuper = nullptr, *hsuper = nullptr;
     int32_t *tok_super = nullptr, *pos_super = nullptr;
     void *q8, *xq, *escr;
+    void *i8xq = nullptr, *i8scr = nullptr;   // 0216-accel P1: int8 expert path (activations, scratch)
     int32_t *ids, *grp_start, *n_groups, *ent_dst, *ent_tok, *tok, *pos0, *pick;
     int32_t* hpin = nullptr;   // pinned staging: [0] decode token, [1] position, [2..9] picks, [10] max rows, [16..] tokens
     unsigned long long* grp_ptr;
@@ -1790,6 +1791,12 @@ struct Engine {
             }
         }
         CK(cudaMalloc(&escr, K::native_expert_scratch_bytes((int64_t) (T * Kp), (int64_t) FF)));
+        if (!use_mmq) {   // 0216-accel P1: the int8 prompt kernels' activation image and scratch
+            const int64_t nent = (int64_t) T * Kp;
+            const int64_t capg = std::min<int64_t>(nent, (int64_t) g.n_expert) + 1;
+            CK(cudaMalloc(&i8xq, (size_t) T * (size_t) (N / 32) * 36));
+            CK(cudaMalloc(&i8scr, K::native_expert_i8_scratch_bytes(nent, capg, (int64_t) FF)));
+        }
         ids = dalloc_t<int32_t>(T * Kp);
         grp_ptr = dalloc_t<unsigned long long>(std::min<size_t>(T * Kp, (size_t) g.n_expert) + 1);
         grp_start = dalloc_t<int32_t>(std::min<size_t>(T * Kp, (size_t) g.n_expert) + 1);
@@ -2580,8 +2587,16 @@ struct Engine {
             const uint8_t* wbase = stream_base ? stream_base : (lhy(li) ? stream_take((int) li) : L.blobs);
             group_entries(L, nullptr, T, wbase);
             if (!xq_post) quant(h, N, T, xq);
-            K::native_expert_grouped(L.L, grp_ptr, grp_start, n_groups, ent_dst, ent_tok,
-                                     std::min<int64_t>(n_ent, g.n_expert), n_ent, xq, escr, eparts, st);
+            const bool i8_l = i8xq && K::native_expert_i8_supported(L.L) &&
+                              K::native_expert_i8_prompt(L.L, n_ent / std::max<int64_t>(1, ((int64_t) g.n_expert + 15) / 16));   // entries per 16-expert group
+            if (i8_l) {   // 0216-accel P1: our int8 dot-product kernels (DP4A on sm_86)
+                K::native_expert_i8_quantize(h, T, N, i8xq, st);
+                K::native_expert_i8(L.L, grp_ptr, grp_start, n_groups, ent_dst, ent_tok,
+                                    std::min<int64_t>(n_ent, g.n_expert) + 1, n_ent, i8xq, i8scr, eparts, st);
+            } else {
+                K::native_expert_grouped(L.L, grp_ptr, grp_start, n_groups, ent_dst, ent_tok,
+                                         std::min<int64_t>(n_ent, g.n_expert), n_ent, xq, escr, eparts, st);
+            }
             if (!stream_base && lhy(li)) stream_done();
         } else {
             group_entries(L, nullptr, T);
