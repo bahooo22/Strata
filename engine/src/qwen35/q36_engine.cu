@@ -2777,7 +2777,8 @@ struct Engine {
     void forward_mtp(int T, int64_t p0, const float* seeds, bool draft, bool graph_mode) {
         const auto& g = m->g;
         const int N = (int) g.n_embd;
-        if (main_hybrid && lhy(m->layers.size()) && T > hybrid_t && use_mmq && mmq_layer[m->layers.size()] != 0)
+        // 0216-accel P0: the stream is armed without MMQ too (layer() calls stream_take for the MTP block then)
+        if (main_hybrid && lhy(m->layers.size()) && T > hybrid_t && (mmq_layer[m->layers.size()] != 0 || !use_mmq))
             stream_begin({(int) m->layers.size()});
         K::iq_embed_rows(m->embd_type, m->embd, m->embd_row, tok_m, T, N, y, st);
         if (map_on) k_put_rows<<<T, kThreads, 0, st>>>(y, d_img, d_map, N);
