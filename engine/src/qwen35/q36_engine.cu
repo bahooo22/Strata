@@ -1168,8 +1168,20 @@ float* upload_f32(const strata::TensorInfo& t, const uint8_t* src) {
         // IQ4_XS (UD-IQ4_XS files store ssm_alpha / ssm_beta so): 256 values in 136 bytes, widened by the
         // reference dequantizer the strata-dequant CLI already ships
         for (size_t b = 0; b < h.size() / 256; ++b) strata::dequantize_iq4_xs(src + b * 136, h.data() + b * 256);
+    } else if (t.type == 20 && h.size() % 32 == 0) {
+        // IQ4_NL (the HauhauCS packs store ssm_alpha / ssm_beta so): 32 values in 18 bytes, fp16 d + 16 nibble pairs,
+        // the low nibble of byte j is value j, the high one value j + 16 (ggml's kvalues_iq4nl)
+        static const int8_t kvalues_iq4nl[16] = {-127, -104, -83, -65, -49, -35, -22, -10, 1, 13, 25, 38, 53, 69, 89, 113};
+        for (size_t b = 0; b < h.size() / 32; ++b) {
+            const uint8_t* q = src + b * 18;
+            const float d = f16_to_f32((uint16_t) (q[0] | (q[1] << 8)));
+            for (int j = 0; j < 16; ++j) {
+                h[b * 32 + j] = d * (float) kvalues_iq4nl[q[2 + j] & 0x0F];
+                h[b * 32 + j + 16] = d * (float) kvalues_iq4nl[q[2 + j] >> 4];
+            }
+        }
     } else {
-        std::fprintf(stderr, "strata-q36: %s is %s, expected F32, BF16, F16, Q8_0 or IQ4_XS\n", t.name.c_str(),
+        std::fprintf(stderr, "strata-q36: %s is %s, expected F32, BF16, F16, Q8_0, IQ4_XS or IQ4_NL\n", t.name.c_str(),
                      t.type_name());
         std::exit(1);
     }
