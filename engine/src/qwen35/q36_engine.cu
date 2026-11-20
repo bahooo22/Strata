@@ -1748,6 +1748,8 @@ struct Engine {
         }
         if (m->has_mtp) mmq_layer[m->layers.size()] = (char) (mmq_built && mmq_ok(m->mtp));
         use_mmq = n_mmq > 0 || (m->has_mtp && mmq_layer[m->layers.size()] != 0);
+        // 0216-accel: no MMQ to give way to, so the int8 prompt kernels are the default (i8_expert_rule.hpp; the env still wins)
+        if (!use_mmq) K::native_expert_i8_set_mmq_free();
         if (mmq_built && first_bad >= 0) {
             const Layer& L = m->layers[(size_t) first_bad];
             std::fprintf(stderr, "strata-q36: layer %d takes the native grouped kernels: MMQ does not cover gate/up "
