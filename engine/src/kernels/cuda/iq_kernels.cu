@@ -6498,6 +6498,7 @@ void native_expert_i8(const NativeExpertLayout& L, const unsigned long long* grp
         case 16: i8_launch<16, true>(tm, a, s); break;
         case 17: i8_launch<17, true>(tm, a, s); break;
         case 18: i8_launch<18, true>(tm, a, s); break;
+        case 20: i8_launch<20, true>(tm, a, s); break;   // IQ4_NL gate/up (0216-accel: the HauhauCS pack)
         case 21: i8_launch<21, true>(tm, a, s); break;
         case 23: i8_launch<23, true>(tm, a, s); break;
         case 29: i8_launch<29, true>(tm, a, s); break;
