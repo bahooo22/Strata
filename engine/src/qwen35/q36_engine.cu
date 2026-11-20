@@ -1355,6 +1355,12 @@ void expert_blob(const Layer& L, int64_t e, uint8_t* dst) {
     std::memcpy(dst + L.L.up_off, L.src_u + (size_t) e * L.src_gsz, L.src_gsz);
     std::memcpy(dst + L.L.down_off, L.src_d + (size_t) e * L.src_dsz, L.src_dsz);
 }
+/// The mapped GGUF's expert e of layer L straight into device memory at dst (3 segments, no host copy).
+void expert_blob_to_dev(const Layer& L, int64_t e, uint8_t* dst, cudaStream_t st) {
+    CK(cudaMemcpyAsync(dst, L.src_g + (size_t) e * L.src_gsz, L.src_gsz, cudaMemcpyHostToDevice, st));
+    CK(cudaMemcpyAsync(dst + L.L.up_off, L.src_u + (size_t) e * L.src_gsz, L.src_gsz, cudaMemcpyHostToDevice, st));
+    CK(cudaMemcpyAsync(dst + L.L.down_off, L.src_d + (size_t) e * L.src_dsz, L.src_dsz, cudaMemcpyHostToDevice, st));
+}
 
 // ------------------------------------------------------------------------------------------------ the engine
 float* dalloc(size_t n) {
@@ -1539,6 +1545,13 @@ struct Engine {
         std::vector<int> init_slot_of, init_exp_in_slot;   // the placement after load: restored for a deterministic request
         std::vector<double> score;   // routing counts, halved at each rebalance
         int32_t* slot_of_d = nullptr;
+        // 0216-accel: the host cache of a layer's experts (STRATA_Q36_EXPERT_CACHE_MB): hblobs holds
+        // ram_slots blobs, ram_slot_of says which expert is where (-1: not cached), a miss picks the
+        // least recently used slot and reads the expert from the mapped GGUF into it
+        std::vector<int> ram_slot_of, ram_exp_in_slot;
+        std::vector<uint32_t> ram_stamp;
+        uint32_t ram_tick = 0;
+        int ram_slots = 0;
 #if defined(STRATA_Q36_CPU_POOL)
         strata::kernels::cpu::NativeFmt fmt;
 #endif
@@ -1554,6 +1567,24 @@ struct Engine {
         if (!m->hybrid) return false;
         const Layer& L = li < m->layers.size() ? m->layers[li] : m->mtp;
         return L.n_slots < (int) m->g.n_expert;
+    }
+    /// 0216-accel: expert e of a hybrid layer as its host blob; with a limited cache (STRATA_Q36_EXPERT_CACHE_MB)
+    /// a miss reads the expert from the mapped GGUF into the least recently used slot
+    const uint8_t* host_expert(const Layer& L, Hy& H, int64_t e) {
+        if (H.ram_slots <= 0) return L.hblobs + (size_t) e * L.stride;
+        int s = H.ram_slot_of[(size_t) e];
+        if (s < 0) {
+            s = 0;
+            for (int i = 1; i < H.ram_slots; ++i)
+                if (H.ram_stamp[(size_t) i] < H.ram_stamp[(size_t) s]) s = i;
+            const int old = H.ram_exp_in_slot[(size_t) s];
+            expert_blob(L, e, L.hblobs + (size_t) s * L.stride);
+            if (old >= 0) H.ram_slot_of[(size_t) old] = -1;
+            H.ram_exp_in_slot[(size_t) s] = (int) e;
+            H.ram_slot_of[(size_t) e] = s;
+        }
+        H.ram_stamp[(size_t) s] = ++H.ram_tick;
+        return L.hblobs + (size_t) s * L.stride;
     }
 #if defined(STRATA_Q36_CPU_POOL)
     std::unique_ptr<strata::kernels::cpu::ExpertPool> pool;
@@ -2823,6 +2854,13 @@ struct Engine {
         static const bool all = std::getenv("STRATA_Q36_STREAM_ALL") != nullptr;
         const int ne = (int) m->g.n_expert;
         const Hy& H = hy[(size_t) stream_seq[(size_t) i]];
+        if (H.ram_slots > 0) {   // 0216-accel: the mapped GGUF straight into the staging buffer (no host copy of the layer)
+            CK(cudaMemcpy2DAsync(stage[b], L.stride, L.src_g, L.src_gsz, L.src_gsz, (size_t) ne, cudaMemcpyHostToDevice, cst));
+            CK(cudaMemcpy2DAsync(stage[b] + L.L.up_off, L.stride, L.src_u, L.src_gsz, L.src_gsz, (size_t) ne, cudaMemcpyHostToDevice, cst));
+            CK(cudaMemcpy2DAsync(stage[b] + L.L.down_off, L.stride, L.src_d, L.src_dsz, L.src_dsz, (size_t) ne, cudaMemcpyHostToDevice, cst));
+            CK(cudaEventRecord(ev_copy[b], cst));
+            return;
+        }
         // fewer than half the experts resident (a 12 GB card): the one whole-layer copy is faster than many small ones
         // (RTX 3060, UD-Q4_K_XL at 37 of 256: pp2048 1970 whole vs 1540 in runs)
         if (all || 2 * L.n_slots < ne) {
@@ -2913,7 +2951,7 @@ struct Engine {
             auto it = open.find(x);
             if (it == open.end() || jobs[it->second].nt == C::MAXT) {
                 C::ExpertJobMulti j;
-                j.blob = L.hblobs + (size_t) x * L.stride;
+                j.blob = host_expert(L, H, x);
                 jobs.push_back(j);
                 it = open.insert_or_assign(x, jobs.size() - 1).first;
             }
@@ -2971,7 +3009,7 @@ struct Engine {
                     H.slot_of[(size_t) y] = -1;
                     H.slot_of[(size_t) x] = s;
                     H.exp_in_slot[(size_t) s] = x;
-                    CK(cudaMemcpyAsync(L.blobs + (size_t) s * L.stride, L.hblobs + (size_t) x * L.stride, L.L.bytes,
+                    CK(cudaMemcpyAsync(L.blobs + (size_t) s * L.stride, host_expert(L, H, x), L.L.bytes,
                                        cudaMemcpyHostToDevice, st));
                     --left;
                     ++hy_swaps;
@@ -2999,7 +3037,7 @@ struct Engine {
             H.exp_in_slot = H.init_exp_in_slot;
             for (int s = 0; s < S; ++s) {
                 const int x = H.exp_in_slot[(size_t) s];
-                CK(cudaMemcpyAsync(L.blobs + (size_t) s * L.stride, L.hblobs + (size_t) x * L.stride, L.L.bytes,
+                CK(cudaMemcpyAsync(L.blobs + (size_t) s * L.stride, host_expert(L, H, x), L.L.bytes,
                                    cudaMemcpyHostToDevice, st));
             }
             CK(cudaMemcpyAsync(H.slot_of_d, H.slot_of.data(), H.slot_of.size() * 4, cudaMemcpyHostToDevice, st));
@@ -3668,7 +3706,19 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             L.n_slots = (int) ne;
             continue;
         }
-        const size_t hbytes = L.stride * (size_t) ne + kMmqTail;
+        // 0216-accel: STRATA_Q36_EXPERT_CACHE_MB caps the whole model's host copy (spread over the hybrid layers): only
+        // that many MiB of expert blobs stay in RAM, the rest are read from the mapped GGUF on demand (a model bigger
+        // than the RAM). 0 keeps every blob resident.
+        static const int cache_mb = [] {
+            const char* v = std::getenv("STRATA_Q36_EXPERT_CACHE_MB");
+            return v != nullptr && v[0] != '\0' ? std::atoi(v) : 0;
+        }();
+        int ram_slots = 0;
+        if (cache_mb > 0 && S < (int) ne) {
+            const size_t layers = std::max<size_t>(1, E.hy.size());
+            ram_slots = (int) std::max<size_t>(8, std::min<size_t>((((size_t) cache_mb << 20) / layers) / L.stride, (size_t) ne));
+        }
+        const size_t hbytes = L.stride * (size_t) (ram_slots > 0 ? ram_slots : ne) + kMmqTail;
         ++arena_layers;
         const bool may_pin = pinned_limit == 0 || (pinned_limit > 0 && pinned_layers < pinned_limit);
         if (may_pin && cudaHostAlloc((void**) &L.hblobs, hbytes, cudaHostAllocDefault) == cudaSuccess) ++pinned_layers;
@@ -3681,14 +3731,30 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             }
         }
         std::memset(L.hblobs, 0, hbytes);
-        for (int64_t e = 0; e < ne; ++e) expert_blob(L, e, L.hblobs + (size_t) e * L.stride);
+        if (ram_slots == 0) {
+            for (int64_t e = 0; e < ne; ++e) expert_blob(L, e, L.hblobs + (size_t) e * L.stride);
+        } else {
+            Engine::Hy& Hc = E.hy[li];
+            Hc.ram_slots = ram_slots;
+            Hc.ram_slot_of.assign((size_t) ne, -1);
+            Hc.ram_exp_in_slot.assign((size_t) ram_slots, -1);
+            Hc.ram_stamp.assign((size_t) ram_slots, 0);
+            for (int s = 0; s < ram_slots && s < (int) ne; ++s) {
+                Hc.ram_slot_of[(size_t) s] = s;
+                Hc.ram_exp_in_slot[(size_t) s] = s;
+                expert_blob(L, s, L.hblobs + (size_t) s * L.stride);
+            }
+        }
         L.n_slots = S;
         if (S > 0) {
             const std::string what = "expert slots (L.blobs), layer " + std::to_string(li) + ", slots " +
                                      std::to_string(S);
             if (!alloc_vram((void**) &L.blobs, L.stride * (size_t) S + kMmqTail, what.c_str())) return false;
             CK(cudaMemset(L.blobs, 0, L.stride * (size_t) S + kMmqTail));
-            CK(cudaMemcpy(L.blobs, L.hblobs, L.stride * (size_t) S, cudaMemcpyHostToDevice));
+            if (ram_slots > 0)
+                for (int s = 0; s < S; ++s) expert_blob_to_dev(L, s, L.blobs + (size_t) s * L.stride, E.st);
+            else
+                CK(cudaMemcpy(L.blobs, L.hblobs, L.stride * (size_t) S, cudaMemcpyHostToDevice));
         }
         Engine::Hy& H = E.hy[li];
         H.slot_of.assign((size_t) ne, -1);
