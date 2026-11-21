@@ -1376,6 +1376,15 @@ template <class T> T* dalloc_t(size_t n) {
     return p;
 }
 
+/// 0216-accel D1: the mapped-GGUF expert cache is on (STRATA_Q36_EXPERT_CACHE_MB > 0)
+bool cache_limit_on() {
+    static const bool on = [] {
+        const char* v = std::getenv("STRATA_Q36_EXPERT_CACHE_MB");
+        return v != nullptr && std::atoi(v) > 0;
+    }();
+    return on;
+}
+
 /// A picture in a prompt: its first cell, its rows, and the hash the conversation cache compares it by.
 struct ImgKey {
     int64_t cell = 0, n = 0;
@@ -1384,6 +1393,10 @@ struct ImgKey {
 };
 
 struct Engine {
+    ~Engine() {   // 0216-accel D1: the prefetch readers must not outlive the buffers they fill
+        for (int b = 0; b < 2; ++b)
+            if (mread[b].joinable()) mread[b].join();
+    }
     const Model* m = nullptr;
     cudaStream_t st = nullptr;
     int ctx = 32768, tmax = 512;
@@ -1599,6 +1612,11 @@ struct Engine {
     uint8_t* stage[2] = {};
     cudaStream_t cst = nullptr;
     cudaEvent_t ev_copy[2] = {}, ev_used[2] = {};
+    // 0216-accel D1: the mapped-GGUF prefetch (STRATA_Q36_EXPERT_CACHE_MB): pinned host copies the reader
+    // threads fill ahead of the staging copy, so the disk read of a layer overlaps the previous layer's compute
+    uint8_t* mstage[2] = {};
+    std::thread mread[2];
+    cudaEvent_t ev_mread[2] = {};
     std::vector<int> stream_seq;   // the state indices a streamed forward visits, in order
     int stream_pos = 0;
     long long hy_cpu = 0, hy_gpu = 0, hy_swaps = 0;   // entries computed on the CPU / GPU, slot replacements
@@ -2870,6 +2888,13 @@ struct Engine {
     void stream_begin(const std::vector<int>& seq) {
         stream_seq = seq;
         stream_pos = 0;
+        for (int b = 0; b < 2; ++b)
+            if (mread[b].joinable()) mread[b].join();
+        if (mstage[0] != nullptr)   // the first two layers are read up front (the page cache keeps them warm)
+            for (int i = 0; i < 2 && i < (int) seq.size(); ++i) {
+                const Layer& L0 = layer_at(seq[(size_t) i]);
+                for (int64_t e = 0; e < (int64_t) m->g.n_expert; ++e) expert_blob(L0, e, mstage[i] + (size_t) e * L0.stride);
+            }
         for (int i = 0; i < 2 && i < (int) seq.size(); ++i) stream_kick(i);
     }
     void stream_kick(int i) {   // the i-th layer of the sequence into staging buffer i % 2, after its last reader
@@ -2882,7 +2907,25 @@ struct Engine {
         static const bool all = std::getenv("STRATA_Q36_STREAM_ALL") != nullptr;
         const int ne = (int) m->g.n_expert;
         const Hy& H = hy[(size_t) stream_seq[(size_t) i]];
-        if (H.ram_slots > 0) {   // 0216-accel: the mapped GGUF straight into the staging buffer (no host copy of the layer)
+        if (H.ram_slots > 0) {   // 0216-accel: the mapped GGUF into the staging buffer, prefetched on the reader thread
+            if (mstage[b] != nullptr) {
+                if (mread[b].joinable()) mread[b].join();   // the reader of this layer has finished
+                CK(cudaMemcpyAsync(stage[b], mstage[b], L.stride * (size_t) ne, cudaMemcpyHostToDevice, cst));
+                CK(cudaEventRecord(ev_mread[b], cst));      // the host buffer is free once this copy is done
+                const int j = i + 2;
+                if (j < (int) stream_seq.size()) {          // read the layer after the next one meanwhile
+                    const Layer& Lj = layer_at(stream_seq[(size_t) j]);
+                    const int64_t ne_j = (int64_t) m->g.n_expert;
+                    uint8_t* dst = mstage[b];
+                    cudaEvent_t ev = ev_mread[b];
+                    mread[b] = std::thread([dst, &Lj, ne_j, ev] {
+                        CK(cudaEventSynchronize(ev));
+                        for (int64_t e = 0; e < ne_j; ++e) expert_blob(Lj, e, dst + (size_t) e * Lj.stride);
+                    });
+                }
+                CK(cudaEventRecord(ev_copy[b], cst));
+                return;
+            }
             CK(cudaMemcpy2DAsync(stage[b], L.stride, L.src_g, L.src_gsz, L.src_gsz, (size_t) ne, cudaMemcpyHostToDevice, cst));
             CK(cudaMemcpy2DAsync(stage[b] + L.L.up_off, L.stride, L.src_u, L.src_gsz, L.src_gsz, (size_t) ne, cudaMemcpyHostToDevice, cst));
             CK(cudaMemcpy2DAsync(stage[b] + L.L.down_off, L.stride, L.src_d, L.src_dsz, L.src_dsz, (size_t) ne, cudaMemcpyHostToDevice, cst));
@@ -3820,6 +3863,11 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
             CK(cudaEventCreateWithFlags(&E.ev_copy[b], cudaEventDisableTiming));
             CK(cudaEventCreateWithFlags(&E.ev_used[b], cudaEventDisableTiming));
             CK(cudaEventRecord(E.ev_used[b], E.st));
+            if (cache_limit_on()) {   // 0216-accel D1: the prefetch buffers for the mapped-GGUF mode
+                if (cudaHostAlloc((void**) &E.mstage[b], max_layer + kMmqTail, cudaHostAllocDefault) != cudaSuccess)
+                    E.mstage[b] = nullptr;
+                CK(cudaEventCreateWithFlags(&E.ev_mread[b], cudaEventDisableTiming));
+            }
         }
     }
     E.pool = std::make_unique<C::ExpertPool>(threads);
