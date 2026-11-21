@@ -194,10 +194,26 @@ DRAFT_HEAD_HINT = ("a smaller draft vocabulary needs less VRAM: --draft-vocab cy
                    "keeps it; or a smaller --context in setup.")
 
 
+COMMIT_FAIL_HINT = ("Windows could promise only {left:.1f} GiB more memory (RAM + page file) while this start plans {planned:.1f} GiB "
+                    "and keeps {floor:.1f} GiB free, so the engine may have run out of memory it can be given while RAM was still "
+                    "free. A bigger page file helps: set it to \"System managed\" (System > About > Advanced system settings > "
+                    "Performance > Advanced > Virtual memory), or start with a smaller context.")
+
+
+def commit_failure_hint(text: str) -> str:
+    """#5133 / #3725: a start that ended after the engine's own Windows commit-limit warning (#1607: "N GiB of it is left, but this
+    run plans M GiB") is told the page file is the thing to change; "" when the start's log has no such warning."""
+    from serve import commit_limit
+    warned = commit_limit.commit_warning(text)
+    if not warned:
+        return ""
+    return ". memory: " + COMMIT_FAIL_HINT.format(left=warned["left_gib"], planned=warned["planned_gib"], floor=warned["floor_gib"])
+
+
 def start_failure_hint(log: str | None, offset: int) -> str:
-    """What to change when the engine stopped at the start: the MTP draft head (#474), VRAM/OOM, CUDA
-    visibility, a GGUF layout mismatch, an ignored memory flag, or a native crash.  "" when the tail has
-    none of them: the log's last lines already say why."""
+    """#474: what to change when the engine stopped at the start because the MTP draft head did not fit the VRAM
+    left: the engine's own `strata mtp:` lines after that failure (0.1.36+: what it needs, what is free, the smaller
+    subsets), else the same advice in words for an older engine.  "" for any other failure: the log says why."""
     if not log:
         return ""
     try:
@@ -206,28 +222,11 @@ def start_failure_hint(log: str | None, offset: int) -> str:
             text = f.read().decode("utf-8", "replace")
     except (OSError, ValueError):
         return ""
-    low = text.lower()
-    hints: list[str] = []
-    if DRAFT_HEAD_FAIL in text:
-        said = [x.strip()[len("strata mtp: "):] for x in text.splitlines()
-                if x.strip().startswith("strata mtp: ") and ("draft head over" in x or "hint:" in x)]
-        hints.append("mtp: " + DRAFT_HEAD_FAIL + ". " + (" ".join(said) if said else "Hint: " + DRAFT_HEAD_HINT))
-    if any(k in low for k in ("out of memory", "cudamalloc", "not enough vram", "cuda error 2",
-                              "failed to allocate")):
-        hints.append("VRAM: the engine ran out of GPU memory. Try a smaller --max-context, --mtp 0, "
-                     "fewer --parallel slots, --vram-reserve-mib 0/64, or a smaller quant.")
-    if any(k in low for k in ("no cuda-capable device", "failed to initialize cuda",
-                              "cuda driver version", "busy or unavailable")):
-        hints.append("CUDA: the engine sees no usable GPU. Check the NVIDIA driver, that the card is not "
-                     "disabled, and that the engine build matches the driver/CUDA.")
-    if any(k in low for k in ("layout wants", "not in the layout", "is not in the", "missing tensor")):
-        hints.append("Model: the GGUF does not match this engine's layout (wrong architecture/quant or a "
-                     "sharded set without all shards). Check the model path and quant.")
-    if any(k in low for k in ("ignoring --vram-reserve-mib", "ignoring --resident-budget-gib")):
-        hints.append("Flags: the engine ignored a VRAM budget flag; the value was not applied to this model.")
-    if any(k in low for k in ("stack buffer overrun", "access violation", "code 134", "k_size+31480")):
-        hints.append("Crash: the engine crashed natively (not a model/format error); attach the full log.")
-    return (". " + " ".join(hints)) if hints else ""
+    if DRAFT_HEAD_FAIL not in text:
+        return commit_failure_hint(text)
+    said = [x.strip()[len("strata mtp: "):] for x in text.splitlines()
+            if x.strip().startswith("strata mtp: ") and ("draft head over" in x or "hint:" in x)]
+    return ". mtp: " + DRAFT_HEAD_FAIL + ". " + (" ".join(said) if said else "Hint: " + DRAFT_HEAD_HINT)
 
 
 def start_log_text(log: str | None, offset: int, limit: int = 1 << 20) -> str:
@@ -470,6 +469,29 @@ def read_engine_stage_log(path: str | None, start: int, limit: int = 2 << 20) ->
         if stages is not None:
             return stages
     return []
+
+
+def helper_gpus(cfg: dict, env: dict | None) -> list[tuple[int, str]]:
+    """The cards the engine uses beside the ones the config's "gpu" names - helper expert caches
+    (--expert-cache-device1..3, CUDA1..3) and a peer tier (--peer-device N) - as (nvidia-smi number, role). The engine
+    names them by CUDA ordinal; CUDA_VISIBLE_DEVICES with CUDA_DEVICE_ORDER=PCI_BUS_ID maps an ordinal to its card.
+    Empty when that list is missing or ambiguous: the Monitor then shows the configured cards only, as before."""
+    order = visible_device_order(env, cfg.get("backend"))
+    if len(order) < 2:
+        return []
+    args = [str(a) for a in (cfg.get("args") or [])]
+    found: list[tuple[int, str]] = []
+    for i, a in enumerate(args[:-1]):
+        value = args[i + 1]
+        ordinal, role = None, None
+        m = re.fullmatch(r"--expert-cache-device([123])", a)
+        if m and (value == "auto" or (value.isdigit() and int(value) > 0)):
+            ordinal, role = int(m.group(1)), "helper cache"
+        elif a == "--peer-device" and value.isdigit() and int(value) > 0:
+            ordinal, role = int(value), "peer tier"
+        if ordinal is not None and ordinal < len(order) and all(order[ordinal] != g for g, _ in found):
+            found.append((order[ordinal], role))
+    return found
 
 
 def visible_device_order(env: dict | None, backend: str | None) -> list[int]:
