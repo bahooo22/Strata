@@ -1406,6 +1406,8 @@ struct Engine {
     int32_t *tok_super = nullptr, *pos_super = nullptr;
     void *q8, *xq, *escr;
     void *i8xq = nullptr, *i8scr = nullptr;   // 0216-accel P1: int8 expert path (activations, scratch)
+    void *fxa = nullptr, *fha = nullptr, *fscr = nullptr;   // 0216-accel P4: fused kernels' activations, H, group tables
+    int32_t *fslot = nullptr, *fsrc = nullptr;
     int32_t *ids, *grp_start, *n_groups, *ent_dst, *ent_tok, *tok, *pos0, *pick;
     int32_t* hpin = nullptr;   // pinned staging: [0] decode token, [1] position, [2..9] picks, [10] max rows, [16..] tokens
     unsigned long long* grp_ptr;
@@ -1841,6 +1843,12 @@ struct Engine {
             const int64_t capg = std::min<int64_t>(nent, (int64_t) g.n_expert) + 1;
             CK(cudaMalloc(&i8xq, (size_t) T * (size_t) (N / 32) * 36));
             CK(cudaMalloc(&i8scr, K::native_expert_i8_scratch_bytes(nent, capg, (int64_t) FF)));
+            // 0216-accel P4: the fused q36 kernels' buffers (same sizes the bench's FusedPath uses)
+            CK(cudaMalloc(&fxa, strata::prefill::fused::act_bytes(T, N)));
+            CK(cudaMalloc(&fha, strata::prefill::fused::act_bytes(nent, FF)));
+            CK(cudaMalloc(&fscr, strata::prefill::fused::group_bytes(nent, (int) g.n_expert)));
+            CK(cudaMalloc(&fslot, (size_t) nent * 4));
+            CK(cudaMalloc(&fsrc, (size_t) nent * 4));
         }
         ids = dalloc_t<int32_t>(T * Kp);
         grp_ptr = dalloc_t<unsigned long long>(std::min<size_t>(T * Kp, (size_t) g.n_expert) + 1);
@@ -2632,9 +2640,29 @@ struct Engine {
             const uint8_t* wbase = stream_base ? stream_base : (lhy(li) ? stream_take((int) li) : L.blobs);
             group_entries(L, nullptr, T, wbase);
             if (!xq_post) quant(h, N, T, xq);
+            static const bool p4_on = [] { const char* v = std::getenv("STRATA_Q36_P4"); return v != nullptr && v[0] == '1'; }();
+            const bool fused_ok = p4_on && fxa && strata::prefill::fused_q36::native_supported_ext(L.L.gu_type, L.L.d_type);   // 0216-accel P4: opt-in
             const bool i8_l = i8xq && K::native_expert_i8_supported(L.L) &&
                               K::native_expert_i8_prompt(L.L, n_ent / std::max<int64_t>(1, ((int64_t) g.n_expert + 15) / 16));   // entries per 16-expert group
-            if (i8_l) {   // 0216-accel P1: our int8 dot-product kernels (DP4A on sm_86)
+            if (fused_ok) {   // 0216-accel P4: the fused int8 prompt kernels come first (2.4x int8 on 8K)
+                static bool said_fused = false;
+                if (!said_fused) { said_fused = true; std::fprintf(stderr, "strata-q36: prompt experts on the fused int8 kernels (0216-accel)\n"); }
+                strata::prefill::fused_q36::quantize_act_native(h, T, N, fxa, st);
+                strata::prefill::fused::group(ids, (int64_t) n_ent, (int) Kp, (int) g.n_expert, fscr, fslot, fsrc, st);
+                strata::prefill::fused_q36::NativeGeom ng{};
+                ng.gu_type = (int) L.L.gu_type; ng.d_type = (int) L.L.d_type;
+                ng.gu_row = (size_t) L.L.gu_row; ng.d_row = (size_t) L.L.d_row;
+                ng.up_off = (size_t) L.L.up_off; ng.down_off = (size_t) L.L.down_off;
+                for (int e0 = 0; e0 < (int) g.n_expert; e0 += strata::prefill::fused_q36::kQ36MaxBatch) {
+                    strata::prefill::fused_q36::Batch bt;
+                    bt.e0 = e0;
+                    bt.e1 = std::min((int) g.n_expert, e0 + strata::prefill::fused_q36::kQ36MaxBatch);
+                    for (int e = bt.e0; e < bt.e1; ++e) bt.blob[e - bt.e0] = wbase + (size_t) e * L.stride;
+                    strata::prefill::fused_q36::experts_native_ext(bt, ng, (int) g.n_expert, (int64_t) n_ent, fscr,
+                                                                   fxa, fsrc, fha, eparts, st);
+                }
+                prow = fslot;   // dm is written by group row: place_kernel's slot[entry] is that row, src[p] is the token
+            } else if (i8_l) {   // 0216-accel P1: our int8 dot-product kernels (DP4A on sm_86)
                 K::native_expert_i8_quantize(h, T, N, i8xq, st);
                 K::native_expert_i8(L.L, grp_ptr, grp_start, n_groups, ent_dst, ent_tok,
                                     std::min<int64_t>(n_ent, g.n_expert) + 1, n_ent, i8xq, i8scr, eparts, st);
