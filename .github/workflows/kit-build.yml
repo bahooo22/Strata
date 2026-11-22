@@ -69,7 +69,6 @@ env:
   ARTIFACT_FILES: |
     strata\build-kit\strata-q36.exe
     strata\build-kit\strata.exe
-    strata\build-kit\strata_kq.dll
 
 jobs:
   ci-gates:
@@ -225,11 +224,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: strata-cuda-servers-${{ github.sha }}
-          # Тот же набор, что укладывает в комплект pack_kit: strata_kq.dll грузится из кода по
-          # имени (LoadLibrary рядом с движком), её нет ни в одной импорт-таблице, и артефакт без
-          # неё выглядел полным - а на машине пользователя K-quant-эксперты молча уходили бы в
-          # FP16-путь промпта. cublas приезжает из redist-архива, а не из этого дерева.
           # Список лежит в env.ARTIFACT_FILES: его же проверяет гейт полноты выше.
+          # 0.2.16: strata_kq.dll больше не собирается (3e26b4e15 удалил MMQ-путь), набор — два сервера.
           path: ${{ env.ARTIFACT_FILES }}
           retention-days: 14
           # Пустое множество - отдельная поломка (сборка не произвела ничего), и она обязана
