@@ -109,6 +109,10 @@ $WEB_SPECS = @(
        omit = @("test_*.py", "mcp_fake_server.py")
        why  = "serve/*.py кроме тестов: замыкание импортов от serve/server.py (28 файлов, 1090526 Б); " +
               "mcp_fake_server.py нужен только serve/test_mcp.py" },
+    @{ group = "serve-parts"; dir = "serve/server_parts"; recurse = $false; pattern = "*.py"
+       omit = @("test_*.py")
+       why  = "0.2.19: serve/server_parts/*.py импортируются serve/server.py на верхнем уровне " +
+              "(engines.py, http_api.py, openai_api.py, anthropic_api.py, core.py, base.py)" },
     @{ group = "serve-data"; dir = "serve"; recurse = $false; files = @("chat_template.jinja")
        why  = "server.py:10401 берёт ROOT/serve/chat_template.jinja, когда шаблона из пакета нет" },
     @{ group = "serve-web"; dir = "serve/web"; recurse = $true; any = $true
@@ -331,6 +335,8 @@ $RUNTIME_VENDOR_IMPORTS = "jinja2, regex"
 $WEB_STAND_WAIVERS = [ordered]@{
     'kit\serve\server.py' = @{ hits = 2
         why = 'комментарий 3595-3596: запись схемы file:// («file://C:/x.png») - написание URL, а не путь сборки' }
+    'kit\strata_control\engine_component.py' = @{ hits = 2
+        why = '0.2.19 (Hyper-V GPU-PV): docstring про HostDriverStore и запас SystemRoot при его поиске - оба читаются как C:\Windows, образец и фолбэк, не путь сборки' }
     'kit\serve\telemetry.py' = @{ hits = 1
         why = 'запас переменной ProgramFiles при поиске nvml.dll: r-C:\Program Files читается, только если переменная окружения пуста' }
     'kit\serve\loader_diag.py' = @{ hits = 1
@@ -1227,20 +1233,25 @@ function Test-KitSourceTexts([string]$Src, [string]$Repo = "") {
     $checked = 0
     foreach ($k in $m.Keys) {
         $src = [string]$m[$k]
+        # 23.11: с относительным -KitSrc (CI передаёт "strata\tools\packaging\kit") манифест отдаёт
+        # относительные пути, а префиксы выше развёрнуты в абсолютные - сравнение не совпадало ни разу,
+        # и гейт отказывал "ни одного входа не мерилось". Источник нормализуется так же, как префиксы.
+        $srcFull = try { [System.IO.Path]::GetFullPath($src) } catch { $src }
+        $srcKey = $srcFull.Replace('/', '\')
         $prefix = ""
         foreach ($pf in $prefixes) {
-            if ($src.Replace('/', '\').StartsWith($pf + '\', [StringComparison]::OrdinalIgnoreCase)) {
+            if ($srcKey.StartsWith($pf + '\', [StringComparison]::OrdinalIgnoreCase)) {
                 $prefix = $pf; break
             }
         }
         if (-not $prefix) { continue }
-        if ([IO.Path]::GetExtension($src) -notin $TEXT_EXT) { continue }
-        if (-not (Test-Path -LiteralPath $src)) { throw "нет входного файла -KitSrc: $src" }
+        if ([IO.Path]::GetExtension($srcFull) -notin $TEXT_EXT) { continue }
+        if (-not (Test-Path -LiteralPath $srcFull)) { throw "нет входного файла -KitSrc: $srcFull" }
         $checked++
         # Метка - КЛЮЧ манифеста, то есть путь внутри архива. Иначе -TextGate подписывал бы находки
         # путём от корня репозитория (serve\server.py), а гейт 2 по дереву раскладки - путём от
         # staging (kit\serve\server.py), и один и тот же отпуск пришлось бы держать в двух формах.
-        foreach ($line in @(Get-StandPathHit $src)) {
+        foreach ($line in @(Get-StandPathHit $srcFull)) {
             $hits += ("{0}: {1}" -f $k, $line)
         }
     }
@@ -1824,7 +1835,7 @@ if ($SelfTest) {
     # путей и его же отсутствие поимённо.
     $wr = Join2 $tmp "webrepo"
     foreach ($d in @("serve\web\locales", "serve\fixtures\deepseek41", "serve\__pycache__",
-                     "strata_control", "strata_cli\launch", "tools")) {
+                     "serve\server_parts", "strata_control", "strata_cli\launch", "tools")) {
         New-Item -ItemType Directory -Force -Path (Join2 $wr $d) | Out-Null
     }
     foreach ($f in @("serve\server.py", "serve\frontend.py", "serve\test_server.py",
@@ -1832,6 +1843,7 @@ if ($SelfTest) {
                      "serve\__pycache__\server.cpython-314.pyc", "serve\web\index.html",
                      "serve\web\app.js", "serve\web\locales\ru.json",
                      "serve\fixtures\deepseek41\chat_template.jinja",
+                     "serve\server_parts\core.py",
                      "strata_control\engine_component.py", "strata_control\app_policy.py",
                      "strata_control\test_policy.py", "strata_control\update_keys.json",
                      "strata_cli\__init__.py", "strata_cli\cli.py", "strata_cli\client.py",
@@ -1840,7 +1852,7 @@ if ($SelfTest) {
         Write-NoBom (Join2 $wr $f) "переносимо"
     }
     $web = Get-WebPayload -Repo $wr -Required $true
-    Chk "доливайка: 16 файлов по списку правил" $web.Files.Count 16
+    Chk "доливайка: 17 файлов по списку правил" $web.Files.Count 17
     Chk "доливайка: тестов в перечне нет" (@($web.Files.Keys | Where-Object { $_ -like '*\test_*' }).Count) 0
     Chk "доливайка: mcp_fake_server не поехал" `
         (@($web.Files.Keys | Where-Object { $_ -like '*mcp_fake_server*' }).Count) 0
@@ -1848,21 +1860,22 @@ if ($SelfTest) {
     Chk "доливайка: __pycache__ не поехал" (@($web.Files.Keys | Where-Object { $_ -like '*__pycache__*' }).Count) 0
     Chk "доливайка: tools\calibrate едет в архив" `
         (@($web.Files.Keys | Where-Object { $_ -like '*calibrate*' }).Count) 1
-    Chk "доливайка: раскладка kit\serve" (@($web.Files.Keys | Where-Object { $_ -like 'kit\serve\*' }).Count) 6
+    Chk "доливайка: раскладка kit\serve" (@($web.Files.Keys | Where-Object { $_ -like 'kit\serve\*' }).Count) 7
     Chk "доливайка: раскладка kit\strata_control" (@($web.Files.Keys | Where-Object { $_ -like 'kit\strata_control\*' }).Count) 3
     Chk "доливайка: раскладка kit\strata_cli" (@($web.Files.Keys | Where-Object { $_ -like 'kit\strata_cli\*' }).Count) 4
     Chk "доливайка: раскладка kit\tools" (@($web.Files.Keys | Where-Object { $_ -like 'kit\tools\*' }).Count) 3
-    Chk "доливайка: печатается 7 групп веса" $web.Stats.Count 7
+    Chk "доливайка: печатается 8 групп веса" $web.Stats.Count 8
     Chk "доливайка: без дерева и без Required - пустой перечень" `
         (Get-WebPayload -Repo (Join2 $tmp "no-such-repo") -Required $false).Files.Count 0
     $threw = ""
     try { Get-WebPayload -Repo (Join2 $tmp "no-such-repo") -Required $true | Out-Null } catch { $threw = $_.Exception.Message }
     Chk "доливайка: нет дерева репозитория - отказ называет группу" ($threw -like "*serve-code*") $true
     $wEmpty = Join2 $tmp "webrepo-empty"
-    foreach ($d in @("serve\web", "strata_control", "strata_cli", "tools")) {
+    foreach ($d in @("serve\web", "serve\server_parts", "strata_control", "strata_cli", "tools")) {
         New-Item -ItemType Directory -Force -Path (Join2 $wEmpty $d) | Out-Null
     }
     Write-NoBom (Join2 $wEmpty "serve\server.py") "x"
+    Write-NoBom (Join2 $wEmpty "serve\server_parts\core.py") "x"
     Write-NoBom (Join2 $wEmpty "serve\chat_template.jinja") "x"
     $threw = ""
     try { Get-WebPayload -Repo $wEmpty -Required $true | Out-Null } catch { $threw = $_.Exception.Message }
@@ -2221,7 +2234,7 @@ if ($SelfTest) {
     }).Count
     $tgW = Test-KitSourceTexts -Src $tgSrc2 -Repo $wr
     Chk "-TextGate по репозиторию: меряется ровно текстовая часть манифеста" $tgW.Checked $wantTg
-    Chk "-TextGate по репозиторию: 9 файлов комплекта + 14 файлов морды" $tgW.Checked 23
+    Chk "-TextGate по репозиторию: 9 файлов комплекта + 15 файлов морды" $tgW.Checked 24
     Chk "-TextGate по репозиторию: на чистом дереве ноль находок" $tgW.Hits.Count 0
     Write-NoBom (Join2 $wr "serve\frontend.py") "log = r'D:\logs\x'`nmm = r'D:\logs\y'"
     $tgW2 = Test-KitSourceTexts -Src $tgSrc2 -Repo $wr
