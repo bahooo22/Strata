@@ -70,7 +70,7 @@ struct Cfg {
     static constexpr int PvCols = kHD / WarpPerM;               // DV columns a warp accumulates: 128
     static constexpr int PvTiles = PvCols / 8;                  // ... as 8-column tiles: 16
     static constexpr int ColsPerThread = Slice / kThreadsPerRow;   // slice columns one softmax thread owns: 8/16
-    static_assert(Qs == 4 || Qs == 8 || Qs == 16 || Qs == 32, "the FA pilot instantiates kQs = 4, 8, 16 and 32");
+    static_assert(Qs == 4 || Qs == 8, "the FA pilot instantiates kQs = 4 and 8");
     static_assert(Slice == 32 || Slice == 64, "the FA pilot instantiates kSlice = 32 and 64");
     static_assert(Rows % 16 == 0, "the rows of a block must divide into 16-row MMA tiles");
     static_assert(Warps % MT == 0, "the row blocks must divide the warps");
@@ -115,7 +115,8 @@ struct Args {
 
 template <typename C>
 struct SmemT {
-    __half kv[C::Slice][kLD];   // 0216-accel F2b: Q is read from global (frag by frag), so the block's shared is kv+p+s only               // the slice's K, then (after the score MMA) its V
+    __half q[C::Rows][kLD];
+    __half kv[C::Slice][kLD];               // the slice's K, then (after the score MMA) its V
     __half p[C::Rows][C::Slice + kPad];
     float s[C::Rows][C::Slice + 4];
     float lsum[C::Rows];                    // running sum of exp - written only by the row's own quad leader
@@ -145,8 +146,17 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
     const int m = warp / kWarpPerM, nhalf = warp % kWarpPerM;   // row block, and its half of the columns
     const float scl2 = a.scale * 1.4426950408889634f;           // 1/sqrt(HD) * log2(e): the softmax runs in exp2
 
-    // 0216-accel F2b: row r is (i, g) = (r / kG, r % kG), its absolute position a.p0 + i0 + i; the Q fragments
-    // are loaded straight from global memory (the Q tile is small and stays in L2 across the KV slices).
+    // Row r is (i, g) = (r / kG, r % kG); its absolute position is a.p0 + i0 + i.
+    for (int x = t; x < kRows * (kHD / 8); x += kThreads) {
+        const int r = x / (kHD / 8), c8 = (x % (kHD / 8)) * 8;
+        const int i = r / kG, g = r % kG, qrow = i0 + i;
+        __half* dst = &S.q[r][c8];
+        if (qrow < a.T)
+            *reinterpret_cast<uint4*>(dst) =
+                __ldg(reinterpret_cast<const uint4*>(a.Q + ((size_t) qrow * a.H + kvh * kG + g) * a.HD + c8));
+        else
+            *reinterpret_cast<uint4*>(dst) = make_uint4(0, 0, 0, 0);
+    }
     // The running max of a row lives in the registers of its own quad (all four threads keep the same value): one
     // shared mrow read by four threads and written by one of them inside the same slice is a race no barrier covers.
     // Only the quad leader touches S.lsum, so its per-slice accumulation stays a single-thread read-modify-write.
@@ -185,9 +195,7 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
             for (int j = 0; j < 4; ++j) {
                 const int row = m * 16 + gid + ((j == 1 || j == 3) ? 8 : 0);
                 const int col = k0 + 2 * tig + (j >= 2 ? 8 : 0);   // a0/a1 rows gid/gid+8 at k=2*tig, a2/a3 the same at +8
-                const int qi = row / kG, qg = row % kG, qrow = i0 + qi;
-                qa[j] = qrow < a.T ? __ldg(reinterpret_cast<const uint32_t*>(
-                            a.Q + ((size_t) qrow * a.H + kvh * kG + qg) * a.HD + col)) : 0u;
+                qa[j] = pack2(S.q[row][col], S.q[row][col + 1]);
             }
 #pragma unroll
             for (int nn = 0; nn < kScoreTiles; ++nn) {
@@ -308,15 +316,7 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
 //   8 x 32: 33792 + 16896 + 5120 + 9216 + 512 = 65 536 B (64.00 KiB)  -> 1 block / SM  (256 threads)
 //   4 x 64: 16896 + 33792 + 4608 + 8704 + 256 = 64 256 B (62.75 KiB)  -> 1 block / SM
 //   8 x 64: 33792 + 33792 + 9216 + 17408 + 512 = 94 720 B (92.5 KiB)  -> 1 block / SM (256 threads)
-enum Variant { k4x32 = 0, k8x32 = 1, k4x64 = 2, k8x64 = 3, k16x64 = 4, k32x32 = 5, kVariantCount = 6 };
-
-/// 0216-accel F2b: a wider query block cuts the K/V re-reads (T/Qs passes over the prefix). Q left the shared
-/// memory for the global/L2 path, so Qs=16 (Slice 64) and Qs=32 (Slice 32) fit the 96 KB carveout.
-inline Variant pick_by_t(int T) {
-    if (T >= 512) return k32x32;
-    if (T >= 128) return k16x64;
-    return k4x32;
-}
+enum Variant { k4x32 = 0, k8x32 = 1, k4x64 = 2, k8x64 = 3, kVariantCount = 4 };
 
 template <int Qs, int Slice>
 constexpr size_t shared_bytes_of() {
@@ -330,8 +330,6 @@ inline size_t q36_fa_shared(Variant v) {
     case k8x32: return shared_bytes_of<8, 32>();
     case k4x64: return shared_bytes_of<4, 64>();
     case k8x64: return shared_bytes_of<8, 64>();
-    case k16x64: return shared_bytes_of<16, 64>();
-    case k32x32: return shared_bytes_of<32, 32>();
     default: return shared_bytes_of<4, 32>();
     }
 }
@@ -357,8 +355,6 @@ inline bool q36_fa_shape(Variant v, int T, int HKV, Shape* out) {
     case k8x32: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 32>::Threads); break;
     case k4x64: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 64>::Threads); break;
     case k8x64: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 64>::Threads); break;
-    case k16x64: out->grid = dim3((unsigned) ((T + 15) / 16), (unsigned) HKV); out->block = dim3(Cfg<16, 64>::Threads); break;
-    case k32x32: out->grid = dim3((unsigned) ((T + 31) / 32), (unsigned) HKV); out->block = dim3(Cfg<32, 32>::Threads); break;
     default: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 32>::Threads); break;
     }
     out->shared = q36_fa_shared(v);
@@ -422,8 +418,6 @@ inline bool q36_fa_launch(dim3 grid, dim3 block, cudaStream_t st, const __half* 
     case k8x32: return launch_one<8, 32>(sh, st, a, T, HKV);
     case k4x64: return launch_one<4, 64>(sh, st, a, T, HKV);
     case k8x64: return launch_one<8, 64>(sh, st, a, T, HKV);
-    case k16x64: return launch_one<16, 64>(sh, st, a, T, HKV);
-    case k32x32: return launch_one<32, 32>(sh, st, a, T, HKV);
     default: return launch_one<4, 32>(sh, st, a, T, HKV);
     }
 }

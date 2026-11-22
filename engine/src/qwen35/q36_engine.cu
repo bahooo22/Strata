@@ -2483,7 +2483,7 @@ struct Engine {
                 }
                 const bool fa_want = fa_layer == -2 || fa_layer == (int) li;
                 q36fa::Shape fa_shape;
-                const q36fa::Variant fa_var = fa_tile == 0 ? q36fa::pick_by_t(T) : (q36fa::Variant) fa_tile;   // 0216-accel F2b
+                const q36fa::Variant fa_var = (q36fa::Variant) fa_tile;
                 const bool fa_ok = fa_want && q36fa::q36_fa_shape(fa_var, T, HKV, &fa_shape) &&
                                    q36fa::q36_fa_launch(fa_shape.grid, fa_shape.block, st, q16, k16, v16, att, T, P,
                                                         (int) p0, H, HKV, HD, ctx, 1.0f / sqrtf((float) HD), fa_var);
