@@ -1512,6 +1512,7 @@ struct Engine {
     cudaEvent_t prof_e = nullptr, prof_f = nullptr;   // MMQ quantize / SwiGLU staging copies
     cudaEvent_t prof_g = nullptr, prof_h = nullptr;   // the output head (mm + argmax)
     double t_attn = 0, t_gdn = 0, t_moe = 0, t_total = 0, t_quant = 0, t_head = 0;
+    double t_kv = 0, t_fa = 0, t_wo = 0;   // 0216-accel F1: the attention layer's parts (KV widening, FA/fallback, wo)
     double t_draft = 0, t_verify = 0, t_commit = 0;   // spec_step phases (host side, syncs included)
 
     // ---- sessions: the conversation states.  One for a single-request engine; --batch N keeps N, each with its own
@@ -2451,6 +2452,7 @@ struct Engine {
                 const int tq = (int) std::max<int64_t>(1, std::min<int64_t>(T, (int64_t) (kAttScoreFloats / ((size_t) H * ldp))));
                 const int G = H / HKV;
                 const float one = 1.0f, zero = 0.0f;
+                if (profile) cudaEventRecord(prof_e, st);
                 if (kv_type != KV_F32) {
                     const int64_t nkv = (int64_t) HKV * P * HD;
                     switch (kv_type) {
@@ -2471,6 +2473,14 @@ struct Engine {
                     k_kv_f16<<<grid1((int64_t) HKV * P * HD), kThreads, 0, st>>>(kc[li], vc[li], k16, v16, ctx, P, HD, HKV);
                 }
                 k_to_f16<<<grid1((int64_t) T * H * HD), kThreads, 0, st>>>(q, q16, (int64_t) T * H * HD);
+                if (profile) {
+                    cudaEventRecord(prof_f, st);
+                    cudaEventSynchronize(prof_f);
+                    float ms = 0.f;
+                    cudaEventElapsedTime(&ms, prof_e, prof_f);
+                    t_kv += (double) ms;
+                    cudaEventRecord(prof_e, st);
+                }
                 const bool fa_want = fa_layer == -2 || fa_layer == (int) li;
                 q36fa::Shape fa_shape;
                 const q36fa::Variant fa_var = (q36fa::Variant) fa_tile;
@@ -2579,7 +2589,21 @@ struct Engine {
                     k_attn_merge<<<nt * H, HD, 0, st>>>(pacc, pm, pl, gate, dpos, t0, H, n_chunk, att, rs);
                 }
             }
-            mm(L.wo, att, y, T);
+            if (profile) {
+                cudaEventRecord(prof_f, st);
+                cudaEventSynchronize(prof_f);
+                float ms = 0.f;
+                cudaEventElapsedTime(&ms, prof_e, prof_f);
+                t_fa += (double) ms;
+                cudaEventRecord(prof_e, st);
+                mm(L.wo, att, y, T);
+                cudaEventRecord(prof_f, st);
+                cudaEventSynchronize(prof_f);
+                cudaEventElapsedTime(&ms, prof_e, prof_f);
+                t_wo += (double) ms;
+            } else {
+                mm(L.wo, att, y, T);
+            }
         }
         if (pf) {
             cudaEventRecord(prof_b, st);
@@ -4553,10 +4577,11 @@ struct Serve {
         std::fflush(stdout);
         if (E.profile) {   // STRATA_Q36_PROFILE=1: the request's own share, reset for the next DONE; stderr reaches the engine log
             std::fprintf(stderr, "profile: total %.1f ms, head %.1f ms, quant %.1f ms, attn %.1f ms, gdn %.1f ms, "
-                                 "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms\n",
-                         E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify, E.t_commit);
+                                 "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms, kv %.1f ms, fa %.1f ms, wo %.1f ms\n",
+                         E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify, E.t_commit, E.t_kv, E.t_fa, E.t_wo);
             std::fflush(stderr);
             E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0.0;
+            E.t_kv = E.t_fa = E.t_wo = 0.0;
         }
         std::fprintf(stderr, "strata serve: session %d: prompt %zu tokens = %zu reused + %lld read in %.0f ms (%.1f tok/s), "
                      "%lld generated in %.0f ms (%.1f tok/s), drafts accepted %lld of %lld (%s)\n", s, ids.size(), reuse,
@@ -4889,10 +4914,11 @@ int strata::qwen35::run(int argc, char** argv) {
                         bench_tg > 0 ? (double) bench_tg / (tg_ms / 1000.0) : 0.0);
             if (E.profile)
                 std::fprintf(stderr, "profile: total %.1f ms, head %.1f ms, quant %.1f ms, attn %.1f ms, gdn %.1f ms, "
-                                     "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms\n",
+                                     "moe %.1f ms, draft %.1f ms, verify %.1f ms, commit %.1f ms, kv %.1f ms, fa %.1f ms, wo %.1f ms\n",
                              E.t_total, E.t_head, E.t_quant, E.t_attn, E.t_gdn, E.t_moe, E.t_draft, E.t_verify,
-                             E.t_commit);
+                             E.t_commit, E.t_kv, E.t_fa, E.t_wo);
             E.t_total = E.t_head = E.t_quant = E.t_attn = E.t_gdn = E.t_moe = E.t_draft = E.t_verify = E.t_commit = 0;
+            E.t_kv = E.t_fa = E.t_wo = 0;
             std::fflush(stdout);
         }
         return 0;
