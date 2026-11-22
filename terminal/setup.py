@@ -115,6 +115,8 @@ WIN = os.name == "nt"
 # download (download()), unless a tester sets STRATA_ALLOW_UNPINNED=1.
 HF_REVISIONS = {
     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",        # 2026-09-29
+    "mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF": "f4855f5360049541536f36b26fbc95663591ab21",   # 2026-11-23
+    "mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF": "0e6e2a22728d3617f655899b191a9e81f11b8974",  # 2026-11-23
     "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d",   # 2026-10-07 (adds IQ3_S)
     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF": "bba88856f8c3c0c9e40e45f82d05e228b814ac43",  # 2026-10-19 (the new expert-pruned shard 1)
     "unsloth/Qwen3.8-Flash-Next-GGUF": "38bb39ee97821de2c9009abb7e93950eec396e66",                   # 2026-09-30
@@ -785,6 +787,8 @@ QWEN36_FILES = {
     "Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf": (32611711264, "35fce994cd36104a7dc1bd8a4bdf13778145664c00fdef6773aebc9246e5019c"),
     "Qwen3.6-35B-A3B-Q8_0.gguf": (37801097504, "c1283d8b80c3e38b2735ddbc9766d3b3126f44d6c484be419d4e101d09a76131"),
     "mmproj-F16.gguf": (899283584, "71f3cbc1f7cc0f30d09d41cfa924c0060827ebc33bf15ace7e86661e856f0160"),
+    "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf": (19179522752, "3db4507e8c2336e5444dbdb56da7fed45a7597f10c0f53299b998d1f5bba280a"),
+    "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf": (18728779424, "6c5bb2431bdbe1a68dc09c33ae18cd1d3ff4e3932e5fe5c3b360eb61ab16e8ab"),
 }
 OWN_PATH_FAMILIES = {
     "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
@@ -797,6 +801,12 @@ OWN_PATH_FAMILIES = {
                # so the file's size plus room for the OS and the rest (measured: UD-Q4_K_XL on a 46 GB PC with a 12 GB
                # card, 18.75 GiB of experts pinned)
                "models": {"UD-Q4_K_XL": {"about": "4-bit (Unsloth Dynamic), the smallest", "ram_gb": 32},
+                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
+                                         "file": "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+                                         "hf": hf("mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF")},
+                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
+                                            "file": "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf",
+                                            "hf": hf("mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF")},
                           "UD-Q6_K_XL": {"about": "6-bit (Unsloth Dynamic), closer to the full model", "ram_gb": 44},
                           "Q8_0": {"about": "8-bit, the closest to the full model", "ram_gb": 52}},
                "sha256": QWEN36_FILES,
@@ -809,6 +819,20 @@ OWN_PATH_FAMILIES = {
                # the 30 GDN layers (state_gb)
                "vision": True, "state_gb": 0.07}
 }
+def own_file(fam: dict, model: str) -> str:
+    """The model's published file name: the family's pattern, or the model's own (KAT/Huihui live in their own Hub repos)."""
+    return fam["models"].get(model, {}).get("file", fam["file"]).format(q=model)
+
+
+def own_size(fam: dict, model: str) -> int:
+    return fam["sha256"][own_file(fam, model)][0]
+
+
+def own_hf(fam: dict, model: str) -> str:
+    """The Hub folder the file is fetched from: the family's, or the model's own."""
+    return fam["models"].get(model, {}).get("hf", fam["hf"]).format(q=model)
+
+
 PREVIEW_FAMILIES = OWN_PATH_FAMILIES             # the earlier name (tools and tests that import it)
 
 # Tencent Hy4-Flash (220B-A12B), Strata's own `.strata` v1.0 builds: a family with its own engine program (strata-hy4, a component like a model shape's engine), its own files
@@ -9456,7 +9480,7 @@ def own_path_context_warning(fam: dict, model: str, vram_gb: float, ctx: int) ->
 def own_path_size(fam: dict, ram: float) -> str:
     """The recommended size: the largest file whose RAM need this PC has (the smallest when none fits)."""
     fits = [m for m, d in fam["models"].items() if ram >= d["ram_gb"]]
-    return max(fits, key=lambda m: fam["sha256"][fam["file"].format(q=m)][0]) if fits else next(iter(fam["models"]))
+    return max(fits, key=lambda m: own_size(fam, m)) if fits else next(iter(fam["models"]))
 
 
 def own_path_vision(a, fam: dict, gpu: dict, hip: bool) -> str:
@@ -9506,7 +9530,7 @@ PARALLEL_SMALL_SHARE = 0.35     # a card that does not hold every expert: the sl
 def own_path_parallel_fits_all(fam: dict, model: str, vram_gb: float, ctx: int, n: int) -> bool:
     """True where every routed expert still sits in VRAM beside n slots' sessions (one more session than the slots: the
     solo path's own)."""
-    size = fam["sha256"][fam["file"].format(q=model)][0] / 1e9
+    size = own_size(fam, model) / 1e9
     base = size * 0.93 + 4.5       # the routed experts + the dense weights and buffers (the file's 7% beyond them)
     return base + (n + 1) * own_path_parallel_slot_gb(fam, ctx) <= vram_gb
 
@@ -9593,7 +9617,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
     say()
     for i, m in enumerate(names, 1):
         d = fam["models"][m]
-        size = fam["sha256"][fam["file"].format(q=m)][0]
+        size = own_size(fam, m)
         from strata_control import fit_label
         fit = f"   <- {fit_label.label(size / 1e9, ram, low_ram_vram(gpu))}"        # the file against the RAM and the card's memory together
         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
@@ -9647,7 +9671,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         warn(f"--rope-scaling / --kv / --resident-budget-gib / --low-ram are Flash-Next settings: {fam['title']} "
              "does not use them")
     folder = Path(a.gguf_dir) if a.gguf_dir else Path(a.models_dir) / tag
-    published = fam["file"].format(q=model)           # the published file's name: its pinned size and SHA-256
+    published = own_file(fam, model)                  # the published file's name: its pinned size and SHA-256
     gguf = folder / published
     if a.gguf_dir and not gguf.exists():
         gguf = own_path_gguf_in(folder) or gguf        # #5869: the person's own file under another name (the importer checked its types)
@@ -9690,7 +9714,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
     else:
         if a.gguf_dir:
             fail(f"{gguf} is missing", f"put {gguf.name} in {folder}, or drop --gguf-dir to download it")
-        download(fam["hf"] + gguf.name, gguf)
+        download(own_hf(fam, model) + gguf.name, gguf)
     verify_sha256(gguf, *fam["sha256"][published], own=bool(a.gguf_dir))
     ok(f"model file: {gguf}")
     if vision != "none" and fam.get("mmproj"):         # the image encoder: Unsloth's mmproj, pinned, size + SHA-256 checked
@@ -10328,14 +10352,14 @@ def preview_family(a) -> int:
     ram = ram_gb()
     for i, m in enumerate(names, 1):
         d = fam["models"][m]
-        size = fam["sha256"][fam["file"].format(q=m)][0]
+        size = own_size(fam, m)
         fit = "" if ram >= d["ram_gb"] else f"   <- needs {d['ram_gb']} GB RAM, you have {ram:.0f}"
         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
     if a.check:
         return 0
     model = a.model or names[int(ask("Which size?", [str(i) for i in range(1, len(names) + 1)], "1", a.yes)) - 1]
     say(f"  Its license: {fam['license']}")
-    want = [fam["file"].format(q=model)]
+    want = [own_file(fam, model)]
     if a.vision in ("yes", "gpu", "cpu"):
         want.append(fam["mmproj"])
     folder = Path(a.models_dir) / (fam["tag"] + model)
