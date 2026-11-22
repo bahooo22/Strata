@@ -13,7 +13,7 @@
    "commits_ours_at": "2026-11-22",
    "commits_ours_note": "снимок на названный head: число считается по истории, которой в Actions нет (actions/checkout с fetch-depth: 1), поэтому это документация, а не гейт; head - родитель коммита, несущего эту запись (коммит не может записать собственный хеш), поэтому число привязано к названной голове и не ползёт от новых коммитов; пересъёмка - отдельный прогон registry_counts.py",
    "markers": 29,
-   "commits_with_marker": 12,
+   "commits_with_marker": 16,
    "carriers": [
     "strata-q36.exe",
     "strata.exe"
