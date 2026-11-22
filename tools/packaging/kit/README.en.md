@@ -1,6 +1,10 @@
-# Portable inference kit for long context (Strata + llama.cpp)
+# Strata-Portable: a portable inference kit for long context (Strata only)
 
-One build of both engines that inspects your machine and picks the context window and the
+> Previously known as gpu-infer-kit. In the 0.2.19 fork (Q4) the llama leg was removed: the kit
+> carries Strata only (`strata.exe`, `strata-q36.exe`), and the kit's server is Strata's
+> OpenAI- and Anthropic-compatible HTTP server on `127.0.0.1:8080` (start.ps1 prints the actual port).
+
+One build of Strata that inspects your machine and picks the context window and the
 launch parameters itself. Every number in it comes from measurements taken on one specific
 bench (RTX 3060 Ti 8 GB, 4 cores, 31.87 GiB RAM, models on an SSD), not from general advice;
 where a measurement does not exist the kit says so out loud - "this is a formula estimate".
@@ -48,13 +52,12 @@ output.
 ## What gets tuned
 
 For Strata: context window, `--att-mb`, `--vram-reserve-mib`, super-chunk N, KV cache type, MTP.
-For llama.cpp: window, `--n-cpu-moe`, `-ub`, `-b`, `-fa`, thread count. Strata listens on port
-8082, llama on 8081.
+The kit runs Strata only (`strata`, `strata-q36`); its server is OpenAI- and Anthropic-compatible
+and listens on `127.0.0.1:8080` by default (`start.ps1` prints the actual address).
 
 The window is computed from VRAM terms: KV cache (bytes per token taken from the `.gguf` header)
-plus the attention buffer, plus the reserve, plus the linear-attention state, plus (for llama)
-weights on the GPU at the given `--n-cpu-moe`. A ladder step (64k, 80k, 96k, 128k, 160k) passes
-if the sum fits.
+plus the attention buffer, plus the reserve, plus the linear-attention state. A ladder step
+(64k, 80k, 96k, 128k, 160k) passes if the sum fits.
 
 Honesty control: on our bench the formula must reproduce the measured ladder within one step -
 that is one of the assertions in `recommend.py --selftest`.
@@ -119,14 +122,14 @@ on every archive build, so the numbers there always describe this archive.
 You need pwsh 7, CMake, Ninja, MSVC and a CUDA 13.3 toolkit. From the root of the bench:
 
 ```
-pwsh -File harness\scripts\build_kit.ps1 -Engines strata,llama -Arch "86;89;120"
+pwsh -File harness\scripts\build_kit.ps1 -Engines strata -Arch "86;89;120"
 pwsh -File harness\scripts\pack_kit.ps1                      # full build
 pwsh -File harness\scripts\pack_kit.ps1 -NoCudaRuntime       # thin build
 ```
 
 Quote the architecture list: without quotes the shell splits the argument on the semicolons.
 
-`build_kit.ps1` writes three measurement files into `dist\gpu-infer-kit`: `build-measure.json`
+`build_kit.ps1` writes three measurement files into `dist\Strata-Portable`: `build-measure.json`
 (configuration and build time and exit code per engine), `elf-proof.json` (which cubins are
 actually inside the binaries, read with `cuobjdump --list-elf`) and `runtime-deps.json` (dependency
 closure, from `dumpbin /imports`). Before calling an archive ready, `pack_kit.ps1` checks that
@@ -143,13 +146,15 @@ hardware.
 ## Automation: what GitHub Actions builds and publishes
 
 The CI variants of the same scripts live in `packaging\kit\ci\` and are called with parameters only
-(`-StrataSrc`, `-LlamaSrc`, `-GgmlDir`, `-Cuda`, `-Out`): a run knows nothing about the bench and
+(`-StrataSrc`, `-GgmlDir`, `-Cuda`, `-Out`): a run knows nothing about the bench and
 cannot accidentally build something that works at home and fails in Actions. A missing mandatory
 parameter is a refusal with exit code 2, not a half-finished build.
 
 A finished kit does not have to be built: it sits there as an asset of the release `kit-2026-11-13` -
 [the release page](https://github.com/bahooo22/Strata/releases/tag/kit-2026-11-13) and the direct
-download link [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip).
+download link [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip)
+- that archive carries the old name; from the 0.2.19 fork (Q4) the archive is called
+`Strata-Portable-<tag>.zip`.
 Both links were measured on 14.11 with an anonymous request and no token: the release answers 200 with
 `draft=false` and `prerelease=false`, and the asset `id=747571828` answers `state=uploaded` with a
 length of 867 303 928 bytes (`created` 13:26:19Z, `updated` 13:26:40Z) - that is the archive of run
@@ -172,8 +177,8 @@ the Double `3321.0` as `3321`, and `ConvertFrom-Json` returns Int32 in 5.1 where
 `Chk` in `build_kit.ps1` compares fractional values as numbers under any types and prints the types
 in the FAIL line, so equal values are never compared as strings.
 
-- `kit-build.yml` (this fork, started on demand only: Actions → "Kit build (Strata CUDA servers)"
-  → Run workflow, with the `arch` input defaulting to 86). Tying the compile to a push is what was
+- `kit-build.yml` (this fork, started on demand only: Actions → "Strata-Portable build (CUDA
+  servers)" → Run workflow, with the `arch` input defaulting to 86). Tying the compile to a push is what was
   dropped on purpose: the run pulls in the CUDA toolchain and a full engine build, while composition
   and markers are what has to be checked pointwise. The first job runs six controls without a
   toolchain and without sources: `-SelfTest` of build_kit, pack_kit and install_cuda_redist, plus
@@ -185,29 +190,13 @@ in the FAIL line, so equal values are never compared as strings.
   from redist archives (a pinned sha256 per archive, the download folder in actions/cache), compiles
   `strata.exe` and `strata-q36.exe` for architecture 86 and gates the markers byte-wise in both
   executables.
-- `kit-build-cuda.yml` (the llama.cpp fork, on demand too, from the `kit-all-sync` branch) does the
-  same for the llama.cpp
-  build: the scripts and the marker registry are checked out from this fork, because a copy would
-  diverge at the first edit; `-Engines llama`, then the gate over ggml-base.dll, ggml-cuda.dll and
-  llama.dll.
-  The build file must also sit on the default branch `master`, not only on the working
-  `kit-all-sync` branch: the Actions interface builds its workflow list from the default branch, so
-  the manual "Run workflow" button is only visible there, and pressing it runs the text of the file
-  as it exists on that branch. Measured 13.11 after the synchronization: on GitHub both branches
-  serve the same blob `07f54bd27` - 11 226 bytes, 198 lines - and the Actions list holds exactly one
-  kit workflow in state active. A local, behind `master` checkout still shows the previous revision
-  at 7 616 bytes, 3 610 smaller: it has neither `env.ARTIFACT_FILES` nor the "the artifact set is
-  complete" gate; its binary upload step does not set `if-no-files-found` at all, and the default is a
-  warning, so a run stayed green even on an incomplete set - the path list held four files instead of
-  nine, and the red composition went through. The one deliberate `warn` in that edition sits in the
-  "measures and logs" step under `if: always()`, and it survives in the current edition: empty measures
-  are a symptom of an already failed job, not a new cause. That same spot is what let the red
-  composition through, so this is checked against the repository on GitHub, not against one's own
-  checkout.
+- `kit-build-cuda.yml` (the llama.cpp build in a separate workflow of the fork) was removed together
+  with the llama leg in the 0.2.19 fork (Q4): this repository keeps two kit workflows,
+  `kit-build.yml` and `kit-release.yml`.
 - `kit-release.yml` (this fork, a published release by tag or a manual run with a tag) is the whole
-  kit: both engines in ONE run (`-Engines 'strata;llama'`) for `86;89;120`, because only the paired
+  kit: Strata in ONE run (`-Engines strata`) for `86;89;120`, because only that
   run writes the merged build-measure.json and elf-proof.json that the packer reads; then the marker
-  gate for both engines, the native dependency registry over seven binaries, packaging, a byte-level
+  gate for Strata, the native dependency registry over two executables, packaging, a byte-level
   format gate on the archive bytes (the PK header and the EOCD) and the upload as an asset of an
   already existing release. Without a tag it stays a run artifact. The upload runs `gh`, which does
   NOT inherit the automatic run token: the step must receive `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`
@@ -680,7 +669,7 @@ whitelist), `kit\strata_control`, `kit\strata_cli`, `kit\tools`, `kit\runtime` (
 interpreter with the `Lib\site-packages\strata_kit_vendor.pth` sidecar), `kit\vendor`
 (jinja2/markupsafe/regex wheels), `kit\start.ps1`, `kit\recommend.py`; next to the kit it places
 `ci\pack_kit.ps1`, `ci\web_closure.py` and `ci\smoke_kit.ps1`, so the test machine can re-check the
-composition and bring up both engines.
+composition and bring up Strata.
 
 Measurement of 14.11: **1123 entries, 16,059,295 bytes**, PK and EOCD `504b0506` signatures verified
 byte-wise, sha256 `26d5f056861cdfbd3c7aa265db523b55a8ebae3c13e29f8fb90cea226cbf5aa2`, input
@@ -688,27 +677,17 @@ byte-wise, sha256 `26d5f056861cdfbd3c7aa265db523b55a8ebae3c13e29f8fb90cea226cbf5
 append to a zip created with `-a`, and a second relative `-C` in the same call resolves against the
 already changed directory.
 
-## What was verified for the llama leg
+## The llama leg (history only)
 
-The llama build comes from the fork (`LLAMA_REF: kit-all-sync`, ggml pin `3cf03257f`), architectures
-`86;89;120a`. Live check on 14.11 against the built tree: `llama-server.exe --version` prints
-`1.0.0-dev (build 1337, commit d9eed0832)`; with the tiny CI model the process stays alive for 30 s,
-with the working `Qwen3.6-35B-A3B-UD-IQ3_S` (15,346,432,288 bytes) for 25 s without crashing; in the
-kit `/props` answers 200 and `/` returns 12,658 bytes of the page with the built-in `index.html`.
-
-The previous kit revision crashed with `0xC0000005` right after `load_model` on any model: the culprit
-was upstream `9d340ec34` "Windows unbuffered model load (#26014)" inside `llama.dll`. It is reverted
-(`0e6d62315` in the fork `kit-all-sync` and `master`), because unbuffered reads without aligned
-buffers kill the process before any tensor is read.
-
-Check on 16.11 after the upstream merge (`kit-all-sync` = `c9f6a82fe`): the revert survives
-blob-by-blob - `src/llama-mmap.cpp` in this tree and in `0e6d62315` give the same blob
-`4d1cd31e`; `llama-server.exe --version` prints `1.0.0-dev (build 312, commit c9f6a82fe)`;
-heretic Q4_K_M (21,233,608,512 bytes) produced 256 tokens to finish=length on both windows
-(4k and 96k), and `/props` answered 200 with the requested `n_ctx`.
+The kit used to include llama.cpp; the leg was removed in the 0.2.19 fork (Q4), and the current
+`Strata-Portable-<tag>.zip` contains no llama-server. The reason: the second build and the second
+workflow cost more than they gave, while Strata itself covers the quantised experts and the long
+window. The llama-leg measurement journal (including the `0xC0000005` analysis and the `9d340ec34`
+revert) stays in the sections above as history.
 
 ## What is not here
 
+- llama-server and ggml-*.dll: the kit carries Strata only (`strata.exe`, `strata-q36.exe`);
 - models (the archive contains no `.gguf` file);
 - Linux and macOS;
 - measurements on hardware other than our bench: a "below / far below" verdict is the honest

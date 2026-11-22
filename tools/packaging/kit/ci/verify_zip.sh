@@ -7,7 +7,7 @@
 # Мёртвый архив без EOCD не открывает ни Проводник, ни WinRAR.
 #
 # Запуск:
-#     bash packaging/kit/ci/verify_zip.sh dist/gpu-infer-kit-2026-11-12.zip
+#     bash packaging/kit/ci/verify_zip.sh dist/Strata-Portable-2026-11-22.zip
 #     bash packaging/kit/ci/verify_zip.sh --selftest
 #
 # Коды возврата: 0 - формат и содержимое подтверждены; 1 - архив битый или неполный;
@@ -15,16 +15,13 @@
 set -uo pipefail
 
 TARW="/c/Windows/System32/tar.exe"   # полный путь: голый tar под bash - это GNU tar, не bsdtar
-MIN_ENTRIES=20                        # нижняя граница: живой комплект 12.11 - 25 записей,
-                                      # с strata_kq.dll - 26 (мерка смотрит на содержимое, а не на
-                                      # число, и граница сознательно ниже обоих замеров)
+MIN_ENTRIES=20                        # нижняя граница: живой комплект 12.11 - 25 записей
+                                      # (мерка смотрит на содержимое, а не на число, и граница
+                                      # сознательно ниже замера)
 NEED_DEFAULT=(
   "START.bat"
   "bin/strata-q36.exe"
   "bin/strata.exe"
-  "bin/strata_kq.dll"
-  "bin/ggml-cuda.dll"
-  "bin/llama-server.exe"
   "kit/classify.py"
   "kit/detect.py"
   "kit/recommend.py"
@@ -109,8 +106,7 @@ if [ "$SELFTEST" -eq 1 ]; then
   }
   mkdir -p "$work/src/kit" "$work/src/bin"
   for f in START.bat build-measure.json elf-proof.json runtime-deps.json \
-           bin/strata-q36.exe bin/strata.exe bin/strata_kq.dll bin/ggml-cuda.dll \
-           bin/llama-server.exe \
+           bin/strata-q36.exe bin/strata.exe \
            kit/classify.py kit/detect.py kit/recommend.py; do
     printf 'x\n' > "$work/src/$f"
   done

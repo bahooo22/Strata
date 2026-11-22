@@ -1,71 +1,48 @@
 ﻿#Requires -Version 7.0
 <#
 .SYNOPSIS
-    Живая приёмка РАСПАКОВАННОГО комплекта gpu-infer-kit: движок обязан подняться и отдать страницу.
+    Живая приёмка РАСПАКОВАННОГО комплекта Strata-Portable: сервер Страты обязан подняться и отдать страницу.
 
 .DESCRIPTION
-    Что этот скрипт ловит и чего не ловил ни один прежний гейт:
-    опубликованный llama-движок мёртв - комплектный llama-server.exe (10 752 Б, stub рядом с
-    llama-server-impl.dll 7 632 896 Б) падает с 0xC0000005 (-1073741819) в первые ~50 мс, stderr
-    обрывается на «srv  llama_server: initializing ...», то есть ДО загрузки модели (первичники:
-      E:\tmp\kit374-watch.verdict.txt      - падение на реальной модели 15 ГиБ;
-      E:\tmp\kit375-localize.verdict.txt   - master живой на той же крошечной GGUF, kit мёртв;
-      E:\tmp\kit379-forensics.verdict.txt  - dll в dist побайтово равны сборке, все 9 dll kit != master;
-      E:\tmp\kit380-split.verdict.txt, E:\tmp\kit390-cuda-env.verdict.txt - CUDA-бэкенд ни при чём).
-    Архив при этом собирается, гейты состава зелёные, формат-гейт zip зелёный: значит missing-гейт
-    обязан МЕРЯТЬ ЖИЗНЬ носителя, а не его наличие.
+    Комплект — только Страта (strata.exe, strata-q36.exe): llama-нога удалена в 0.2.19-форке (Q4).
+    Гейт меряет ЖИЗНЬ носителя, а не его наличие: архив собирается, гейты состава и формат-гейт
+    zip зелёные, а мёртвый движок доезжает до пользователя (так было с llama-ногой прежних
+    редакций: комплектный сервер падал с 0xC0000005 в первые ~50 мс). Значит missing-гейт обязан
+    МЕРЯТЬ ЖИЗНЬ, а не список файлов.
 
     Меряется распакованный бандл - ровно то, что получает пользователь, а НЕ дерево сборки:
     дефект жил именно между сборкой и носителем.
 
-    Ноги:
-      a) llama-нога: bin\llama-server.exe с -ngl 0 (на безгитарном runner'е GPU нет; -ngl 0 -
-         единственный осмысленный CPU-прогон, и kit375/kit380 показывают, что мёртвый kit
-         краснеет и с ним), крошечная GGUF, --host 127.0.0.1 --port <N>. Готовность - ЧЕСТНЫМ
-         признаком: HTTP GET /props обязан вернуть JSON с model_path и n_ctx
-         (первичник ключей - llama.cpp tools/server/server-context.cpp:5704 и :5715), затем
-         GET / обязан вернуть 200 и тело, похожее на HTML.
-         Файл index.html в архиве НЕ ищется: веб-морда встроена в llama-server-impl.dll
-         (assets идут через scripts/ui-assets.cmake, LLAMA_UI_GZIP в tools/ui/CMakeLists.txt:4),
-         а routes регистрируют "/" и "/index.html" из памяти (tools/server/server-http.cpp:563-564).
-         Доказательством служит фактический ответ сервера, а не состав архива.
-      b) Страта-нога: морду держит НЕ strata-q36.exe, а kit\serve\server.py - он поднимает HTTP
-         сам и запускает движок подпроцессом со своим --serve
-         (первичник C:\Projects\Strata-3060Ti\engine\serve\server.py:1230).
-         Набор аргументов взят из первичников, а не выдуман:
-           harness\scripts\run_strata_chat.bat:24  python serve\server.py --engine strata --config <cfg> --port <N>
-           harness\scripts\live_strata.py:142-143  python -m serve.server --engine strata --config <tmp> --port <N>
-                                                   (cwd = корень дерева), готовность ждёт /health
-           E:\tmp\kit371_strata_webui_probe.ps1    - готовый зонд: раскладка копии и перечень проверок
-         Routes сервера: HTML раздаётся ТОЛЬКО по "/" (server.py:8245, путь нормализуется как
-         self.path.split("?")[0].rstrip('/') на server.py:7952), "/index.html" = 404;
-         "/health" - готовность (server.py:8255), "/props" - под ключом (server.py:8305).
-         Режим движения: real (движок из bin\ + модель + токенизатор) либо mock (тот же сервер,
-         тот же web\, но движок не поднимается вовсе). mock выбирается, когда real невозможен по
-         объективной причине входа (нет GPU/модели/токенизатора), и ПЕЧАТАЕТСЯ отдельным исходом -
-         «морда из бандла жива» при этом всё равно меряется честно.
+    Нога Страты: морду держит НЕ strata-q36.exe, а kit\serve\server.py - он поднимает HTTP
+    сам и запускает движок подпроцессом со своим --serve
+    (первичник C:\Projects\Strata-3060Ti\engine\serve\server.py:1230).
+    Набор аргументов взят из первичников, а не выдуман:
+      harness\scripts\run_strata_chat.bat:24  python serve\server.py --engine strata --config <cfg> --port <N>
+      harness\scripts\live_strata.py:142-143  python -m serve.server --engine strata --config <tmp> --port <N>
+                                              (cwd = корень дерева), готовность ждёт /health
+      E:\tmp\kit371_strata_webui_probe.ps1    - готовый зонд: раскладка копии и перечень проверок
+    Routes сервера: HTML раздаётся ТОЛЬКО по "/" (server.py:8245, путь нормализуется как
+    self.path.split("?")[0].rstrip('/') на server.py:7952), "/index.html" = 404;
+    "/health" - готовность (server.py:8255), "/props" - под ключом (server.py:8305).
+    Режим движения: real (движок из bin\ + модель + токенизатор) либо mock (тот же сервер,
+    тот же web\, но движок не поднимается вовсе). mock выбирается, когда real невозможен по
+    объективной причине входа (нет GPU/модели/токенизатора), и ПЕЧАТАЕТСЯ отдельным исходом -
+    «морда из бандла жива» при этом всё равно меряется честно.
 
-    Исходы каждой ноги печатаются раздельно: «готов» / «процесс умер (код)» / «таймаут» /
+    Исход ноги печатается явно: «готов» / «процесс умер (код)» / «таймаут» /
     «НЕ МЕРЯЛОСЬ (причина)». Молча пропущенной ноги быть не может.
 
 .PARAMETER KitDir
     Корень РАСПАКОВАННОГО комплекта (тот, что пользователь получил из zip): bin\ и kit\ внутри.
-    Для локального красного контроля допускается и комплект-подобная папка, где exe лежит прямо в
-    ней (например E:\tmp\kit380-bin-all - заведомо мёртвый набор).
-
-.PARAMETER Model
-    Крошечная GGUF для llama-ноги. Тот же вход, что у приёмки стенда и у CI llama.cpp:
-    https://huggingface.co/ggml-org/models/resolve/main/tinyllamas/stories260K.gguf (1 185 376 Б;
-    первичник - tools/server/tests/utils.py:55-56 и E:\tmp\kit369_fetch_tiny_gguf.py).
 
 .EXAMPLE
-    pwsh -NoProfile -File smoke_kit.ps1 -KitDir C:\tmp\unpacked -Model E:\tmp\stories260K.gguf
+    pwsh -NoProfile -File smoke_kit.ps1 -KitDir C:\tmp\unpacked -Strata auto
 
 .EXAMPLE
-    pwsh -NoProfile -File smoke_kit.ps1 -SelfTest    # саботаж: битый носитель обязан дать rc=1
+    pwsh -NoProfile -File smoke_kit.ps1 -SelfTest    # саботаж: неполный носитель обязан дать rc=1
 
 .NOTES
-    Коды возврата: 0 - все мерявшиеся ноги зелёные; 1 - НАХОДКА (движок не поднялся / страница не
+    Коды возврата: 0 - мерявшаяся нога зелёная; 1 - НАХОДКА (сервер не поднялся / страница не
     отдаётся); 2 - прогон не состоялся (плохие входы, мерять было нечего) с явной печатью
     [NOT MEASURED] и причиной.
     Только PowerShell 7: Windows PowerShell 5.1 не читает UTF-8 без BOM, и русские строки
@@ -76,7 +53,6 @@
 [CmdletBinding()]
 param(
     [string]$KitDir = '',
-    [string]$Model = '',
     # Диапазон портов: первый свободный берётся из [PortStart, PortStart+PortCount).
     [int]$PortStart = 18100,
     [int]$PortCount = 40,
@@ -114,8 +90,6 @@ trap {
     Invoke-Cleanup
     exit 2
 }
-$script:llamaState = ''
-$script:llamaNote = ''
 $script:strataState = ''
 $script:strataNote = ''
 $script:workRoot = ''
@@ -208,7 +182,7 @@ function Start-Detached([string]$exe, [string[]]$args_, [string]$cwd, [string]$o
     return $p
 }
 
-# Движок Страты/llama - дети HTTP-сервера: TerminateProcess родителя оставляет их висеть.
+# Движок Страты - ребёнок HTTP-сервера: TerminateProcess родителя оставляет его висеть.
 function Stop-ProcTree([int]$pid_) {
     try {
         $kids = @(Get-CimInstance -ClassName Win32_Process -Filter "ParentProcessId = $pid_" -ErrorAction SilentlyContinue)
@@ -238,39 +212,38 @@ if ($SelfTest) {
     New-Item -ItemType Directory -Path $work -Force | Out-Null
     $bad = 0
     try {
-        # 1) заведомо битый носитель: exe, который умирает мгновенно, рядом с годной по magic GGUF.
+        # 1) заведомо неполный носитель: он выглядит комплектом (bin\strata-q36.exe на месте), но
+        # морды kit\serve\server.py в нём нет - живой ноги не будет, и это НАХОДКА (rc=1), а не
+        # «мерить было нечего». Так же красился бы архив, из которого морда выпала при упаковке.
         $fake = Join-Path $work 'broken'
         New-Item -ItemType Directory -Path (Join-Path $fake 'bin') -Force | Out-Null
-        Copy-Item -LiteralPath (Join-Path $env:SystemRoot 'System32\ping.exe') -Destination (Join-Path $fake 'bin\llama-server.exe') -Force
-        $gguf = Join-Path $work 'fake.gguf'
-        $bytes = [byte[]](0x47, 0x47, 0x55, 0x46) + [byte[]](3, 0, 0, 0) + [byte[]](0, 0, 0, 0) +
-                 [byte[]](0, 0, 0, 0) + (New-Object byte[] 2048)
-        [System.IO.File]::WriteAllBytes($gguf, $bytes)
-        $r1 = $null
-        & pwsh -NoProfile -NonInteractive -File $PSCommandPath -KitDir $fake -Model $gguf -Strata off -WaitSec 25 -PortStart 18411 *>&1 |
+        Copy-Item -LiteralPath (Join-Path $env:SystemRoot 'System32\ping.exe') -Destination (Join-Path $fake 'bin\strata-q36.exe') -Force
+        & pwsh -NoProfile -NonInteractive -File $PSCommandPath -KitDir $fake -Strata auto -WaitSec 25 -PortStart 18411 *>&1 |
             ForEach-Object { Write-Host "    | $_" }
         $r1 = $LASTEXITCODE
-        Write-Host "rc(битый носитель)=$r1 (ожидался 1)"
+        Write-Host "rc(неполный носитель)=$r1 (ожидался 1)"
         if ($r1 -ne 1) { $bad++ }
 
         # 2) плохой вход: каталога нет вообще - прогон обязан НЕ состояться.
-        & pwsh -NoProfile -NonInteractive -File $PSCommandPath -KitDir (Join-Path $work 'no-such-dir') -Model $gguf -Strata off -WaitSec 5 -PortStart 18451 *>&1 |
+        & pwsh -NoProfile -NonInteractive -File $PSCommandPath -KitDir (Join-Path $work 'no-such-dir') -Strata auto -WaitSec 5 -PortStart 18451 *>&1 |
             ForEach-Object { Write-Host "    | $_" }
         $r2 = $LASTEXITCODE
         Write-Host "rc(нет каталога)=$r2 (ожидался 2)"
         if ($r2 -ne 2) { $bad++ }
 
-        # 3) плохой вход: каталог есть, модели нет - тоже «не состоялось».
-        & pwsh -NoProfile -NonInteractive -File $PSCommandPath -KitDir $fake -Model '' -Strata off -WaitSec 5 -PortStart 18452 *>&1 |
+        # 3) плохой вход: каталог есть, но комплектом не выглядит - тоже «не состоялось».
+        $empty = Join-Path $work 'empty'
+        New-Item -ItemType Directory -Path $empty -Force | Out-Null
+        & pwsh -NoProfile -NonInteractive -File $PSCommandPath -KitDir $empty -Strata auto -WaitSec 5 -PortStart 18452 *>&1 |
             ForEach-Object { Write-Host "    | $_" }
         $r3 = $LASTEXITCODE
-        Write-Host "rc(нет модели)=$r3 (ожидался 2)"
+        Write-Host "rc(пустой каталог)=$r3 (ожидался 2)"
         if ($r3 -ne 2) { $bad++ }
     } finally {
         Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
     }
     Write-Host ''
-    Write-Host $(if ($bad) { "САМОКОНТРОЛЬ НЕ ПРОЙДЕН: расхождений $bad" } else { 'САМОКОНТРОЛЬ OK: битый носитель краснеет (1), плохие входы - не состоялось (2).' })
+    Write-Host $(if ($bad) { "САМОКОНТРОЛЬ НЕ ПРОЙДЕН: расхождений $bad" } else { 'САМОКОНТРОЛЬ OK: неполный носитель краснеет (1), плохие входы - не состоялось (2).' })
     exit $(if ($bad) { 1 } else { 0 })
 }
 
@@ -285,19 +258,6 @@ if (-not (Test-Path -LiteralPath $KitDir -PathType Container)) {
 $KitDir = (Get-Item -LiteralPath $KitDir).FullName
 Say "KitDir   : $KitDir"
 
-if (-not $Model) { Not-Measured '-Model не задана: без крошечной GGUF нечем поднимать llama-ногу' }
-if (-not (Test-Path -LiteralPath $Model -PathType Leaf)) {
-    Not-Measured "нет файла модели: $Model (крошечная GGUF обязана быть скачана шагом CI)"
-}
-$modelBytes = Get-Size $Model
-$magic = New-Object byte[] 4
-$fs = [System.IO.File]::OpenRead($Model)
-try { $null = $fs.Read($magic, 0, 4) } finally { $fs.Dispose() }
-if ([System.Text.Encoding]::ASCII.GetString($magic) -ne 'GGUF') {
-    Not-Measured "$Model ($(Format-Bytes $modelBytes)) начинается с $($magic -join ',') - это не GGUF, мерить нечем"
-}
-Say ("Model    : {0} ({1}, magic GGUF)" -f $Model, (Format-Bytes $modelBytes))
-
 if (-not $WorkDir) {
     $script:workRoot = Join-Path $env:TEMP ('smoke-kit-' + [System.IO.Path]::GetRandomFileName().Replace('.', ''))
 } else { $script:workRoot = $WorkDir }
@@ -305,149 +265,6 @@ New-Item -ItemType Directory -Path $script:workRoot -Force | Out-Null
 Say "WorkDir  : $script:workRoot"
 Say "порты    : $PortStart..$($PortStart + $PortCount - 1), лимит готовности $WaitSec с на ногу"
 Say "Страта   : режим -Strata $Strata"
-
-# --------------------------------------------------------------------------- llama-нога
-function Invoke-LlamaLeg {
-    Step 'llama-нога: bin\llama-server.exe из распакованного комплекта'
-    $cands = @((Join-Path $KitDir 'bin\llama-server.exe'), (Join-Path $KitDir 'llama-server.exe'))
-    $exe = $cands | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
-    if (-not $exe) {
-        $hit = @(Get-ChildItem -LiteralPath $KitDir -Filter 'llama-server.exe' -File -Recurse -ErrorAction SilentlyContinue) |
-            Select-Object -First 1
-        if ($hit) { $exe = $hit.FullName }
-    }
-    if (-not $exe) {
-        $script:llamaState = 'skip'
-        $script:llamaNote = 'в распакованном комплекте нет bin\llama-server.exe (состав архива меряет гейт 4b в pack_kit.ps1)'
-        Say "  [NOT MEASURED] $($script:llamaNote)"
-        return
-    }
-    $bin = Split-Path -Parent $exe
-    $impl = Join-Path $bin 'llama-server-impl.dll'
-    Say ("  exe        : {0} ({1})" -f $exe, (Format-Bytes (Get-Size $exe)))
-    Say ("  impl dll   : {0} ({1}) - морда встроена сюда, в архиве index.html для неё искать нельзя" -f $impl, (Format-Bytes (Get-Size $impl)))
-    $port = Get-FreePort 'llama'
-    if ($port -le 0) {
-        $script:llamaState = 'skip'
-        $script:llamaNote = "нет свободного порта в диапазоне $PortStart..$($PortStart + $PortCount - 1)"
-        Say "  [NOT MEASURED] $($script:llamaNote)"
-        return
-    }
-    $threads = [Math]::Min(8, [Environment]::ProcessorCount)
-    # -ngl 0 обязателен: у windows-раннера GitHub Actions дискретного GPU нет, а мёртвый kit
-    # (kit380/kit390) краснеет и на CPU, и с CUDA_VISIBLE_DEVICES="" - то есть прогон осмыслен.
-    $a = @('-m', $Model, '--ctx-size', '512', '-ngl', '0', '--host', '127.0.0.1', '--port', [string]$port, '--threads', [string]$threads)
-    Say "  команда    : llama-server $($a -join ' ')"
-    $out = Join-Path $script:workRoot 'llama.out.log'
-    $err = Join-Path $script:workRoot 'llama.err.log'
-    $p = $null
-    try { $p = Start-Detached $exe $a $bin $out $err } catch {
-        $script:llamaState = 'found'
-        $script:llamaNote = "процесс не запущен: $($_.Exception.Message)"
-        Say "  НАХОДКА: $($script:llamaNote)"
-        return
-    }
-    Say "  pid        : $($p.Id), порт $port"
-
-    # ЧЕСТНЫЙ признак готовности: /props отвечает JSON с model_path и n_ctx.
-    $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    $deadline = [System.TimeSpan]::FromSeconds($WaitSec)   # TimeSpan, а не DateTime: у Stopwatch
-                                                            # Elapsed тоже TimeSpan, сравнение одномерное
-    $props = $null
-    $why = ''
-    $polls = 0
-    while ($sw.Elapsed -lt $deadline) {
-        $polls++
-        if ($p.HasExited) { $why = 'умер'; break }
-        $r = Get-Http "http://127.0.0.1:$port/props"
-        if ($r.Code -eq 200) { $props = $r; break }
-        Start-Sleep -Milliseconds 500
-    }
-    if ($why -eq 'умер') {
-        $code = -1
-        try { $code = $p.ExitCode } catch { }
-        $script:llamaState = 'found'
-        $script:llamaNote = "llama-server умер через $([int]$sw.Elapsed.TotalSeconds) с, код $code (0x$('{0:X8}' -f $code))"
-        Say "  ИСХОД: ПРОЦЕСС УМЕР, код=$code (0x$('{0:X8}' -f $code)) через $([int]$sw.Elapsed.TotalSeconds) с, попыток HTTP: $polls"
-        Show-Tail $err 10 'stderr'
-        Show-Tail $out 5 'stdout'
-        # Класс по фактическому хвосту, а не по коду: прежняя строка навешивала «ровно класс
-        # kit374/kit375» на ЛЮБОЙ «умер», и мера не различала падение до загрузки модели
-        # (initializing) от падения на модели - а это разные дефекты и разные правки.
-        $tail = ''
-        if ((Get-Size $err) -gt 0) {
-            $tail = ((Get-Content -LiteralPath $err -Tail 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join ' ')
-        }
-        $cls = if ($tail -like '*initializing*') {
-            'обрыв на «initializing ...» (до загрузки модели) - тот же класс, что kit374/kit375'
-        } else {
-            'хвост stderr НЕ содержит «initializing» - класс другой, читать хвост выше'
-        }
-        Say "  НАХОДКА: $($script:llamaNote); $cls"
-        return
-    }
-    if (-not $props) {
-        $script:llamaState = 'found'
-        $script:llamaNote = "/props не ответил за $WaitSec с, процесс жив (pid $($p.Id))"
-        Say "  ИСХОД: ТАЙМАУТ $WaitSec с, процесс жив, попыток HTTP: $polls"
-        Show-Tail $err 10 'stderr'
-        Show-Tail $out 5 'stdout'
-        Say "  НАХОДКА: $($script:llamaNote)"
-        return
-    }
-
-    $script:llamaState = 'green'
-    Say "  ИСХОД: ГОТОВ через $([int]$sw.Elapsed.TotalSeconds) с (попыток HTTP: $polls)"
-    $obj = $null
-    try { $obj = $props.Body | ConvertFrom-Json } catch { }
-    if ($null -eq $obj) {
-        $script:llamaNote = "/props вернул не JSON ($(Format-Bytes $props.Body.Length), '$($props.ContentType)')"
-        Say "  НАХОДКА: $($script:llamaNote)"
-        $script:llamaState = 'found'
-        return
-    }
-    $nctx = $null
-    $whereNctx = 'нет'
-    if ($null -ne $obj.PSObject.Properties['n_ctx']) { $nctx = $obj.n_ctx; $whereNctx = 'верхний уровень' }
-    elseif ($null -ne $obj.PSObject.Properties['default_generation_settings'] -and
-            $null -ne $obj.default_generation_settings.PSObject.Properties['n_ctx']) {
-        $nctx = $obj.default_generation_settings.n_ctx; $whereNctx = 'default_generation_settings'
-    }
-    $mpProp = $obj.PSObject.Properties['model_path']
-    $mp = if ($mpProp) { [string]$mpProp.Value } else { '' }
-    Say ("  GET /props : 200, {0} Б; model_path='{1}', n_ctx={2} ({3})" -f $props.Body.Length, $mp, $(if ($null -eq $nctx) { 'нет' } else { $nctx }), $whereNctx)
-    if (-not $mp) { $script:llamaNote = 'в /props нет поля model_path'; Say "  НАХОДКА: $($script:llamaNote)"; $script:llamaState = 'found' }
-    if ($null -eq $nctx -or [long]$nctx -le 0) {
-        $script:llamaNote = 'в /props нет живого n_ctx'
-        Say "  НАХОДКА: $($script:llamaNote)"
-        $script:llamaState = 'found'
-    }
-    if ($mp -and ($mp -notlike '*stories260K*') -and ([System.IO.Path]::GetFileName($mp) -ne [System.IO.Path]::GetFileName($Model))) {
-        $script:llamaNote = "model_path из /props ($mp) - не наша модель ($Model): отвечает чужой сервер"
-        Say "  НАХОДКА: $($script:llamaNote)"
-        $script:llamaState = 'found'
-    }
-
-    $page = Get-Http "http://127.0.0.1:$port/"
-    $problem = Test-HtmlPage $page
-    if ($problem) {
-        $script:llamaNote = "GET / не отдаёт HTML: $problem"
-        Say "  GET /      : НАХОДКА - $problem"
-        $script:llamaState = 'found'
-    } else {
-        $hasDoctype = $page.Body -match '(?is)<!doctype\s+html'
-        Say ("  GET /      : 200, $($page.ContentType), тело $($page.Body.Length) Б, <!doctype html>={0} - морда отдаётся ИЗ ПАМЯТИ движка (LLAMA_UI_GZIP), файла в архиве нет" -f $hasDoctype)
-    }
-    $idx = Get-Http "http://127.0.0.1:$port/index.html"
-    Say ("  GET /index.html : код {0} - у llama.cpp маршрут есть (server-http.cpp:563-564), в отличие от Страты" -f $(if ($null -eq $idx.Code) { 'нет ответа' } else { $idx.Code }))
-    $h = Get-Http "http://127.0.0.1:$port/health"
-    Say ("  GET /health     : код {0}" -f $(if ($null -eq $h.Code) { 'нет ответа' } else { $h.Code }))
-    Stop-ProcTree ([int]$p.Id)
-    try { $p.WaitForExit(5000) | Out-Null } catch { }
-    $script:llamaNote = if ($script:llamaState -eq 'green') { "готов за $([int]$sw.Elapsed.TotalSeconds) с, HTML / = $($page.Body.Length) Б" } else { $script:llamaNote }
-}
-
-Invoke-LlamaLeg
 
 # --------------------------------------------------------------------------- Страта-нога
 function Invoke-StrataLeg {
@@ -463,9 +280,20 @@ function Invoke-StrataLeg {
         }
     }
     if (-not $serverPy) {
-        $script:strataState = 'skip'
-        $script:strataNote = 'в составе нет kit\serve\server.py - морды в архиве нет вовсе (присутствие меряет гейт 4b $KIT_PRESENCE в pack_kit.ps1)'
-        Say "  [NOT MEASURED] $($script:strataNote)"
+        # Носитель, который выглядит комплектом (в нём есть серверы Страты), но морды не содержит:
+        # это находка, а не «мерить было нечего». Присутствие морды меряет гейт 4b $KIT_PRESENCE
+        # в pack_kit.ps1, и пропуск там означал бы, что архив собран без веб-сервера.
+        $looksLikeKit = @('bin\strata-q36.exe', 'bin\strata.exe', 'START.bat') |
+            Where-Object { Test-Path -LiteralPath (Join-Path $KitDir $_) }
+        if ($looksLikeKit) {
+            $script:strataState = 'found'
+            $script:strataNote = ('в составе нет kit\serve\server.py при наличных {0} - носитель неполный, морды нет вовсе' -f ($looksLikeKit -join ', '))
+            Say "  НАХОДКА: $($script:strataNote)"
+        } else {
+            $script:strataState = 'skip'
+            $script:strataNote = 'в составе нет kit\serve\server.py и нет ни одного носителя Страты - это не комплект, мерять нечего'
+            Say "  [NOT MEASURED] $($script:strataNote)"
+        }
         return
     }
     $indexHtml = Join-Path $root 'serve\web\index.html'
@@ -567,8 +395,8 @@ function Invoke-StrataLeg {
     $why = @()
     if ($Strata -eq 'auto') {
         if (-not (Test-Path -LiteralPath $strataExe -PathType Leaf)) { $why += "нет движка $strataExe" }
-        if (-not $tok) { $why += 'нет токенизатора (vocab.json): экстракция из крошечной GGUF - не предмет этого гейта' }
-        if (-not $StrataModel) { $why += 'нет модели Страты (-StrataModel): крошечная GGUF не является моделью Страты' }
+        if (-not $tok) { $why += 'нет токенизатора (папки vocab.json): real-режим требует готовую папку' }
+        if (-not $StrataModel) { $why += 'нет модели Страты (-StrataModel)' }
         $mode = if ($why.Count -eq 0) { 'real' } else { 'mock' }
     }
     if ($mode -eq 'real') {
@@ -693,15 +521,13 @@ function Invoke-StrataLeg {
 Invoke-StrataLeg
 
 # --------------------------------------------------------------------------- итог
-Step 'Итог по ногам'
-Say ("  llama-нога  : {0} - {1}" -f $script:llamaState, $(if ($script:llamaNote) { $script:llamaNote } else { 'без деталей' }))
+Step 'Итог по ноге'
 Say ("  Страта-нога : {0} - {1}" -f $script:strataState, $(if ($script:strataNote) { $script:strataNote } else { 'без деталей' }))
 
-$foundCount = @($script:llamaState, $script:strataState) | Where-Object { $_ -eq 'found' }
-$measured = @($script:llamaState, $script:strataState) | Where-Object { $_ -in @('green', 'found') }
-if ($script:llamaState -eq 'skip') { Write-Host "[NOT MEASURED] llama-нога: $($script:llamaNote)" }
+$foundCount = @($script:strataState) | Where-Object { $_ -eq 'found' }
+$measured = @($script:strataState) | Where-Object { $_ -in @('green', 'found') }
 if ($script:strataState -eq 'skip') { Write-Host "[NOT MEASURED] Страта-нога: $($script:strataNote)" }
-Say ("  мерявшихся ног: {0} из 2, находок: {1}" -f $measured.Count, $foundCount.Count)
+Say ("  мерявшихся ног: {0} из 1, находок: {1}" -f $measured.Count, $foundCount.Count)
 Invoke-Cleanup
 
 if ($foundCount.Count -gt 0) {
@@ -715,5 +541,5 @@ if ($measured.Count -eq 0) {
     exit 2
 }
 Write-Host ''
-Write-Host 'ВСЁ ЗЕЛЁНОЕ: мёртвый движок этим прогоном не пропущен.'
+Write-Host 'ВСЁ ЗЕЛЁНОЕ: мёртвый сервер этим прогоном не пропущен.'
 exit 0

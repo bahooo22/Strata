@@ -26,10 +26,11 @@
 # Чего здесь НЕ МОЖЕТ БЫТЬ в принципе: живой приёмки распакованного комплекта
 # (smoke_kit.ps1 с настоящим прогоном движка). Этот workflow не собирает zip и ничего не
 # публикует ассетом релиза - мерить «что получит пользователь» нечем, а публикуют именно
-# kit-release.yml, и гейт стоит там: распаковка готового архива, запуск llama-server.exe из
-# него и проверка, что /props и веб-страница отдаются. Здесь же smoke_kit.ps1 участвует
-# только своим -SelfTest (битый носитель обязан краснеть), тулчейн и исходники ему не нужны.
-name: Kit build (Strata CUDA servers)
+# kit-release.yml, и гейт стоит там: распаковка готового архива и запуск сервера Страты из
+# него. Ранее в комплект входил llama.cpp; нога удалена в 0.2.19-форке (Q4). Здесь же
+# smoke_kit.ps1 участвует только своим -SelfTest (неполный носитель обязан краснеть), тулчейн
+# и исходники ему не нужны.
+name: Strata-Portable build (CUDA servers)
 
 on:
   workflow_dispatch:
@@ -55,14 +56,6 @@ env:
   # то есть прогон зелёный, а приёмка в логе Actions читается как mojibake.
   PYTHONIOENCODING: 'utf-8'
   PYTHONUTF8: '1'
-  # ggml-дерево, из которого Страта берёт K-quant template-instances: в vendored
-  # third_party/strata-ggml нет q2_k, и без -GgmlDir CMake падает на generate
-  # («Cannot find source file»), а в логе это неотличимо от поломки тулчейна.
-  GGML_REPO: 'bahooo22/llama.cpp'
-  # Значение уходит в ref шага checkout, а тот признаёт SHA только длиной 40 или 64 символа
-  # (actions/checkout input-helper.ts:92). Короткий pin в 9 знаков трактуется как имя ref, и
-  # fetch отвечает «fatal: couldn't find remote ref» с rc=128 - прогон красный ещё до компиляции.
-  GGML_PIN: '3cf03257f219afbe7334045ff7c6a06ac68c627d'
   # Набор серверов сборки ОДНИМ списком: его читает и гейт полноты, и upload-artifact.
   # Две раздельные копии (paths в шаге + список в гейте) - это ровно класс «названные пути
   # ≠ загруженные файлы», и он же расходится молча, когда список правят только в одном месте.
@@ -129,15 +122,6 @@ jobs:
         with:
           path: strata
 
-      - name: ggml-дерево для K-quant template-instances
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.GGML_REPO }}
-          ref: ${{ env.GGML_PIN }}
-          path: ggml-pin
-          fetch-depth: 1
-          persist-credentials: false
-
       - name: Кэш redist-архивов CUDA
         uses: actions/cache@v4
         with:
@@ -163,7 +147,6 @@ jobs:
           $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
           & pwsh -NoProfile -NonInteractive -File $ci\build_kit.ps1 `
               -StrataSrc (Join-Path $ws 'strata\engine') `
-              -GgmlDir (Join-Path $ws 'ggml-pin') `
               -Cuda (Join-Path $env:RUNNER_TEMP 'cuda') `
               -Out (Join-Path $env:RUNNER_TEMP 'kit') `
               -Engines strata -Arch $env:ARCH -SkipProbe
@@ -201,8 +184,8 @@ jobs:
           # why not if-no-files-found: error: первичник actions/upload-artifact
           # (src/upload/upload-artifact.ts:31) включает его только на ПУСТОЕ множество
           # (filesToUpload.length === 0), а поиск - один глоб по всем путям сразу
-          # (src/shared/search.ts:82-91). Красный прогон 43345549955 утащил llama-артефакт
-          # из 4 бинарников вместо 9 именно так: множество непустое, и флаг молчит.
+          # (src/shared/search.ts:82-91). Красный прогон 43345549955 показал этот класс на
+          # неполном наборе бинарников: множество непустое, и флаг молчит.
           # Здесь меряется наличие каждого названного файла, а не «есть ли хоть один».
           $files = @($env:ARTIFACT_FILES -split '\r?\n' | Where-Object { $_ })
           if ($files.Count -eq 0) {

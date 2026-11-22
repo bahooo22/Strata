@@ -1,28 +1,27 @@
 # =============================================================================
-# Portable-комплект gpu-infer-kit: полная сборка и публикация ассетом релиза.
+# Portable-комплект Strata-Portable: полная сборка и публикация ассетом релиза.
 # =============================================================================
 # Отличие от kit-build.yml (сборка по требованию) здесь принципиальное:
-#   - собираются ОБА движка одним прогоном (-Engines "strata;llama"), потому что только
-#     такой прогон пишет объединённые build-measure.json / elf-proof.json. Парный прогон
-#     по движкам дал бы *.partial.json, а pack_kit.ps1 читает именно объединённые меры и
-#     при их отсутствии обязан отказать, а не упаковать половину доказательства;
+#   - собирается Страта одним прогоном (-Engines strata), и только он пишет объединённые
+#     build-measure.json / elf-proof.json. Частичный прогон дал бы *.partial.json, а
+#     pack_kit.ps1 читает именно объединённые меры и при их отсутствии обязан отказать,
+#     а не упаковать половину доказательства;
 #   - архитектуры полные (86;89;120) - комплект рассчитан на разные карты, и -Arch здесь
 #     меняет содержимое архива, а не только ширину codegen;
 #   - zip проходит формат-гейт по байтам (verify_zip.sh) ДО публикации: под bash голый tar
 #     пишет POSIX-tar с кодом выхода 0, GitHub по расширению ставит application/zip, и
 #     мёртвый архив доезжает до пользователя;
-#   - распакованный zip прогоняется ЖИВЫМ движком (smoke_kit.ps1) ДО публикации: формат-гейт и
-#     гейты состава меряют байты и имена, а комплектный llama-server.exe умирал с 0xC0000005
-#     в первые ~50 мс, уже на «initializing ...» - то есть архив был целым, а движок в нём
-#     мёртвым (замеры kit374/kit375/kit379/kit380/kit390 в E:\tmp\);
-#   - маркеры наших патчей сверяются по байтам обоих движков (Strata и llama.cpp): зелёная
-#     сборка сама по себе ничего не доказывает.
+#   - распакованный zip прогоняется ЖИВЫМ сервером Страты (smoke_kit.ps1) ДО публикации:
+#     гейты состава меряют байты и имена, а живой запуск ловит мёртвый движок в целом архиве.
+#     Ранее в комплект входил llama.cpp; нога удалена в 0.2.19-форке (Q4);
+#   - маркеры наших патчей сверяются по байтам обоих exe Страты: зелёная сборка сама по себе
+#     ничего не доказывает.
 # Версия комплекта: если запуск был по релизу, pack_kit.ps1 получает -Version = тег без
 # префикса "kit-", и имя архива строится из этой же версии (одна точка истины); при
 # workflow_dispatch без тега упаковщик берёт дату started из build-measure.json, а шаг
 # публикации не выполняется.
 # Ассет загружается в УЖЕ СОЗДАННЫЙ релиз: gh release upload не создаёт релиз молча.
-name: "Kit release (portable gpu-infer-kit)"
+name: "Portable kit release"
 
 on:
   release:
@@ -51,59 +50,19 @@ env:
   PYTHONIOENCODING: 'utf-8'
   PYTHONUTF8: '1'
   ARCH: '86;89;120'
-  GGML_REPO: 'bahooo22/llama.cpp'
-  # SHA в ref-аргументе checkout обязан быть полной длины: 40 или 64 символа, иначе actions/checkout
-  # трактует его как имя ref и fetch падает с rc=128. Развёрнуто - комментарий в kit-build.yml.
-  GGML_PIN: '3cf03257f219afbe7334045ff7c6a06ac68c627d'
-  LLAMA_REPO: 'bahooo22/llama.cpp'
-  LLAMA_REF: 'kit-all-sync'
   KIT_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
-  # Крошечная GGUF для живой приёмки движка - НЕ выдуманная: тот же вход, что берёт CI llama.cpp
-  # для тестов самого llama-server (первичник форка: llama-master/tools/server/tests/utils.py:55-56
-  # model_hf_repo='ggml-org/models', model_hf_file='tinyllamas/stories260K.gguf'; там же
-  # tools/server/tests/README.md:79 и .github/workflows/build-ibm.yml:103 для соседа -be).
-  # Доступность мерилась живым HEAD 14.11: 307 -> 302 -> 200, X-Linked-Size и content-length =
-  # 1 185 376 Б (тот же размер, что у стендового E:\tmp\stories260K.gguf в замерах kit375/380/390).
-  # 1.2 МиБ вместо гигабайт: веб-морда llama.cpp встроена в llama-server-impl.dll и не зависит от
-  # весов, а мёртвый kit (kit375) падает на этой модели ровно так же, как на 15 ГиБ.
-  TINY_GGUF_URL: 'https://huggingface.co/ggml-org/models/resolve/main/tinyllamas/stories260K.gguf'
-  TINY_GGUF_BYTES: '1185376'
 
 jobs:
   kit:
-    name: Сборка двух движков, упаковка и публикация
+    name: Сборка серверов Страты, упаковка и публикация
     runs-on: windows-2022
-    # Обоснование лимита - прогоны с нуля того же состава на стенде, archs = 86;89;120. Носители
-    # чисел лежат в dist\ каждого снимка, а состав доказан CMakeCache.txt деревьев сборки и fatbin
-    # бинарников (поле archs в этих measure пустое - они сняты прежним кодом): strata 1686.2 с
-    # (160 компиляций и 14 линковок из плана 174, 174/174 рёбер лога, commit 0f37b86e) и повтор
-    # 1774.1 с; llama 3006.1 с (commit c8b1899f9) и 3321.0 с, оба на 330/330 рёбер и 315 компиляций.
-    # Худшая из пар - 1774.1 + 3321.0 = 5095.1 с = 84.9 мин, пара одного прогона - 4692.3 с: у 240
-    # минут запас 2.8 к худшей паре, остальное уходит на тулчейн CUDA, упаковку и публикацию ассета.
-    # Прежнее обоснование (712.6 с + 2788.8 с) снято с прогревов - 25+5 и 156+8 выполненных шагов
-    # вместо 174 и 330, то есть цена полной компиляции была недооценена в 2-4 раза.
+    # Лимит снят с прогонов того же состава на стенде: худший холодный прогон Страты - 1774.1 с
+    # (174/174 рёбер лога), остальное уходит на тулчейн CUDA, упаковку и публикацию ассета.
+    # В прежней оценке была и llama-нога (3006-3321 с), удалённая в 0.2.19-форке (Q4).
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
         with: { path: strata }
-
-      - name: "Форк llama.cpp: его серверы входят в комплект (наши патчи)"
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.LLAMA_REPO }}
-          ref: ${{ env.LLAMA_REF }}
-          path: llama
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: "ggml-пин Страты: K-quant template-instances (q2_k)"
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.GGML_REPO }}
-          ref: ${{ env.GGML_PIN }}
-          path: ggml-pin
-          fetch-depth: 1
-          persist-credentials: false
 
       - name: Контроль входных файлов до компиляции
         shell: bash
@@ -114,12 +73,10 @@ jobs:
                    strata/tools/packaging/kit/ci/kit_dll_deps.py \
                    strata/tools/packaging/kit/ci/patch_markers.py \
                    strata/tools/packaging/kit/ci/verify_zip.sh \
-                   strata/tools/packaging/kit/START.bat \
-                   ggml-pin/ggml/src/ggml-cuda/mma.cuh \
-                   llama/CMakeLists.txt; do
+                   strata/tools/packaging/kit/START.bat; do
             if [ ! -f "$f" ]; then echo "::error::нет $f - сборка не начата"; exit 2; fi
           done
-          echo "проверено 9 файлов комплекта"
+          echo "проверено 7 файлов комплекта"
 
       - name: "Проверка переносимости текстов комплекта (дешёвая, до компиляции)"
         shell: pwsh
@@ -137,7 +94,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # gh берёт репозиторий из git remote текущей директории, а в $GITHUB_WORKSPACE remote
-          # нет: все три checkout кладут дерево в подкаталоги (path: strata, llama, ggml-pin).
+          # нет: checkout кладёт дерево в подкаталог (path: strata).
           # Без GH_REPO любой вызов gh падает с «no repository detected», и в прежнем коде это
           # выглядело как «релиза нет», потому что stderr был съеден >/dev/null 2>&1.
           # Замер 13.11, прогон события release 43415264688: REST по тегу kit-2026-11-13 = 200,
@@ -184,7 +141,7 @@ jobs:
         with:
           # Компиляция - самый долгий шаг прогона, и она каждый раз начиналась с пустого
           # каталога. Замер 14.11 на стенде: при готовых объектах build_kit считает только
-          # изменившиеся единицы (Страта 772 с при 21 компиляции, llama 6 с при 1) - то есть
+          # изменившиеся единицы (Страта 772 с при 21 компиляции) - то есть
           # кэш между прогонами снимает именно ту часть, которая идёт часами.
           # Ключ несёт хэш всех CMakeLists: правка конфигурации даёт точный промах и полную
           # пересборку, а restore-keys поднимает предыдущий каталог - остальное cmake
@@ -193,23 +150,20 @@ jobs:
           # и набор cubin: делить такой кэш между ними нельзя.
           path: |
             strata\build-kit
-            llama\build-kit
-          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt', 'llama/CMakeLists.txt', 'llama/**/CMakeLists.txt', 'ggml-pin/CMakeLists.txt', 'ggml-pin/**/CMakeLists.txt') }}
+          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt') }}
           restore-keys: |
             build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-
 
-      - name: Сборка обоих движков под CUDA (полный набор архитектур)
+      - name: Сборка серверов Страты под CUDA (полный набор архитектур)
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
           $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
           & pwsh -NoProfile -NonInteractive -File $ci\build_kit.ps1 `
               -StrataSrc (Join-Path $ws 'strata\engine') `
-              -LlamaSrc (Join-Path $ws 'llama') `
-              -GgmlDir (Join-Path $ws 'ggml-pin') `
               -Cuda (Join-Path $env:RUNNER_TEMP 'cuda') `
               -Out (Join-Path $env:RUNNER_TEMP 'kit') `
-              -Engines 'strata;llama' -Arch $env:ARCH -SkipProbe
+              -Engines strata -Arch $env:ARCH -SkipProbe
           Write-Host "rc(build_kit)=$LASTEXITCODE"
           exit $LASTEXITCODE
 
@@ -224,10 +178,9 @@ jobs:
         with:
           path: |
             strata\build-kit
-            llama\build-kit
-          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt', 'llama/CMakeLists.txt', 'llama/**/CMakeLists.txt', 'ggml-pin/CMakeLists.txt', 'ggml-pin/**/CMakeLists.txt') }}
+          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt') }}
 
-      - name: "Гейт маркеров: наши патчи в собранных exe и dll"
+      - name: "Гейт маркеров: наши патчи в собранных exe"
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
@@ -239,13 +192,6 @@ jobs:
               --out (Join-Path $env:RUNNER_TEMP 'kit\markers-strata.json')
           Write-Host "rc(patch_markers strata)=$LASTEXITCODE"
           if ($LASTEXITCODE -ne 0) { $bad += 'strata' }
-          python $pm --engine llama `
-              --bin (Join-Path $ws 'llama\build-kit\bin\ggml-base.dll') `
-              --bin (Join-Path $ws 'llama\build-kit\bin\ggml-cuda.dll') `
-              --bin (Join-Path $ws 'llama\build-kit\bin\llama.dll') `
-              --out (Join-Path $env:RUNNER_TEMP 'kit\markers-llama.json')
-          Write-Host "rc(patch_markers llama)=$LASTEXITCODE"
-          if ($LASTEXITCODE -ne 0) { $bad += 'llama' }
           if ($bad) { Write-Host "::error::маркеры потеряны в: $($bad -join ', ')"; exit 1 }
 
       - name: Реестр нативных зависимостей бинарников
@@ -255,16 +201,13 @@ jobs:
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
           $dumpbin = & $vswhere -latest -find '**\bin\Hostx64\x64\dumpbin.exe' | Select-Object -First 1
           if (-not $dumpbin) { Write-Host 'ОТКАЗ: dumpbin.exe не найден через vswhere - проверка не состоялась'; exit 2 }
-          $bins = @('strata\build-kit\strata-q36.exe', 'strata\build-kit\strata.exe',
-                    'llama\build-kit\bin\llama-server.exe', 'llama\build-kit\bin\ggml-cuda.dll',
-                    'llama\build-kit\bin\ggml-base.dll', 'llama\build-kit\bin\llama.dll')
-          # 0.2.16: strata_kq.dll не собирается (MMQ-путь удалён 3e26b4e15); список — два сервера
-          # и llama-нога. cublas приезжает из redist-архива, а не из этого дерева.
+          $bins = @('strata\build-kit\strata-q36.exe', 'strata\build-kit\strata.exe')
+          # 0.2.16: strata_kq.dll не собирается (MMQ-путь удалён 3e26b4e15); список — два сервера.
+          # cublas приезжает из redist-архива, а не из этого дерева.
           $a = @('strata\tools\packaging\kit\ci\kit_dll_deps.py')
           foreach ($b in $bins) { $a += @('--bin', (Join-Path $ws $b)) }
           $a += @('--dumpbin', $dumpbin,
                   '--cuda-bin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'),
-                  '--extra-dir', (Join-Path $ws 'llama\build-kit\bin'),
                   '--out', (Join-Path $env:RUNNER_TEMP 'kit\runtime-deps.json'))
           python @a
           Write-Host "rc(kit_dll_deps)=$LASTEXITCODE"
@@ -288,13 +231,12 @@ jobs:
           $ws = $env:GITHUB_WORKSPACE
           $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
           $a = @('-StrataBuild', (Join-Path $ws 'strata\build-kit'),
-                 '-LlamaBuild', (Join-Path $ws 'llama\build-kit'),
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
                  '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
                  '-VendorStage', (Join-Path $env:RUNNER_TEMP 'kit\vendor'),
                  '-CudaBin', (Join-Path $env:RUNNER_TEMP 'cuda\bin'))
-          # Имя архива строится как "gpu-infer-kit-<версия>.zip", а тег релиза называется
-          # "kit-<дата>": передан как есть, он даёт "gpu-infer-kit-kit-<дата>.zip" - двойной
+          # Имя архива строится как "Strata-Portable-<версия>.zip", а тег релиза называется
+          # "kit-<дата>": передан как есть, он даёт "Strata-Portable-kit-<дата>.zip" - двойной
           # префикс в имени файла, которое пользователь показывает по ссылке. Шагам 7 и 16 нужен
           # точный тег, поэтому префикс снимается только здесь и только для -Version.
           if ($env:KIT_TAG) {
@@ -322,7 +264,7 @@ jobs:
       - name: "Формат-гейт архива по байтам (заголовок PK, EOCD, обязательные записи)"
         shell: bash
         run: |
-          files=( "$RUNNER_TEMP"/gpu-infer-kit-*.zip )
+          files=( "$RUNNER_TEMP"/Strata-Portable-*.zip )
           if [ ! -f "${files[0]}" ]; then
             echo "::error::архив не найден в $RUNNER_TEMP - проверка не состоялась"; exit 2
           fi
@@ -340,19 +282,14 @@ jobs:
         shell: pwsh
         run: |
           # Гейт, которого не было: архив собирается, гейты состава и формат-гейт зелёные - и
-          # мёртвый бинарник доезжает до релиза. Замеры 13-14.11 (E:\tmp\kit374-watch.verdict.txt,
-          # kit375-localize.verdict.txt, kit379-forensics.verdict.txt, kit380-split.verdict.txt,
-          # kit390-cuda-env.verdict.txt): комплектный llama-server.exe (10 752 Б, stub рядом с
-          # llama-server-impl.dll 7 632 896 Б) падает с 0xC0000005 в первые ~50 мс, stderr обрывается
-          # на «srv  llama_server: initializing ...», то есть ДО загрузки модели; CUDA-бэкенд ни при чём.
-          # Ни одна прежняя проверка этого не ловит, потому что ничего не запускалась: мерить надо
-          # процесс и HTTP-ответ, а не наличие файла и не размер zip.
+          # мёртвый бинарник доезжает до релиза. Ранее в комплект входил llama.cpp, и его сервер
+          # падал с 0xC0000005 в первые ~50 мс; нога удалена в 0.2.19-форке (Q4), но требование
+          # осталось: мерить процесс и HTTP-ответ, а не наличие файла и не размер zip.
           #
           # Меряется РАСПАКОВАННЫЙ бандл - ровно то, что получит пользователь, а не дерево сборки:
-          # дефект живёт между сборкой и носителем (kit379: dll в dist побайтово равны сборке).
-          # Проверка осмысленна на CPU: у windows-раннера дискретного GPU нет, поэтому llama-нога
-          # идёт с -ngl 0 (мёртвый kit краснеет и на CPU - kit380/kit390), а Страта-нога снимает
-          # морду с сервера kit\serve\server.py; движок Страты на безгитарном раннере подниматься
+          # дефект живёт между сборкой и носителем. Проверка осмысленна на CPU: у windows-раннера
+          # дискретного GPU нет, поэтому smoke_kit.ps1 поднимает морду с сервера
+          # kit\serve\server.py (mock-режим); движок Страты на безгитарном раннере подниматься
           # не обязан, и smoke_kit.ps1 печатает это ОТДЕЛЬНЫМ исходом, а не пропуском.
           $ErrorActionPreference = 'Stop'
           $zip = ${env:KIT_ZIP}
@@ -376,25 +313,14 @@ jobs:
               exit 1
           }
 
-          $gguf = Join-Path $env:RUNNER_TEMP 'stories260K.gguf'
-          if (-not (Test-Path -LiteralPath $gguf)) {
-              $t1 = Get-Date
-              Invoke-WebRequest -Uri $env:TINY_GGUF_URL -OutFile $gguf -UseBasicParsing -TimeoutSec 300
-              Write-Host ("модель скачана: {0} Б за {1:N0} с ({2})" -f (Get-Item $gguf).Length, ((Get-Date) - $t1).TotalSeconds, $env:TINY_GGUF_URL)
-          } else {
-              Write-Host "модель уже в раннере: $gguf"
-          }
-          $sz = (Get-Item $gguf).Length
-          Write-Host "размер модели: $sz Б (ожидалось $($env:TINY_GGUF_BYTES) по живому HEAD 14.11)"
-
           $sk = Join-Path $env:GITHUB_WORKSPACE 'strata\tools\packaging\kit\ci\smoke_kit.ps1'
           if (-not (Test-Path -LiteralPath $sk)) { Write-Host "::error::нет $sk - приёмка не состоялась"; exit 2 }
-          & pwsh -NoProfile -NonInteractive -File $sk -KitDir $un -Model $gguf -Strata auto -WaitSec 240 -PortStart 18100
+          & pwsh -NoProfile -NonInteractive -File $sk -KitDir $un -Strata auto -WaitSec 240 -PortStart 18100
           # Код возврата снимается отдельно и ПЕЧАТАЕТСЯ: rc=0/1/2 у этого гейта означают
           # «зелёное» / «находка» / «прогон не состоялся», и красный лог обязан различать их.
           $rc = $LASTEXITCODE
           Write-Host "rc(smoke_kit)=$rc"
-          if ($rc -eq 0) { Write-Host 'комплект живой: движок поднялся, /props и страница отдаются' }
+          if ($rc -eq 0) { Write-Host 'комплект живой: сервер Страты поднялся, страница и /health отдаются' }
           if ($rc -eq 1) { Write-Host '::error::движок из распакованного комплекта не поднялся или не отдал страницу - публикация запрещена' }
           if ($rc -eq 2) { Write-Host '::error::живая приёмка не состоялась (плохие входы): публиковать не проверено' }
           # Временное дерево (до ~1.3 ГиБ) убирается за собой даже при красном rc: следующий шаг
@@ -418,9 +344,7 @@ jobs:
             ${{ runner.temp }}\kit\elf-proof.json
             ${{ runner.temp }}\kit\runtime-deps.json
             ${{ runner.temp }}\kit\markers-strata.json
-            ${{ runner.temp }}\kit\markers-llama.json
             ${{ runner.temp }}\kit\build-strata.log
-            ${{ runner.temp }}\kit\build-llama.log
             ${{ runner.temp }}\kit\kit-weight.json
           retention-days: 30
           if-no-files-found: warn
@@ -433,7 +357,7 @@ jobs:
           # variable» - и падает последним, то есть после полной двухчасовой сборки.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Причина та же, что в дешёвом гейте перед компиляцией: в $GITHUB_WORKSPACE нет git
-          # remote (checkout идут в подкаталоги), поэтому gh обязан получить GH_REPO.
+          # remote (checkout идёт в подкаталог), поэтому gh обязан получить GH_REPO.
           GH_REPO: ${{ github.repository }}
         run: |
           if [ -z "${KIT_TAG:-}" ]; then

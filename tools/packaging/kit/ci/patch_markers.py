@@ -13,9 +13,11 @@
 
 Вызов:
     python packaging/kit/ci/patch_markers.py --engine strata --bin <путь к exe> [--bin ...]
-    python packaging/kit/ci/patch_markers.py --engine llama --bin <ggml-cuda.dll> --bin <llama.dll>
         --out patch-markers-proof.json
     python packaging/kit/ci/patch_markers.py --selftest
+
+    Блок engines.llama в реестре - историческая запись: llama-нога удалена из комплекта в Q4,
+    и гейт по ней больше не вызывается. Поведение для engines.strata от этого не меняется.
 
 Коды возврата: 0 - все маркеры движка найдены в переданных бинарниках; 1 - хотя бы один маркер
 пропал (это либо чужое дерево, либо утраченный патч - список токенов печатается); 2 - вход неверен
@@ -135,7 +137,7 @@ def commits_covered(eng: dict, found: list[dict]) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     ap.add_argument("--registry", help="реестр маркеров (по умолчанию рядом со скриптом)")
-    ap.add_argument("--engine", help="strata или llama")
+    ap.add_argument("--engine", help="strata (engines.llama в реестре - только историческая запись)")
     ap.add_argument("--bin", action="append", default=[], dest="bins",
                     help="путь к собранному exe/dll (повторяется)")
     ap.add_argument("--out", help="куда записать JSON-меру (пути в неё не пишутся)")
@@ -233,7 +235,10 @@ def selftest() -> int:
 
     real = Path(__file__).with_name("patch-markers.json")
     reg = load_registry(real)
-    chk("реестр рядом со скриптом читается", ", ".join(sorted(reg["engines"])), "llama, strata")
+    # Реестр обязан называть Страту: она - единственный движок комплекта. Блок engines.llama
+    # опционален (после Q4 он не читается гейтом), поэтому сверка идёт по Страте, а не по
+    # точному множеству движков.
+    chk("реестр называет движок strata", "strata" in reg["engines"], True)
     tok_all = [m["token"] for e in reg["engines"].values() for m in e["list"]]
     chk("все маркеры ASCII (иначе поиск слеп)", all(t.isascii() for t in tok_all), True)
     chk("маркеры не дублируются внутри движка",
@@ -241,8 +246,9 @@ def selftest() -> int:
              [m["token"] for m in e["list"]]}), len(tok_all))
     chk("носители Страты - два exe", carriers(reg["engines"]["strata"]),
         ["strata-q36.exe", "strata.exe"])
-    chk("носители llama - три dll", carriers(reg["engines"]["llama"]),
-        ["ggml-base.dll", "ggml-cuda.dll", "llama.dll"])
+    if "llama" in reg["engines"]:
+        chk("носители llama - три dll", carriers(reg["engines"]["llama"]),
+            ["ggml-base.dll", "ggml-cuda.dll", "llama.dll"])
 
     # Цифры реестра обязаны следовать за списком маркеров: после синка апстрима файл иначе
     # врёт молча - гейт печатает «покрыто 12 из 72», хотя наших коммитов уже 81.
@@ -304,7 +310,8 @@ def selftest() -> int:
                 commits_covered(eng, found), eng["commits_with_marker"])
 
         # Саботаж 1: вырезали один маркер - гейт обязан назвать именно его, а не «всё пропало».
-        eng = reg["engines"]["llama"]
+        # Движок - Страта: она есть в реестре всегда, тогда как блок llama опционален.
+        eng = reg["engines"]["strata"]
         fake = {b.lower(): b"".join(m["token"].encode() + b"\0"
                                     for m in eng["list"] if b in m["bins"])
                 for b in carriers(eng)}
@@ -318,18 +325,22 @@ def selftest() -> int:
 
         # Саботаж 2: маркер обязан искаться в СВОИХ носителях. Добавив токен в чужой файл,
         # нельзя заставить гейт требовать его оттуда - иначе тест не ловит перепутанные dll.
-        other = {b.lower(): b"".join(m["token"].encode() + b"\0"
-                                     for m in eng["list"] if b in m["bins"])
-                 for b in carriers(eng)}
-        only_base = {"ggml-base.dll": other["ggml-base.dll"]}
-        f2, m2 = check({**eng, "list": [x for x in eng["list"] if x["bins"] == ["ggml-base.dll"]]},
-                       only_base)
-        chk("сверка идёт по назначенным носителям", len(m2), 0)
-        chk("и такие маркеры найдены", len(f2) > 0, True)
+        # У Страты оба носителя несут весь список, поэтому проверка берёт llama-запись реестра,
+        # когда она есть (у неё маркеры разложены по трём dll поимённо).
+        if "llama" in reg["engines"]:
+            eng2 = reg["engines"]["llama"]
+            other = {b.lower(): b"".join(m["token"].encode() + b"\0"
+                                         for m in eng2["list"] if b in m["bins"])
+                     for b in carriers(eng2)}
+            only_base = {"ggml-base.dll": other["ggml-base.dll"]}
+            f2, m2 = check({**eng2, "list": [x for x in eng2["list"] if x["bins"] == ["ggml-base.dll"]]},
+                           only_base)
+            chk("сверка идёт по назначенным носителям", len(m2), 0)
+            chk("и такие маркеры найдены", len(f2) > 0, True)
 
         # Пустой бинарник не должен читаться как «маркеров нет, но мы не при чём»: 0 Б - это
         # вход, а не результат, и решает это вызывающий (main возвращает 2 до сравнения).
-        f3, m3 = check(eng, {"ggml-base.dll": b"", "ggml-cuda.dll": b"x", "llama.dll": b"x"})
+        f3, m3 = check(eng, {"strata-q36.exe": b"", "strata.exe": b"x"})
         chk("пустой носитель даёт пропавшие маркеры, а не ноль проверок", len(m3) > 0, True)
 
         # Отрезанный реестр обязан быть отказом, а не «движков нет».

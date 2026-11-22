@@ -3,7 +3,7 @@
 
     Это ЛОКАЛЬНЫЙ скрипт стенда (pwsh 7). В комплект входит только обвязка на PowerShell 5.1.
 
-        pwsh -File packaging/kit/ci/pack_kit.ps1 -StrataBuild <dir> -LlamaBuild <dir> -Measures <dir> -Stage <dir> -Zip <file> -VendorStage <dir>
+        pwsh -File packaging/kit/ci/pack_kit.ps1 -StrataBuild <dir> -Measures <dir> -Stage <dir> -Zip <file> -VendorStage <dir>
         pwsh -File packaging/kit/ci/pack_kit.ps1 ... -NoCudaRuntime     # комплект без CUDA-рантайма (без cublas)
         pwsh -File packaging/kit/ci/pack_kit.ps1 ... -RepoSrc <dir>     # корень репозитория для веб-морды
                                                                         # (по умолчанию - родитель packaging\)
@@ -13,7 +13,7 @@
         pwsh -File packaging/kit/ci/pack_kit.ps1 -SelfTest              # контроли без сборки и железа
         pwsh -File packaging/kit/ci/pack_kit.ps1 -TextGate              # гейт текстов комплекта до сборки
 
-    Почему по манифесту, а не «скопировать папку»: в dist\gpu-infer-kit лежат build-логи на
+    Почему по манифесту, а не «скопировать папку»: в dist\Strata-Portable лежат build-логи на
     мегабайты, рядом с ними - run\ и __pycache__, созданные самим комплектом при прогонах. Копия
     «что видит глаз» принесла бы этот мусор на чужую машину, и никто бы не заметил: архив
     открывался бы нормально.
@@ -23,8 +23,8 @@
          с «модуль не найден» вместо предупреждения;
       1b. полнота набора в обратную сторону: каждый exe/dll, который сборка произвела, либо
           лежит в bin\ комплекта, либо назван в $BIN_WAIVERS с причиной. Без этого потерянный
-          модуль уезжает молча: strata_kq.dll грузится из кода по имени, поэтому её нет ни в
-          одной импорт-таблице и ни один другой гейт её не увидит;
+          модуль уезжает молча: модуль, который грузится из кода по имени (так грузилась
+          strata_kq.dll), нет ни в одной импорт-таблице, и ни один другой гейт его не увидит;
       1c. манифест не отстаёт от AST-замыкания импортов serve\server.py (разбор деревом модуля
           `ast`, семантика - engine/tests/terminal/test_monitor_bundle.py:286-306). Класс дефекта
           закрыт меркой по первичнику: из замыкания (прогон -TextGate 14.11 - 143 файла /
@@ -57,7 +57,6 @@
 [CmdletBinding()]
 param(
     [string]$StrataBuild = "",
-    [string]$LlamaBuild = "",
     [string]$KitSrc = "",
     [string]$Measures = "",
     [string]$Stage = "",
@@ -91,10 +90,8 @@ $EXCLUDE_EXT = @('.log', '.jsonl', '.pyc', '.err', '.tmp')
 $SIDECARS = @("elf-proof.json", "runtime-deps.json", "build-measure.json")
 # Что сборка производит, но в комплект не берёт по делу. Каждый пункт обязан иметь причину:
 # без неё waiver-список - это способ молча протащить потерянный файл мимо полноты набора.
-$BIN_WAIVERS = @{
-    "test-cuda-upload-stream.exe" = "тест сборки llama.cpp: в комплект не едет, появляется только в " +
-        "дереве, собранном с LLAMA_BUILD_TESTS=ON (CI собирает с OFF)"
-}
+# До Q4 здесь стоял тестовый exe сборки llama.cpp; после удаления llama-ноги таких файлов нет.
+$BIN_WAIVERS = @{}
 # ---------------- доливайка веб-морды -------------------------------------------------------------
 # Веб-морда Страты - это НЕ бинарник: strata-q36.exe HTTP не отдаёт, морду поднимает питоновский
 # serve\server.py своим окружением. Разведка чужой машины (RTX 5080) показала, что в архиве морды
@@ -1207,7 +1204,7 @@ function Test-KitSourceTexts([string]$Src, [string]$Repo = "") {
     # что закрывали для ARTIFACT_FILES в сборках по требованию. ci\ в тот перечень не входит, поэтому
     # законные пути раннера в CI-скриптах гейт не красит.
     if (-not (Test-Path -LiteralPath $Src)) { throw "нет каталога -KitSrc: $Src" }
-    $m = Get-Manifest -StrataBuild "_" -LlamaBuild "_" -KitSrc $Src -Measures "_" -Cuda "_" `
+    $m = Get-Manifest -StrataBuild "_" -KitSrc $Src -Measures "_" -Cuda "_" `
                       -WithCudaRuntime $false -RepoSrc $Repo -VendorStage ""
     $prefixes = @($Src.TrimEnd('\', '/'))
     if ($Repo) { $prefixes += $Repo.TrimEnd('\', '/') }
@@ -1263,26 +1260,18 @@ function Read-JsonNoBom([string]$Path, [string]$Label) {
     return ($text | ConvertFrom-Json)
 }
 
-function Get-Manifest([string]$StrataBuild, [string]$LlamaBuild, [string]$KitSrc,
+function Get-Manifest([string]$StrataBuild, [string]$KitSrc,
                       [string]$Measures, [string]$Cuda, [bool]$WithCudaRuntime,
                       [string]$RepoSrc = "", [string]$VendorStage = "",
                       [bool]$PayloadRequired = $false, [string]$RuntimeDir = "") {
     $m = [ordered]@{}
     $m["bin\strata.exe"] = Join2 $StrataBuild "strata.exe"
     $m["bin\strata-q36.exe"] = Join2 $StrataBuild "strata-q36.exe"
-    # strata_kq.dll грузится из кода: LoadLibraryA(папка движка + STRATA_KQ_LIB_NAME), поэтому её
-    # нет ни в одной импорт-таблице - ни гейт зависимостей, ни формат-гейт её не видят. Отсутствие
-    # молчаливое: в stderr пишется «not found next to the engine», а K-quant-эксперты идут
-    # FP16-путём промпта, то есть комплект работает медленнее стенда и не падает.
-    $m["bin\strata_kq.dll"] = Join2 $StrataBuild "strata_kq.dll"
-    # llama-server.exe - тонкая обёртка (10 КиБ): вся логика в llama-server-impl.dll, и без неё
-    # exe на чужой машине падает с «модуль не найден», а не с внятной причиной.
-    $m["bin\llama-server.exe"] = Join2 $LlamaBuild "bin\llama-server.exe"
-    $m["bin\llama-server-impl.dll"] = Join2 $LlamaBuild "bin\llama-server-impl.dll"
-    foreach ($d in @("ggml.dll", "ggml-base.dll", "ggml-cpu.dll", "ggml-cuda.dll",
-                     "llama.dll", "llama-common.dll", "mtmd.dll")) {
-        $m["bin\$d"] = Join2 $LlamaBuild ("bin\" + $d)
-    }
+    # strata_kq.dll в манифесте нет: на 0.2.18/0.2.19 она не собирается (MMQ-путь удалён
+    # 3e26b4e15), а прежняя запись требовала файла, которого сборка не производит. Гейт полноты
+    # набора (Test-BinClosure) при этом остаётся: модуль, который появится в дереве, но не в
+    # комплекте, обязан покраснеть, даже если его нет ни в одной импорт-таблице.
+    # Комплект — только Страта: llama-server и ggml-*.dll удалены вместе с llama-ногой (Q4).
     if ($WithCudaRuntime) {
         # Полноту набора сняла соседняя мера kit_dll_deps.py: cublas64 сам зовёт
         # cublasLt - вдвоём это 488 МиБ, и неполный вариант обязан быть виден отдельным флагом.
@@ -1312,8 +1301,8 @@ function Get-Manifest([string]$StrataBuild, [string]$LlamaBuild, [string]$KitSrc
 }
 
 function Get-ProducedBins([string]$Dir, [string]$Label) {
-    # Плоско, без подкаталогов: сборка кладёт носители комплекта в корень дерева Страты и в bin
-    # сборки llama.cpp, а под деревом лежат объектные и промежуточные файлы - обход дал бы ложные
+    # Плоско, без подкаталогов: сборка кладёт носители комплекта в корень дерева Страты, а под
+    # деревом лежат объектные и промежуточные файлы - обход дал бы ложные
     # находки на законной сборке. Пустой список - это отказ, а не «нечего проверять»: молчание
     # на пустом входе и есть тот способ, которым потерянный модуль проходит гейт.
     if (-not (Test-Path -LiteralPath $Dir)) { throw "${Label}: нет каталога $Dir" }
@@ -1326,12 +1315,11 @@ function Get-ProducedBins([string]$Dir, [string]$Label) {
     return @($names | Sort-Object -Unique)
 }
 
-function Test-BinClosure([string]$StrataBuild, [string]$LlamaBuild, $Manifest) {
+function Test-BinClosure([string]$StrataBuild, $Manifest) {
     # Обратная сторона манифеста: что произведено, но в комплект не взято. Для модулей, которые
-    # грузятся из кода по имени (strata_kq.dll), это единственная мерка - их нет ни в одной
-    # импорт-таблице, поэтому гейт зависимостей и формат-гейт их не видят вовсе.
+    # грузятся из кода по имени, это единственная мерка - их нет ни в одной импорт-таблице,
+    # поэтому гейт зависимостей и формат-гейт их не видят вовсе.
     $produced = @(Get-ProducedBins $StrataBuild "дерево сборки Страты")
-    $produced += @(Get-ProducedBins (Join2 $LlamaBuild "bin") "bin сборки llama")
     $inKit = @($Manifest.Keys | Where-Object { $_ -like "bin\*" } |
                ForEach-Object { ($_ -split '\\')[-1] })
     $orphan = @($produced | Where-Object {
@@ -1621,50 +1609,43 @@ if ($SelfTest) {
     # Манифест обязан отказывать на несуществующем дереве сборки, а не молча давать короткий список.
     $threw = ""
     try {
-        $mm = Get-Manifest "Q:\нет\build-kit" "Q:\нет\llama" $tmp $tmp "Q:\нет\cuda" $true
+        $mm = Get-Manifest "Q:\нет\build-kit" $tmp $tmp "Q:\нет\cuda" $true
         foreach ($k in $mm.Keys) { if (-not (Test-Path -LiteralPath $mm[$k])) { throw "нет файла $k" } }
     } catch { $threw = $_.Exception.Message }
     Chk "несуществующая сборка - отказ манифеста" ($threw -like "нет файла*") $true
 
     # Развилка веса обязана быть видимой в самом манифесте: 488 МиБ cublas едут в архив только
     # в полной версии, и неполный комплект с ними внутри переставал бы быть неполным.
-    $fat = Get-Manifest "Q:\нет\build-kit" "Q:\нет\llama" $tmp $tmp "Q:\нет\cuda" $true
-    $thin = Get-Manifest "Q:\нет\build-kit" "Q:\нет\llama" $tmp $tmp "Q:\нет\cuda" $false
+    $fat = Get-Manifest "Q:\нет\build-kit" $tmp $tmp "Q:\нет\cuda" $true
+    $thin = Get-Manifest "Q:\нет\build-kit" $tmp $tmp "Q:\нет\cuda" $false
     Chk "полный манифест содержит cublas" (@($fat.Keys | Where-Object { $_ -like '*cublas*' }).Count) 2
     Chk "неполный манифест без cublas" (@($thin.Keys | Where-Object { $_ -like '*cublas*' }).Count) 0
-    Chk "strata_kq.dll в полном манифесте" ([bool]$fat.Contains("bin\strata_kq.dll")) $true
-    Chk "strata_kq.dll в неполном манифесте" ([bool]$thin.Contains("bin\strata_kq.dll")) $true
+    Chk "в манифесте нет llama-ног и ggml-модулей" `
+        (@($fat.Keys | Where-Object { $_ -match '(?i)llama|ggml' }).Count) 0
+    Chk "прежний LoadLibrary-модуль из манифеста убран" `
+        ([bool]$fat.Contains('bin\strata_kq' + '.dll')) $false
 
     # Полнота набора: без саботажа контроль неотличим от молчания, поэтому порядок - ложная
     # тревога на полном наборе, посаженная находка, снятие саботажа, и два отказа на пустом входе.
-    # Наборы имён здесь сняты с реальных деревьев сборки (Linking-строки логов 43342630392 и
-    # 43345549955), а не на глаз: расхождение с тем, что производит сборка, дало бы красную
-    # сборку на законном файле.
+    # Набор имён здесь снят с реального дерева сборки Страты (Linking-строки логов), а не на глаз:
+    # расхождение с тем, что производит сборка, дало бы красную сборку на законном файле.
     $cbStrata = Join2 $tmp "closure\strata"
-    # Корень дерева сборки llama, а не его bin: и Get-Manifest, и Test-BinClosure добавляют bin
-    # сами. Проверено живым прогоном: передача ...\llama\bin дала ...\llama\bin\bin и отказ мерки.
-    $cbLlama = Join2 $tmp "closure\llama"
-    New-Item -ItemType Directory -Force -Path $cbStrata, (Join2 $cbLlama "bin") | Out-Null
-    foreach ($f in @("strata.exe", "strata-q36.exe", "strata_kq.dll")) {
+    New-Item -ItemType Directory -Force -Path $cbStrata | Out-Null
+    foreach ($f in @("strata.exe", "strata-q36.exe")) {
         Write-NoBom (Join2 $cbStrata $f) "x"
     }
-    foreach ($f in @("llama-server.exe", "llama-server-impl.dll", "llama-common.dll", "llama.dll",
-                     "mtmd.dll", "ggml.dll", "ggml-base.dll", "ggml-cpu.dll", "ggml-cuda.dll",
-                     "test-cuda-upload-stream.exe")) {
-        Write-NoBom (Join2 (Join2 $cbLlama "bin") $f) "x"
-    }
-    $cbManifest = Get-Manifest $cbStrata $cbLlama $tmp $tmp "Q:\нет\cuda" $false
-    Chk "полный набор - ноль находок" (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan.Count) 0
-    Chk "произведено меркой 13 exe/dll" (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).produced.Count) 13
+    $cbManifest = Get-Manifest $cbStrata $tmp $tmp "Q:\нет\cuda" $false
+    Chk "полный набор - ноль находок" (@(Test-BinClosure $cbStrata $cbManifest).orphan.Count) 0
+    Chk "произведено меркой 2 exe" (@(Test-BinClosure $cbStrata $cbManifest).produced.Count) 2
     Write-NoBom (Join2 $cbStrata "strata_orphan.dll") "x"
     Chk "посаженный потерянный dll найден" `
-        (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan -join ',') "strata_orphan.dll"
+        (@(Test-BinClosure $cbStrata $cbManifest).orphan -join ',') "strata_orphan.dll"
     Remove-Item -LiteralPath (Join2 $cbStrata "strata_orphan.dll") -Force
-    Chk "саботаж снят - снова ноль находок" (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan.Count) 0
+    Chk "саботаж снят - снова ноль находок" (@(Test-BinClosure $cbStrata $cbManifest).orphan.Count) 0
     Write-NoBom (Join2 $cbStrata "strata_orphan.dll") "x"
     $BIN_WAIVERS["strata_orphan.dll"] = "саботаж selftest: отпуск с причиной прячет тот же файл"
     Chk "отпуск с причиной подавляет находку" `
-        (@(Test-BinClosure $cbStrata $cbLlama $cbManifest).orphan.Count) 0
+        (@(Test-BinClosure $cbStrata $cbManifest).orphan.Count) 0
     $BIN_WAIVERS.Remove("strata_orphan.dll")
     Remove-Item -LiteralPath (Join2 $cbStrata "strata_orphan.dll") -Force
     # Пустое и несуществующее дерево обязаны отказывать, а не давать «ноль находок»: пустой вход,
@@ -1672,10 +1653,10 @@ if ($SelfTest) {
     $cbEmpty = Join2 $tmp "closure\empty"
     New-Item -ItemType Directory -Force -Path $cbEmpty | Out-Null
     $threw = ""
-    try { Test-BinClosure $cbEmpty $cbLlama $cbManifest | Out-Null } catch { $threw = $_.Exception.Message }
+    try { Test-BinClosure $cbEmpty $cbManifest | Out-Null } catch { $threw = $_.Exception.Message }
     Chk "пустое дерево - отказ, а не ноль находок" ($threw -like "*не производила бинарников*") $true
     $threw = ""
-    try { Test-BinClosure (Join2 $tmp "closure\nosuch") $cbLlama $cbManifest | Out-Null }
+    try { Test-BinClosure (Join2 $tmp "closure\nosuch") $cbManifest | Out-Null }
     catch { $threw = $_.Exception.Message }
     Chk "несуществующее дерево - отказ по имени каталога" ($threw -like "*нет каталога*") $true
 
@@ -1749,7 +1730,7 @@ if ($SelfTest) {
     # Каждый литерал собран из двух кусков: целым он остался бы в этом же файле, и мерка
     # встречала бы самое себя (на build_kit.ps1 это дало 7 «находок» из 7 своих же).
     $lits = @('harness\' + 'kit', 'harness\' + 'scripts', 'engine\' + 'build-kit',
-              'llama' + '-kit', 'dist\' + 'gpu-infer-kit', 'dist\' + 'stage',
+              'dist\' + 'gpu-infer-kit', 'dist\' + 'stage',
               'C:\' + 'Projects', 'build' + '-kit')
     Chk "в коде нет стендовых литералов путей" (@($lits | Where-Object { $code.Contains($_) }) -join ', ') ""
     Chk "в коде нет обращений к выведенному корню" `
@@ -1764,7 +1745,7 @@ if ($SelfTest) {
     Chk "привязка к положению скрипта - ровно одна строка" $locLines.Count 1
     Chk "единственная привязка - исходники комплекта" `
         (@($locLines | Where-Object { $_.Contains('KitSrc') }).Count) 1
-    foreach ($p in @("StrataBuild", "LlamaBuild", "KitSrc", "Measures", "Stage", "Zip",
+    foreach ($p in @("StrataBuild", "KitSrc", "Measures", "Stage", "Zip",
                      "CudaBin", "Version", "RepoSrc", "VendorStage", "VendorOut",
                      "VendorPython")) {
         $m = [regex]::Match($code,
@@ -1787,10 +1768,10 @@ if ($SelfTest) {
     # Путь stage в прогонах собран из кусков: целым он попал бы в список стендовых литералов
     # выше, и мерка нашла бы самое себя вместо кода основного потока.
     $stageOk = 'C:\p\dist\' + 'stage\gpu-infer-kit'
-    $good = @("-StrataBuild", $noDir, "-LlamaBuild", $noDir)
+    $good = @("-StrataBuild", $noDir)
     foreach ($t in @(
         @{ n = "без -StrataBuild"; o = "StrataBuild";
-           a = @("-LlamaBuild", $noDir, "-Measures", $noDir, "-Stage", $stageOk) },
+           a = @("-Measures", $noDir, "-Stage", $stageOk) },
         @{ n = "без -Measures"; o = "Measures"; a = ($good + @("-Stage", $stageOk)) },
         @{ n = "без -Stage"; o = "Stage"; a = ($good + @("-Measures", $noDir)) },
         @{ n = "stage не наш"; o = "Stage"; a = ($good + @("-Measures", $noDir, "-Stage", "C:\p\Windows")) }
@@ -2010,7 +1991,7 @@ if ($SelfTest) {
     try { Get-VendorPayload -Stage (Join2 $tmp "vendor-no-such") -Required $true | Out-Null } catch { $threw = $_.Exception.Message }
     Chk "колёса: нет staging - отказ, а не урезанный архив" ($threw -like "*VendorStage*") $true
 
-    $mmW = Get-Manifest $cbStrata $cbLlama $tgDir $tgDir "Q:\нет\cuda" $false $wr $vv
+    $mmW = Get-Manifest $cbStrata $tgDir $tgDir "Q:\нет\cuda" $false $wr $vv
     Chk "манифест: kit\serve\server.py назван" ([bool]$mmW.Contains("kit\serve\server.py")) $true
     Chk "манифест: kit\serve\web\index.html назван" ([bool]$mmW.Contains("kit\serve\web\index.html")) $true
     Chk "манифест: kit\vendor\cp311\regex\__init__.py назван" `
@@ -2229,7 +2210,7 @@ if ($SelfTest) {
                      "start.ps1", "START.bat", "README.ru.md", "README.en.md")) {
         Write-NoBom (Join2 $tgSrc2 $f) "переносимо"
     }
-    $mmTg = Get-Manifest $cbStrata $cbLlama $tgSrc2 "_" "Q:\нет\cuda" $false $wr ""
+    $mmTg = Get-Manifest $cbStrata $tgSrc2 "_" "Q:\нет\cuda" $false $wr ""
     # Ожидаемое число считается по манифесту, а не с потолка: текстовые расширения И файлы, лежащие
     # под одним из двух входных каталогов (меры в -TextGate не меряются - их пути приходятся на
     # -Measures, которого на этом шаге ещё нет).
@@ -2387,7 +2368,6 @@ if ($TextGate) {
 # одинакова на стенде, в Actions и у любого, кто клонирует форк.
 foreach ($t in @(
         @{ n = "StrataBuild"; v = $StrataBuild; d = "каталог сборки Страты - это -Out у build_kit.ps1" },
-        @{ n = "LlamaBuild";  v = $LlamaBuild;  d = "каталог сборки llama.cpp" },
         @{ n = "Measures";    v = $Measures;    d = "каталог мер: build-measure.json, elf-proof.json, runtime-deps.json" },
         @{ n = "Stage";       v = $Stage;       d = "каталог, под которым раскладывается комплект перед zip" },
         @{ n = "VendorStage"; v = $VendorStage; d = "распакованные колёса веб-морды: шаг pack_kit.ps1 -VendorWheels -VendorOut <этот каталог>" })) {
@@ -2480,7 +2460,7 @@ if ($rt.Mode -eq "._pth") {
                  "{1} ({2} строк, дописано {3}): {4}") -f $rt.Abi.Abi, $rt.Site.Rel, $rt.Site.Lines,
                 $rt.Site.Added.Count, ($rt.Site.Added -join '; '))
 }
-$manifest = Get-Manifest $StrataBuild $LlamaBuild $KitSrc $Measures $CudaBin $withRuntime `
+$manifest = Get-Manifest $StrataBuild $KitSrc $Measures $CudaBin $withRuntime `
                          $RepoSrc $VendorStage $false $runtimeDir
 if (-not $manifest.Count) { Write-Host "ОТКАЗ: манифест пуст - проверка не состоялась"; exit 2 }
 
@@ -2526,7 +2506,7 @@ Write-Host (("гейт присутствия: манифест называет
 
 # Полноту набора меряют до раскладки: потерянный LoadLibrary-модуль не роняет сборку и не
 # виден в импорт-таблицах, а на машине пользователя молча меняет маршрут на FP16.
-try { $closure = Test-BinClosure $StrataBuild $LlamaBuild $manifest } catch {
+try { $closure = Test-BinClosure $StrataBuild $manifest } catch {
     Write-Host "ОТКАЗ: $($_.Exception.Message) - полнота набора не измерена, проверка не состоялась"
     exit 2
 }
@@ -2545,7 +2525,7 @@ $absent = @()
 foreach ($k in $manifest.Keys) { if (-not (Test-Path -LiteralPath $manifest[$k])) { $absent += $k } }
 if ($absent) {
     Write-Host ("ОТКАЗ: нет обязательных файлов ({0}): {1}" -f $absent.Count, ($absent -join ', '))
-    Write-Host "      сначала -Engines strata,llama в build_kit.ps1: файлы создаёт сборка"
+    Write-Host "      сначала -Engines strata в build_kit.ps1: файлы создаёт сборка"
     exit 2
 }
 
@@ -2559,7 +2539,7 @@ if ($Version) {
 if (-not $Zip) {
     # Имя архива собирается из каталога мер - он пришёл параметром, - и версии: никакого пути,
     # выведенного из положения скрипта или из корня стенда.
-    $Zip = Join2 (Split-Path -Parent $Measures) ("gpu-infer-kit-" + $ver + ".zip")
+    $Zip = Join2 (Split-Path -Parent $Measures) ("Strata-Portable-" + $ver + ".zip")
 }
 
 Write-Host "комплект: $Stage ($($manifest.Count) файлов, версия $ver)"
@@ -2695,7 +2675,7 @@ $elf = Read-JsonNoBom (Join2 $Stage "elf-proof.json") "elf-proof"
 $deps = Read-JsonNoBom (Join2 $Stage "runtime-deps.json") "runtime-deps"
 $bm = Read-JsonNoBom (Join2 $Stage "build-measure.json") "build-measure"
 $want = @($elf.want_archs)
-# Обёртка (llama-server.exe - 10 КиБ, весь CUDA-код в ggml-cuda.dll) fatbin не несёт физически.
+# Обёртка (exe в 10 КиБ, весь CUDA-код в dll) fatbin не несёт физически.
 # Требовать от неё покрытия архитектур значит иметь всегда красный гейт на удачной сборке;
 # носители помечены carries_cuda в сайдкаре, а заодно пустой список носителей - это «доказательства
 # нет», а не «доказывать нечего».

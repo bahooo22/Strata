@@ -1,5 +1,5 @@
 ﻿<#
-    Часть 4.3 в CI-раскладке: сборка двух движков под портативный комплект и её меры.
+    Часть 4.3 в CI-раскладке: сборка серверов Страты под портативный комплект и её меры.
 
     Это копия стендового скрипта сборки комплекта, доведённая до запуска там, где нет стенда:
     каталоги исходников, вывода, тулчейна CUDA и Visual Studio задаются только параметрами,
@@ -10,13 +10,15 @@
     Запуск под pwsh 7 (в GitHub Actions windows-раннер - PowerShell 7):
 
         pwsh -File packaging/kit/ci/build_kit.ps1 -SelfTest
-        pwsh -File packaging/kit/ci/build_kit.ps1 -StrataSrc . -LlamaSrc ../llama.cpp `
-             -Cuda ../cuda -Out ../dist -Engines "strata;llama" -Arch "86;89;120"
+        pwsh -File packaging/kit/ci/build_kit.ps1 -StrataSrc . `
+             -Cuda ../cuda -Out ../dist -Engines strata -Arch "86;89;120"
+
+    Комплект — только Страта: llama-нога удалена в Q4 (0.2.19-форк), и -Engines с llama
+    отвергается до любой дорогой работы.
 
     Что делает:
-      1. настраивает и собирает Страту (цели strata, strata-q36) и llama.cpp (llama-server)
-         под список архитектур; PORTABLE включён по умолчанию, иначе комплект собран под это
-         железо, а не под чужое;
+      1. настраивает и собирает Страту (цели strata, strata-q36) под список архитектур;
+         PORTABLE включён по умолчанию, иначе комплект собран под это железо, а не под чужое;
       2. меряет время каждой сборки;
       3. по желанию меряет предельную цену архитектуры прогонником по compile_commands.json
          (-ProbeScript: в Actions этот скрипт не нужен и время жрёт, поэтому по умолчанию
@@ -34,10 +36,8 @@ param(
     [string]$Out = "",
     [string]$Engines = "strata",
     [string]$GgmlDir = "",
-    [string]$LlamaSrc = "",
     [string]$StrataSrc = "",
     [string]$StrataBuildDir = "",
-    [string]$LlamaBuildDir = "",
     [string]$ProbeScript = "",
     [switch]$NoPortable,
     [switch]$SkipProbe,
@@ -136,7 +136,7 @@ function Assert-CudaGraph([string]$BuildDir, [string]$CudaKey) {
     # Гейт ПОСЛЕ настройки и ДО компиляции. Смена -Cuda на путь, которого нет в кэше, заставляет
     # CMake напечатать «You have changed variables that require your cache to be deleted» и
     # перенастроиться БЕЗ наших -D: 14.11 так и вышло - в кэше остались GGML_CUDA=OFF и
-    # CMAKE_BUILD_TYPE=Debug, в build.ninja - ноль рёбер ggml-cuda, а «сборка llama-server»
+    # CMAKE_BUILD_TYPE=Debug, в build.ninja - ноль рёбер ggml-cuda, а «сборка» вернула rc=0,
     # вернула rc=0, потому что собрала ровно ту часть графа, которая от CUDA не зависит.
     # Молчание обошлось часом: прогон был принят как обновлённая сборка.
     $cache = Join2 $BuildDir "CMakeCache.txt"
@@ -242,7 +242,7 @@ function Get-FatbinList([string]$Exe, [string]$Flag) {
 function Get-ArchProofTag($CubinArchs, [string]$Num) {
     # Чем именно доказано наличие архитектуры. суффиксы "a" и "f" - это код той же
     # вычислительной способности, а не чужой: nvcc для -arch=sm_90a даёт architecture-specific
-    # реальный gpu-код sm_90a (CUDA Compiler Driver, --gpu-architecture), и llama.cpp просит
+    # реальный gpu-код sm_90a (CUDA Compiler Driver, --gpu-architecture), и апстрим ggml просит
     # 120a-real осознанно (ggml/src/ggml-cuda/CMakeLists.txt:51). Поэтому cubin sm_120a
     # закрывает требование 120, а sm_121a - нет, и имя тега пишется в сайдкар как факт.
     foreach ($t in @("sm_$Num", "sm_${Num}a", "sm_${Num}f")) {
@@ -259,10 +259,10 @@ function Get-ArchProofMap($CubinArchs, [string[]]$WantNums) {
 }
 
 function Get-CubinVerdict($CubinArchs, [string[]]$WantNums, [bool]$CarriesCuda) {
-    # Вердикт вынесен в функцию, чтобы его можно было проверить selftest'ом: на стенде этот
-    # гейт покрасил полностью удачную сборку llama, потребовав fatbin у llama-server.exe -
-    # обёртки в 10 КиБ, весь CUDA-код которой лежит в ggml-cuda.dll. Отсутствие cubin у
-    # обёртки ничего не опровергает, поэтому провалом меры оно не считается.
+    # Вердикт вынесен в функцию, чтобы его можно было проверить selftest'ом: на стенде этот гейт
+    # однажды покрасил полностью удачную сборку, потребовав fatbin у exe-обёртки в 10 КиБ, весь
+    # CUDA-код которой лежит в dll. Отсутствие cubin у обёртки ничего не опровергает, поэтому
+    # провалом меры оно не считается.
     if (-not $CarriesCuda) { return @() }
     $have = @($CubinArchs)
     if ($have.Count -eq 0) {
@@ -396,7 +396,7 @@ function Write-Json($Object, [string]$Path, [int]$Depth) {
 
 function Set-EngineMeasure([string]$EngineName, [string]$Src, [string]$BuildDir, $Cfg, $Build,
                            [string]$LogFile, [string]$Measures, [int]$PreObjects = -1) {
-    # Единообразная запись меры движка: у llama и Страты она была скопирована дважды, и пропуск
+    # Единообразная запись меры движка: у двух движков она была скопирована дважды, и пропуск
     # no-op-проверки в одной из копий дал бы молчаливую подмену времени сборки нулями.
     $work = Get-BuildWork $LogFile $Build.log_start $Build.log_bytes
     $workEdges = $work.compiles + $work.links
@@ -500,7 +500,7 @@ if ($SelfTest) {
     Chk "строка старого формата не дала ключа" ($c.Contains("arch = sm_86")) $false
     Chk "пустой ввод даёт пустой список" (Split-FatbinLines @()).Count 0
     # Гейт cubin: обёртка не обязана нести fatbin, носитель - обязан. Без этого контроля
-    # правка «llama-сборка не должна краснеть» ничем не отличается от правки «убрать проверку».
+    # правка «exe-обёртка не должна краснеть» ничем не отличается от правки «убрать проверку».
     Chk "обёртка без cubin - не провал" (Get-CubinVerdict @() @("86", "89") $false).Count 0
     Chk "носитель без cubin - провал" (Get-CubinVerdict @() @("86") $true).Count 1
     Chk "провал носителя назван проверкой не состоявшейся" `
@@ -576,30 +576,29 @@ if ($SelfTest) {
     # Прежняя мера полной сборки читается только если она сама была ХОЛОДОЙ: no-op прошлого
     # прогона не должен становиться «временем сборки» этого, а время прогрева цену полной
     # компиляции не называет. Отбор «любая не-no-op мера» принимал и прогрев: в measure-файле
-    # стендового прогона 12.11 у Страты стоит 712.6 с при 25+5 рёбрах, а у сборки llama.cpp 2788.8 с
-    # при 156+8 - это доли полной сборки (174 и 330 рёбер полного плана), которыми README
-    # обосновывал лимиты Actions до правки.
+    # стендового прогона 12.11 стояло 712.6 с при 25+5 рёбрах - доля полной сборки (174 ребра
+    # полного плана), которой README обосновывал лимиты Actions до правки.
     $mdir = Join2 ([System.IO.Path]::GetTempPath()) ("build-kit-prev-" +
                [Guid]::NewGuid().ToString("N").Substring(0, 8))
     New-Item -ItemType Directory -Force -Path $mdir | Out-Null
     Write-Json ([ordered]@{ started = "2026-11-10 19:51:41"
-                            engines = [ordered]@{ llama = [ordered]@{ build_s = 3321.0; build_kind = "холодная сборка" } } }) `
+                            engines = [ordered]@{ engine_x = [ordered]@{ build_s = 3321.0; build_kind = "холодная сборка" } } }) `
                (Join2 $mdir "build-measure.json") 4
-    $pv = Get-PrevBuild $mdir "llama"
+    $pv = Get-PrevBuild $mdir "engine_x"
     Chk "прежняя сборка с нуля найдена" $pv.build.build_s 3321.0
     Chk "у найденной меры есть дата замера" $pv.started "2026-11-10 19:51:41"
     Write-Json ([ordered]@{ started = "2026-11-12 14:04:17"
-                            engines = [ordered]@{ llama = [ordered]@{ build_s = 712.6; build_kind = "частичная сборка" } } }) `
+                            engines = [ordered]@{ engine_x = [ordered]@{ build_s = 712.6; build_kind = "частичная сборка" } } }) `
                (Join2 $mdir "build-measure.json") 4
-    Chk "прогрев не принимается за цену полной сборки" ($null -eq (Get-PrevBuild $mdir "llama")) $true
+    Chk "прогрев не принимается за цену полной сборки" ($null -eq (Get-PrevBuild $mdir "engine_x")) $true
     Write-Json ([ordered]@{ started = "2026-11-10 20:00:00"
-                            engines = [ordered]@{ llama = [ordered]@{ build_s = 0.4; build_kind = "no-op" } } }) `
+                            engines = [ordered]@{ engine_x = [ordered]@{ build_s = 0.4; build_kind = "no-op" } } }) `
                (Join2 $mdir "build-measure.json") 4
-    Chk "no-op не принимается за полную сборку" ($null -eq (Get-PrevBuild $mdir "llama")) $true
+    Chk "no-op не принимается за полную сборку" ($null -eq (Get-PrevBuild $mdir "engine_x")) $true
     Write-Json ([ordered]@{ started = "2026-11-12 14:04:17"
-                            engines = [ordered]@{ llama = [ordered]@{ build_s = 2788.8; build_kind = "полная компиляция" } } }) `
+                            engines = [ordered]@{ engine_x = [ordered]@{ build_s = 2788.8; build_kind = "полная компиляция" } } }) `
                (Join2 $mdir "build-measure.json") 4
-    Chk "снятая метка «полная компиляция» больше не принимается" ($null -eq (Get-PrevBuild $mdir "llama")) $true
+    Chk "снятая метка «полная компиляция» больше не принимается" ($null -eq (Get-PrevBuild $mdir "engine_x")) $true
     Chk "движок без прежней меры отсутствует" ($null -eq (Get-PrevBuild $mdir "strata")) $true
     Remove-Item -LiteralPath $mdir -Recurse -Force -ErrorAction SilentlyContinue
     # Регрессия на самой Chk. Round-trip через JSON меняет тип меры: ConvertTo-Json пишет
@@ -661,7 +660,7 @@ if ($SelfTest) {
     # --- гейт графа после настройки и метка свежести бинарника ---------------------------------
     # Класс дефекта снят 15.11 с ложно-зелёного прогона: CMake перенастроил чужой кэш без наших -D,
     # в CMakeCache остались GGML_CUDA=OFF и CMAKE_BUILD_TYPE=Debug, в build.ninja не было ни одного
-    # ребра ggml-cuda, "cmake --build --target llama-server" честно вернул rc=0, а cuobjdump нашёл
+    # ребра ggml-cuda, "cmake --build --target strata" честно вернул rc=0, а cuobjdump нашёл
     # sm_86/sm_89/sm_120a в dll, которую этот прогон не писал (она лежала в bin\ с 12.11).
     $gDir = Join2 ([System.IO.Path]::GetTempPath()) "build-kit-selftest-graph"
     New-Item -ItemType Directory -Force -Path $gDir | Out-Null
@@ -680,7 +679,7 @@ if ($SelfTest) {
     try { $edges = Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
     Chk "здоровый граф принят без отказа" $threw ""
     Chk "здоровый граф считает CUDA-рёбра" $edges 2
-    Write-Graph ('CMAKE_BUILD_TYPE:STRING=Release' + "`n" + 'GGML_CUDA:BOOL=OFF') 'build bin\llama-server.exe: CXX_EXECUTABLE_LINKER__llama-server_Release'
+    Write-Graph ('CMAKE_BUILD_TYPE:STRING=Release' + "`n" + 'GGML_CUDA:BOOL=OFF') 'build bin\strata.exe: CXX_EXECUTABLE_LINKER__strata_Release'
     $threw = ""
     try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
     Chk "ложно-зелёный прогон отклонён по GGML_CUDA" ($threw -like "*GGML_CUDA=OFF*") $true
@@ -688,7 +687,7 @@ if ($SelfTest) {
     $threw = ""
     try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
     Chk "отклонён и Debug вместо Release" ($threw -like "*CMAKE_BUILD_TYPE=Debug*") $true
-    Write-Graph $okCache 'build bin\llama-server.exe: CXX_EXECUTABLE_LINKER__llama-server_Release'
+    Write-Graph $okCache 'build bin\strata.exe: CXX_EXECUTABLE_LINKER__strata_Release'
     $threw = ""
     try { Assert-CudaGraph $gDir "GGML_CUDA" } catch { $threw = $_.Exception.Message }
     Chk "CUDA=ON без единого .cu.obj отклонён" ($threw -like "*.cu.obj*") $true
@@ -699,7 +698,7 @@ if ($SelfTest) {
     Write-Graph ('CMAKE_BUILD_TYPE:STRING=Release' + "`n" + 'STRATA_ENABLE_CUDA:BOOL=ON') $cuEdge
     $threw = ""
     try { Assert-CudaGraph $gDir "STRATA_ENABLE_CUDA" } catch { $threw = $_.Exception.Message }
-    Chk "ключ Страты принимается, а не только llama" $threw ""
+    Chk "ключ Страты принимается гейтом графа" $threw ""
     # --- гейт паритета флагов (класс build-api-v2 18.11): Release в кэше, все CXX без /O2 --------
     # Отдельно проверяется, что CUDA-форма -std=c++20 (через знак равенства) не попадает в
     # host-класс: иначе число CXX-правил растёт на CUDA-строку, а гейт молчит или врёт.
@@ -760,10 +759,10 @@ if ($SelfTest) {
     # --- состояние кэша сборки -------------------------------------------------------------------
     # Метка ставилась при любой ненулевой работе, и её числом README обосновывал лимиты Actions.
     # Знаменатель ninja различать не умеет (снято 12.11 по четырём логам): это план текущего
-    # вызова - у llama прогрев даёт план 165 против 330 у полной сборки, а у Страты план 174 и у
-    # прогона с нуля, и у CI-верного прогона. Факт, доступный ДО прогона, - число объектов реальных
-    # целей: они лежат в каталогах вида <цель>.dir, а пробные компиляции самого CMake есть и у
-    # совершенно пустого дерева, поэтому их считать нельзя.
+    # вызова, и у прогрева он бывает меньше полного (165 против 330 у второй сборки до Q4), а у
+    # Страты план 174 и у прогона с нуля, и у CI-верного прогона. Факт, доступный ДО прогона, -
+    # число объектов реальных целей: они лежат в каталогах вида <цель>.dir, а пробные компиляции
+    # самого CMake есть и у совершенно пустого дерева, поэтому их считать нельзя.
     $kdir = Join2 ([System.IO.Path]::GetTempPath()) ("build-kit-objs-" +
                [Guid]::NewGuid().ToString("N").Substring(0, 8))
     foreach ($f in @("CMakeFiles\strata.dir\server.cpp.obj", "CMakeFiles\strata.dir\main.cu.obj",
@@ -831,7 +830,7 @@ if ($SelfTest) {
     # Каждый литерал собран из двух кусков: целым он остался бы в этом же файле, и мерка встречала
     # бы самое себя вместо кода сборки (проверено на красном прогоне: 7 «находок» из 7 - свои же).
     $standLits = @('F:\' + 'CUDA', 'C:\' + 'Projects', 'E:\' + 'tmp', 'harness\' + 'scripts',
-                   'llama' + '-kit', 'dist\' + 'gpu-infer-kit', 'C:\Program Files\' + 'NVIDIA')
+                   'dist\' + 'gpu-infer-kit', 'C:\Program Files\' + 'NVIDIA')
     $hits = @($standLits | Where-Object { $code.Contains($_) })
     Chk "в коде нет стендовых литералов путей" ($hits -join ', ') ""
     Chk "в коде нет обращений к выведенному корню" `
@@ -846,10 +845,10 @@ if ($SelfTest) {
     # подсчёт объектов из одной ветки, вернёт ровно тот дефект, ради которого всё затевалось,
     # а самоконтроль функций этого не увидит. Паттерны собираются из кусков - целый литерал
     # совпал бы с самой проверкой.
-    Chk "состояние кэша фиксируют перед обеими сборками" `
-        @([regex]::Matches($code, 'Count-BuiltObjects\s+\' + $dollar + 'bd')).Count 2
-    Chk "обе меры получают число объектов до прогона" `
-        @([regex]::Matches($code, 'Set-EngineMeasure[^\r\n]*\' + $dollar + 'pre')).Count 2
+    Chk "состояние кэша фиксируют перед сборкой Страты" `
+        @([regex]::Matches($code, 'Count-BuiltObjects\s+\' + $dollar + 'bd')).Count 1
+    Chk "мера получает число объектов до прогона" `
+        @([regex]::Matches($code, 'Set-EngineMeasure[^\r\n]*\' + $dollar + 'pre')).Count 1
     # Тот же класс, но в месте, которое живёт только в прогоне сборки: у -f приоритет выше, чем у +,
     # поэтому «литерал + литерал -f аргументы» подставляет аргументы только во второй литерал.
     # Живой лог 12.11 (build-strata.log прогона kit378) показал в строке меры Страты литеральные
@@ -882,8 +881,8 @@ if ($SelfTest) {
         ((($gTplA + $gTplB) -f "A", "B", "C").Contains("{0}")) $false
     Chk "правильная форма раскрывает и хвост" `
         ((($gTplA + $gTplB) -f "A", "B", "C").Contains("хвост C")) $true
-    foreach ($p in @("Cuda", "Vs", "Out", "StrataSrc", "LlamaSrc", "GgmlDir",
-                     "ProbeScript", "StrataBuildDir", "LlamaBuildDir")) {
+    foreach ($p in @("Cuda", "Vs", "Out", "StrataSrc", "GgmlDir",
+                     "ProbeScript", "StrataBuildDir")) {
         $m = [regex]::Match($code,
               '(?m)^\s*\[string\]' + [regex]::Escape($dollar + $p) + '\s*=\s*"([^"]*)"')
         # Первый контроль - саботаж второго: прежняя редакция совпадала с «пустой строкой» и давала
@@ -916,25 +915,15 @@ if ($SelfTest) {
     $wantStrata = @("CMAKE_BUILD_TYPE", "CMAKE_CUDA_ARCHITECTURES", "CMAKE_CUDA_COMPILER",
                     "CMAKE_EXPORT_COMPILE_COMMANDS", "STRATA_BUILD_TESTS", "STRATA_ENABLE_CUDA",
                     "STRATA_MMQ", "STRATA_PORTABLE") | Sort-Object
-    $wantLlama = @("CMAKE_BUILD_TYPE", "CMAKE_CUDA_ARCHITECTURES", "CMAKE_CUDA_COMPILER",
-                   "CMAKE_EXPORT_COMPILE_COMMANDS", "GGML_CUDA", "LLAMA_BUILD_EXAMPLES",
-                   "LLAMA_BUILD_SERVER", "LLAMA_BUILD_TESTS", "LLAMA_CURL",
-                   "LLAMA_OPENSSL") | Sort-Object
-    foreach ($t in @(@{ v = "cfgArgs"; n = "Страты"; want = $wantStrata },
-                     @{ v = "llamaArgs"; n = "llama"; want = $wantLlama })) {
-        $got = @(); $err = ""
-        try { $got = @(Get-DFlagNames $t.v) } catch { $err = $_.Exception.Message }
-        Chk "массив -D $($t.n) вычитан из кода" $err ""
-        Chk "набор -D $($t.n) ровно стендовый" ($got -join ',') ($t.want -join ',')
-    }
+    $got = @(); $err = ""
+    try { $got = @(Get-DFlagNames "cfgArgs") } catch { $err = $_.Exception.Message }
+    Chk "массив -D Страты вычитан из кода" $err ""
+    Chk "набор -D Страты ровно стендовый" ($got -join ',') ($wantStrata -join ',')
     Chk "STRATA_GGML_DIR добавляется условно, а не всегда" `
         ($code.Contains($dollar + 'cfgArgs += "-DSTRATA_GGML_DIR=' + $dollar + 'GgmlDir"')) $true
     Chk "портативность включена по умолчанию" ($code.Contains('-DSTRATA_PORTABLE=' + $dollar + 'portable')) $true
-    Chk "curl в llama выключён" ($code.Contains('-DLLAMA_CURL=OFF')) $true
-    Chk "openssl в llama выключён" ($code.Contains('-DLLAMA_OPENSSL=OFF')) $true
     Chk "MMQ-путь Страты включён" ($code.Contains('-DSTRATA_MMQ=' + 'ON')) $true
     Chk "цель Страты - обе программы" ($code.Contains('--target strata strata-q36')) $true
-    Chk "цель llama - llama-server" ($code.Contains('--target llama-server')) $true
     Chk "bin тулчейна попадает в PATH безусловно" `
         ($code.Contains($dollar + 'env:PATH = (Join2 ' + $dollar + 'Cuda "bin") + ";"')) $true
 
@@ -964,8 +953,8 @@ if ($SelfTest) {
            a = @("-Out", $noDir) },
         @{ n = "без -Out"; o = "-Out";
            a = @("-StrataSrc", $noDir) },
-        @{ n = "llama без -LlamaSrc"; o = "-LlamaSrc";
-           a = @("-StrataSrc", $noDir, "-Out", $noDir, "-Cuda", $noDir, "-Engines", "strata;llama") }
+        @{ n = "-Engines llama"; o = "llama-нога удалена в Q4";
+           a = @("-StrataSrc", $noDir, "-Out", $noDir, "-Cuda", $noDir, "-Engines", "llama") }
     )) {
         $pr = Invoke-EntryProbe $t.a
         Chk "отказ по входу ($($t.n)) даёт rc=2" $pr.rc 2
@@ -995,22 +984,21 @@ if (-not $StrataSrc) {
 }
 if (-not $Out) { Write-Host "ОТКАЗ: -Out не передан (каталог мер и комплекта) - проверка не состоялась"; exit 2 }
 if (-not $Cuda) { Write-Host "ОТКАЗ: -Cuda не передан: без тулчейна CUDA компилировать нечем"; exit 2 }
-if (($Engines -match 'llama') -and -not $LlamaSrc) {
-    Write-Host ("ОТКАЗ: -Engines '${Engines}' заказывает llama, но -LlamaSrc не передан -" +
-                " второй клон в Actions обязан быть указан явно")
+if ($Engines -match 'llama') {
+    Write-Host ("ОТКАЗ: llama-нога удалена в Q4 (Portable — только Strata): -Engines '${Engines}'" +
+                " не поддерживается, собирайте -Engines strata")
     exit 2
 }
 if (-not $GgmlDir) { $GgmlDir = "" }
 
 # build-measure.json и elf-proof.json читаются классификатором комплекта и упаковщиком как меры
-# ВСЕГО комплекта. Прогон -Engines llama перезаписывал их своими двумя строками, и доказательство
-# Страты исчезало молча (проверено 10.11: в elf-proof.json остались только llama-бинарники, а
-# pack_kit.ps1 не увидел потери). Частичный прогон поэтому пишет в *.partial.json - объединённый
-# файл можно получить только прогоном, покрывающим оба движка.
-$partial = -not (($Engines -match 'strata') -and ($Engines -match 'llama'))
+# ВСЕГО комплекта. Объединённый файл пишет только прогон, покрывающий комплект целиком (после Q4
+# это -Engines strata); при любом другом списке меры уходят в *.partial.json, чтобы доказательство
+# комплекта не было подменено половиной.
+$partial = -not ($Engines -match 'strata')
 $sfx = if ($partial) { ".partial" } else { "" }
 if ($partial) {
-    Write-Host "ВНИМАНИЕ: -Engines '$Engines' покрывает один движок: меры пишутся в *.partial.json,"
+    Write-Host "ВНИМАНИЕ: -Engines '$Engines' не называет strata: меры пишутся в *.partial.json,"
     Write-Host "          объединённые build-measure.json / elf-proof.json не трогаются."
 }
 try {
@@ -1129,41 +1117,45 @@ if ($Engines -match 'strata') {
     $bd = if ($StrataBuildDir) { $StrataBuildDir } else { Join2 $src "build-kit" }
     Assert-FreshCache $bd $src
     # --- префлайт ggml-дерева, до запуска единого компилятора ---------------------------------
-    # main Страты требует от ggml-дерева K-quant инстансы: cmake/backends/cuda.cmake перечисляет
-    # q2_k..q6_k в set(_strata_kq_types) и target_sources'-ит их при STRATA_MMQ_KQUANTS (он ON
-    # по умолчанию), а в vendored third_party\strata-ggml одного q2_k нет. Без этого шага CMake
-    # доходит до "Configuring done" и падает на generate ("Cannot find source file"), что в логе
-    # неотличимо от поломки тулчейна, - проверено 10.11 на отказе настройки Страты rc=1.
+    # До 0.2.19 main Страты требовал от ggml-дерева K-quant инстансы: cmake/backends/cuda.cmake
+    # перечислял q2_k..q6_k в set(_strata_kq_types) и target_sources'-ил их при STRATA_MMQ_KQUANTS,
+    # а в vendored third_party\strata-ggml одного q2_k не было. 0.2.19 собирает ggml из vendored
+    # дерева и списка не объявляет, поэтому префлайт срабатывает только при объявленном списке,
+    # а его отсутствие называет причиной, а не отказом (иначе сборка 0.2.19 не началась бы вовсе).
     $kqCmake = Join2 $src "cmake\backends\cuda.cmake"
     $kqTypes = @(if (Test-Path $kqCmake) { Get-KqTypes $kqCmake } else { @() })
     if (-not $kqTypes) {
-        Write-Host "ОТКАЗ: список K-quant инстансов не вычитан из $kqCmake - префлайт ggml-дерева не состоялся"; exit 2
-    }
-    $cand = @()
-    foreach ($base in @($GgmlDir, (Join2 $src "third_party\strata-ggml"))) {
-        if (-not $base) { continue }
-        $cand += (Join2 $base "ggml\src\ggml-cuda\template-instances")
-        $cand += (Join2 $base "src\ggml-cuda\template-instances")
-    }
-    $ti = @($cand | Where-Object { Test-Path $_ }) | Select-Object -First 1
-    if (-not $ti) {
-        Write-Host "ОТКАЗ: каталог template-instances не найден ни в -GgmlDir, ни в vendored ggml Страты:";
-        foreach ($c in $cand) { Write-Host "         $c" }
-        exit 2
-    }
-    $lack = @(Get-KqMissing $ti $kqTypes)
-    Write-Host ("ggml-дерево Страты: $ti (K-quant инстансов запрошено $($kqTypes.Count), недостаёт $($lack.Count))")
-    if ($lack) {
-        Write-Host "ОТКАЗ: в этом ggml-дереве нет mmq-instance для $($lack -join ', ') - сборка упала бы на generate."
-        Write-Host "       выход: -GgmlDir <дерево, где эти инстансы лежат>. Ни один компилятор не запущен, время сборки не испорчено."
-        exit 2
+        # 0.2.19: движок берёт ggml из vendored third_party\strata-ggml и списка `set(_strata_kq_types ...)`
+        # в cmake больше не объявляет. Прежний жёсткий отказ rc=2 здесь остановил бы любую сборку
+        # 0.2.19 до компилятора, поэтому отсутствие списка называется вслух, а не выдаётся за провал.
+        Write-Host ("префлайт ggml-дерева: список K-quant в $kqCmake не объявлен - движок собирает " +
+                    "ggml из vendored third_party\strata-ggml, отдельный K-quant префлайт не нужен")
+    } else {
+        $cand = @()
+        foreach ($base in @($GgmlDir, (Join2 $src "third_party\strata-ggml"))) {
+            if (-not $base) { continue }
+            $cand += (Join2 $base "ggml\src\ggml-cuda\template-instances")
+            $cand += (Join2 $base "src\ggml-cuda\template-instances")
+        }
+        $ti = @($cand | Where-Object { Test-Path $_ }) | Select-Object -First 1
+        if (-not $ti) {
+            Write-Host "ОТКАЗ: каталог template-instances не найден ни в -GgmlDir, ни в vendored ggml Страты:";
+            foreach ($c in $cand) { Write-Host "         $c" }
+            exit 2
+        }
+        $lack = @(Get-KqMissing $ti $kqTypes)
+        Write-Host ("ggml-дерево Страты: $ti (K-quant инстансов запрошено $($kqTypes.Count), недостаёт $($lack.Count))")
+        if ($lack) {
+            Write-Host "ОТКАЗ: в этом ggml-дереве нет mmq-instance для $($lack -join ', ') - сборка упала бы на generate."
+            Write-Host "       выход: -GgmlDir <дерево, где эти инстансы лежат>. Ни один компилятор не запущен, время сборки не испорчено."
+            exit 2
+        }
     }
     $portable = if ($NoPortable) { "OFF" } else { "ON" }
     $log = Join2 $Out "build-strata.log"
     # P4-SPLIT: апстрим перевёл STRATA_MMQ в дефолт OFF (CMakeLists.txt:112) и велел упаковочным
-    # скриптам передавать значение явно; манифест комплекта требует strata_kq.dll, а она рождается
-    # только в MMQ-ветке (cuda.cmake: _strata_kq_dso). Без этого флага холодный configure молча
-    # теряет и strata_mmq, и strata_kq.
+    # скриптам передавать значение явно. На 0.2.18/0.2.19 strata_kq.dll не собирается, но флаг
+    # остаётся: без него холодный configure молча теряет MMQ-ветку, а её числа и маркеры меряются.
     $cfgArgs = @("-S", $src, "-B", $bd, "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release",
                  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DSTRATA_ENABLE_CUDA=ON",
                  "-DSTRATA_MMQ=ON", "-DSTRATA_BUILD_TESTS=OFF", "-DSTRATA_PORTABLE=$portable",
@@ -1199,62 +1191,10 @@ if ($Engines -match 'strata') {
                  $preStrata, $tBuild.rc)
 }
 
-if ($Engines -match 'llama') {
-    $src = $LlamaSrc
-    if (-not (Test-Path (Join2 $src "CMakeLists.txt"))) {
-        Write-Host "ОТКАЗ: нет дерева llama.cpp в $src (-LlamaSrc); для Страты этот движок не обязателен"
-        exit 2
-    }
-    $bd = if ($LlamaBuildDir) { $LlamaBuildDir } else { Join2 $src "build-kit" }
-    Assert-FreshCache $bd $src
-    $log = Join2 $Out "build-llama.log"
-    # Аргументы - массивом и в двойных кавычках, как в ветке Страты. В командной позиции токен
-    # вида -DCMAKE_CUDA_COMPILER=$nvcc начинается с дефиса, поэтому PowerShell трактует его как
-    # имя параметра и переменную не раскрывает: CMake получал дословный «$nvcc» и падал на
-    # enable_language (проверено 10.11 по build-llama.log). Элемент массива - уже готовая
-    # строка, поэтому раскрытие происходит всегда, а пробелы в пути nvcc не ломают аргумент.
-    $llamaArgs = @("-S", $src, "-B", $bd, "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release",
-                   "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DGGML_CUDA=ON",
-                   "-DCMAKE_CUDA_ARCHITECTURES=$($archList -join ';')",
-                   "-DCMAKE_CUDA_COMPILER=$nvcc",
-                   "-DLLAMA_BUILD_SERVER=ON", "-DLLAMA_BUILD_TESTS=OFF",
-                   "-DLLAMA_BUILD_EXAMPLES=OFF", "-DLLAMA_CURL=OFF",
-                   # ON по умолчанию: где в образе раннера есть OpenSSL, там он и подлинкован. Стенд
-                   # свой OpenSSL не нашёл (OPENSSL_INCLUDE_DIR-NOTFOUND в CMakeCache от 12.11), и
-                   # его импорт-таблицы чисты, а прогон публикации релиза 43345549955 дал в
-                   # llama-common.dll и llama-server-impl.dll импорты libssl-3-x64.dll и
-                   # libcrypto-3-x64.dll - на машине пользователя сервер бы не стартовал.
-                   # Возить чужие dll в комплекте нельзя: их версия зависела бы от образа раннера,
-                   # тогда как весь остальной комплект пинован sha256. HTTPS комплекту не нужен -
-                   # модели локальные.
-                   "-DLLAMA_OPENSSL=OFF")
-    $tCfg = Invoke-BuildStep $log "настройка llama" { & $cmake @llamaArgs }
-    if ($tCfg.rc -ne 0) { Write-Host "ОТКАЗ: настройка llama rc=$($tCfg.rc) (лог $log)"; Save-Measure "отказ: настройка llama rc=$($tCfg.rc)"; exit 1 }
-    try { $measure.cuda_edges.llama = Assert-CudaGraph $bd "GGML_CUDA" } catch {
-        Write-Host "ОТКАЗ: $($_.Exception.Message)"
-        Save-Measure "отказ: граф llama не соответствует запросу"; exit 2
-    }
-    Write-Host ("граф llama: CUDA-рёбер {0} (GGML_CUDA=ON, Release)" -f $measure.cuda_edges.llama)
-    try { $measure.cxx_flags.llama = Assert-CxxO2Parity $bd } catch {
-        Write-Host "ОТКАЗ: $($_.Exception.Message)"
-        Save-Measure "отказ: CXX-правила llama без /O2"; exit 2
-    }
-    Write-Host ("паритет флагов llama: {0} CXX-правил с /O2" -f $measure.cxx_flags.llama)
-    $preLlama = Count-BuiltObjects $bd
-    $tBuild = Invoke-BuildStep $log "сборка llama" { & $cmake --build $bd --target llama-server -j 4 }
-    if ($tBuild.rc -ne 0) { Write-Host "СБОРКА llama упала rc=$($tBuild.rc) (лог $log)"; $rc_total = 1 }
-    $measure.engines.llama = Set-EngineMeasure "llama" $src $bd $tCfg $tBuild $log $Out $preLlama
-    $lm = $measure.engines["llama"]
-    Write-Host (("llama: настройка {0} с, сборка {1} с [{2}] ({3} компиляций, {4} линковок, " +
-                 "объектов до прогона: {5}), rc={6}") -f `
-                 $tCfg.sec, $lm.build_s, $lm.build_kind, $lm.build_compiles, $lm.build_links, `
-                 $preLlama, $tBuild.rc)
-}
-
 if (-not $measure.engines.Count) {
     # Опечатка в -Engines (например "-Engines starta") молча проходила бы весь скрипт: ни один
     # движок не собран, список бинарников пуст, и «доказательство» выглядело бы как прогон.
-    Write-Host ("ОТКАЗ: -Engines '$Engines' не зацепил ни один движок (ждём strata и/или llama) -" +
+    Write-Host ("ОТКАЗ: -Engines '$Engines' не зацепил ни один движок (ждём strata) -" +
                 " проверка не состоялась")
     exit 2
 }
@@ -1272,7 +1212,7 @@ if ($SkipProbe) {
         Write-Host "ОТКАЗ: -ProbeScript указан, но файла нет ($ProbeScript) - проверка не состоялась"
         exit 2
     }
-    foreach ($e in @("strata", "llama")) {
+    foreach ($e in @("strata")) {
         if (-not $measure.engines.Contains($e)) { continue }
         $bd = $measure.engines[$e].build_dir
         & $python $ProbeScript --build $bd `
@@ -1288,8 +1228,8 @@ if ($SkipProbe) {
     }
 }
 
-# Бинарники меряются группами: ggml-cuda.dll лежит то в bin\, то в ggml\src\ - это один артефакт,
-# а не два. Прощать отсутствие пути целиком нельзя: при упавшей сборке список остался бы пустым
+# Бинарники меряются группами: носитель CUDA-кода называется отдельным пунктом, а не выводится из
+# имени exe. Прощать отсутствие пути целиком нельзя: при упавшей сборке список остался бы пустым
 # без единого сигнала. Поэтому если в группе нет НИ ОДНОГО файла - это провал меры.
 $elfProofFile = Join2 $Out ("elf-proof{0}.json" -f $sfx)
 $elfProof = [ordered]@{
@@ -1302,13 +1242,6 @@ if ($measure.engines.Contains("strata")) {
     $bd = $measure.engines.strata.build_dir
     $groups += [pscustomobject]@{ name = "strata-q36"; carries = $true; paths = @((Join2 $bd "strata-q36.exe")) },
                [pscustomobject]@{ name = "strata"; carries = $true; paths = @((Join2 $bd "strata.exe")) }
-}
-if ($measure.engines.Contains("llama")) {
-    $bd = $measure.engines.llama.build_dir
-    # llama-server.exe - обёртка: линкуется без CUDA-кода, и cubin в ней появиться не может.
-    $groups += [pscustomobject]@{ name = "llama-server"; carries = $false; paths = @((Join2 $bd "bin\llama-server.exe")) },
-               [pscustomobject]@{ name = "ggml-cuda"; carries = $true; paths = @((Join2 $bd "bin\ggml-cuda.dll"),
-                                                                                 (Join2 $bd "ggml\src\ggml-cuda.dll")) }
 }
 foreach ($g in $groups) {
     $b = @($g.paths | Where-Object { Test-Path $_ })
@@ -1366,7 +1299,7 @@ foreach ($g in $groups) {
             }
         }
         if (-not $g.carries) {
-            Write-Host "  $($g.name): обёртка без CUDA-кода - отсутствие cubin здесь нормально, несёт его ggml-cuda.dll"
+            Write-Host "  $($g.name): обёртка без CUDA-кода - отсутствие cubin здесь нормально, CUDA-код несёт другой бинарник сборки"
         }
         # elf-proof.json - то же доказательство, но в формате, который читает kit\classify.py:
         # без сайдкара вердикт «cubin для твоей архитектуры в комплекте нет» опирался бы на
