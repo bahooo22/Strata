@@ -446,8 +446,19 @@ function Get-WebPayload([string]$Repo, [bool]$Required) {
     if (Test-Path -LiteralPath $Repo -PathType Container) {
         $Repo = (Get-Item -LiteralPath $Repo).FullName
     }
+    # 0.2.16-раскладка: serve, tools, strata_control, strata_cli лежат в terminal, а не в корне.
+    # Корень остаётся один (-RepoSrc = strata), но база правила ищется и под terminal.
+    $repoAlts = @()
+    if (Test-Path -LiteralPath (Join2 $Repo "terminal") -PathType Container) {
+        $repoAlts += (Join2 $Repo "terminal")
+    }
     foreach ($spec in $WEB_SPECS) {
         $base = Join2 $Repo ($spec.dir.Replace('/', '\'))
+        foreach ($rr in $repoAlts) {
+            if (Test-Path -LiteralPath $base -PathType Container) { break }
+            $alt = Join2 $rr ($spec.dir.Replace('/', '\'))
+            if (Test-Path -LiteralPath $alt -PathType Container) { $base = $alt; break }
+        }
         $found = @()
         if (Test-Path -LiteralPath $base -PathType Container) {
             if ($spec.ContainsKey('files')) {
@@ -2437,6 +2448,9 @@ try {
 $runtimeDir = ""
 try {
     $pinSrc = Join2 $RepoSrc "packaging\package_terminal.py"
+    if (-not (Test-Path -LiteralPath $pinSrc) -and (Test-Path -LiteralPath (Join2 $RepoSrc "tools\packaging\package_terminal.py"))) {
+        $pinSrc = Join2 $RepoSrc "tools\packaging\package_terminal.py"   # 0.2.16-раскладка: tools\packaging
+    }
     $pinChk = Get-PythonPinDiff $pinSrc
     if ($pinChk.Diff) {
         Write-Host ("ОТКАЗ: пин интерпретатора разошёлся с первоисточником {0}:" -f $pinSrc)
