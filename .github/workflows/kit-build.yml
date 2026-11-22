@@ -60,8 +60,8 @@ env:
   # Две раздельные копии (paths в шаге + список в гейте) - это ровно класс «названные пути
   # ≠ загруженные файлы», и он же расходится молча, когда список правят только в одном месте.
   ARTIFACT_FILES: |
-    strata\build-kit\strata-q36.exe
-    strata\build-kit\strata.exe
+    strata\engine\build-kit\strata-q36.exe
+    strata\engine\build-kit\strata.exe
 
 jobs:
   ci-gates:
@@ -157,7 +157,7 @@ jobs:
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          $bd = Join-Path $ws 'strata\build-kit'
+          $bd = Join-Path $ws 'strata\engine\build-kit'
           python (Join-Path $ws 'strata\tools\packaging\kit\ci\patch_markers.py') `
               --engine strata `
               --bin (Join-Path $bd 'strata-q36.exe') --bin (Join-Path $bd 'strata.exe') `

@@ -149,8 +149,8 @@ jobs:
           # CUDA и ARCH в ключе потому, что смена тулчейна или набора архитектур меняет ABI
           # и набор cubin: делить такой кэш между ними нельзя.
           path: |
-            strata\build-kit
-          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt') }}
+            strata\engine\build-kit
+          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/engine/CMakeLists.txt', 'strata/engine/**/CMakeLists.txt') }}
           restore-keys: |
             build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-
 
@@ -177,8 +177,8 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
-            strata\build-kit
-          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/CMakeLists.txt', 'strata/**/CMakeLists.txt') }}
+            strata\engine\build-kit
+          key: build-kit-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.ARCH }}-${{ hashFiles('strata/engine/CMakeLists.txt', 'strata/engine/**/CMakeLists.txt') }}
 
       - name: "Гейт маркеров: наши патчи в собранных exe"
         shell: pwsh
@@ -187,8 +187,8 @@ jobs:
           $pm = Join-Path $ws 'strata\tools\packaging\kit\ci\patch_markers.py'
           $bad = @()
           python $pm --engine strata `
-              --bin (Join-Path $ws 'strata\build-kit\strata-q36.exe') `
-              --bin (Join-Path $ws 'strata\build-kit\strata.exe') `
+              --bin (Join-Path $ws 'strata\engine\build-kit\strata-q36.exe') `
+              --bin (Join-Path $ws 'strata\engine\build-kit\strata.exe') `
               --out (Join-Path $env:RUNNER_TEMP 'kit\markers-strata.json')
           Write-Host "rc(patch_markers strata)=$LASTEXITCODE"
           if ($LASTEXITCODE -ne 0) { $bad += 'strata' }
@@ -201,7 +201,7 @@ jobs:
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
           $dumpbin = & $vswhere -latest -find '**\bin\Hostx64\x64\dumpbin.exe' | Select-Object -First 1
           if (-not $dumpbin) { Write-Host 'ОТКАЗ: dumpbin.exe не найден через vswhere - проверка не состоялась'; exit 2 }
-          $bins = @('strata\build-kit\strata-q36.exe', 'strata\build-kit\strata.exe')
+          $bins = @('strata\engine\build-kit\strata-q36.exe', 'strata\engine\build-kit\strata.exe')
           # 0.2.16: strata_kq.dll не собирается (MMQ-путь удалён 3e26b4e15); список — два сервера.
           # cublas приезжает из redist-архива, а не из этого дерева.
           $a = @('strata\tools\packaging\kit\ci\kit_dll_deps.py')
@@ -230,7 +230,7 @@ jobs:
         run: |
           $ws = $env:GITHUB_WORKSPACE
           $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
-          $a = @('-StrataBuild', (Join-Path $ws 'strata\build-kit'),
+          $a = @('-StrataBuild', (Join-Path $ws 'strata\engine\build-kit'),
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
                  '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
                  '-VendorStage', (Join-Path $env:RUNNER_TEMP 'kit\vendor'),
