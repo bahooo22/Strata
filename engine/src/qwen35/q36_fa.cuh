@@ -316,7 +316,15 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
 //   8 x 32: 33792 + 16896 + 5120 + 9216 + 512 = 65 536 B (64.00 KiB)  -> 1 block / SM  (256 threads)
 //   4 x 64: 16896 + 33792 + 4608 + 8704 + 256 = 64 256 B (62.75 KiB)  -> 1 block / SM
 //   8 x 64: 33792 + 33792 + 9216 + 17408 + 512 = 94 720 B (92.5 KiB)  -> 1 block / SM (256 threads)
-enum Variant { k4x32 = 0, k8x32 = 1, k4x64 = 2, k8x64 = 3, kVariantCount = 4 };
+enum Variant { k4x32 = 0, k8x32 = 1, k4x64 = 2, k8x64 = 3, k16x64 = 4, k32x64 = 5, kVariantCount = 6 };
+
+/// 0216-accel F2: the widest query block the geometry allows - K/V is re-read T/Qs times per chunk, so a wider
+/// block cuts the attention's global traffic (the tile grows the register file, not the shared memory).
+inline Variant pick_by_t(int T) {
+    if (T >= 512) return k32x64;
+    if (T >= 128) return k16x64;
+    return k4x32;
+}
 
 template <int Qs, int Slice>
 constexpr size_t shared_bytes_of() {
@@ -330,6 +338,8 @@ inline size_t q36_fa_shared(Variant v) {
     case k8x32: return shared_bytes_of<8, 32>();
     case k4x64: return shared_bytes_of<4, 64>();
     case k8x64: return shared_bytes_of<8, 64>();
+    case k16x64: return shared_bytes_of<16, 64>();
+    case k32x64: return shared_bytes_of<32, 64>();
     default: return shared_bytes_of<4, 32>();
     }
 }
@@ -355,6 +365,8 @@ inline bool q36_fa_shape(Variant v, int T, int HKV, Shape* out) {
     case k8x32: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 32>::Threads); break;
     case k4x64: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 64>::Threads); break;
     case k8x64: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 64>::Threads); break;
+    case k16x64: out->grid = dim3((unsigned) ((T + 15) / 16), (unsigned) HKV); out->block = dim3(Cfg<16, 64>::Threads); break;
+    case k32x64: out->grid = dim3((unsigned) ((T + 31) / 32), (unsigned) HKV); out->block = dim3(Cfg<32, 64>::Threads); break;
     default: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 32>::Threads); break;
     }
     out->shared = q36_fa_shared(v);
@@ -418,6 +430,8 @@ inline bool q36_fa_launch(dim3 grid, dim3 block, cudaStream_t st, const __half* 
     case k8x32: return launch_one<8, 32>(sh, st, a, T, HKV);
     case k4x64: return launch_one<4, 64>(sh, st, a, T, HKV);
     case k8x64: return launch_one<8, 64>(sh, st, a, T, HKV);
+    case k16x64: return launch_one<16, 64>(sh, st, a, T, HKV);
+    case k32x64: return launch_one<32, 64>(sh, st, a, T, HKV);
     default: return launch_one<4, 32>(sh, st, a, T, HKV);
     }
 }
