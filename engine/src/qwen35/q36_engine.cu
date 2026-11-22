@@ -1805,7 +1805,6 @@ struct Engine {
         use_mmq = n_mmq > 0 || (m->has_mtp && mmq_layer[m->layers.size()] != 0);
         // 0216-accel: no MMQ to give way to, so the int8 prompt kernels are the default (i8_expert_rule.hpp; the env still wins)
         if (!use_mmq) K::native_expert_i8_set_mmq_free();
-        E.use_pf = true;   // 0.2.18 merge: the streamed prompt path is on; place_experts turns it off when the staging pair does not fit
         if (mmq_built && first_bad >= 0) {
             const Layer& L = m->layers[(size_t) first_bad];
             std::fprintf(stderr, "strata-q36: layer %d takes the native grouped kernels: MMQ does not cover gate/up "
@@ -3719,6 +3718,7 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     E.hybrid_t = std::max(1, std::min(hybrid_t, E.use_mmq ? E.tmax : E.tmax));
     if (!E.use_pf) E.hybrid_t = E.tmax;   // no streamed prompt path: every batch on slots + the pool
     // the slot count and the VRAM need (hybrid_fit.hpp); when the staging pair of the streamed prompt path does not fit the card, the plan without it (#5533)
+    E.use_pf = true;   // 0.2.18 merge: the streamed prompt path is on; the fallback below turns it off when the staging pair does not fit
     strata::qwen35::HybridIn hin;
     hin.fr = fr;
     hin.budget2 = budget2;
