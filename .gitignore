@@ -124,3 +124,6 @@ node_modules/
 /build-vision-spark/
 /terminal/.venv-build/
 /.venv-build/
+
+# локальная копия llama.cpp для сборки (1,2 ГБ; в онлайн не нужна)
+/third_party/llama.cpp
