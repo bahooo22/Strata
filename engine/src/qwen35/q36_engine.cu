@@ -3715,10 +3715,10 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     E.main_hybrid = !mtp_only;
     if (E.main_hybrid) E.use_graph = false;   // the host takes part in every layer
     E.mtp_graph = false;                      // the MTP block's layer is hybrid either way
+    E.use_pf = true;   // 0.2.18 merge: our P0 streams prompt chunks without MMQ; set BEFORE the hybrid_t rule below
     E.hybrid_t = std::max(1, std::min(hybrid_t, E.use_mmq ? E.tmax : E.tmax));
     if (!E.use_pf) E.hybrid_t = E.tmax;   // no streamed prompt path: every batch on slots + the pool
     // the slot count and the VRAM need (hybrid_fit.hpp); when the staging pair of the streamed prompt path does not fit the card, the plan without it (#5533)
-    E.use_pf = true;   // 0.2.18 merge: the streamed prompt path is on; the fallback below turns it off when the staging pair does not fit
     strata::qwen35::HybridIn hin;
     hin.fr = fr;
     hin.budget2 = budget2;
