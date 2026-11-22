@@ -12,8 +12,8 @@
    "commits_ours_head": "57944d38e",
    "commits_ours_at": "2026-11-22",
    "commits_ours_note": "снимок на названный head: число считается по истории, которой в Actions нет (actions/checkout с fetch-depth: 1), поэтому это документация, а не гейт; head - родитель коммита, несущего эту запись (коммит не может записать собственный хеш), поэтому число привязано к названной голове и не ползёт от новых коммитов; пересъёмка - отдельный прогон registry_counts.py",
-   "markers": 29,
-   "commits_with_marker": 16,
+   "markers": 27,
+   "commits_with_marker": 15,
    "carriers": [
     "strata-q36.exe",
     "strata.exe"
@@ -45,26 +45,6 @@
      "kind": "kernel",
      "commit": "4569b243",
      "subject": "RU: q36: count+scan маршрутизации в одном блоке",
-     "bins": [
-      "strata-q36.exe",
-      "strata.exe"
-     ]
-    },
-    {
-     "token": ", --mtp 0 (the MTP block's weights and buffers take VRAM)",
-     "kind": "literal",
-     "commit": "86200712",
-     "subject": "Подсказать --mtp 0 и STRATA_MMQ_KQ=0 в ошибке нехватки VRAM",
-     "bins": [
-      "strata-q36.exe",
-      "strata.exe"
-     ]
-    },
-    {
-     "token": ", or STRATA_MMQ_KQ=0 (the streamed-prompt staging becomes slots)",
-     "kind": "literal",
-     "commit": "86200712",
-     "subject": "Подсказать --mtp 0 и STRATA_MMQ_KQ=0 в ошибке нехватки VRAM",
      "bins": [
       "strata-q36.exe",
       "strata.exe"
