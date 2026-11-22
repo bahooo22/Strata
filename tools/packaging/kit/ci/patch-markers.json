@@ -1,18 +1,18 @@
 {
  "version": 1,
- "generated": "2026-11-12",
+ "generated": "2026-11-22",
  "measure": "registry_counts.py (рядом со скриптом гейта): числа сняты ею и переснимаются той же командой; имена маркеров взяты из «+»-строк наших диффов, отфильтрованы по отсутствию в базе апстрима и подтверждены побайтно в носителях комплекта",
  "note": "Бинарник доказуемо несёт два класса имён: строковые литералы (переменные среды, CLI-флаги, тексты) и имена CUDA-ядер из fatbin. Локальные имена функций и переменных компилятор не сохраняет, поэтому коммиты без такого следа в реестр не входят - их отсутствие здесь не значит, что патч не собран.",
  "engines": {
   "strata": {
    "upstream": "upstream/main",
-   "commits_ours": 89,
-   "commits_ours_cmd": "b=$(git merge-base upstream/main main); git rev-list --count --no-merges $b..8ca5f124",
-   "commits_ours_base": "13eedf552",
-   "commits_ours_head": "8ca5f124",
-   "commits_ours_at": "2026-11-13",
+   "commits_ours": 166,
+   "commits_ours_cmd": "b=$(git merge-base upstream/main main); git rev-list --count --no-merges $b..57944d38e",
+   "commits_ours_base": "c6f6427d9",
+   "commits_ours_head": "57944d38e",
+   "commits_ours_at": "2026-11-22",
    "commits_ours_note": "снимок на названный head: число считается по истории, которой в Actions нет (actions/checkout с fetch-depth: 1), поэтому это документация, а не гейт; head - родитель коммита, несущего эту запись (коммит не может записать собственный хеш), поэтому число привязано к названной голове и не ползёт от новых коммитов; пересъёмка - отдельный прогон registry_counts.py",
-   "markers": 24,
+   "markers": 29,
    "commits_with_marker": 12,
    "carriers": [
     "strata-q36.exe",
@@ -255,6 +255,56 @@
      "kind": "literal",
      "commit": "36dddeb1",
      "subject": "super-chunk: слой-мажорный обход промпта, эксперты слоя стейджатся один раз",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_P4",
+     "kind": "literal",
+     "commit": "9a1700f22",
+     "subject": "q36: fused-ядра prompt-экспертов по STRATA_Q36_P4=1",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_EXPERT_CACHE_MB",
+     "kind": "literal",
+     "commit": "0678f6ff6",
+     "subject": "q36: префетч mmap-режима в pinned-буферы (STRATA_Q36_EXPERT_CACHE_MB)",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_REBALANCE",
+     "kind": "literal",
+     "commit": "d53ebc8fb",
+     "subject": "q36: prep пишет q16 сразу; env-кадэнс rebalance",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_SWAPS",
+     "kind": "literal",
+     "commit": "d53ebc8fb",
+     "subject": "q36: prep пишет q16 сразу; env-кадэнс rebalance",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FA_PROF",
+     "kind": "literal",
+     "commit": "30d71e316",
+     "subject": "q36: FA v2 — 16x32-плитка, регистровая softmax-схема, ldmatrix",
      "bins": [
       "strata-q36.exe",
       "strata.exe"
