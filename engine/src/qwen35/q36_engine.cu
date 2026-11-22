@@ -1417,6 +1417,9 @@ struct Engine {
     int fa_tile = 0;
     // STRATA_Q36_FA_CHECK: rerun the cuBLAS branch on the FA layer and print per-head max abs / cos
     bool fa_check = false;
+    // STRATA_Q36_FA_PROF: per-phase clock64 totals of the FA kernel (layers 0 and last, whole prompt)
+    bool fa_prof_on = std::getenv("STRATA_Q36_FA_PROF") != nullptr;
+    unsigned long long* fa_prof = nullptr;
     float* att_fa = nullptr;
     float *xsuper = nullptr, *hsuper = nullptr;
     int32_t *tok_super = nullptr, *pos_super = nullptr;
@@ -1748,7 +1751,7 @@ struct Engine {
         x = dalloc(T * N); h = dalloc(T * N); y = dalloc(T * N); hmain = dalloc(T * N);
         super_n = knob("--super-chunk", "STRATA_Q36_SUPER_CHUNK", cli_super_chunk, 1, 64, 1, knob_lines).value;
         fa_layer = knob("--fa", "STRATA_Q36_FA_LAYER", cli_fa_layer, -2, 4096, -1, knob_lines, "all").value;
-        fa_tile = knob("--fa-tile", "STRATA_Q36_FA_TILE", cli_fa_tile, 0, 3, 0, knob_lines).value;
+        fa_tile = knob("--fa-tile", "STRATA_Q36_FA_TILE", cli_fa_tile, 0, 6, 0, knob_lines).value;
         pinned_layers = knob("--pinned-layers", "STRATA_Q36_PINNED_LAYERS", cli_pinned_layers, -1, 4096, 0, knob_lines).value;
         read_windows = knob("--read-windows", "STRATA_Q36_READ_WINDOWS", cli_read_windows, 0, 64, 1, knob_lines).value;
         if (knob_lines.empty()) std::fprintf(stderr, "strata-q36: knobs: defaults held\n");
@@ -1772,6 +1775,7 @@ struct Engine {
         vx = dalloc(T * g.n_head_kv * g.head_dim); q = dalloc(T * g.n_head * g.head_dim);
         gate = dalloc(T * g.n_head * g.head_dim); att = dalloc(T * g.n_head * g.head_dim);
         if (fa_check) att_fa = dalloc(T * g.n_head * g.head_dim);
+        if (fa_prof_on) fa_prof = (unsigned long long*) dalloc(5 * sizeof(unsigned long long));
         logits_r = dalloc(T * (g.n_expert + 1));
         eparts = dalloc(T * Kp * N); moe_out = dalloc(T * N);
         sg = dalloc(T * g.n_ff_shexp); su = dalloc(T * g.n_ff_shexp); shh = dalloc(T * g.n_ff_shexp); sy = dalloc(T * N);
@@ -2484,11 +2488,21 @@ struct Engine {
                 const bool fa_want = fa_layer == -2 || fa_layer == (int) li;
                 q36fa::Shape fa_shape;
                 const q36fa::Variant fa_var = (q36fa::Variant) fa_tile;
+                const bool fa_prof_li = fa_prof_on && fa_want && ((int) li == 0 || (int) li == g.n_layers - 1);
+                if (fa_prof_on && fa_want) cudaMemsetAsync(fa_prof, 0, 5 * sizeof(unsigned long long), st);
                 const bool fa_ok = fa_want && q36fa::q36_fa_shape(fa_var, T, HKV, &fa_shape) &&
                                    q36fa::q36_fa_launch(fa_shape.grid, fa_shape.block, st, q16, k16, v16, att, T, P,
-                                                        (int) p0, H, HKV, HD, ctx, 1.0f / sqrtf((float) HD), fa_var);
+                                                        (int) p0, H, HKV, HD, ctx, 1.0f / sqrtf((float) HD), fa_var, fa_prof);
                 if (fa_ok && std::getenv("STRATA_Q36_FA_LOG"))
                     std::fprintf(stderr, "fa: layer %zu T=%d P=%d p0=%d tile=%d\n", li, T, P, (int) p0, fa_tile);
+                if (fa_ok && fa_prof_li) {
+                    unsigned long long h[5] = {0, 0, 0, 0, 0};
+                    cudaMemcpyAsync(h, fa_prof, sizeof(h), cudaMemcpyDeviceToHost, st);
+                    cudaStreamSynchronize(st);
+                    const double ftot = (double) (h[0] + h[1] + h[3] + h[4]) + 1.0;
+                    std::fprintf(stderr, "fa-phases layer %zu T=%d P=%d: K %.1f%% score %.1f%% softmax %.1f%% pv %.1f%%\n",
+                                 li, T, P, 100.0 * h[0] / ftot, 100.0 * h[1] / ftot, 100.0 * h[3] / ftot, 100.0 * h[4] / ftot);
+                }
                 if (fa_ok && fa_check) {
                     CK(cudaStreamSynchronize(st));
                     CK(cudaGetLastError());
@@ -4707,7 +4721,7 @@ int strata::qwen35::run(int argc, char** argv) {
         else if (a == "--draft-vocab") draft_vocab = std::atoi(next().c_str());   // the MTP drafts pick among the first N token ids
         else if (a == "--super-chunk") cli_super_chunk = std::atoi(next().c_str());   // N prompt chunks in one pass (see super_n)
         else if (a == "--fa") { const std::string v = next(); cli_fa_layer = v == "all" ? -2 : std::atoi(v.c_str()); }
-        else if (a == "--fa-tile") cli_fa_tile = std::atoi(next().c_str());   // 0: 4x32, 1: 8x32, 2: 4x64, 3: 8x64
+        else if (a == "--fa-tile") cli_fa_tile = std::atoi(next().c_str());   // 0: 4x32, 1: 8x32, 2: 4x64, 3: 8x64, 4: 16x32, 5: 4x16, 6: 8x16
         else if (a == "--pinned-layers") cli_pinned_layers = std::atoi(next().c_str());   // 0: all, -1: none, N: at most N
         else if (a == "--read-windows") cli_read_windows = std::atoi(next().c_str());   // decode windows between two prompt chunks
         else if (a == "--vision") vision = true;                                  // pictures (GENI): the encoder is strata-vision's

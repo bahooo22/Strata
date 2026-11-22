@@ -38,6 +38,13 @@
 // of the quad (m_cur, identical in all four threads because mx is shuffle-reduced), and shared keeps only lsum and
 // alpha: lsum is touched by the leader alone, alpha is written before and read after a barrier.
 //
+// Third change (FA2 step): the full S.s score tile is gone. The slice's scores are exponentiated straight from the
+// MMA fragments (cq), and the row's running max travels through a two-slot shared array per row (one slot per
+// column half of the row block) instead of a Rows x Slice float tile; the running sum keeps one slot per half too.
+// That frees 4.4..17 KiB of shared and leaves room for the 16-query tile (16 x 32, 96.8 KiB): a block now walks
+// the KV prefix for 16 queries instead of 4, so the prompt's K/V traffic drops fourfold - the FA is bound by that
+// traffic, not by the MMA.
+//
 // NOT IN ANY BUILD TARGET ON PURPOSE: no engine file includes it yet, so the engine compiles and runs exactly as
 // before until the pilot adds `#include "q36_fa.cuh"` and the STRATA_Q36_FA_LAYER branch.
 
@@ -69,14 +76,14 @@ struct Cfg {
     static constexpr int ScoreTiles = NW / WarpPerM;            // score tiles a warp computes: 2 or 4
     static constexpr int PvCols = kHD / WarpPerM;               // DV columns a warp accumulates: 128
     static constexpr int PvTiles = PvCols / 8;                  // ... as 8-column tiles: 16
-    static constexpr int ColsPerThread = Slice / kThreadsPerRow;   // slice columns one softmax thread owns: 8/16
-    static_assert(Qs == 4 || Qs == 8, "the FA pilot instantiates kQs = 4 and 8");
-    static_assert(Slice == 32 || Slice == 64, "the FA pilot instantiates kSlice = 32 and 64");
+    static_assert(Qs == 4 || Qs == 8 || Qs == 16, "the FA pilot instantiates kQs = 4, 8 and 16");
+    static_assert(Slice == 16 || Slice == 32 || Slice == 64, "the FA pilot instantiates kSlice = 16, 32 and 64");
     static_assert(Rows % 16 == 0, "the rows of a block must divide into 16-row MMA tiles");
     static_assert(Warps % MT == 0, "the row blocks must divide the warps");
     static_assert(NW % WarpPerM == 0, "the score tiles of a row block must divide its warps");
     static_assert(PvCols % 8 == 0, "DV must split across the warps of a row block");
-    static_assert(Slice % kThreadsPerRow == 0, "the columns of a slice must divide a row's quad");
+    static_assert(WarpPerM <= 2, "the slice max/sum exchange has two slots per row");
+    static_assert(Slice % 16 == 0, "the p.v steps of a slice are 16 columns");
     static_assert(Threads <= 1024, "the block is bigger than CUDA allows");
 };
 
@@ -111,6 +118,7 @@ struct Args {
     int stride_q_t;             // H * HD
     int stride_kv_h;            // P * HD: k16/v16 are packed by the visible prefix, not by ctx
     float scale;                // 1 / sqrt(HD)
+    unsigned long long* prof;   // optional [8] phase-cycle counters (STRATA_Q36_FA_PROF), nullptr in normal runs
 };
 
 template <typename C>
@@ -118,10 +126,37 @@ struct SmemT {
     __half q[C::Rows][kLD];
     __half kv[C::Slice][kLD];               // the slice's K, then (after the score MMA) its V
     __half p[C::Rows][C::Slice + kPad];
-    float s[C::Rows][C::Slice + 4];
-    float lsum[C::Rows];                    // running sum of exp - written only by the row's own quad leader
-    float alpha[C::Rows];                   // per-slice rescale factor, read by the p.v warps after a barrier
+    // The two column halves of a row block own disjoint halves of a slice's columns, so the row's running max and
+    // sum are exchanged through these two slots instead of the old full S.s tile (Rows x Slice floats).
+    float mx[C::Rows][2];                   // per-half slice max of the two rows a quad owns
+    float lsum[C::Rows][2];                 // per-half running sum of exp
 };
+
+__device__ __forceinline__ void ldm_x4(uint32_t* r, const void* addr) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800
+    const uint32_t s = (uint32_t) __cvta_generic_to_shared(addr);
+    asm volatile("ldmatrix.sync.aligned.m8n8.x4.shared.b16 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(r[0]), "=r"(r[1]), "=r"(r[2]), "=r"(r[3]) : "r"(s));
+#endif
+}
+
+// x2 (no trans): B fragments from a tile stored as [n][k] (K as stored: cell x head-dim)
+__device__ __forceinline__ void ldm_x2(uint32_t* r, const void* addr) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800
+    const uint32_t s = (uint32_t) __cvta_generic_to_shared(addr);
+    asm volatile("ldmatrix.sync.aligned.m8n8.x2.shared.b16 {%0,%1}, [%2];"
+                 : "=r"(r[0]), "=r"(r[1]) : "r"(s));
+#endif
+}
+
+// x2 transposed: B fragments from a row-major [k][n] tile (V as stored: cell x dim)
+__device__ __forceinline__ void ldm_x2t(uint32_t* r, const void* addr) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800
+    const uint32_t s = (uint32_t) __cvta_generic_to_shared(addr);
+    asm volatile("ldmatrix.sync.aligned.m8n8.x2.trans.shared.b16 {%0,%1}, [%2];"
+                 : "=r"(r[0]), "=r"(r[1]) : "r"(s));
+#endif
+}
 
 __device__ __forceinline__ uint32_t pack2(const __half lo, const __half hi) {
     __half2 h = __halves2half2(lo, hi);
@@ -134,7 +169,7 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
     using C = Cfg<Qs, Slice>;
     constexpr int kQs = C::Qs, kSlice = C::Slice, kRows = C::Rows, kThreads = C::Threads;
     constexpr int kScoreTiles = C::ScoreTiles, kPvTiles = C::PvTiles, kPvCols = C::PvCols;
-    constexpr int kColsPerThread = C::ColsPerThread, kWarpPerM = C::WarpPerM;
+    constexpr int kWarpPerM = C::WarpPerM;
 
     extern __shared__ __align__(16) unsigned char raw[];
     SmemT<C>& S = *reinterpret_cast<SmemT<C>*>(raw);
@@ -145,6 +180,8 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
     const int kvh = blockIdx.y;
     const int m = warp / kWarpPerM, nhalf = warp % kWarpPerM;   // row block, and its half of the columns
     const float scl2 = a.scale * 1.4426950408889634f;           // 1/sqrt(HD) * log2(e): the softmax runs in exp2
+    unsigned long long ph[5] = {0, 0, 0, 0, 0}, tick = a.prof ? clock64() : 0;
+#define FA_PHASE(k) if (a.prof) { const unsigned long long n_ = clock64(); ph[k] += n_ - tick; tick = n_; }
 
     // Row r is (i, g) = (r / kG, r % kG); its absolute position is a.p0 + i0 + i.
     for (int x = t; x < kRows * (kHD / 8); x += kThreads) {
@@ -157,11 +194,12 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
         else
             *reinterpret_cast<uint4*>(dst) = make_uint4(0, 0, 0, 0);
     }
-    // The running max of a row lives in the registers of its own quad (all four threads keep the same value): one
-    // shared mrow read by four threads and written by one of them inside the same slice is a race no barrier covers.
-    // Only the quad leader touches S.lsum, so its per-slice accumulation stays a single-thread read-modify-write.
-    for (int r = t; r < kRows; r += kThreads) S.lsum[r] = 0.f;
-    float m_cur = -INFINITY;
+    // The online softmax state: each thread keeps its two rows' fragments; the per-half max and sum go through
+    // S.mx / S.lsum (one slot per column half), so a row's state is the pair of its two halves' slots. m0/m8 are
+    // registers again, but they are the row's GLOBAL max: every half reads both slots, so the value stays identical.
+    const int row0 = m * 16 + gid;
+    float m0 = -INFINITY, m8 = -INFINITY;
+    for (int x = t; x < kRows * 2; x += kThreads) (&S.lsum[0][0])[x] = 0.f;
     __syncthreads();
 
     float acc[kPvTiles][4];                                 // this warp's PvTiles n8 tiles of its kPvCols of DV
@@ -182,6 +220,7 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
             *reinterpret_cast<uint4*>(&S.kv[r][c8]) = kv0;
         }
         __syncthreads();
+        FA_PHASE(0);
 
         // ---- q.k: the kRows x kSlice tile is MT x NW tiles of 16x8; the warp takes its m and ScoreTiles of n
         float cq[kScoreTiles][4];
@@ -190,29 +229,23 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
 #pragma unroll
             for (int e = 0; e < 4; ++e) cq[j][e] = 0.f;
         for (int k0 = 0; k0 < kHD; k0 += 16) {
+            // A: lanes 0-15 give the rows of the 16x16 tile (rows 8-15 in lanes 8-15), lanes 16-31 the same rows
+            // at k+8 -> x4 loads a0..a3 of m16n8k16 in one instruction (no scalar half reads, no pack2)
             uint32_t qa[4];
-#pragma unroll
-            for (int j = 0; j < 4; ++j) {
-                const int row = m * 16 + gid + ((j == 1 || j == 3) ? 8 : 0);
-                const int col = k0 + 2 * tig + (j >= 2 ? 8 : 0);   // a0/a1 rows gid/gid+8 at k=2*tig, a2/a3 the same at +8
-                qa[j] = pack2(S.q[row][col], S.q[row][col + 1]);
-            }
+            ldm_x4(qa, &S.q[m * 16 + (lane & 15)][k0 + ((lane >> 4) << 3)]);
 #pragma unroll
             for (int nn = 0; nn < kScoreTiles; ++nn) {
                 const int n = nhalf * kScoreTiles + nn;
                 uint32_t kb[2];
-#pragma unroll
-                for (int j = 0; j < 2; ++j) {
-                    const int kp = 2 * tig + (j ? 8 : 0);         // B[k][n]: k = the head dim, n = a KV cell
-                    const int cell = n * 8 + gid;
-                    kb[j] = pack2(S.kv[cell][k0 + kp], S.kv[cell][k0 + kp + 1]);
-                }
+                ldm_x2(kb, &S.kv[n * 8 + (lane & 7)][k0 + (((lane >> 3) & 1) << 3)]);
                 mma16816(cq[nn], qa, kb);
             }
         }
         __syncthreads();                                        // S.kv is free: every warp has read its K
+        FA_PHASE(1);
 
-        // ---- the slice's V into S.kv, and the scores into S.s (every warp writes only its own columns)
+        // ---- the slice's V into S.kv; the scores go straight from the MMA fragments to p = exp2(s - m), the
+        // running max and sum staying in the row quad's registers (no S.s tile, no barrier before the max)
         for (int x = t; x < kSlice * (kHD / 8); x += kThreads) {
             const int r = x / (kHD / 8), c8 = (x % (kHD / 8)) * 8;
             uint4 vv = make_uint4(0, 0, 0, 0);
@@ -221,82 +254,96 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
                     a.V + (size_t) (c0 + r) * a.HD + c8 + (size_t) kvh * a.stride_kv_h));
             *reinterpret_cast<uint4*>(&S.kv[r][c8]) = vv;
         }
-#pragma unroll
-        for (int nn = 0; nn < kScoreTiles; ++nn) {
-            const int n = nhalf * kScoreTiles + nn;
-#pragma unroll
-            for (int e = 0; e < 4; ++e) {
-                const int row = m * 16 + gid + (e >= 2 ? 8 : 0);
-                const int col = n * 8 + 2 * tig + (e & 1);
-                S.s[row][col] = cq[nn][e] * scl2;
-            }
-        }
-        __syncthreads();
-
-        // ---- online softmax over the slice: kThreadsPerRow threads per row, ColsPerThread columns each, reduced
-        // inside the row's quad
+        float r0, r8;                                           // this slice's rescale of the two rows' acc
         {
-            const int row = t / kThreadsPerRow, cg = t % kThreadsPerRow;
-            const int i = row / kG, qpos = a.p0 + i0 + i;
-            float sv[kColsPerThread], mx = -INFINITY;
+            const int row8 = row0 + 8;
+            const int qpos0 = a.p0 + i0 + row0 / kG, qpos8 = a.p0 + i0 + row8 / kG;
+            float sv[kScoreTiles][4], mx0 = -INFINITY, mx8 = -INFINITY;
 #pragma unroll
-            for (int j = 0; j < kColsPerThread; ++j) {
-                const int col = cg * kColsPerThread + j;
-                sv[j] = (col < ncol && c0 + col <= qpos) ? S.s[row][col] : -INFINITY;
-                mx = fmaxf(mx, sv[j]);
-            }
-            mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 1));
-            mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
-            const float m_old = m_cur, m_new = fmaxf(m_old, mx);
-            const float rescale = m_old == -INFINITY ? 0.f : exp2f(m_old - m_new);
-            m_cur = m_new;
-            float ps = 0.f;
+            for (int nn = 0; nn < kScoreTiles; ++nn) {
+                const int n = nhalf * kScoreTiles + nn;
 #pragma unroll
-            for (int j = 0; j < kColsPerThread; ++j) {
-                const float pv = sv[j] == -INFINITY ? 0.f : exp2f(sv[j] - m_new);
-                S.p[row][cg * kColsPerThread + j] = __float2half_rn(pv);
-                ps += pv;
+                for (int e = 0; e < 4; ++e) {
+                    const int col = n * 8 + 2 * tig + (e & 1);
+                    const float s = cq[nn][e] * scl2;
+                    if (col < ncol && c0 + col <= (e >= 2 ? qpos8 : qpos0)) {
+                        sv[nn][e] = s;
+                        if (e >= 2) mx8 = fmaxf(mx8, s); else mx0 = fmaxf(mx0, s);
+                    } else {
+                        sv[nn][e] = -INFINITY;
+                    }
+                }
             }
-            ps += __shfl_xor_sync(0xffffffffu, ps, 1);
-            ps += __shfl_xor_sync(0xffffffffu, ps, 2);
-            if (cg == 0) {                                      // the quad leader owns the row's sum and factor
-                S.lsum[row] = fmaf(S.lsum[row], rescale, ps);
-                S.alpha[row] = rescale;
+            mx0 = fmaxf(mx0, __shfl_xor_sync(0xffffffffu, mx0, 1));
+            mx0 = fmaxf(mx0, __shfl_xor_sync(0xffffffffu, mx0, 2));
+            mx8 = fmaxf(mx8, __shfl_xor_sync(0xffffffffu, mx8, 1));
+            mx8 = fmaxf(mx8, __shfl_xor_sync(0xffffffffu, mx8, 2));
+            if (tig == 0) {                                     // one writer per (row, half): the quad's max
+                S.mx[row0][nhalf] = mx0;
+                S.mx[row8][nhalf] = mx8;
+            }
+            __syncthreads();                                    // both halves' maxima are in, the V load above is done
+            const float mh0 = kWarpPerM > 1 ? S.mx[row0][1] : S.mx[row0][0];
+            const float mh8 = kWarpPerM > 1 ? S.mx[row8][1] : S.mx[row8][0];
+            const float mn0 = fmaxf(m0, fmaxf(S.mx[row0][0], mh0));
+            const float mn8 = fmaxf(m8, fmaxf(S.mx[row8][0], mh8));
+            r0 = m0 == -INFINITY ? 0.f : exp2f(m0 - mn0);
+            r8 = m8 == -INFINITY ? 0.f : exp2f(m8 - mn8);
+            m0 = mn0;
+            m8 = mn8;
+            float ps0 = 0.f, ps8 = 0.f;
+#pragma unroll
+            for (int nn = 0; nn < kScoreTiles; ++nn) {
+                const int n = nhalf * kScoreTiles + nn;
+                float pv[4];
+#pragma unroll
+                for (int e = 0; e < 4; ++e)
+                    pv[e] = sv[nn][e] == -INFINITY ? 0.f : exp2f(sv[nn][e] - (e >= 2 ? mn8 : mn0));
+                // the two columns of a quad are adjacent: one half2 store a row instead of two half stores
+                *reinterpret_cast<__half2*>(&S.p[row0][n * 8 + 2 * tig]) =
+                    __floats2half2_rn(pv[0], pv[1]);
+                *reinterpret_cast<__half2*>(&S.p[row0 + 8][n * 8 + 2 * tig]) =
+                    __floats2half2_rn(pv[2], pv[3]);
+                ps0 += pv[0] + pv[1];
+                ps8 += pv[2] + pv[3];
+            }
+            ps0 += __shfl_xor_sync(0xffffffffu, ps0, 1);
+            ps0 += __shfl_xor_sync(0xffffffffu, ps0, 2);
+            ps8 += __shfl_xor_sync(0xffffffffu, ps8, 1);
+            ps8 += __shfl_xor_sync(0xffffffffu, ps8, 2);
+            if (tig == 0) {                                     // each half owns its own sum slot
+                S.lsum[row0][nhalf] = fmaf(S.lsum[row0][nhalf], r0, ps0);
+                S.lsum[row8][nhalf] = fmaf(S.lsum[row8][nhalf], r8, ps8);
             }
         }
-        __syncthreads();
+        __syncthreads();                                        // every half has written its p and lsum slot
+        FA_PHASE(3);
 
         // ---- p.v: A = p (16 x kSlice, kSlice/16 k steps), B = the slice's V (k = a KV cell, n = the output dim)
 #pragma unroll
-        for (int j = 0; j < kPvTiles; ++j) {
-            const float s0 = S.alpha[m * 16 + gid], s8 = S.alpha[m * 16 + gid + 8];
+        for (int j = 0; j < kPvTiles; ++j)
 #pragma unroll
-            for (int e = 0; e < 4; ++e) acc[j][e] *= (e >= 2 ? s8 : s0);
-        }
+            for (int e = 0; e < 4; ++e) acc[j][e] *= (e >= 2 ? r8 : r0);
         for (int k0 = 0; k0 < kSlice; k0 += 16) {
             uint32_t pa[4];
-#pragma unroll
-            for (int j = 0; j < 4; ++j) {
-                const int row = m * 16 + gid + ((j == 1 || j == 3) ? 8 : 0);
-                const int col = k0 + 2 * tig + (j >= 2 ? 8 : 0);
-                pa[j] = pack2(S.p[row][col], S.p[row][col + 1]);
-            }
+            ldm_x4(pa, &S.p[m * 16 + (lane & 15)][k0 + ((lane >> 4) << 3)]);
 #pragma unroll
             for (int nn = 0; nn < kPvTiles; ++nn) {
                 const int d = nhalf * kPvCols + nn * 8;
                 uint32_t vb[2];
-#pragma unroll
-                for (int j = 0; j < 2; ++j) {
-                    const int kp = 2 * tig + (j ? 8 : 0);       // B[k][n]: k = the KV cell, n = the dim
-                    vb[j] = pack2(S.kv[k0 + kp][d + gid], S.kv[k0 + kp + 1][d + gid]);
-                }
+                ldm_x2t(vb, &S.kv[k0 + (lane & 15)][d]);
                 mma16816(acc[nn], pa, vb);
             }
         }
         __syncthreads();                                        // the next slice rewrites kv/p/s
+        FA_PHASE(4);
     }
+    if (a.prof && threadIdx.x == 0)
+        for (int k_ = 0; k_ < 5; ++k_) atomicAdd(&a.prof[k_], ph[k_]);
 
     // ---- O = acc / lsum, in the [T][H][HD] layout (the gate is applied by the caller's k_gate_mul)
+    const float ld0 = S.lsum[row0][0] + (kWarpPerM > 1 ? S.lsum[row0][1] : 0.f);
+    const float ld8 = S.lsum[row0 + 8][0] + (kWarpPerM > 1 ? S.lsum[row0 + 8][1] : 0.f);
 #pragma unroll
     for (int nn = 0; nn < kPvTiles; ++nn) {
         const int d = nhalf * kPvCols + nn * 8;
@@ -306,17 +353,22 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
             const int col = d + 2 * tig + (e & 1);
             const int i = row / kG, g = row % kG, qrow = i0 + i;
             if (qrow < a.T)
-                a.O[((size_t) qrow * a.H + kvh * kG + g) * a.HD + col] = acc[nn][e] / S.lsum[row];
+                a.O[((size_t) qrow * a.H + kvh * kG + g) * a.HD + col] = acc[nn][e] / (e >= 2 ? ld8 : ld0);
         }
     }
 }
 
-// The tiles the pilot instantiates and what each one costs in shared memory (q + kv + p + s + lsum + alpha):
-//   4 x 32: 16896 + 16896 + 2560 + 4608 + 256 = 41 216 B (40.25 KiB)  -> 2 blocks / SM on GA104
-//   8 x 32: 33792 + 16896 + 5120 + 9216 + 512 = 65 536 B (64.00 KiB)  -> 1 block / SM  (256 threads)
-//   4 x 64: 16896 + 33792 + 4608 + 8704 + 256 = 64 256 B (62.75 KiB)  -> 1 block / SM
-//   8 x 64: 33792 + 33792 + 9216 + 17408 + 512 = 94 720 B (92.5 KiB)  -> 1 block / SM (256 threads)
-enum Variant { k4x32 = 0, k8x32 = 1, k4x64 = 2, k8x64 = 3, kVariantCount = 4 };
+// The tiles the pilot instantiates and what each one costs in shared memory (q + kv + p + the two-slot mx/lsum,
+// 16 bytes per row): the query-heavy tiles exist so that a block walks the KV prefix for more queries, which divides
+// the K/V traffic of the whole prompt by kQs/4 (it is the memory side, not the MMA, that binds).
+//   4 x 32: 16896 + 16896 + 2560 +  512 = 36 864 B (36.0 KiB)  -> 2 blocks / SM on GA104 (128 threads)
+//   8 x 32: 33792 + 16896 + 5120 + 1024 = 56 832 B (55.5 KiB)  -> 1 block / SM  (256 threads)
+//   4 x 64: 16896 + 33792 + 4608 +  512 = 55 808 B (54.5 KiB)  -> 1 block / SM
+//   8 x 64: 33792 + 33792 + 9216 + 1024 = 77 824 B (76.0 KiB)  -> 1 block / SM (256 threads)
+//  16 x 32: 67584 + 16896 + 10240 + 2048 = 96 768 B (94.5 KiB) -> 1 block / SM (512 threads)
+//   4 x 16: 16896 +  8448 +  3072 +  512 = 28 928 B (28.3 KiB) -> 3 blocks / SM (128 threads)
+//   8 x 16: 33792 +  8448 +  6144 + 1024 = 49 408 B (48.3 KiB) -> 2 blocks / SM (256 threads)
+enum Variant { k4x32 = 0, k8x32 = 1, k4x64 = 2, k8x64 = 3, k16x32 = 4, k4x16 = 5, k8x16 = 6, kVariantCount = 7 };
 
 template <int Qs, int Slice>
 constexpr size_t shared_bytes_of() {
@@ -330,6 +382,9 @@ inline size_t q36_fa_shared(Variant v) {
     case k8x32: return shared_bytes_of<8, 32>();
     case k4x64: return shared_bytes_of<4, 64>();
     case k8x64: return shared_bytes_of<8, 64>();
+    case k16x32: return shared_bytes_of<16, 32>();
+    case k4x16: return shared_bytes_of<4, 16>();
+    case k8x16: return shared_bytes_of<8, 16>();
     default: return shared_bytes_of<4, 32>();
     }
 }
@@ -355,6 +410,9 @@ inline bool q36_fa_shape(Variant v, int T, int HKV, Shape* out) {
     case k8x32: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 32>::Threads); break;
     case k4x64: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 64>::Threads); break;
     case k8x64: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 64>::Threads); break;
+    case k16x32: out->grid = dim3((unsigned) ((T + 15) / 16), (unsigned) HKV); out->block = dim3(Cfg<16, 32>::Threads); break;
+    case k4x16: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 16>::Threads); break;
+    case k8x16: out->grid = dim3((unsigned) ((T + 7) / 8), (unsigned) HKV); out->block = dim3(Cfg<8, 16>::Threads); break;
     default: out->grid = dim3((unsigned) ((T + 3) / 4), (unsigned) HKV); out->block = dim3(Cfg<4, 32>::Threads); break;
     }
     out->shared = q36_fa_shared(v);
@@ -396,7 +454,7 @@ inline bool launch_one(const Shape& sh, cudaStream_t st, const Args& a, int T, i
 // the shape or the device is not one this file can serve, so the caller keeps the cuBLAS branch it replaced.
 inline bool q36_fa_launch(dim3 grid, dim3 block, cudaStream_t st, const __half* Q, const __half* K,
                           const __half* V, float* O, int T, int P, int p0, int H, int HKV, int HD, int ctx,
-                          float scale, Variant v = k4x32) {
+                          float scale, Variant v = k4x32, unsigned long long* prof = nullptr) {
     if (!q36_fa_geometry(H, HKV, HD) || (int) v < 0 || (int) v >= kVariantCount) return false;
     if (P <= 0 || P > ctx) return false;
     if (!q36_fa_available()) return false;
@@ -413,11 +471,14 @@ inline bool q36_fa_launch(dim3 grid, dim3 block, cudaStream_t st, const __half* 
     Args a;
     a.Q = Q; a.K = K; a.V = V; a.O = O;
     a.T = T; a.P = P; a.p0 = p0; a.H = H; a.HD = HD;
-    a.stride_kv_h = P * HD; a.scale = scale;
+    a.stride_kv_h = P * HD; a.scale = scale; a.prof = prof;
     switch (v) {
     case k8x32: return launch_one<8, 32>(sh, st, a, T, HKV);
     case k4x64: return launch_one<4, 64>(sh, st, a, T, HKV);
     case k8x64: return launch_one<8, 64>(sh, st, a, T, HKV);
+    case k16x32: return launch_one<16, 32>(sh, st, a, T, HKV);
+    case k4x16: return launch_one<4, 16>(sh, st, a, T, HKV);
+    case k8x16: return launch_one<8, 16>(sh, st, a, T, HKV);
     default: return launch_one<4, 32>(sh, st, a, T, HKV);
     }
 }
