@@ -1577,6 +1577,7 @@ struct Engine {
     std::vector<Hy> hy;
     int hybrid_t = 32;
     bool main_hybrid = false;   // some main layer is hybrid (else only the MTP block is: the decode graph stays)
+    bool use_pf = false;        // 0.2.18: the streamed prompt path runs (hybrid_fit.hpp; our P0 streams without MMQ too)
     // #5012: the expert placement, for the INFO line (the Monitor's "expert cache: slots / experts"; strata/qwen35/expert_info.hpp)
     strata::qwen35::ExpertInfo expert_info;
     bool mtp_graph = true;      // the MTP draft step may be a graph (not when its layer is hybrid)
@@ -1804,6 +1805,7 @@ struct Engine {
         use_mmq = n_mmq > 0 || (m->has_mtp && mmq_layer[m->layers.size()] != 0);
         // 0216-accel: no MMQ to give way to, so the int8 prompt kernels are the default (i8_expert_rule.hpp; the env still wins)
         if (!use_mmq) K::native_expert_i8_set_mmq_free();
+        E.use_pf = true;   // 0.2.18 merge: the streamed prompt path is on; place_experts turns it off when the staging pair does not fit
         if (mmq_built && first_bad >= 0) {
             const Layer& L = m->layers[(size_t) first_bad];
             std::fprintf(stderr, "strata-q36: layer %d takes the native grouped kernels: MMQ does not cover gate/up "
