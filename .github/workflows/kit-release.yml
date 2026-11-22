@@ -231,6 +231,7 @@ jobs:
           $ws = $env:GITHUB_WORKSPACE
           $ci = Join-Path $ws 'strata\tools\packaging\kit\ci'
           $a = @('-StrataBuild', (Join-Path $ws 'strata\engine\build-kit'),
+                 '-RepoSrc', (Join-Path $ws 'strata\terminal'),
                  '-Measures', (Join-Path $env:RUNNER_TEMP 'kit'),
                  '-Stage', (Join-Path $env:RUNNER_TEMP 'stage\gpu-infer-kit'),
                  '-VendorStage', (Join-Path $env:RUNNER_TEMP 'kit\vendor'),
