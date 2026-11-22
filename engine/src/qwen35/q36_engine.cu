@@ -401,7 +401,7 @@ template <int T> __device__ inline float kv_vec(const uint8_t* row, int j, const
 /// interleaved M-RoPE position (llama.cpp's IMROPE with sections 11 / 11 / 10: pair p takes stream p % 3).
 /// grid (H + HKV, T), block 256 (HD <= 256).
 __global__ void k_attn_prep(const float* qg, const float* kx, const float* vx, const float* qw, const float* kw,
-                            float* q, float* gate, float* kc, float* vc, uint8_t* kq, uint8_t* vq,
+                            float* q, __half* q16, float* gate, float* kc, float* vc, uint8_t* kq, uint8_t* vq,
                             int H, int HKV, int HD, int n_rot,
                             const int32_t* pos0, int ctx, float base, float eps, const int32_t* rdelta,
                             const int32_t* mtab, RowSel rs) {
@@ -438,6 +438,7 @@ __global__ void k_attn_prep(const float* qg, const float* kx, const float* vx, c
     }
     if (isq) {
         q[((size_t) t * H + head) * HD + i] = v;
+        q16[((size_t) t * H + head) * HD + i] = __float2half(v);   // A2: the FA/GEMM copy, no separate k_to_f16 pass
         gate[((size_t) t * H + head) * HD + i] = qg[((size_t) t * H + head) * 2 * HD + HD + i];
     } else {
         const int kh = head - H;
@@ -1632,7 +1633,9 @@ struct Engine {
     // decode / verify rows: their routing is counted once the rows are kept (commit), so a verify window's rejected
     // drafts never move the slots; the slots follow the counts at every kRebalanceEvery-th position exactly (a
     // window never steps over one), so plain and speculative decoding see the same slot tables at every position
-    static constexpr int kRebalanceEvery = 32;
+    // A8: decode rebalance cadence and the per-rebalance replacement cap; defaults keep the 0.2.18 rule
+    static int rebalance_every() { static const int v = [] { const char* s = std::getenv("STRATA_Q36_REBALANCE"); return s ? std::atoi(s) : 32; }(); return v > 0 ? v : 32; }
+    static int rebalance_swaps() { static const int v = [] { const char* s = std::getenv("STRATA_Q36_SWAPS"); return s ? std::atoi(s) : 8; }(); return v > 0 ? v : 8; }
     bool rows_deferred = false;          // set while a decode step or a verify window runs
     std::vector<std::vector<int32_t>> row_ids;   // [main layer][row * top_k + k] of the last such call
     void count_rows(int n) {
@@ -1644,9 +1647,9 @@ struct Engine {
     void after_rows(int n) {   // a decode step / verify window kept n rows: count them, rebalance at the boundary
         if (!m->hybrid) return;
         count_rows(n);
-        if (pos % kRebalanceEvery == 0) {
+        if (pos % rebalance_every() == 0) {
             CK(cudaStreamSynchronize(st));
-            rebalance(8);
+            rebalance(rebalance_swaps());
         }
     }
 
@@ -2442,7 +2445,7 @@ struct Engine {
                 rs.vq = d_vq_tab + li * n_sess;
             }
             rs.kv = kv_type;
-            k_attn_prep<<<dim3(H + HKV, T), kThreads, 0, st>>>(qg, kx, vx, L.q_norm, L.k_norm, q, gate, rows_mode ? nullptr : kc[li],
+            k_attn_prep<<<dim3(H + HKV, T), kThreads, 0, st>>>(qg, kx, vx, L.q_norm, L.k_norm, q, q16, gate, rows_mode ? nullptr : kc[li],
                                                               rows_mode ? nullptr : vc[li],
                                                               rows_mode ? nullptr : kq[li], rows_mode ? nullptr : vq[li],
                                                               H, HKV, HD, m->n_rot, dpos, ctx,
@@ -2476,7 +2479,6 @@ struct Engine {
                 } else {
                     k_kv_f16<<<grid1((int64_t) HKV * P * HD), kThreads, 0, st>>>(kc[li], vc[li], k16, v16, ctx, P, HD, HKV);
                 }
-                k_to_f16<<<grid1((int64_t) T * H * HD), kThreads, 0, st>>>(q, q16, (int64_t) T * H * HD);
                 if (profile) {
                     cudaEventRecord(prof_f, st);
                     cudaEventSynchronize(prof_f);
@@ -3406,7 +3408,7 @@ struct Engine {
         rows_G_last = G;
         if (m->hybrid) {
             count_rows(T);
-            if (++win_count % kRebalanceEvery == 0) rebalance(8);
+            if (++win_count % rebalance_every() == 0) rebalance(rebalance_swaps());
         }
     }
     /// One window for the next token of each of the rows' sessions (no proposals): the greedy picks in rows_pick.
@@ -3545,7 +3547,7 @@ struct Engine {
     int spec_step(int x_tok, const std::vector<int32_t>& fix, int D, std::vector<int32_t>& drafts, int32_t* picks,
                   const std::atomic<bool>* cancel = nullptr) {
         const int N = (int) m->g.n_embd;
-        if (main_hybrid) D = std::min<int>(D, (int) (kRebalanceEvery - pos % kRebalanceEvery) - 1);
+        if (main_hybrid) D = std::min<int>(D, (int) (rebalance_every() - pos % rebalance_every()) - 1);
         const int T0 = (int) fix.size() + 1;   // the redo rows and the row of x
         CK(cudaStreamSynchronize(st));
         // rows of the first MTP call: (hmain row i, fix[i]) at positions pos - fix.size() + i, then (hlast, x) at pos
