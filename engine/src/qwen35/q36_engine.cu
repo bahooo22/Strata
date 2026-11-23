@@ -500,6 +500,273 @@ __global__ void k_attn_prep(const float* qg, const float* kx, const float* vx, c
     }
 }
 
+
+// ---- A14 этап 2: decode-attention на тензорных ядрах (FDEC), порт 4gbVramStrata fattn.cu ----
+// KV_Q8 в раскладке scale-first (этап 1): строка = 8 fp16 scale (16 Б) + 8 блоков по 32 int8 кода.
+// Блок на (сплит из 1024 ключей, kv-голова); 128 потоков = 4 варпа; 32 строки скретча = 4 токена x 8 голов.
+constexpr int kFdecSplit = 1024;
+constexpr int kFdecTile = 64;
+constexpr int kFdecWarps = 4;
+constexpr int kFdecRows = 32;
+
+__device__ __forceinline__ uint32_t fdec_i8pair(uint32_t w, uint32_t sel) {
+    uint32_t x = __byte_perm(w, 0x64646464u, sel);
+    half2 h = __hsub2(*reinterpret_cast<half2*>(&x), __float2half2_rn(1152.0f));
+    return *reinterpret_cast<uint32_t*>(&h);
+}
+__device__ __forceinline__ uint32_t fdec_mul2(uint32_t x, half2 s) {
+    half2 h = __hmul2(*reinterpret_cast<half2*>(&x), s);
+    return *reinterpret_cast<uint32_t*>(&h);
+}
+__device__ __forceinline__ float fdec_scale_of(const uint4& v, int b) {
+    const uint32_t w = b < 4 ? (b < 2 ? v.x : v.y) : (b < 6 ? v.z : v.w);
+    return __half2float(__ushort_as_half((unsigned short) (b & 1 ? w >> 16 : w & 0xffff)));
+}
+
+__device__ __forceinline__ void fdec_mma(float* c, const uint32_t* a, uint32_t b0, uint32_t b1) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800
+    asm volatile("mma.sync.aligned.m16n8k16.row.col.f32.f16.f16.f32 {%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, "
+                 "{%0,%1,%2,%3};"
+                 : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
+                 : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "r"(b0), "r"(b1));
+#else
+    __trap();
+#endif
+}
+
+// part: [split][kv_head][kFdecRows][HD]; ml: max и сумма на строку (2 * idx)
+template <int MT, int Group>
+__global__ void __launch_bounds__(kFdecWarps * 32)
+k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const uint8_t* __restrict__ vc,
+            long long pos, int first, int tokens, int n_head, int kv_heads, int ctx, float scale,
+            float* __restrict__ part, float* __restrict__ ml) {
+    constexpr int kD = 256, Q = MT * 16, QS = kD + 8, PS = kFdecTile + 8;
+    __shared__ __align__(16) half Qs[Q * QS];
+    __shared__ __align__(16) half Ps[Q * PS];
+    __shared__ float red[2][kFdecWarps][Q];
+    const int w = threadIdx.x / 32, lane = threadIdx.x % 32, g8 = lane / 4, t = lane % 4;
+    const int grp = blockIdx.y, split = blockIdx.x;
+    const long long p0 = pos + first, last = p0 + tokens - 1, r0 = (long long) split * kFdecSplit;
+    if (r0 > last) return;
+    const long long r1 = r0 + kFdecSplit < last + 1 ? r0 + kFdecSplit : last + 1;
+    for (int i = threadIdx.x; i < Q * kD; i += blockDim.x) {
+        const int row = i / kD, d = i % kD, tok = row / Group;
+        const float x = tok < tokens ? q[((size_t) (first + tok) * n_head + grp * Group + row % Group) * kD + d] : 0.f;
+        Qs[row * QS + d] = __float2half(x);
+    }
+    const size_t rowb = (size_t) (kD / 32) * 34;               // KV_Q8, scale-first
+    const uint8_t* kg = kc + (size_t) grp * ctx * rowb;
+    const uint8_t* vg = vc + (size_t) grp * ctx * rowb;
+    const int vblk = 2 * w + g8 / 4;                           // 64*w + 8*g8 -> block (d/32)
+    float m[MT][2], l[MT][2], o[MT][8][4];
+#pragma unroll
+    for (int mt = 0; mt < MT; ++mt) {
+        m[mt][0] = m[mt][1] = -INFINITY;
+        l[mt][0] = l[mt][1] = 0.f;
+#pragma unroll
+        for (int j = 0; j < 8; ++j) o[mt][j][0] = o[mt][j][1] = o[mt][j][2] = o[mt][j][3] = 0.f;
+    }
+    __syncthreads();
+    for (long long tb = r0; tb < r1; tb += kFdecTile) {
+        uint2 kx[2][8];
+        uint4 ksc[2][2] = {};
+        uint2 vx[4][4];
+        uint16_t vsc[4][4] = {};
+#pragma unroll
+        for (int nt = 0; nt < 2; ++nt) {
+            const long long key = tb + 16 * w + 8 * nt + g8;
+#pragma unroll
+            for (int b = 0; b < 8; ++b)
+                kx[nt][b] = key > last ? make_uint2(0x80808080u, 0x80808080u)
+                                       : *reinterpret_cast<const uint2*>(kg + (size_t) key * rowb + 16 + 32 * b + 8 * t);
+#pragma unroll
+            for (int j = 0; j < 2; ++j) {
+                const long long k2 = tb + 16 * w + 8 * nt + 2 * t + j;
+                if (k2 <= last) ksc[nt][j] = *reinterpret_cast<const uint4*>(kg + (size_t) k2 * rowb);
+            }
+        }
+#pragma unroll
+        for (int kk = 0; kk < 4; ++kk)
+#pragma unroll
+            for (int i = 0; i < 4; ++i) {
+                const long long key = tb + 16 * kk + 2 * t + (i & 1) + 8 * (i >> 1);
+                vx[kk][i] = key > last ? make_uint2(0x80808080u, 0x80808080u)
+                                       : *reinterpret_cast<const uint2*>(vg + (size_t) key * rowb + 16 + 64 * w + 8 * g8);
+                if (key <= last) vsc[kk][i] = __half_as_ushort(((const __half*) (vg + (size_t) key * rowb))[vblk]);
+            }
+        float s[MT][2][4];
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt)
+#pragma unroll
+            for (int nt = 0; nt < 2; ++nt) s[mt][nt][0] = s[mt][nt][1] = s[mt][nt][2] = s[mt][nt][3] = 0.f;
+#pragma unroll
+        for (int b = 0; b < 8; ++b) {
+            float c[MT][2][4];
+#pragma unroll
+            for (int mt = 0; mt < MT; ++mt)
+#pragma unroll
+                for (int nt = 0; nt < 2; ++nt) c[mt][nt][0] = c[mt][nt][1] = c[mt][nt][2] = c[mt][nt][3] = 0.f;
+#pragma unroll
+            for (int h = 0; h < 2; ++h) {
+                const int d = 32 * b + 8 * t + 4 * h;
+                uint32_t bk[2][2];
+#pragma unroll
+                for (int nt = 0; nt < 2; ++nt) {
+                    const uint32_t word = (h ? kx[nt][b].y : kx[nt][b].x) ^ 0x80808080u;
+                    bk[nt][0] = fdec_i8pair(word, 0x4140);
+                    bk[nt][1] = fdec_i8pair(word, 0x4342);
+                }
+#pragma unroll
+                for (int mt = 0; mt < MT; ++mt) {
+                    const uint2 lo = *reinterpret_cast<const uint2*>(&Qs[(mt * 16 + g8) * QS + d]);
+                    const uint2 hi = *reinterpret_cast<const uint2*>(&Qs[(mt * 16 + g8 + 8) * QS + d]);
+                    const uint32_t a[4] = {lo.x, hi.x, lo.y, hi.y};
+#pragma unroll
+                    for (int nt = 0; nt < 2; ++nt) fdec_mma(c[mt][nt], a, bk[nt][0], bk[nt][1]);
+                }
+            }
+#pragma unroll
+            for (int nt = 0; nt < 2; ++nt)
+#pragma unroll
+                for (int j = 0; j < 2; ++j) {
+                    const float sc = fdec_scale_of(ksc[nt][j], b);
+#pragma unroll
+                    for (int mt = 0; mt < MT; ++mt) {
+                        s[mt][nt][j] += c[mt][nt][j] * sc;
+                        s[mt][nt][2 + j] += c[mt][nt][2 + j] * sc;
+                    }
+                }
+        }
+        float alpha[MT][2];
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt)
+#pragma unroll
+            for (int r = 0; r < 2; ++r) {
+                const int row = mt * 16 + g8 + 8 * r, tok = row / Group;
+                float mx = -INFINITY;
+#pragma unroll
+                for (int nt = 0; nt < 2; ++nt)
+#pragma unroll
+                    for (int j = 0; j < 2; ++j) {
+                        const long long key = tb + 16 * w + 8 * nt + 2 * t + j;
+                        float& x = s[mt][nt][2 * r + j];
+                        x = tok < tokens && key <= p0 + tok ? x * scale : -INFINITY;
+                        mx = fmaxf(mx, x);
+                    }
+                mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 1));
+                mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
+                if (t == 0) red[0][w][row] = mx;
+            }
+        __syncthreads();
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt)
+#pragma unroll
+            for (int r = 0; r < 2; ++r) {
+                const int row = mt * 16 + g8 + 8 * r;
+                float top = m[mt][r];
+#pragma unroll
+                for (int k = 0; k < kFdecWarps; ++k) top = fmaxf(top, red[0][k][row]);
+                alpha[mt][r] = top == -INFINITY ? 1.f : expf(m[mt][r] - top);
+                m[mt][r] = top;
+                float sum = 0.f;
+#pragma unroll
+                for (int nt = 0; nt < 2; ++nt) {
+                    const float x0 = s[mt][nt][2 * r], x1 = s[mt][nt][2 * r + 1];
+                    const half2 p2 = __floats2half2_rn(x0 == -INFINITY ? 0.f : expf(x0 - top),
+                                                       x1 == -INFINITY ? 0.f : expf(x1 - top));
+                    sum += __low2float(p2) + __high2float(p2);
+                    *reinterpret_cast<half2*>(&Ps[row * PS + 16 * w + 8 * nt + 2 * t]) = p2;
+                }
+                sum += __shfl_xor_sync(0xffffffffu, sum, 1);
+                sum += __shfl_xor_sync(0xffffffffu, sum, 2);
+                if (t == 0) red[1][w][row] = sum;
+#pragma unroll
+                for (int j = 0; j < 8; ++j) {
+                    o[mt][j][2 * r] *= alpha[mt][r];
+                    o[mt][j][2 * r + 1] *= alpha[mt][r];
+                }
+            }
+        __syncthreads();
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt)
+#pragma unroll
+            for (int r = 0; r < 2; ++r) {
+                const int row = mt * 16 + g8 + 8 * r;
+                float sum = 0.f;
+#pragma unroll
+                for (int k = 0; k < kFdecWarps; ++k) sum += red[1][k][row];
+                l[mt][r] = l[mt][r] * alpha[mt][r] + sum;
+            }
+#pragma unroll
+        for (int kk = 0; kk < 4; ++kk) {
+            uint32_t a[MT][4];
+#pragma unroll
+            for (int mt = 0; mt < MT; ++mt) {
+                const half* pp = &Ps[(mt * 16 + g8) * PS + 16 * kk + 2 * t];
+                a[mt][0] = *reinterpret_cast<const uint32_t*>(pp);
+                a[mt][1] = *reinterpret_cast<const uint32_t*>(pp + 8 * PS);
+                a[mt][2] = *reinterpret_cast<const uint32_t*>(pp + 8);
+                a[mt][3] = *reinterpret_cast<const uint32_t*>(pp + 8 * PS + 8);
+            }
+            const half2 s01 = __halves2half2(__ushort_as_half(vsc[kk][0]), __ushort_as_half(vsc[kk][1]));
+            const half2 s89 = __halves2half2(__ushort_as_half(vsc[kk][2]), __ushort_as_half(vsc[kk][3]));
+#pragma unroll
+            for (int wd = 0; wd < 2; ++wd) {
+                const uint32_t x0 = (wd ? vx[kk][0].y : vx[kk][0].x) ^ 0x80808080u;
+                const uint32_t x1 = (wd ? vx[kk][1].y : vx[kk][1].x) ^ 0x80808080u;
+                const uint32_t x2 = (wd ? vx[kk][2].y : vx[kk][2].x) ^ 0x80808080u;
+                const uint32_t x3 = (wd ? vx[kk][3].y : vx[kk][3].x) ^ 0x80808080u;
+                const uint32_t lo01 = __byte_perm(x0, x1, 0x5140), hi01 = __byte_perm(x0, x1, 0x7362);
+                const uint32_t lo89 = __byte_perm(x2, x3, 0x5140), hi89 = __byte_perm(x2, x3, 0x7362);
+#pragma unroll
+                for (int jj = 0; jj < 4; ++jj) {
+                    const uint32_t sel = jj & 1 ? 0x4342 : 0x4140;
+                    const uint32_t b0 = fdec_mul2(fdec_i8pair(jj < 2 ? lo01 : hi01, sel), s01);
+                    const uint32_t b1 = fdec_mul2(fdec_i8pair(jj < 2 ? lo89 : hi89, sel), s89);
+#pragma unroll
+                    for (int mt = 0; mt < MT; ++mt) fdec_mma(o[mt][4 * wd + jj], a[mt], b0, b1);
+                }
+            }
+        }
+        __syncthreads();
+    }
+#pragma unroll
+    for (int mt = 0; mt < MT; ++mt)
+#pragma unroll
+        for (int r = 0; r < 2; ++r) {
+            const int row = mt * 16 + g8 + 8 * r;
+            if (row / Group >= tokens) continue;
+            const size_t idx = ((size_t) split * kv_heads + grp) * kFdecRows + row;
+            float4* dst = reinterpret_cast<float4*>(part + idx * kD + 64 * w + 16 * t);
+            dst[0] = make_float4(o[mt][0][2 * r], o[mt][1][2 * r], o[mt][2][2 * r], o[mt][3][2 * r]);
+            dst[1] = make_float4(o[mt][4][2 * r], o[mt][5][2 * r], o[mt][6][2 * r], o[mt][7][2 * r]);
+            dst[2] = make_float4(o[mt][0][2 * r + 1], o[mt][1][2 * r + 1], o[mt][2][2 * r + 1], o[mt][3][2 * r + 1]);
+            dst[3] = make_float4(o[mt][4][2 * r + 1], o[mt][5][2 * r + 1], o[mt][6][2 * r + 1], o[mt][7][2 * r + 1]);
+            if (w == 0 && t == 0) {
+                ml[2 * idx] = m[mt][r];
+                ml[2 * idx + 1] = l[mt][r];
+            }
+        }
+}
+
+template <int Group>
+__global__ void k_fdec_merge(const float* __restrict__ part, const float* __restrict__ ml, float* __restrict__ out,
+                             long long pos, int first, int n_head, int kv_heads) {
+    const int h = blockIdx.x, tok = blockIdx.y, d = threadIdx.x, grp = h / Group;
+    const long long p = pos + first + tok;
+    const int splits = int(p / kFdecSplit) + 1, row = tok * Group + h % Group;
+    float top = -INFINITY;
+    for (int i = 0; i < splits; ++i) top = fmaxf(top, ml[2 * (((size_t) i * kv_heads + grp) * kFdecRows + row)]);
+    float sum = 0.f, acc = 0.f;
+    for (int i = 0; i < splits; ++i) {
+        const size_t idx = ((size_t) i * kv_heads + grp) * kFdecRows + row;
+        const float e = expf(ml[2 * idx] - top);
+        sum += ml[2 * idx + 1] * e;
+        acc += part[idx * 256 + d] * e;
+    }
+    out[((size_t) (first + tok) * n_head + h) * 256 + d] = acc / sum;
+}
+
 /// Split-K attention, one block per (chunk of 256 cells, query row): query row qi = t * H + h (t from t0) sees the
 /// cells [0, *pos0 + t].  Writes the chunk's partial accumulator, max and sum; chunks past the query's cells write
 /// nothing (the merge stops before them).  grid (n_chunk, n_rows), block 256, HD == 256.
@@ -1803,7 +2070,7 @@ struct Engine {
         qg = dalloc(T * 2 * g.n_head * g.head_dim); kx = dalloc(T * g.n_head_kv * g.head_dim);
         vx = dalloc(T * g.n_head_kv * g.head_dim); q = dalloc(T * g.n_head * g.head_dim);
         gate = dalloc(T * g.n_head * g.head_dim); att = dalloc(T * g.n_head * g.head_dim);
-        if (fa_check) att_fa = dalloc(T * g.n_head * g.head_dim);
+        if (fa_check || std::getenv("STRATA_Q36_FDEC_CHECK") != nullptr) att_fa = dalloc(T * g.n_head * g.head_dim);
         if (fa_prof_on) fa_prof = (unsigned long long*) dalloc(5 * sizeof(unsigned long long));
         logits_r = dalloc(T * (g.n_expert + 1));
         eparts = dalloc(T * Kp * N); moe_out = dalloc(T * N);
@@ -2614,6 +2881,50 @@ struct Engine {
                         }
                 }
                 k_gate_mul<<<grid1((int64_t) T * H * HD), kThreads, 0, st>>>(att, gate, (int64_t) T * H * HD);
+            } else if (!rows_mode && kv_type == KV_Q8 && T <= 4 && std::getenv("STRATA_Q36_FDEC") != nullptr) {
+                // A14 этап 2 (opt-in STRATA_Q36_FDEC=1): decode-attention на тензорных ядрах (FDEC) для KV_Q8.
+                // Сплиты по 1024 ключа, 4 токена x 8 голов на блок; part/ml живут в буферах старого split-K.
+                const float fdec_scale = 1.0f / sqrtf((float) HD);
+                for (int t0 = 0; t0 < T; t0 += 4) {
+                    const int nt_ = std::min(4, T - t0);
+                    const int splits = (int) (((long long) p0 + t0 + nt_ + kFdecSplit - 1) / kFdecSplit);
+                    // q — начало T-строчного буфера, first = t0: ядро само индексирует q[(first+tok)*H+..]
+                    k_fdec_part<2, 8><<<dim3((unsigned) splits, (unsigned) HKV), kFdecWarps * 32, 0, st>>>(
+                        q, kq[li], vq[li], (long long) p0, t0, nt_, H, HKV, ctx, fdec_scale, pacc, pm);
+                    k_fdec_merge<8><<<dim3((unsigned) H, (unsigned) nt_), 256, 0, st>>>(pacc, pm, att, (long long) p0,
+                                                                                         t0, H, HKV);
+                }
+                k_gate_mul<<<grid1((int64_t) T * H * HD), kThreads, 0, st>>>(att, gate, (int64_t) T * H * HD);
+                if (std::getenv("STRATA_Q36_FDEC_CHECK") != nullptr) {
+                    // сверка FDEC с прежним split-K (нужен --fa-check: буфер att_fa выделен): FDEC -> att_fa,
+                    // затем старый путь в att, max_abs/cos на хосте
+                    if (att_fa != nullptr) CK(cudaMemcpyAsync(att_fa, att, (size_t) T * H * HD * 4, cudaMemcpyDeviceToDevice, st));
+                    const int rows_per2 = att_rows / H;
+                    for (int t0 = 0; t0 < T; t0 += rows_per2) {
+                        const int nt2 = std::min(rows_per2, T - t0);
+                        const int nc2 = graph_mode ? n_chunk
+                                                   : (int) std::min<int64_t>(n_chunk, (p0 + t0 + nt2 + kChunkCells - 1) / kChunkCells);
+                        k_attn_part<<<dim3(nt2 * H, nc2), kChunkCells, 0, st>>>(q, kc[li], vc[li], kq[li], vq[li],
+                                                                                 dpos, t0, H, HKV, ctx,
+                                                                                 1.0f / sqrtf((float) HD), n_chunk, pacc, pm, pl, rs);
+                        k_attn_merge<<<nt2 * H, HD, 0, st>>>(pacc, pm, pl, gate, dpos, t0, H, n_chunk, att, rs);
+                    }
+                    CK(cudaStreamSynchronize(st));
+                    if (att_fa != nullptr) {
+                        std::vector<float> a((size_t) T * H * HD), b((size_t) T * H * HD);
+                        CK(cudaMemcpy(a.data(), att_fa, a.size() * 4, cudaMemcpyDeviceToHost));
+                        CK(cudaMemcpy(b.data(), att, b.size() * 4, cudaMemcpyDeviceToHost));
+                        double mx = 0.0, na = 0.0, nb = 0.0, dot = 0.0;
+                        for (size_t i = 0; i < a.size(); ++i) {
+                            mx = std::max(mx, std::fabs((double) a[i] - b[i]));
+                            na += (double) a[i] * a[i];
+                            nb += (double) b[i] * b[i];
+                            dot += (double) a[i] * b[i];
+                        }
+                        const double cs = dot / (std::sqrt(na) * std::sqrt(nb) + 1e-30);
+                        std::fprintf(stderr, "fdec-check layer %zu T=%d: max_abs %.3e cos %.6f\n", li, T, mx, cs);
+                    }
+                }
             } else {
                 // split-K over 256-cell chunks; the chunk grid covers every cell a row can see (graph mode: the whole
                 // context, past-the-end chunks return at once)
