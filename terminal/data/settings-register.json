@@ -2561,13 +2561,13 @@
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5259,
+     "line": 5268,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5259,
+     "line": 5268,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
@@ -7420,6 +7420,34 @@
    "status": "research",
    "owner": "sycl/kernels",
    "note": "[reviewed] Lane-count tuning knob; \"16/16 and 16/8 better\", no ship/drop verdict. [notes-intel-quants.md:75]",
+   "retire_after": "",
+   "retired_in": ""
+  },
+  {
+   "name": "STRATA_DOWN_SUB8",
+   "backends": [
+    "cuda-hip"
+   ],
+   "reads": [
+    {
+     "file": "engine/src/kernels/cuda/iq_kernels.cu",
+     "line": 7008,
+     "backend": "cuda-hip",
+     "fn": "getenv"
+    }
+   ],
+   "parse": "flag",
+   "default_state": null,
+   "code_default": null,
+   "engine_sets": [],
+   "engine_defaults": [],
+   "launch_files": [],
+   "launch_sets": [],
+   "launch_reads": [],
+   "doc_mentions": [],
+   "status": "rollback",
+   "owner": "fork",
+   "note": "=0: 32-lane down-редукция 0.2.18 (битово 0.1.64)",
    "retire_after": "",
    "retired_in": ""
   },
@@ -23017,7 +23045,7 @@
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5131,
+     "line": 5140,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -23028,11 +23056,11 @@
    "engine_sets": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5129
+     "line": 5138
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5131
+     "line": 5140
     }
    ],
    "engine_defaults": [
@@ -28236,7 +28264,7 @@
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 4854,
+     "line": 4863,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
@@ -28777,7 +28805,7 @@
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5151,
+     "line": 5160,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -28788,11 +28816,11 @@
    "engine_sets": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5154
+     "line": 5163
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5156
+     "line": 5165
     }
    ],
    "engine_defaults": [
@@ -31384,7 +31412,7 @@
    "reads": [
     {
      "file": "engine/src/kernels/cuda/iq_kernels.cu",
-     "line": 7542,
+     "line": 7544,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37175,7 +37203,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2037,
+     "line": 2040,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37211,7 +37239,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2336,
+     "line": 2339,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37244,13 +37272,13 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5227,
+     "line": 5236,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5232,
+     "line": 5241,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37287,13 +37315,13 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5257,
+     "line": 5266,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5257,
+     "line": 5266,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37326,13 +37354,13 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 1679,
+     "line": 1682,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 4187,
+     "line": 4196,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37364,7 +37392,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2058,
+     "line": 2061,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37396,7 +37424,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2051,
+     "line": 2054,
      "backend": "cuda-hip",
      "fn": "knob"
     }
@@ -37429,7 +37457,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2794,
+     "line": 2797,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37460,7 +37488,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 1716,
+     "line": 1719,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37490,7 +37518,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2052,
+     "line": 2055,
      "backend": "cuda-hip",
      "fn": "knob"
     }
@@ -37523,7 +37551,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2053,
+     "line": 2056,
      "backend": "cuda-hip",
      "fn": "knob"
     }
@@ -37553,13 +37581,13 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2076,
+     "line": 2079,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2901,
+     "line": 2904,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37589,7 +37617,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 3437,
+     "line": 3443,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37628,7 +37656,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 4043,
+     "line": 4049,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37661,7 +37689,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 4123,
+     "line": 4132,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37694,7 +37722,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2977,
+     "line": 2980,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37729,7 +37757,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2096,
+     "line": 2099,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37762,13 +37790,13 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 4040,
+     "line": 4046,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 4065,
+     "line": 4071,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37801,7 +37829,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2374,
+     "line": 2377,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37837,7 +37865,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 3045,
+     "line": 3048,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37867,7 +37895,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2054,
+     "line": 2057,
      "backend": "cuda-hip",
      "fn": "knob"
     }
@@ -37907,7 +37935,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5228,
+     "line": 5237,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37940,7 +37968,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2034,
+     "line": 2037,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -37976,7 +38004,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2055,
+     "line": 2058,
      "backend": "cuda-hip",
      "fn": "knob"
     }
@@ -38009,7 +38037,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 1932,
+     "line": 1935,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -38030,6 +38058,54 @@
    "retired_in": ""
   },
   {
+   "name": "STRATA_Q36_STAGING_ONE",
+   "backends": [
+    "cuda-hip"
+   ],
+   "reads": [
+    {
+     "file": "engine/src/qwen35/q36_engine.cu",
+     "line": 3286,
+     "backend": "cuda-hip",
+     "fn": "getenv"
+    },
+    {
+     "file": "engine/src/qwen35/q36_engine.cu",
+     "line": 3290,
+     "backend": "cuda-hip",
+     "fn": "getenv"
+    },
+    {
+     "file": "engine/src/qwen35/q36_engine.cu",
+     "line": 3355,
+     "backend": "cuda-hip",
+     "fn": "getenv"
+    },
+    {
+     "file": "engine/src/qwen35/q36_engine.cu",
+     "line": 4129,
+     "backend": "cuda-hip",
+     "fn": "getenv"
+    }
+   ],
+   "parse": "flag",
+   "default_state": "off",
+   "code_default": null,
+   "engine_sets": [],
+   "engine_defaults": [],
+   "launch_files": [],
+   "launch_sets": [],
+   "launch_reads": [],
+   "doc_mentions": [
+    "docs/reports/2026-11-24-fdec-verdict.md:28"
+   ],
+   "status": "opt-in",
+   "owner": "fork",
+   "note": "A14/200k: один staging-буфер вместо пары — стриминг промпта при free < 0,53 GiB",
+   "retire_after": "",
+   "retired_in": ""
+  },
+  {
    "name": "STRATA_Q36_STREAM_ALL",
    "backends": [
     "cuda-hip"
@@ -38037,7 +38113,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 3292,
+     "line": 3297,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -38072,7 +38148,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2050,
+     "line": 2053,
      "backend": "cuda-hip",
      "fn": "knob"
     }
@@ -38110,7 +38186,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 1933,
+     "line": 1936,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -38138,7 +38214,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2436,
+     "line": 2439,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -38171,7 +38247,7 @@
    "reads": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 2375,
+     "line": 2378,
      "backend": "cuda-hip",
      "fn": "getenv"
     }
@@ -38594,7 +38670,7 @@
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5132,
+     "line": 5141,
      "backend": "cuda-hip",
      "fn": "getenv"
     },
@@ -38611,11 +38687,11 @@
    "engine_sets": [
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5128
+     "line": 5137
     },
     {
      "file": "engine/src/qwen35/q36_engine.cu",
-     "line": 5132
+     "line": 5141
     }
    ],
    "engine_defaults": [

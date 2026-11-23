@@ -52,6 +52,7 @@ Off unless you set them. The last column says where each one is described.
 | `STRATA_DBG_GDN` | on / off | NVIDIA and AMD | [BATCHING.md](BATCHING.md) |
 | `STRATA_DENSE_F32` | number | NVIDIA | [COMMUNITY_BENCHMARKS.md](COMMUNITY_BENCHMARKS.md), [OLDER_GPUS.md](OLDER_GPUS.md), [README.md](bench-results/2026-10-12-p40-sm61-kernels/README.md) |
 | `STRATA_DENSE_I8_TC` | number | NVIDIA and AMD | - |
+| `STRATA_DENSE_I8_TC_MIN_T` | number | NVIDIA and AMD | - |
 | `STRATA_DENSE_MMQ` | on / off | NVIDIA and AMD, Intel Arc | [AMD_HIP.md](AMD_HIP.md), [DETAILS.md](DETAILS.md), [prefill-ab.md](bench-results/2026-10-05-community-gfx1151/prefill-ab.md) |
 | `STRATA_DEQUANT_SIDE` | on / off | NVIDIA and AMD | [DETAILS.md](DETAILS.md) |
 | `STRATA_DF2_GEMM_TC` | on / off | NVIDIA and AMD | - |
@@ -277,6 +278,7 @@ Off unless you set them. The last column says where each one is described.
 | `STRATA_Q36_PINNED_LAYERS` | text | NVIDIA and AMD | [profile-q36.md](profile-q36.md), [fa-attention.md](research/fa-attention.md), [fa-attention.ru.md](research/fa-attention.ru.md) |
 | `STRATA_Q36_READ_WINDOWS` | text | NVIDIA and AMD | [QWEN36.md](QWEN36.md), [fa-attention.md](research/fa-attention.md), [fa-attention.ru.md](research/fa-attention.ru.md) |
 | `STRATA_Q36_REBALANCE` | number | NVIDIA and AMD | - |
+| `STRATA_Q36_STAGING_ONE` | on / off | NVIDIA and AMD | [2026-11-24-fdec-verdict.md](reports/2026-11-24-fdec-verdict.md) |
 | `STRATA_Q36_SUPER_CHUNK` | text | NVIDIA and AMD | [profile-q36.md](profile-q36.md), [kernel-progress.md](research/kernel-progress.md), [kernel-progress.ru.md](research/kernel-progress.ru.md) |
 | `STRATA_Q36_SWAPS` | number | NVIDIA and AMD | - |
 | `STRATA_Q36_VERIFY` | on / off | NVIDIA and AMD | [QWEN36.md](QWEN36.md) |
@@ -351,6 +353,11 @@ Off unless you set them. The last column says where each one is described.
 | `STRATA_WATCHDOG_S` | number | NVIDIA and AMD, Intel Arc | [DETAILS.md](DETAILS.md) |
 | `STRATA_WDDM_BUDGET` | number | AMD, Intel Arc | [AMD_HIP.md](AMD_HIP.md) |
 
+The q36 engine takes command-line aliases for four of these: `--fa`, `--fa-tile`, `--fdec` and `--super-chunk` set
+the same knobs as `STRATA_Q36_FA_LAYER`, `STRATA_Q36_FA_TILE`, `STRATA_Q36_FDEC` and `STRATA_Q36_SUPER_CHUNK`. The
+engine prints each knob it reads ("knob --fa = -2 from cli"); `STRATA_Q36_STAGING_ONE` is read directly instead and is
+confirmed by the run's own line ("bigger prompt chunks streamed (0.40 GiB staging)").
+
 ## Switches that go back to earlier behaviour (106)
 
 These behaviours are on by default. Setting the switch returns the earlier behaviour; the notes in the register say which
@@ -368,6 +375,7 @@ version made it the default.
 | `STRATA_DEQUANT_WIDE` | number | NVIDIA and AMD | v0.2.16 | [DETAILS.md](DETAILS.md), [OLDER_GPUS.md](OLDER_GPUS.md), [release-notes-0.2.7.md](release-notes-0.2.7.md) |
 | `STRATA_DF2_ATTN_TC` | on / off | NVIDIA and AMD | v0.2.19 | - |
 | `STRATA_DF2_CTX_BATCH` | on / off | NVIDIA and AMD | v0.2.19 | - |
+| `STRATA_DOWN_SUB8` | on / off | NVIDIA and AMD | fork 0.2.20 | - |
 | `STRATA_EXPERT_I8` | text | NVIDIA and AMD | v0.2.16 | - |
 | `STRATA_FILE_TIER_IDLE` | number | NVIDIA and AMD | v0.2.16 | [DETAILS.md](DETAILS.md) |
 | `STRATA_GFX1151_CHUNK` | text | AMD | v0.2.16 | [release-notes-0.2.3.md](release-notes-0.2.3.md), [STRIX_HALO.md](STRIX_HALO.md), [STRIX_HALO_WINDOWS.md](STRIX_HALO_WINDOWS.md) |

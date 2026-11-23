@@ -6112,7 +6112,7 @@ __global__ void __launch_bounds__(256) native_down_lds_kernel(const unsigned lon
                                                               const int32_t* __restrict__ n_groups,
                                                               const int32_t* __restrict__ ent_dst,
                                                               const block_q8_1* __restrict__ hq, NativeExpertLayout L,
-                                                              float* __restrict__ out) {
+                                                              float* __restrict__ out, int allow_sub8) {
     using F = Fmt<TD>;
     extern __shared__ int sh_raw[];   // LDS_NT entries x hb blocks of q8_1
     const int g = blockIdx.y;
@@ -6125,7 +6125,7 @@ __global__ void __launch_bounds__(256) native_down_lds_kernel(const unsigned lon
     const int nrow = (int) L.n_embd;
     const block_q8_1* sh = (const block_q8_1*) sh_raw;
     constexpr bool kDownSplit = kSplit<TD> || (TD == 7);
-    const bool use_sub8 = kDownSplit && (n_items == 40 || n_items == 20);
+    const bool use_sub8 = allow_sub8 && kDownSplit && (n_items == 40 || n_items == 20);   // STRATA_DOWN_SUB8=0: the 32-lane loop below
     for (int c0 = e0; c0 < e1; c0 += LDS_NT) {
         const int cn = min(LDS_NT, e1 - c0);
         __syncthreads();
@@ -7004,9 +7004,11 @@ void native_expert_grouped(const NativeExpertLayout& L, const unsigned long long
     if ((em0d == 7 || em0d == 8) && lds_down_ok) {
         const dim3 gl((unsigned) ((L.n_embd + LDS_RB - 1) / LDS_RB), (unsigned) cap_groups);
         const size_t sh = (size_t) LDS_NT * (size_t) (L.n_ff / 32) * sizeof(block_q8_1);
-        if (L.d_type == 20) native_down_lds_kernel<20><<<gl, 256, sh, s>>>(grp_ptr, grp_start, n_groups, ent_dst, hq, L, out);
-        else if (L.d_type == 40) native_down_lds_kernel<40><<<gl, 256, sh, s>>>(grp_ptr, grp_start, n_groups, ent_dst, hq, L, out);
-        else native_down_lds_kernel<42><<<gl, 256, sh, s>>>(grp_ptr, grp_start, n_groups, ent_dst, hq, L, out);
+        // fork: STRATA_DOWN_SUB8=0 keeps the 0.2.18 32-lane reduction (bitwise the 0.1.64 output); default: 0.2.19's 8-lane sub-warp
+        static const int sub8 = [] { const char* e = std::getenv("STRATA_DOWN_SUB8"); return (e && e[0] == '0') ? 0 : 1; }();
+        if (L.d_type == 20) native_down_lds_kernel<20><<<gl, 256, sh, s>>>(grp_ptr, grp_start, n_groups, ent_dst, hq, L, out, sub8);
+        else if (L.d_type == 40) native_down_lds_kernel<40><<<gl, 256, sh, s>>>(grp_ptr, grp_start, n_groups, ent_dst, hq, L, out, sub8);
+        else native_down_lds_kernel<42><<<gl, 256, sh, s>>>(grp_ptr, grp_start, n_groups, ent_dst, hq, L, out, sub8);
         check("native_expert_grouped/down");
         return;
     }
