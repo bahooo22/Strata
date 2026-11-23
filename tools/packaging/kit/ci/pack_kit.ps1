@@ -2513,8 +2513,16 @@ if (-not $manifest.Count) { Write-Host "ОТКАЗ: манифест пуст - 
 # остаться за спиной у правил доливайки. Недостающий путь красит прогон с именем файла и указанием,
 # кто его требует; лишние - только печатаются (правило может нести модуль, который зовут не из
 # сервера, а из start.ps1 или CLI).
+# 0.2.16-layout: the closure gate lives on the root where serve/ sits directly - otherwise the
+# $CLOSURE_ENTRY point does not exist there. TextGate above already gets this root; the refill
+# rules keep the original $RepoSrc (their base moves under terminal on its own).
+$closureRepo = $RepoSrc
+if (-not (Test-Path -LiteralPath (Join2 $closureRepo $CLOSURE_ENTRY) -PathType Leaf)) {
+    $closureAlt = Join2 $closureRepo "terminal"
+    if (Test-Path -LiteralPath (Join2 $closureAlt $CLOSURE_ENTRY) -PathType Leaf) { $closureRepo = $closureAlt }
+}
 try {
-    $impClosure = Test-ManifestClosure -Repo $RepoSrc -Manifest $manifest `
+    $impClosure = Test-ManifestClosure -Repo $closureRepo -Manifest $manifest `
                                        -Py (Get-AstPython $VendorPython) -Carrier $ClosureCarrier
 } catch {
     Write-Host "ОТКАЗ: гейт замыкания: $($_.Exception.Message) - проверка не состоялась"
