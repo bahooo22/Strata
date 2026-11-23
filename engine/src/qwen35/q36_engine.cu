@@ -3270,6 +3270,7 @@ struct Engine {
 
     /// A streamed forward over the state indices `seq`: the first two layers' experts start copying now.
     void stream_begin(const std::vector<int>& seq) {
+        if (cst == nullptr) { stream_seq.clear(); stream_pos = 0; return; }   // staging не создан (VRAM не хватило): поток не вооружён
         stream_seq = seq;
         stream_pos = 0;
         for (int b = 0; b < 2; ++b)
@@ -3341,6 +3342,7 @@ struct Engine {
         CK(cudaEventRecord(ev_copy[b], cst));
     }
     const uint8_t* stream_take(int li) {
+        if (cst == nullptr) return layer_at(li).blobs;   // 200k+q8: staging не влез, эксперты берём из слотов как без потока
         if (stream_pos >= (int) stream_seq.size() || stream_seq[(size_t) stream_pos] != li) {
             std::fprintf(stderr, "strata-q36: the expert stream is out of step (layer %d)\n", li);
             std::exit(1);
