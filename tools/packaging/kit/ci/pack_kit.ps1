@@ -459,6 +459,24 @@ function Get-WebPayload([string]$Repo, [bool]$Required) {
             $alt = Join2 $rr ($spec.dir.Replace('/', '\'))
             if (Test-Path -LiteralPath $alt -PathType Container) { $base = $alt; break }
         }
+        # 0.2.16: одноимённый каталог есть и в корне (tools\packaging), но файлов морды в нём нет -
+        # тогда база правила переезжает под terminal.
+        foreach ($rr in $repoAlts) {
+            if (-not (Test-Path -LiteralPath $base -PathType Container)) { break }
+            $alt = Join2 $rr ($spec.dir.Replace('/', ''))
+            if (-not (Test-Path -LiteralPath $alt -PathType Container)) { continue }
+            if ($spec.ContainsKey('files')) {
+                $miss = $false
+                foreach ($f in @($spec.files)) { if (-not (Test-Path -LiteralPath (Join2 $base $f) -PathType Leaf)) { $miss = $true; break } }
+                if ($miss) { $base = $alt }
+            } else {
+                $pat = if ($spec.ContainsKey('pattern')) { [string]$spec.pattern } else { "*" }
+                $any = @(Get-ChildItem -LiteralPath $base -File -Force -Recurse:([bool]$spec.recurse) -ErrorAction SilentlyContinue |
+                         Where-Object { $_.Name -like $pat }).Count
+                if ($any -eq 0) { $base = $alt }
+            }
+            break
+        }
         $found = @()
         if (Test-Path -LiteralPath $base -PathType Container) {
             if ($spec.ContainsKey('files')) {
