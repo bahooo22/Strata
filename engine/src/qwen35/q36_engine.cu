@@ -2082,6 +2082,15 @@ struct Engine {
         read_windows = knob("--read-windows", "STRATA_Q36_READ_WINDOWS", cli_read_windows, 0, 64, 1, knob_lines).value;
         if (knob_lines.empty()) std::fprintf(stderr, "strata-q36: knobs: defaults held\n");
         else for (const std::string& l : knob_lines) std::fprintf(stderr, "strata-q36: %s\n", l.c_str());
+        // the knob line above prints the VALUE; this one says whether the FDEC route is actually armed
+        if (fdec != 0) {
+            if (kv_type == KV_Q8 || kv_type == KV_Q4)
+                std::fprintf(stderr, "strata-q36: fdec armed: decode (T <= 4) on KV_%s, split-K above (rows mode bypasses it)\n",
+                             kv_type == KV_Q8 ? "Q8" : "Q4");
+            else
+                std::fprintf(stderr, "strata-q36: fdec is set but KV_%d has no FDEC route: every step runs split-K\n",
+                             (int) kv_type);
+        }
         fa_check = std::getenv("STRATA_Q36_FA_CHECK") != nullptr;
         if (super_n > 8) {   // xsuper + hsuper take 32 MiB per 2048-token chunk, 2 GiB at N=64
             std::fprintf(stderr, "strata-q36: super-chunk capped at 8 (requested %d)\n", super_n);
