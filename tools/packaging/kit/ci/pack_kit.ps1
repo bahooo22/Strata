@@ -463,7 +463,7 @@ function Get-WebPayload([string]$Repo, [bool]$Required) {
         # тогда база правила переезжает под terminal.
         foreach ($rr in $repoAlts) {
             if (-not (Test-Path -LiteralPath $base -PathType Container)) { break }
-            $alt = Join2 $rr ($spec.dir.Replace('/', ''))
+            $alt = Join2 $rr ($spec.dir.Replace('/', '\'))
             if (-not (Test-Path -LiteralPath $alt -PathType Container)) { continue }
             if ($spec.ContainsKey('files')) {
                 $miss = $false
@@ -1915,6 +1915,18 @@ if ($SelfTest) {
     try { Get-WebPayload -Repo $wEmpty -Required $true | Out-Null } catch { $threw = $_.Exception.Message }
     Chk "доливайка: отсутствующий названный файл группы назван" `
         ($threw -like "*serve-data*chat_template.jinja*") $true
+
+    $wAlt = Join2 $tmp "webrepo-terminal-nested"
+    Copy-Item -LiteralPath $wr -Destination $wAlt -Recurse
+    Remove-Item -LiteralPath (Join2 $wAlt "serve\server_parts\core.py") -Force
+    New-Item -ItemType Directory -Force -Path (Join2 $wAlt "terminal\serve\server_parts") | Out-Null
+    Write-NoBom (Join2 $wAlt "terminal\serve\server_parts\core.py") "переносимо"
+    $altParts = @()
+    try {
+        $altParts = @((Get-WebPayload -Repo $wAlt -Required $true).Files.Keys |
+                      Where-Object { $_ -eq 'kit\serve\server_parts\core.py' })
+    } catch { }
+    Chk "доливайка: вложенный dir переезжает под terminal" $altParts.Count 1
 
     # --- гейт 1c: договор с носителем AST-разбора, конец-в-конец ---------------------------------------
     # Меряется не арифметика сверки, а весь путь: синтетическое дерево + настоящий носитель +
