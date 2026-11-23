@@ -33,10 +33,14 @@ macro(strata_cuda_toolchain)
                     "89 (RTX 40), or a list like \"86;120\".")
   endif()
   set(_strata_cuda_below75 OFF)   # an architecture below sm_75 in the list (only with STRATA_EXPERIMENTAL_SM60): tests of sm_75+ device code are not built
+  set(_strata_cuda_below80 OFF)   # below sm_80: the FDEC unpackers' mma-era helpers are not built
   foreach(_a IN LISTS CMAKE_CUDA_ARCHITECTURES)
     string(REGEX REPLACE "(a|-.*$)" "" _base "${_a}")     # 120-real / 120a-real / 120-virtual are still 120
     if(_base MATCHES "^[0-9]+$" AND _base LESS 75)
       set(_strata_cuda_below75 ON)
+    endif()
+    if(_base MATCHES "^[0-9]+$" AND _base LESS 80)
+      set(_strata_cuda_below80 ON)
     endif()
     # Turing port: developed and measured on sm_120 (RTX 50); the tf32 mma in the QSA scorer has a
     # portable fp32-FMA fallback, so RTX 20 (75), 30 (86), RTX 40 (89) and RTX 50 (120) build too.
@@ -181,6 +185,18 @@ macro(strata_cuda_prompt_tests)
         target_link_libraries(prefill_decode_golden PRIVATE ggml-base ${_strata_gpu_runtime_target})
         add_test(NAME prefill_decode_golden COMMAND prefill_decode_golden ${CMAKE_CURRENT_SOURCE_DIR}/tests/cuda/prefill_decode_golden.txt)
         set_tests_properties(prefill_decode_golden PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
+      endif()
+      # the FDEC decode's code unpackers (src/qwen35/q36_fdec_decode.cuh) against a host oracle, bit for bit:
+      # the byte selectors, the 0x80 bias and the n - 8 nibble offset (exit 77 without a card; no golden file, the
+      # oracle is arithmetic).  The defect this pins is real: V codes were once read at the wrong offset.
+      if(_strata_cuda_below80)
+        message(STATUS "Strata: fdec_decode_golden not built: the FDEC kernel needs sm_80 (mma.m16n8k16)")
+      else()
+        add_executable(fdec_decode_golden tests/cuda/fdec_decode_golden.cu)
+        target_include_directories(fdec_decode_golden PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/qwen35)
+        target_link_libraries(fdec_decode_golden PRIVATE ${_strata_gpu_runtime_target})
+        add_test(NAME fdec_decode_golden COMMAND fdec_decode_golden)
+        set_tests_properties(fdec_decode_golden PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
       endif()
       # #136: the fused int8 experts against a double-precision reference and the MMQ path (exit 77 below sm_80)
       add_executable(prefill_fused_moe_test tests/cuda/prefill_fused_moe_test.cpp)

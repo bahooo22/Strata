@@ -38,6 +38,7 @@
 #include "strata/qwen35/hybrid_fit.hpp"
 #include "q36_kernels.cuh"
 #include "q36_fa.cuh"
+#include "q36_fdec_decode.cuh"   // the code unpackers, also checked by tests/cuda/fdec_decode_golden.cu
 #if defined(STRATA_Q36_CPU_POOL)
 #include "strata/kernels/cpu/native_expert.hpp"
 #include "strata/kernels/cpu/pool.hpp"
@@ -252,6 +253,7 @@ __global__ void k_gate_rows(float* sh, const float* gate, int n, int T) {
 /// consecutive cells *pos0 + t (the prompt, a verify window, a decode step).
 /// KV cache quantization: fp32 or a 32-value block format (see kv_block_bytes).
 enum KvType { KV_F32 = 0, KV_Q8 = 8, KV_Q4 = 4, KV_Q5 = 5, KV_Q51 = 51 };
+static_assert(KV_Q4 == kFdecQ4Type, "the FDEC header spells the q4 KV type value");
 
 struct RowSel {
     const int32_t* cell = nullptr;   // device [T]
@@ -509,27 +511,6 @@ constexpr int kFdecTile = 64;
 constexpr int kFdecWarps = 4;
 constexpr int kFdecRows = 32;
 
-__device__ __forceinline__ uint32_t fdec_i8pair(uint32_t w, uint32_t sel) {
-    uint32_t x = __byte_perm(w, 0x64646464u, sel);
-    half2 h = __hsub2(*reinterpret_cast<half2*>(&x), __float2half2_rn(1152.0f));
-    return *reinterpret_cast<uint32_t*>(&h);
-}
-__device__ __forceinline__ uint32_t fdec_mul2(uint32_t x, half2 s) {
-    half2 h = __hmul2(*reinterpret_cast<half2*>(&x), s);
-    return *reinterpret_cast<uint32_t*>(&h);
-}
-// q4_0 (KV_Q4): x carries four nibble codes one per byte; the same mantissa trick with magic 1024: a half
-// (0x6400|n) reads as 1024 + n, so HSUB2 by 1032 gives n - 8, which is the q4_0 code value.
-__device__ __forceinline__ uint32_t fdec_nib_pair(uint32_t x, uint32_t sel) {
-    uint32_t h = __byte_perm(x, 0x64646464u, sel);
-    half2 v = __hsub2(*reinterpret_cast<half2*>(&h), __float2half2_rn(1032.0f));
-    return *reinterpret_cast<uint32_t*>(&v);
-}
-// one 4-code unit -> 2 half2 code pairs: q8 codes are bytes (the 0x80 bias removed by the caller), q4 codes are
-// nibbles widened to bytes by the caller (__byte_perm with 0x5140), the pair extraction is the same shape
-__device__ __forceinline__ uint32_t fdec_code_pair(uint32_t x, int td, uint32_t sel) {
-    return td == KV_Q4 ? fdec_nib_pair(x, sel) : fdec_i8pair(x, sel);
-}
 __device__ __forceinline__ float fdec_scale_of(const uint4& v, int b) {
     const uint32_t w = b < 4 ? (b < 2 ? v.x : v.y) : (b < 6 ? v.z : v.w);
     return __half2float(__ushort_as_half((unsigned short) (b & 1 ? w >> 16 : w & 0xffff)));
