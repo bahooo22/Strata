@@ -46,6 +46,8 @@ HAND_FIELDS = ("status", "owner", "note", "retire_after", "retired_in")
 NAME_RE = re.compile(r"STRATA_[A-Z0-9_]+")
 # a call whose first argument is the name literal: getenv, env_on, env_int, pipe_dbg_env, il_env_on, kva_env_flag ...
 CALL_RE = re.compile(r'(\w*(?:getenv|env\w*|\w*_env\w*)\s*\(\s*)"(STRATA_[A-Z0-9_]+)"')
+# the q36 levers take the environment name as knob("<flag>", "STRATA_...", ...): the scanner must see those too
+KN_RE = re.compile(r'knob\s*\(\s*"[^"]*"\s*,\s*"(STRATA_[A-Z0-9_]+)"')
 WRITE_FN_RE = re.compile(r"put|set_env|unset|setenv")
 
 FLAG_FNS = {"env_on", "env_flag", "il_env_on", "kva_env_flag", "env_tri"}
@@ -321,6 +323,15 @@ def scan_engine():
         for i, l in enumerate(lines):
             if "STRATA_" not in l:
                 continue
+            for m in KN_RE.finditer(l):
+                name = m.group(1)
+                if states is None:
+                    states = _pp_states(lines)
+                reads[name].append({
+                    "file": rel, "line": i + 1,
+                    "backend": _backend_of(rel, states[i])[0],
+                    "fn": "knob", "parse": "knob", "default_state": "", "code_default": "",
+                })
             for m in CALL_RE.finditer(l):
                 fn, name = m.group(1), m.group(2)
                 if states is None:
