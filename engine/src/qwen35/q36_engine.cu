@@ -3358,7 +3358,8 @@ struct Engine {
         return stage[b];
     }
     void stream_done() {
-        const int b = stream_pos % 2;
+        static const bool one_ = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
+        const int b = one_ ? 0 : stream_pos % 2;
         CK(cudaEventRecord(ev_used[b], st));
         if (stream_pos + 2 < (int) stream_seq.size()) stream_kick(stream_pos + 2);
         ++stream_pos;
@@ -4268,7 +4269,9 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     CK(cudaEventCreateWithFlags(&E.ev_route, cudaEventDisableTiming));
     if (staging) {
         CK(cudaStreamCreateWithFlags(&E.cst, cudaStreamNonBlocking));
-        for (int b = 0; b < 2; ++b) {
+        // STRATA_Q36_STAGING_ONE: a single staging buffer, no prefetched next layer (the plan counted one, allocate one)
+        const int n_stage = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr ? 1 : 2;
+        for (int b = 0; b < n_stage; ++b) {
             if (!alloc_vram((void**) &E.stage[b], max_layer + kMmqTail,
                             b == 0 ? "prompt staging (E.stage[0])" : "prompt staging (E.stage[1])")) return false;
             CK(cudaMemset(E.stage[b], 0, max_layer + kMmqTail));

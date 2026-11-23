@@ -26,9 +26,11 @@ V-коды читались с лишним блочным смещением (`
 - Гейт ядра: `!rows_mode && kv_type == KV_Q8 && T <= 4 && fdec != 0` (q36_engine.cu:2887); шаг цикла 4
   (:2891). T=5..8 не ожидаются по построению — это не пробел прогона.
 - 200k+FDEC: снят с `STRATA_Q36_STAGING_ONE=1` (один staging-буфер 0,40 ГиБ вместо пары 0,80) и
-  `--super-chunk 2` (x+h буферы 64 МиБ вместо 256, free 0,64 ГиБ): pp200000 704,5 tok/s, tg200 15,3 tok/s
-  (KAT IQ4_XS, 8 ГиБ, лог `glm/2026-11-23_session/pp200k-tg200-fdec-q8-stage1.log`). Без super-chunk 2
-  (free 0,46) не влезает даже один буфер: need = staging + outputs ≈ 0,53 ГиБ.
+  `--super-chunk 2` (x+h буферы 64 МиБ вместо 256, free 0,64 ГиБ): pp200000 618,0–620,8 tok/s,
+  tg200 15,0–15,1 tok/s (KAT IQ4_XS, 8 ГиБ, логи `glm/2026-11-23_session/pp200k-tg200-fdec-q8-stage1-fix*.log`).
+  Прежние 704,5/15,3 держались на гонке в `stream_done` (событие писано в слот `stream_pos % 2`
+  при загрузке в слот 0); после фикса и реальной одной аллокации точка — 618–621/15,0.
+  Без super-chunk 2 (free 0,46) не влезает даже один буфер: need = staging + outputs ≈ 0,53 ГиБ.
   Прежняя граница: без STAGING_ONE hybrid_fit помечает `dropped_staging = true` (hybrid_fit.hpp:40, :73),
   q36_engine печатает «prompts are read on the experts in VRAM and the CPU pool instead (slower prompts)»
   (:4142) — ~48 tok/s (замер side: 81 920 ток. / 1721 с). Это политика размещения, а не краш-фикс 880ab1dbf
