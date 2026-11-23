@@ -277,6 +277,34 @@ __host__ __device__ inline int kv_block_bytes(int t) {
     }
 }
 
+/// A14 этап 1 (row-split): строка хранит сначала все служебные поля 8 блоков подряд (масштабы и,
+/// где есть, минимумы/старшие биты), затем плотно коды: так кодовая область каждой головы кратна 16
+/// байтам и 8 кодов читаются одной uint2-загрузкой (нужно decode-ядру FDEC). Длина строки прежняя.
+__host__ __device__ inline int kv_head_bytes(int t) {   // служебная часть строки (8 блоков)
+    switch (t) {
+    case KV_Q8: return 16;                  // 8 x fp16 d
+    case KV_Q4: return 16;                  // 8 x fp16 d
+    case KV_Q5: return 48;                  // 8 x fp16 d + 8 x uint32 qh
+    case KV_Q51: return 64;                 // 8 x (fp16 d, fp16 m) + 8 x uint32 qh
+    default: return 0;
+    }
+}
+__host__ __device__ inline int kv_code_step(int t) {    // байт кодов одного блока
+    switch (t) {
+    case KV_Q8: return 32;
+    case KV_Q4: return 16;
+    case KV_Q5: return 16;
+    case KV_Q51: return 16;
+    default: return 0;
+    }
+}
+__host__ __device__ inline uint8_t* kv_code_ptr(uint8_t* row, int t, int blk) {
+    return row + kv_head_bytes(t) + (size_t) blk * kv_code_step(t);
+}
+__host__ __device__ inline const uint8_t* kv_code_ptr(const uint8_t* row, int t, int blk) {
+    return row + kv_head_bytes(t) + (size_t) blk * kv_code_step(t);
+}
+
 __device__ inline float warp_max_all(float v) {
     for (int off = 16; off; off >>= 1) v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, off));
     return v;
@@ -300,87 +328,86 @@ __device__ inline float warp_peak(float v, float* peak) {
     return a;
 }
 
-template <int T> __device__ inline void kv_store(uint8_t* base, int i, float v);
-template <> __device__ inline void kv_store<KV_Q8>(uint8_t* base, int i, float v) {
+template <int T> __device__ inline void kv_store(uint8_t* row, int blk, int i, float v);
+template <> __device__ inline void kv_store<KV_Q8>(uint8_t* row, int blk, int i, float v) {
     const int lane = i & 31;
     const float amax = warp_max_all(fabsf(v));
     const float d = amax > 0.f ? amax / 127.f : 0.f;
-    if (lane == 0) *(__half*) base = __float2half(d);
-    base[2 + lane] = (uint8_t) (int8_t) lrintf(d > 0.f ? v / d : 0.f);
+    if (lane == 0) ((__half*) row)[blk] = __float2half(d);
+    kv_code_ptr(row, KV_Q8, blk)[lane] = (uint8_t) (int8_t) lrintf(d > 0.f ? v / d : 0.f);
 }
-template <> __device__ inline void kv_store<KV_Q4>(uint8_t* base, int i, float v) {
+template <> __device__ inline void kv_store<KV_Q4>(uint8_t* row, int blk, int i, float v) {
     const int lane = i & 31;
     float peak;
     const float amax = warp_peak(v, &peak);
     const float d = amax > 0.f ? peak / -8.f : 0.f;
     const float id = d != 0.f ? 1.f / d : 0.f;
-    if (lane == 0) *(__half*) base = __float2half(d);
+    if (lane == 0) ((__half*) row)[blk] = __float2half(d);
     const int q = max(0, min(15, (int) lrintf(v * id + 8.f)));
     const int qn = __shfl_down_sync(0xffffffffu, q, 1);
-    if ((lane & 1) == 0) base[2 + lane / 2] = (uint8_t) ((q & 0xF) | ((qn & 0xF) << 4));
+    if ((lane & 1) == 0) kv_code_ptr(row, KV_Q4, blk)[lane / 2] = (uint8_t) ((q & 0xF) | ((qn & 0xF) << 4));
 }
-template <> __device__ inline void kv_store<KV_Q5>(uint8_t* base, int i, float v) {
+template <> __device__ inline void kv_store<KV_Q5>(uint8_t* row, int blk, int i, float v) {
     const int lane = i & 31;
     float peak;
     const float amax = warp_peak(v, &peak);
     const float d = amax > 0.f ? peak / -16.f : 0.f;
     const float id = d != 0.f ? 1.f / d : 0.f;
-    if (lane == 0) *(__half*) base = __float2half(d);
+    if (lane == 0) ((__half*) row)[blk] = __float2half(d);
     const int q = max(0, min(31, (int) lrintf(v * id + 16.f)));
     const unsigned hi = __ballot_sync(0xffffffffu, (q >> 4) & 1);
     if (lane == 0)
-        for (int b = 0; b < 4; ++b) base[2 + b] = (uint8_t) (hi >> (8 * b));
+        for (int b = 0; b < 4; ++b) row[16 + 4 * blk + b] = (uint8_t) (hi >> (8 * b));
     const int qn = __shfl_down_sync(0xffffffffu, q, 1);
-    if ((lane & 1) == 0) base[6 + lane / 2] = (uint8_t) ((q & 0xF) | ((qn & 0xF) << 4));
+    if ((lane & 1) == 0) kv_code_ptr(row, KV_Q5, blk)[lane / 2] = (uint8_t) ((q & 0xF) | ((qn & 0xF) << 4));
 }
-template <> __device__ inline void kv_store<KV_Q51>(uint8_t* base, int i, float v) {
+template <> __device__ inline void kv_store<KV_Q51>(uint8_t* row, int blk, int i, float v) {
     const int lane = i & 31;
     const float vmax = warp_max_all(v), vmin = warp_min_all(v);
     const float d = (vmax - vmin) / 31.f;
     const float id = d > 0.f ? 1.f / d : 0.f;
     if (lane == 0) {
-        *(__half*) base = __float2half(d);
-        *((__half*) base + 1) = __float2half(vmin);
+        ((__half*) row)[2 * blk] = __float2half(d);
+        ((__half*) row)[2 * blk + 1] = __float2half(vmin);
     }
     const int q = max(0, min(31, (int) lrintf((v - vmin) * id)));
     const unsigned hi = __ballot_sync(0xffffffffu, (q >> 4) & 1);
     if (lane == 0)
-        for (int b = 0; b < 4; ++b) base[4 + b] = (uint8_t) (hi >> (8 * b));
+        for (int b = 0; b < 4; ++b) row[32 + 4 * blk + b] = (uint8_t) (hi >> (8 * b));
     const int qn = __shfl_down_sync(0xffffffffu, q, 1);
-    if ((lane & 1) == 0) base[8 + lane / 2] = (uint8_t) ((q & 0xF) | ((qn & 0xF) << 4));
+    if ((lane & 1) == 0) kv_code_ptr(row, KV_Q51, blk)[lane / 2] = (uint8_t) ((q & 0xF) | ((qn & 0xF) << 4));
 }
 
-template <int T> __device__ inline float kv_load(const uint8_t* base, int i);
-template <> __device__ inline float kv_load<KV_Q8>(const uint8_t* base, int i) {
-    return (float) (int8_t) base[2 + i] * __half2float(*(const __half*) base);
+template <int T> __device__ inline float kv_load(const uint8_t* row, int blk, int i);
+template <> __device__ inline float kv_load<KV_Q8>(const uint8_t* row, int blk, int i) {
+    return (float) (int8_t) kv_code_ptr(row, KV_Q8, blk)[i] * __half2float(((__half*) row)[blk]);
 }
-template <> __device__ inline float kv_load<KV_Q4>(const uint8_t* base, int i) {
-    const uint8_t b = base[2 + (i >> 1)];
+template <> __device__ inline float kv_load<KV_Q4>(const uint8_t* row, int blk, int i) {
+    const uint8_t b = kv_code_ptr(row, KV_Q4, blk)[i >> 1];
     const int q = (i & 1) ? (b >> 4) : (b & 0xF);
-    return (float) (q - 8) * __half2float(*(const __half*) base);
+    return (float) (q - 8) * __half2float(((__half*) row)[blk]);
 }
-template <> __device__ inline float kv_load<KV_Q5>(const uint8_t* base, int i) {
-    const uint32_t qh = (uint32_t) base[2] | ((uint32_t) base[3] << 8) | ((uint32_t) base[4] << 16) |
-                        ((uint32_t) base[5] << 24);
-    const uint8_t b = base[6 + (i >> 1)];
+template <> __device__ inline float kv_load<KV_Q5>(const uint8_t* row, int blk, int i) {
+    const uint32_t qh = (uint32_t) row[16 + 4 * blk] | ((uint32_t) row[17 + 4 * blk] << 8) |
+                        ((uint32_t) row[18 + 4 * blk] << 16) | ((uint32_t) row[19 + 4 * blk] << 24);
+    const uint8_t b = kv_code_ptr(row, KV_Q5, blk)[i >> 1];
     const int q = ((i & 1) ? (b >> 4) : (b & 0xF)) | (((qh >> i) & 1) << 4);
-    return (float) (q - 16) * __half2float(*(const __half*) base);
+    return (float) (q - 16) * __half2float(((__half*) row)[blk]);
 }
-template <> __device__ inline float kv_load<KV_Q51>(const uint8_t* base, int i) {
-    const uint32_t qh = (uint32_t) base[4] | ((uint32_t) base[5] << 8) | ((uint32_t) base[6] << 16) |
-                        ((uint32_t) base[7] << 24);
-    const uint8_t b = base[8 + (i >> 1)];
+template <> __device__ inline float kv_load<KV_Q51>(const uint8_t* row, int blk, int i) {
+    const uint32_t qh = (uint32_t) row[32 + 4 * blk] | ((uint32_t) row[33 + 4 * blk] << 8) |
+                        ((uint32_t) row[34 + 4 * blk] << 16) | ((uint32_t) row[35 + 4 * blk] << 24);
+    const uint8_t b = kv_code_ptr(row, KV_Q51, blk)[i >> 1];
     const int q = ((i & 1) ? (b >> 4) : (b & 0xF)) | (((qh >> i) & 1) << 4);
-    return (float) q * __half2float(*(const __half*) base) + __half2float(*((const __half*) base + 1));
+    return (float) q * __half2float(((__half*) row)[2 * blk]) + __half2float(((__half*) row)[2 * blk + 1]);
 }
 
 /// q . k for one KV block row: the query's HD values against the row's HD/32 blocks.
 template <int T> __device__ inline float kv_dot(const float* qs, const uint8_t* row, int HD) {
     float a = 0.f;
     for (int b = 0; b < HD / 32; ++b) {
-        const uint8_t* base = row + (size_t) b * kv_block_bytes(T);
         float part = 0.f;
-        for (int i = 0; i < 32; ++i) part += qs[b * 32 + i] * kv_load<T>(base, i);
+        for (int i = 0; i < 32; ++i) part += qs[b * 32 + i] * kv_load<T>(row, b, i);
         a += part;
     }
     return a;
@@ -388,9 +415,8 @@ template <int T> __device__ inline float kv_dot(const float* qs, const uint8_t* 
 /// One component (thread j) of sum_p w[p] * v[p] over n cells, the cells HD/32 blocks apart.
 template <int T> __device__ inline float kv_vec(const uint8_t* row, int j, const float* w, int n) {
     const size_t stride = (size_t) (256 / 32) * kv_block_bytes(T);
-    const uint8_t* base = row + (size_t) (j >> 5) * kv_block_bytes(T);
     float acc = 0.f;
-    for (int k = 0; k < n; ++k) acc += w[k] * kv_load<T>(base + (size_t) k * stride, j & 31);
+    for (int k = 0; k < n; ++k) acc += w[k] * kv_load<T>(row + (size_t) k * stride, j >> 5, j & 31);
     return acc;
 }
 
@@ -445,25 +471,26 @@ __global__ void k_attn_prep(const float* qg, const float* kx, const float* vx, c
         if (kq) {
             const size_t blocks = (size_t) (HD / 32);
             const size_t step = blocks * kv_block_bytes(rs.kv);
-            uint8_t* kb = kq + ((size_t) kh * ctx + pos) * step + (size_t) (i >> 5) * kv_block_bytes(rs.kv);
-            uint8_t* vb = vq + ((size_t) kh * ctx + pos) * step + (size_t) (i >> 5) * kv_block_bytes(rs.kv);
+            uint8_t* krow = kq + ((size_t) kh * ctx + pos) * step;   // A14: строка (масштабы + коды), блок внутри
+            uint8_t* vrow = vq + ((size_t) kh * ctx + pos) * step;
+            const int blk = i >> 5;
             const float vv = vx[((size_t) t * HKV + kh) * HD + i];
             switch (rs.kv) {
             case KV_Q8:
-                kv_store<KV_Q8>(kb, i, v);
-                kv_store<KV_Q8>(vb, i, vv);
+                kv_store<KV_Q8>(krow, blk, i, v);
+                kv_store<KV_Q8>(vrow, blk, i, vv);
                 break;
             case KV_Q4:
-                kv_store<KV_Q4>(kb, i, v);
-                kv_store<KV_Q4>(vb, i, vv);
+                kv_store<KV_Q4>(krow, blk, i, v);
+                kv_store<KV_Q4>(vrow, blk, i, vv);
                 break;
             case KV_Q5:
-                kv_store<KV_Q5>(kb, i, v);
-                kv_store<KV_Q5>(vb, i, vv);
+                kv_store<KV_Q5>(krow, blk, i, v);
+                kv_store<KV_Q5>(vrow, blk, i, vv);
                 break;
             default:
-                kv_store<KV_Q51>(kb, i, v);
-                kv_store<KV_Q51>(vb, i, vv);
+                kv_store<KV_Q51>(krow, blk, i, v);
+                kv_store<KV_Q51>(vrow, blk, i, vv);
                 break;
             }
         } else {
@@ -646,9 +673,8 @@ template <int T> __global__ void k_kv_f16_kv(const uint8_t* kc, const uint8_t* v
     const size_t rowb = (size_t) (HD / 32) * kv_block_bytes(T);
     const size_t src = (size_t) kvh * ctx * rowb + (size_t) (rest / HD) * rowb;
     const int d = (int) (rest % HD);
-    const size_t off = (size_t) (d >> 5) * kv_block_bytes(T);
-    k16[i] = __float2half(kv_load<T>(kc + src + off, d & 31));
-    v16[i] = __float2half(kv_load<T>(vc + src + off, d & 31));
+    k16[i] = __float2half(kv_load<T>(kc + src, d >> 5, d & 31));
+    v16[i] = __float2half(kv_load<T>(vc + src, d >> 5, d & 31));
 }
 __global__ void k_attn_softmax16(const float* S, __half* S16, int ld, int T, int P, int pos0, float scale) {
     __shared__ float sh[kThreads];
