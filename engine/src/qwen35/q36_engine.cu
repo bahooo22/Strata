@@ -2843,9 +2843,10 @@ struct Engine {
                     unsigned long long h[5] = {0, 0, 0, 0, 0};
                     cudaMemcpyAsync(h, fa_prof, sizeof(h), cudaMemcpyDeviceToHost, st);
                     cudaStreamSynchronize(st);
-                    const double ftot = (double) (h[0] + h[1] + h[3] + h[4]) + 1.0;
-                    std::fprintf(stderr, "fa-phases layer %zu T=%d P=%d: K %.1f%% score %.1f%% softmax %.1f%% pv %.1f%%\n",
-                                 li, T, P, 100.0 * h[0] / ftot, 100.0 * h[1] / ftot, 100.0 * h[3] / ftot, 100.0 * h[4] / ftot);
+                    const double ftot = (double) (h[0] + h[1] + h[2] + h[3] + h[4]) + 1.0;
+                    std::fprintf(stderr, "fa-phases layer %zu T=%d P=%d: K %.1f%% score %.1f%% V %.1f%% softmax %.1f%% pv %.1f%%\n",
+                                 li, T, P, 100.0 * h[0] / ftot, 100.0 * h[1] / ftot, 100.0 * h[2] / ftot,
+                                 100.0 * h[3] / ftot, 100.0 * h[4] / ftot);
                 }
                 if (fa_ok && fa_check) {
                     CK(cudaStreamSynchronize(st));

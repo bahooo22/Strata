@@ -255,6 +255,7 @@ __global__ void __launch_bounds__(Threads) k_fa_prefill(const Args a) {
                     a.V + (size_t) (c0 + r) * a.HD + c8 + (size_t) kvh * a.stride_kv_h));
             *reinterpret_cast<uint4*>(&S.kv[r][c8]) = vv;
         }
+        FA_PHASE(2);
         float r0, r8;                                           // this slice's rescale of the two rows' acc
         {
             const int row8 = row0 + 8;
