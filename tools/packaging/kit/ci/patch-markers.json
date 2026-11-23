@@ -12,8 +12,8 @@
    "commits_ours_head": "57944d38e",
    "commits_ours_at": "2026-11-22",
    "commits_ours_note": "снимок на названный head: число считается по истории, которой в Actions нет (actions/checkout с fetch-depth: 1), поэтому это документация, а не гейт; head - родитель коммита, несущего эту запись (коммит не может записать собственный хеш), поэтому число привязано к названной голове и не ползёт от новых коммитов; пересъёмка - отдельный прогон registry_counts.py",
-   "markers": 27,
-   "commits_with_marker": 15,
+   "markers": 29,
+   "commits_with_marker": 16,
    "carriers": [
     "strata-q36.exe",
     "strata.exe"
@@ -285,6 +285,26 @@
      "kind": "literal",
      "commit": "30d71e316",
      "subject": "q36: FA v2 — 16x32-плитка, регистровая softmax-схема, ldmatrix",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FDEC",
+     "kind": "literal",
+     "commit": "0987a29d8",
+     "subject": "q36: decode-attention FDEC на тензорных ядрах для KV_Q8 (A14 этап 2)",
+     "bins": [
+      "strata-q36.exe",
+      "strata.exe"
+     ]
+    },
+    {
+     "token": "STRATA_Q36_FDEC_CHECK",
+     "kind": "literal",
+     "commit": "0987a29d8",
+     "subject": "q36: decode-attention FDEC на тензорных ядрах для KV_Q8 (A14 этап 2)",
      "bins": [
       "strata-q36.exe",
       "strata.exe"

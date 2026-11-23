@@ -1709,6 +1709,7 @@ struct Engine {
     int fa_layer = -1;
     // STRATA_Q36_FA_TILE: 0 = 4x32, 1 = 8x32, 2 = 4x64, 3 = 8x64 (see q36fa::Variant)
     int fa_tile = 0;
+    int fdec = 0;   // A14: decode-attention FDEC (KV_Q8); --fdec / STRATA_Q36_FDEC
     // STRATA_Q36_FA_CHECK: rerun the cuBLAS branch on the FA layer and print per-head max abs / cos
     bool fa_check = false;
     // STRATA_Q36_FA_PROF: per-phase clock64 totals of the FA kernel (layers 0 and last, whole prompt)
@@ -1770,7 +1771,8 @@ struct Engine {
     // the environment beats the engine's own value.  The parser fills the cli_* fields before init(); kKnobUnset
     // means the flag was not given, so an env-only profile keeps the value it always had.
     static constexpr int kKnobUnset = -2147483640;
-    int cli_super_chunk = kKnobUnset, cli_fa_layer = kKnobUnset, cli_fa_tile = kKnobUnset;
+    int cli_super_chunk = kKnobUnset, cli_fa_layer = kKnobUnset, cli_fa_tile = kKnobUnset,
+        cli_fdec = kKnobUnset;
     int cli_pinned_layers = kKnobUnset, cli_read_windows = kKnobUnset;
     int pinned_layers = 0;    // 0: pin every layer the driver allows, -1: none, N: at most N
     int read_windows = 1;     // decode windows of the other slots between two chunks of a prompt read
@@ -2048,6 +2050,7 @@ struct Engine {
         super_n = knob("--super-chunk", "STRATA_Q36_SUPER_CHUNK", cli_super_chunk, 1, 64, 1, knob_lines).value;
         fa_layer = knob("--fa", "STRATA_Q36_FA_LAYER", cli_fa_layer, -2, 4096, -1, knob_lines, "all").value;
         fa_tile = knob("--fa-tile", "STRATA_Q36_FA_TILE", cli_fa_tile, 0, 6, 0, knob_lines).value;
+        fdec = knob("--fdec", "STRATA_Q36_FDEC", cli_fdec, 0, 1, 0, knob_lines).value;
         pinned_layers = knob("--pinned-layers", "STRATA_Q36_PINNED_LAYERS", cli_pinned_layers, -1, 4096, 0, knob_lines).value;
         read_windows = knob("--read-windows", "STRATA_Q36_READ_WINDOWS", cli_read_windows, 0, 64, 1, knob_lines).value;
         if (knob_lines.empty()) std::fprintf(stderr, "strata-q36: knobs: defaults held\n");
@@ -2881,7 +2884,7 @@ struct Engine {
                         }
                 }
                 k_gate_mul<<<grid1((int64_t) T * H * HD), kThreads, 0, st>>>(att, gate, (int64_t) T * H * HD);
-            } else if (!rows_mode && kv_type == KV_Q8 && T <= 4 && std::getenv("STRATA_Q36_FDEC") != nullptr) {
+            } else if (!rows_mode && kv_type == KV_Q8 && T <= 4 && fdec != 0) {
                 // A14 этап 2 (opt-in STRATA_Q36_FDEC=1): decode-attention на тензорных ядрах (FDEC) для KV_Q8.
                 // Сплиты по 1024 ключа, 4 токена x 8 голов на блок; part/ml живут в буферах старого split-K.
                 const float fdec_scale = 1.0f / sqrtf((float) HD);
@@ -5021,7 +5024,8 @@ int strata::qwen35::run(int argc, char** argv) {
     int kv_type = KV_F32;
     // the five levers from the command line: kKnobUnset leaves the environment and the engine's own value in play
     int cli_super_chunk = Engine::kKnobUnset, cli_fa_layer = Engine::kKnobUnset, cli_fa_tile = Engine::kKnobUnset,
-        cli_pinned_layers = Engine::kKnobUnset, cli_read_windows = Engine::kKnobUnset;
+        cli_pinned_layers = Engine::kKnobUnset, cli_read_windows = Engine::kKnobUnset,
+        cli_fdec = Engine::kKnobUnset;
     bool chunk_given = false;   // --chunk beats STRATA_Q36_CHUNK, as every other lever does
     std::string ck, cv;   // --cache-type-k / --cache-type-v, kept aside: they only make sense as a pair
     // strata's KV names on this engine's formats: int8 is our q8_0 (a 34 B block of 32 values), and there is no
@@ -5071,6 +5075,7 @@ int strata::qwen35::run(int argc, char** argv) {
         else if (a == "--super-chunk") cli_super_chunk = std::atoi(next().c_str());   // N prompt chunks in one pass (see super_n)
         else if (a == "--fa") { const std::string v = next(); cli_fa_layer = v == "all" ? -2 : std::atoi(v.c_str()); }
         else if (a == "--fa-tile") cli_fa_tile = std::atoi(next().c_str());   // 0: 4x32, 1: 8x32, 2: 4x64, 3: 8x64, 4: 16x32, 5: 4x16, 6: 8x16
+        else if (a == "--fdec") cli_fdec = std::atoi(next().c_str());   // 1: decode-attention на тензорных ядрах (KV_Q8)
         else if (a == "--pinned-layers") cli_pinned_layers = std::atoi(next().c_str());   // 0: all, -1: none, N: at most N
         else if (a == "--read-windows") cli_read_windows = std::atoi(next().c_str());   // decode windows between two prompt chunks
         else if (a == "--vision") vision = true;                                  // pictures (GENI): the encoder is strata-vision's
