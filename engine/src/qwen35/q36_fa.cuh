@@ -45,8 +45,9 @@
 // the KV prefix for 16 queries instead of 4, so the prompt's K/V traffic drops fourfold - the FA is bound by that
 // traffic, not by the MMA.
 //
-// NOT IN ANY BUILD TARGET ON PURPOSE: no engine file includes it yet, so the engine compiles and runs exactly as
-// before until the pilot adds `#include "q36_fa.cuh"` and the STRATA_Q36_FA_LAYER branch.
+// It is compiled into the engine (q36_engine.cu includes it) and runs on the STRATA_Q36_FA_LAYER branch
+// (--fa / -2 = every layer, -1 = the cuBLAS branch, which stays the default); the tile is --fa-tile,
+// the per-phase counters are STRATA_Q36_FA_PROF, the parity check against cuBLAS is STRATA_Q36_FA_CHECK.
 
 #pragma once
 
