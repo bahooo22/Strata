@@ -3283,10 +3283,12 @@ struct Engine {
                 const Layer& L0 = layer_at(seq[(size_t) i]);
                 for (int64_t e = 0; e < (int64_t) m->g.n_expert; ++e) expert_blob(L0, e, mstage[i] + (size_t) e * L0.stride);
             }
-        for (int i = 0; i < 2 && i < (int) seq.size(); ++i) stream_kick(i);
+        const bool one_ = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
+        for (int i = 0; i < (one_ ? 1 : 2) && i < (int) seq.size(); ++i) stream_kick(i);
     }
     void stream_kick(int i) {   // the i-th layer of the sequence into staging buffer i % 2, after its last reader
-        const int b = i % 2;
+        static const bool one_ = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
+        const int b = one_ ? 0 : i % 2;
         const Layer& L = layer_at(stream_seq[(size_t) i]);
         CK(cudaStreamWaitEvent(cst, ev_used[b], 0));
         // the experts with a VRAM slot come from it (device to device, at VRAM speed), only the others over PCIe; runs
@@ -3350,7 +3352,8 @@ struct Engine {
             std::fprintf(stderr, "strata-q36: the expert stream is out of step (layer %d)\n", li);
             std::exit(1);
         }
-        const int b = stream_pos % 2;
+        static const bool one_ = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
+        const int b = one_ ? 0 : stream_pos % 2;
         CK(cudaStreamWaitEvent(st, ev_copy[b], 0));
         return stage[b];
     }
@@ -4121,7 +4124,10 @@ bool place_experts(Model& m, Engine& E, double vram_gib, int threads, int hybrid
     hin.n_layers = all.size();
     hin.tail = kMmqTail;
     hin.outputs = (size_t) E.tmax * (size_t) m.top_k * (size_t) g.n_embd * 4 + (size_t) E.tmax * (size_t) m.top_k * 4;
-    hin.staging_full = 2 * (max_layer + kMmqTail);
+    // 200k+q8 on 8 GiB: the staging pair (0.80 GiB) does not fit, a single buffer (0.40 GiB) does; a single buffer
+    // runs without prefetching the next layer (STRATA_Q36_STAGING_ONE=1)
+    const bool staging_one = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
+    hin.staging_full = (staging_one ? 1 : 2) * (max_layer + kMmqTail);
     hin.streamed = E.use_pf && E.main_hybrid;
     hin.allow_drop = std::getenv("STRATA_Q36_KEEP_STAGING") == nullptr;   // =1: the old plan, no fallback
     hin.ne = ne;

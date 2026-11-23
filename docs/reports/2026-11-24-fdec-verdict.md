@@ -25,10 +25,13 @@ V-коды читались с лишним блочным смещением (`
 ## Границы применимости
 - Гейт ядра: `!rows_mode && kv_type == KV_Q8 && T <= 4 && fdec != 0` (q36_engine.cu:2887); шаг цикла 4
   (:2891). T=5..8 не ожидаются по построению — это не пробел прогона.
-- 200k+FDEC не будет снят никогда на этой карте: при q8_0 и окне 200k пара staging-буферов не влезает
-  в 8 ГиБ; hybrid_fit помечает `dropped_staging = true` (hybrid_fit.hpp:40, :73), и q36_engine печатает
-  «prompts are read on the experts in VRAM and the CPU pool instead (slower prompts)» (:4134) — отсюда
-  ~48 tok/s (замер side: 81 920 ток. / 1721 с). Это политика размещения, а не краш-фикс 880ab1dbf
+- 200k+FDEC: снят с `STRATA_Q36_STAGING_ONE=1` (один staging-буфер 0,40 ГиБ вместо пары 0,80) и
+  `--super-chunk 2` (x+h буферы 64 МиБ вместо 256, free 0,64 ГиБ): pp200000 704,5 tok/s, tg200 15,3 tok/s
+  (KAT IQ4_XS, 8 ГиБ, лог `glm/2026-11-23_session/pp200k-tg200-fdec-q8-stage1.log`). Без super-chunk 2
+  (free 0,46) не влезает даже один буфер: need = staging + outputs ≈ 0,53 ГиБ.
+  Прежняя граница: без STAGING_ONE hybrid_fit помечает `dropped_staging = true` (hybrid_fit.hpp:40, :73),
+  q36_engine печатает «prompts are read on the experts in VRAM and the CPU pool instead (slower prompts)»
+  (:4142) — ~48 tok/s (замер side: 81 920 ток. / 1721 с). Это политика размещения, а не краш-фикс 880ab1dbf
   (тот лишь страхует streamed-путь от отсутствующих событий).
 - Рабочая точка FDEC: 160k/q8_0. Дефолт движка не меняется: q4_0 без FDEC (на 160k q4_0 13,7 tok/s
   всё ещё быстрее q8+fdec 12,5).
