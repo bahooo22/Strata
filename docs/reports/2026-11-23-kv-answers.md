@@ -1,7 +1,9 @@
-# KV-качество на ответах: q4_0 против q8_0 (KAT IQ4_XS, FDEC)
+# KV-качество на ответах: q4_0 (без FDEC) против q8_0+FDEC (KAT IQ4_XS)
 
 Дата: 2026-11-23. Стенд: strata-q36 0.2.20-форк (0a47d05de), RTX 3060 Ti 8 ГиБ, 32 ГБ RAM,
-модель KAT-Coder-V2.5 IQ4_XS, ctx 16384, `--fdec 1`, greedy (temperature 0), batch 1.
+модель KAT-Coder-V2.5 IQ4_XS, ctx 16384, greedy (temperature 0), batch 1. FDEC действует только
+на q8_0 (гейт ядра `kv_type == KV_Q8`), поэтому колонка q4_0 — это q4_0 БЕЗ FDEC; knob
+передавался обоим серверам, но на q4-ноге он не вооружается.
 Скрипт: `glm/scripts/kv_answers_2026-11-23.py`; артефакты: `glm/2026-11-23_session/kvq-answers/`.
 
 ## Зачем

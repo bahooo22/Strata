@@ -356,7 +356,8 @@ Off unless you set them. The last column says where each one is described.
 The q36 engine takes command-line aliases for four of these: `--fa`, `--fa-tile`, `--fdec` and `--super-chunk` set
 the same knobs as `STRATA_Q36_FA_LAYER`, `STRATA_Q36_FA_TILE`, `STRATA_Q36_FDEC` and `STRATA_Q36_SUPER_CHUNK`. The
 engine prints each knob it reads ("knob --fa = -2 from cli"); `STRATA_Q36_STAGING_ONE` is read directly instead and is
-confirmed by the run's own line ("bigger prompt chunks streamed (0.40 GiB staging)").
+confirmed by the run's own line ("bigger prompt chunks streamed (0.40 GiB staging)"). `STRATA_Q36_FDEC` arms the decode
+attention only at `KV_Q8` or `KV_Q4` with 4 tokens or fewer; other KV types run the split-K path unchanged.
 
 ## Switches that go back to earlier behaviour (106)
 

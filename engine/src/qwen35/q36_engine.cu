@@ -502,8 +502,8 @@ __global__ void k_attn_prep(const float* qg, const float* kx, const float* vx, c
 
 
 // ---- A14 этап 2: decode-attention на тензорных ядрах (FDEC), порт 4gbVramStrata fattn.cu ----
-// KV_Q8 в раскладке scale-first (этап 1): строка = 8 fp16 scale (16 Б) + 8 блоков по 32 int8 кода.
-// Блок на (сплит из 1024 ключей, kv-голова); 128 потоков = 4 варпа; 32 строки скретча = 4 токена x 8 голов.
+// KV_Q8/KV_Q4 в раскладке scale-first (этап 1): строка = 8 fp16 scale (16 Б) + коды блоков (q8: 8 x 32 int8,
+// q4: 8 x 16 Б нибблов). Блок на (сплит из 1024 ключей, kv-голова); 128 потоков = 4 варпа; 32 строки скретча.
 constexpr int kFdecSplit = 1024;
 constexpr int kFdecTile = 64;
 constexpr int kFdecWarps = 4;
@@ -517,6 +517,18 @@ __device__ __forceinline__ uint32_t fdec_i8pair(uint32_t w, uint32_t sel) {
 __device__ __forceinline__ uint32_t fdec_mul2(uint32_t x, half2 s) {
     half2 h = __hmul2(*reinterpret_cast<half2*>(&x), s);
     return *reinterpret_cast<uint32_t*>(&h);
+}
+// q4_0 (KV_Q4): x carries four nibble codes one per byte; the same mantissa trick with magic 1024: a half
+// (0x6400|n) reads as 1024 + n, so HSUB2 by 1032 gives n - 8, which is the q4_0 code value.
+__device__ __forceinline__ uint32_t fdec_nib_pair(uint32_t x, uint32_t sel) {
+    uint32_t h = __byte_perm(x, 0x64646464u, sel);
+    half2 v = __hsub2(*reinterpret_cast<half2*>(&h), __float2half2_rn(1032.0f));
+    return *reinterpret_cast<uint32_t*>(&v);
+}
+// one 4-code unit -> 2 half2 code pairs: q8 codes are bytes (the 0x80 bias removed by the caller), q4 codes are
+// nibbles widened to bytes by the caller (__byte_perm with 0x5140), the pair extraction is the same shape
+__device__ __forceinline__ uint32_t fdec_code_pair(uint32_t x, int td, uint32_t sel) {
+    return td == KV_Q4 ? fdec_nib_pair(x, sel) : fdec_i8pair(x, sel);
 }
 __device__ __forceinline__ float fdec_scale_of(const uint4& v, int b) {
     const uint32_t w = b < 4 ? (b < 2 ? v.x : v.y) : (b < 6 ? v.z : v.w);
@@ -534,8 +546,9 @@ __device__ __forceinline__ void fdec_mma(float* c, const uint32_t* a, uint32_t b
 #endif
 }
 
-// part: [split][kv_head][kFdecRows][HD]; ml: max и сумма на строку (2 * idx)
-template <int MT, int Group>
+// part: [split][kv_head][kFdecRows][HD]; ml: max и сумма на строку (2 * idx); TD — тип KV (KV_Q8 рядовые коды,
+// KV_Q4 нибблы; у обоих служебная часть строки 16 Б из 8 fp16 масштабов)
+template <int MT, int Group, int TD = KV_Q8>
 __global__ void __launch_bounds__(kFdecWarps * 32)
 k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const uint8_t* __restrict__ vc,
             long long pos, int first, int tokens, int n_head, int kv_heads, int ctx, float scale,
@@ -554,7 +567,7 @@ k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const u
         const float x = tok < tokens ? q[((size_t) (first + tok) * n_head + grp * Group + row % Group) * kD + d] : 0.f;
         Qs[row * QS + d] = __float2half(x);
     }
-    const size_t rowb = (size_t) (kD / 32) * 34;               // KV_Q8, scale-first
+    const size_t rowb = (size_t) (16 + (kD / 32) * kv_code_step(TD));   // scale-first: 16 B scales + codes (q8: 272, q4: 144)
     const uint8_t* kg = kc + (size_t) grp * ctx * rowb;
     const uint8_t* vg = vc + (size_t) grp * ctx * rowb;
     const int vblk = 2 * w + g8 / 4;                           // 64*w + 8*g8 -> block (d/32)
@@ -568,17 +581,24 @@ k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const u
     }
     __syncthreads();
     for (long long tb = r0; tb < r1; tb += kFdecTile) {
-        uint2 kx[2][8];
+        uint32_t kx[2][8][2];   // [nt][b][word]: q8 the 8-byte lane slice as two words, q4 the first word (8 nibbles)
         uint4 ksc[2][2] = {};
-        uint2 vx[4][4];
+        uint32_t vx[4][4][2];
         uint16_t vsc[4][4] = {};
+        const uint32_t neutral = TD == KV_Q4 ? 0x88888888u : 0x80808080u;
 #pragma unroll
         for (int nt = 0; nt < 2; ++nt) {
             const long long key = tb + 16 * w + 8 * nt + g8;
 #pragma unroll
-            for (int b = 0; b < 8; ++b)
-                kx[nt][b] = key > last ? make_uint2(0x80808080u, 0x80808080u)
-                                       : *reinterpret_cast<const uint2*>(kg + (size_t) key * rowb + 16 + 32 * b + 8 * t);
+            for (int b = 0; b < 8; ++b) {
+                if (key > last) {
+                    kx[nt][b][0] = kx[nt][b][1] = neutral;
+                } else {
+                    const uint8_t* src = kg + (size_t) key * rowb + 16 + (TD == KV_Q8 ? 32 * b + 8 * t : 16 * b + 4 * t);
+                    kx[nt][b][0] = *reinterpret_cast<const uint32_t*>(src);
+                    kx[nt][b][1] = TD == KV_Q8 ? *reinterpret_cast<const uint32_t*>(src + 4) : 0u;
+                }
+            }
 #pragma unroll
             for (int j = 0; j < 2; ++j) {
                 const long long k2 = tb + 16 * w + 8 * nt + 2 * t + j;
@@ -590,8 +610,13 @@ k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const u
 #pragma unroll
             for (int i = 0; i < 4; ++i) {
                 const long long key = tb + 16 * kk + 2 * t + (i & 1) + 8 * (i >> 1);
-                vx[kk][i] = key > last ? make_uint2(0x80808080u, 0x80808080u)
-                                       : *reinterpret_cast<const uint2*>(vg + (size_t) key * rowb + 16 + 64 * w + 8 * g8);
+                if (key > last) {
+                    vx[kk][i][0] = vx[kk][i][1] = neutral;
+                } else {
+                    const uint8_t* src = vg + (size_t) key * rowb + 16 + (TD == KV_Q8 ? 64 * w + 8 * g8 : 32 * w + 4 * g8);
+                    vx[kk][i][0] = *reinterpret_cast<const uint32_t*>(src);
+                    vx[kk][i][1] = TD == KV_Q8 ? *reinterpret_cast<const uint32_t*>(src + 4) : 0u;
+                }
                 if (key <= last) vsc[kk][i] = __half_as_ushort(((const __half*) (vg + (size_t) key * rowb))[vblk]);
             }
         float s[MT][2][4];
@@ -612,9 +637,15 @@ k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const u
                 uint32_t bk[2][2];
 #pragma unroll
                 for (int nt = 0; nt < 2; ++nt) {
-                    const uint32_t word = (h ? kx[nt][b].y : kx[nt][b].x) ^ 0x80808080u;
-                    bk[nt][0] = fdec_i8pair(word, 0x4140);
-                    bk[nt][1] = fdec_i8pair(word, 0x4342);
+                    uint32_t pc;
+                    if (TD == KV_Q8) {
+                        pc = kx[nt][b][h] ^ 0x80808080u;
+                    } else {
+                        const uint32_t hw = h ? (kx[nt][b][0] >> 16) : (kx[nt][b][0] & 0xFFFFu);   // 2 bytes = 4 nibble codes
+                        pc = __byte_perm(hw & 0x0F0F0F0Fu, (hw >> 4) & 0x0F0F0F0Fu, 0x5140);
+                    }
+                    bk[nt][0] = fdec_code_pair(pc, TD, 0x4140);
+                    bk[nt][1] = fdec_code_pair(pc, TD, 0x4342);
                 }
 #pragma unroll
                 for (int mt = 0; mt < MT; ++mt) {
@@ -712,17 +743,29 @@ k_fdec_part(const float* __restrict__ q, const uint8_t* __restrict__ kc, const u
             const half2 s89 = __halves2half2(__ushort_as_half(vsc[kk][2]), __ushort_as_half(vsc[kk][3]));
 #pragma unroll
             for (int wd = 0; wd < 2; ++wd) {
-                const uint32_t x0 = (wd ? vx[kk][0].y : vx[kk][0].x) ^ 0x80808080u;
-                const uint32_t x1 = (wd ? vx[kk][1].y : vx[kk][1].x) ^ 0x80808080u;
-                const uint32_t x2 = (wd ? vx[kk][2].y : vx[kk][2].x) ^ 0x80808080u;
-                const uint32_t x3 = (wd ? vx[kk][3].y : vx[kk][3].x) ^ 0x80808080u;
+                uint32_t x0, x1, x2, x3;
+                if (TD == KV_Q8) {
+                    x0 = vx[kk][0][wd] ^ 0x80808080u;
+                    x1 = vx[kk][1][wd] ^ 0x80808080u;
+                    x2 = vx[kk][2][wd] ^ 0x80808080u;
+                    x3 = vx[kk][3][wd] ^ 0x80808080u;
+                } else {
+                    const uint32_t hw0 = wd ? (vx[kk][0][0] >> 16) : (vx[kk][0][0] & 0xFFFFu);   // 2 bytes = 4 nibble codes
+                    const uint32_t hw1 = wd ? (vx[kk][1][0] >> 16) : (vx[kk][1][0] & 0xFFFFu);
+                    const uint32_t hw2 = wd ? (vx[kk][2][0] >> 16) : (vx[kk][2][0] & 0xFFFFu);
+                    const uint32_t hw3 = wd ? (vx[kk][3][0] >> 16) : (vx[kk][3][0] & 0xFFFFu);
+                    x0 = __byte_perm(hw0 & 0x0F0F0F0Fu, (hw0 >> 4) & 0x0F0F0F0Fu, 0x5140);
+                    x1 = __byte_perm(hw1 & 0x0F0F0F0Fu, (hw1 >> 4) & 0x0F0F0F0Fu, 0x5140);
+                    x2 = __byte_perm(hw2 & 0x0F0F0F0Fu, (hw2 >> 4) & 0x0F0F0F0Fu, 0x5140);
+                    x3 = __byte_perm(hw3 & 0x0F0F0F0Fu, (hw3 >> 4) & 0x0F0F0F0Fu, 0x5140);
+                }
                 const uint32_t lo01 = __byte_perm(x0, x1, 0x5140), hi01 = __byte_perm(x0, x1, 0x7362);
                 const uint32_t lo89 = __byte_perm(x2, x3, 0x5140), hi89 = __byte_perm(x2, x3, 0x7362);
 #pragma unroll
                 for (int jj = 0; jj < 4; ++jj) {
                     const uint32_t sel = jj & 1 ? 0x4342 : 0x4140;
-                    const uint32_t b0 = fdec_mul2(fdec_i8pair(jj < 2 ? lo01 : hi01, sel), s01);
-                    const uint32_t b1 = fdec_mul2(fdec_i8pair(jj < 2 ? lo89 : hi89, sel), s89);
+                    const uint32_t b0 = fdec_mul2(fdec_code_pair(jj < 2 ? lo01 : hi01, TD, sel), s01);
+                    const uint32_t b1 = fdec_mul2(fdec_code_pair(jj < 2 ? lo89 : hi89, TD, sel), s89);
 #pragma unroll
                     for (int mt = 0; mt < MT; ++mt) fdec_mma(o[mt][4 * wd + jj], a[mt], b0, b1);
                 }
@@ -2887,16 +2930,20 @@ struct Engine {
                         }
                 }
                 k_gate_mul<<<grid1((int64_t) T * H * HD), kThreads, 0, st>>>(att, gate, (int64_t) T * H * HD);
-            } else if (!rows_mode && kv_type == KV_Q8 && T <= 4 && fdec != 0) {
-                // A14 этап 2 (opt-in STRATA_Q36_FDEC=1): decode-attention на тензорных ядрах (FDEC) для KV_Q8.
-                // Сплиты по 1024 ключа, 4 токена x 8 голов на блок; part/ml живут в буферах старого split-K.
+            } else if (!rows_mode && (kv_type == KV_Q8 || kv_type == KV_Q4) && T <= 4 && fdec != 0) {
+                // A14 этап 2 (opt-in STRATA_Q36_FDEC=1): decode-attention на тензорных ядрах (FDEC) для KV_Q8
+                // и KV_Q4. Сплиты по 1024 ключа, 4 токена x 8 голов на блок; part/ml живут в буферах старого split-K.
                 const float fdec_scale = 1.0f / sqrtf((float) HD);
                 for (int t0 = 0; t0 < T; t0 += 4) {
                     const int nt_ = std::min(4, T - t0);
                     const int splits = (int) (((long long) p0 + t0 + nt_ + kFdecSplit - 1) / kFdecSplit);
                     // q — начало T-строчного буфера, first = t0: ядро само индексирует q[(first+tok)*H+..]
-                    k_fdec_part<2, 8><<<dim3((unsigned) splits, (unsigned) HKV), kFdecWarps * 32, 0, st>>>(
-                        q, kq[li], vq[li], (long long) p0, t0, nt_, H, HKV, ctx, fdec_scale, pacc, pm);
+                    if (kv_type == KV_Q8)
+                        k_fdec_part<2, 8, KV_Q8><<<dim3((unsigned) splits, (unsigned) HKV), kFdecWarps * 32, 0, st>>>(
+                            q, kq[li], vq[li], (long long) p0, t0, nt_, H, HKV, ctx, fdec_scale, pacc, pm);
+                    else
+                        k_fdec_part<2, 8, KV_Q4><<<dim3((unsigned) splits, (unsigned) HKV), kFdecWarps * 32, 0, st>>>(
+                            q, kq[li], vq[li], (long long) p0, t0, nt_, H, HKV, ctx, fdec_scale, pacc, pm);
                     k_fdec_merge<8><<<dim3((unsigned) H, (unsigned) nt_), 256, 0, st>>>(pacc, pm, att, (long long) p0,
                                                                                          t0, H, HKV);
                 }
@@ -3284,7 +3331,10 @@ struct Engine {
                 for (int64_t e = 0; e < (int64_t) m->g.n_expert; ++e) expert_blob(L0, e, mstage[i] + (size_t) e * L0.stride);
             }
         const bool one_ = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
-        for (int i = 0; i < (one_ ? 1 : 2) && i < (int) seq.size(); ++i) stream_kick(i);
+        // STRATA_Q36_STREAM_DEPTH=1: one layer prefetched at a time on the pair (separates the prefetch depth
+        // from the single-buffer plan, e.g. to price the 704->618 pp drop of the 200k point)
+        static const bool depth1_ = [] { const char* e = std::getenv("STRATA_Q36_STREAM_DEPTH"); return e && e[0] == '1'; }();
+        for (int i = 0; i < ((one_ || depth1_) ? 1 : 2) && i < (int) seq.size(); ++i) stream_kick(i);
     }
     void stream_kick(int i) {   // the i-th layer of the sequence into staging buffer i % 2, after its last reader
         static const bool one_ = std::getenv("STRATA_Q36_STAGING_ONE") != nullptr;
