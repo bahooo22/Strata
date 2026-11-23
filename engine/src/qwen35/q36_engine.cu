@@ -3524,6 +3524,16 @@ struct Engine {
                 CK(cudaMemcpy2DAsync(b.vc[l], row, a.vc[l], row, (size_t) a.pos * g.head_dim * 4, (size_t) g.n_head_kv,
                                      cudaMemcpyDeviceToDevice, st));
             }
+            // A14 этап 0: квантованный KV (--kv q4_0/q8_0/...): kc/vc пусты, ячейка — (HD/32) блоков по
+            // kv_block_bytes, шаг головы — ctx ячеек (kv_store в k_attn_prep пишет по pos той же формулой).
+            if (a.kq[l] && a.pos > 0) {
+                const size_t rowb = (size_t) (g.head_dim / 32) * (size_t) kv_block_bytes(kv_type);
+                const size_t hstep = (size_t) ctx * rowb;
+                CK(cudaMemcpy2DAsync(b.kq[l], hstep, a.kq[l], hstep, (size_t) a.pos * rowb, (size_t) g.n_head_kv,
+                                     cudaMemcpyDeviceToDevice, st));
+                CK(cudaMemcpy2DAsync(b.vq[l], hstep, a.vq[l], hstep, (size_t) a.pos * rowb, (size_t) g.n_head_kv,
+                                     cudaMemcpyDeviceToDevice, st));
+            }
         }
         CK(cudaMemcpyAsync(b.hlast, a.hlast, (size_t) g.n_embd * 4, cudaMemcpyDeviceToDevice, st));
         CK(cudaStreamSynchronize(st));
