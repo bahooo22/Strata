@@ -1,4 +1,8 @@
 @echo off
+rem LEGACY: this file targets the old E: layout (engine sources and .venv next to START-HERE.bat);
+rem it fails with "path not found" on the 0.2.16 layout where sources live in C:\Projects\Strata-3060Ti\engine.
+rem The live path is UPDATE.bat / START-HERE.bat --update (compiles terminal/engine from this tree, checked 23.11).
+rem Kept for the old workstation only; do not run from this clone.
 rem Пересборка engine с ggml из соседнего git-клона llama.cpp (STRATA_GGML_DIR).
 setlocal
 set "ENGINE=E:\eXample\Documents\Source\Github\Strata-3060Ti\engine"
