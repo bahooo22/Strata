@@ -1640,9 +1640,12 @@ bool load(const std::string& path, Model& m, std::string& err, bool want_mtp) {
         m.embd = d;
         bytes += nb;
     }
+    int sms_ = 0, dev_ = 0;
+    if (cudaGetDevice(&dev_) == cudaSuccess)
+        (void) cudaDeviceGetAttribute(&sms_, cudaDevAttrMultiProcessorCount, dev_);
     std::fprintf(stderr, "strata-q36: %s: %zu tensors (layout checked), %.2f GiB on the GPU in %.1f s (the routed "
-                 "experts are placed after the engine's buffers)\n", path.c_str(), checked, (double) bytes / (1 << 30),
-                 ms_since(t0) / 1000.0);
+                 "experts are placed after the engine's buffers; device: %d SMs, %d ssm v-heads)\n", path.c_str(),
+                 checked, (double) bytes / (1 << 30), ms_since(t0) / 1000.0, sms_, (int) g.ssm_v_heads);
     return true;
 }
 
