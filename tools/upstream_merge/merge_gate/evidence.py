@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from . import GateError
@@ -27,6 +28,10 @@ def evidence_commands(item: dict[str, Any]) -> list[Any]:
         commands.append(item["command"])
     commands.extend(item.get("commands", []))
     return commands
+
+
+def warning_code(key: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "-", key).lower()
 
 
 def collect_evidence(
@@ -77,7 +82,7 @@ def collect_evidence(
             if key in {"architectureReview", "fallback"}:
                 blockers.append("architecture-review-missing" if key == "architectureReview" else "fallback-evidence-missing")
             else:
-                warnings.append(f"evidence-not-applicable:{key}")
+                warnings.append(f"evidence-not-applicable:{warning_code(key)}")
             if not legacy:
                 if item.get("manualVerdict") != "accepted" or not item.get("reviewer") or not item.get("date"):
                     blockers.append(f"evidence-review-missing:{key}")

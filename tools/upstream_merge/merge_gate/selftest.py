@@ -293,6 +293,32 @@ def selftest() -> int:
         report, code = evaluate(root, fallback)
         expect(code == EXIT_BLOCKED and "fallback-evidence-missing" in report["blockers"], "обязательный fallback нельзя объявить not-applicable")
 
+        combinations = clone_plan(plan)
+        combinations["decision"] = "ours"
+        combinations["matrix"][0]["decision"] = "ours"
+        combinations["evidence"]["implementationCombinations"] = {
+            "status": "not-applicable",
+            "reason": "selftest ours scope",
+            "reviewer": "Independent Reviewer",
+            "date": "2026-11-24",
+            "manualVerdict": "accepted",
+            "revision": "candidate",
+        }
+        combinations["warningAcknowledgments"] = [{
+            "code": "evidence-not-applicable:implementation-combinations",
+            "reason": "selftest ours scope",
+            "scope": ["selftest"],
+            "mitigation": "no hybrid/delta rows",
+            "evidence": ["evidence/selftest.txt"],
+            "reviewer": "Independent Reviewer",
+            "date": "2026-11-24",
+            "outcome": "accepted",
+        }]
+        validate_plan(combinations)
+        report, code = evaluate(root, combinations)
+        warning = next(item for item in report["warnings"] if item["code"] == "evidence-not-applicable:implementation-combinations")
+        expect(code == EXIT_OK and warning["acknowledged"], "camelCase evidence category нормализуется в kebab-case warning", human_report(report))
+
         checks_not_run = clone_plan(plan)
         checks_not_run["checks"] = [{
             "name": "safe python",
