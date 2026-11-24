@@ -6,7 +6,8 @@
 |---|---|---|---|---|---|
 | 0. Upstream refresh + tools preflight | done | main | approval | начальный fetch rc=0; финальный upstream `d46f5f2` (+276), merge-base `923e2df4d`, ahead/behind `240/291`; merge не выполнялся | новый upstream только read-only audit; merge по отдельному разрешению |
 | 0. Реестры | done | main | preflight | созданы `IMPROVEMENT_REGISTRY.md`, `PROGRESS.md`; `deep-cloud-owl.md` обновлён | поддерживать статусы сразу |
-| 1. Merge tools | fork-only | b8bd12b8 / main | post-mutation fix | unit 14/14; selftest 41/41; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно; инструмент остаётся в форке |
+| 1. Merge tools | fork-only | b8bd12b8 / main | post-mutation fix | unit 16/16; selftest 42/42; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно; инструмент остаётся в форке |
+| 1.1 RU+EN merge docs | done | main | accepted merge tool | `document` генерирует MD по upstream commits, matrix decisions, conflicts, adaptations, evidence и waivers; реальный отчёт 291/697/18/4/4 | поддерживать генератор и включать отчёты в candidate |
 | 2. Локальная приёмка | done | main | existing binaries/artifact | Q5.5 done; installer setup build rc=0, hygiene rc=0, marker 29/29, smoke health OK/answer Да | поддерживать evidence; Portable отдельно |
 | 3. Upstream analysis/scope | analysis-done | 3568a3e2 / main | refreshed refs | anchors/evidence собраны; временные комментарии в #5467/#3903 удалены; duplicate PR не создавались | публикация остановлена; follow-up только по явному решению |
 | 3.1 Экспертные типы 10/11/18/21 | done | main / 3568a3e2 / b8bd12b8 | main `a8ebf5d59` | CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29; review APPROVE | HIP not-run с waiver; quality/MTP smoke, затем Portable |

@@ -4,7 +4,8 @@
 
 | ID | Улучшение | Решение | Статус | Owner | Evidence / PR | Next action / блокер |
 |---|---|---|---|---|---|---|
-| TOOLS-MERGE | upstream merge gate/lifecycle/owner guard | ours, internal | fork-only | b8bd12b8 / main | unit 14/14; selftest 41/41; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно |
+| TOOLS-MERGE | upstream merge gate/lifecycle/owner guard | ours, internal | fork-only | b8bd12b8 / main | unit 16/16; selftest 42/42; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно |
+| TOOLS-MERGE-DOCS | RU+EN MD-отчёты по upstream-изменениям и решениям | ours, internal | done | main | `document`; unit 16/16; selftest 42/42; реальный отчёт 291 commits/697 files/18 decisions/4 conflicts/4 adaptations | включать generated MD в candidate отдельным commit |
 | LAUNCH-OWN-SIZE | launch для GGUF с нестандартным именем | delta | done | main | `ba9ae196e`; health/API/connect/logs/stop OK | monitor 404 — отдельный блокер |
 | REFACTOR-SRP | широкий рефакторинг engine/ownership | idea only | not-in-scope | main | `docs/plans/2026-11-24-upstream-safe-refactor.md` | только документ, без candidate/main |
 | EXPERT-TYPES | полный routed-expert контракт 10/11/18/21 | delta к upstream | done | main / 3568a3e2 / b8bd12b8 | `a8ebf5d59`; patch SHA `017d5621`; CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29 | HIP not-run с waiver только для этого patch; отдельная приёмка при появлении toolchain |

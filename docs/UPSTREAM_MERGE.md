@@ -16,6 +16,7 @@ python tools/upstream_merge/upstream_merge.py prepare --repo . --branch sync/ups
 python tools/upstream_merge/upstream_merge.py experiment --repo . --branch opt/example --yes
 python tools/upstream_merge/upstream_merge.py status --repo .
 python tools/upstream_merge/upstream_merge.py check --repo . --plan merge-plan.json --format both
+python tools/upstream_merge/upstream_merge.py document --repo . --plan merge-plan.json --out-dir docs/upstream-merges --conflict-decisions conflict-decisions.json
 python tools/upstream_merge/upstream_merge.py promote --repo . --branch opt/example --plan merge-plan.json --report-out merge-promote.json --yes
 python tools/upstream_merge/upstream_merge.py promote --repo . --branch opt/example --plan merge-plan.json --report-out merge-promote.json --yes --push --pr --delete-local
 python tools/upstream_merge/upstream_merge.py abort --repo . --yes
@@ -33,6 +34,12 @@ python tools/upstream_merge/upstream_merge.py selftest
 - Каждый `implementationCombinations` run имеет собственные `status=passed`, `revision` и непустой `evidence`; `anchorStatus=removed` допускается только для `drop` с полной upstream-заменой.
 - `abort --yes` выполняет только `git merge --abort`.
 - Push требует явного `--yes --push`; PR дополнительно требует `--pr` и `gh`.
+
+## MD-отчёт по merge
+
+`document` читает pinned refs из `merge-plan.json`, перечисляет upstream commits от merge-base до upstream, их файлы и исходные сообщения, затем связывает изменения с matrix decisions, conflicts и additional adaptations. Результат сохраняется в `docs/upstream-merges/<upstream>-<candidate>-<дата>.ru.md` и `.en.md`.
+
+Английский отчёт содержит переводные заголовки и решения, а исходные русские rationale/algorithm fields сохраняет как source text; commit messages upstream остаются дословно. Команда не меняет refs и не коммитит файлы — сгенерированные MD нужно проверить и включить в candidate отдельным commit.
 
 ## Жизненный цикл эксперимента
 

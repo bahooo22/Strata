@@ -267,6 +267,48 @@ class UpstreamMergeTests(unittest.TestCase):
         self.assertEqual(data["aheadBehind"], {"oursOnly": 1, "upstreamOnly": 1})
         self.assertFalse(data["dirtyTree"])
 
+    def test_document_writes_bilingual_reports(self) -> None:
+        git(self.repo, "switch", "-q", "-c", "opt/document", "ours")
+        git(self.repo, "merge", "-q", "--no-ff", "upstream", "-m", "candidate")
+        plan = valid_plan("opt/document")
+        plan["oursRef"] = "ours"
+        plan["upstreamRef"] = "upstream"
+        plan_path = self.root / "document-plan.json"
+        plan_path.write_text(json.dumps(plan), encoding="utf-8")
+        conflicts = self.root / "conflicts.json"
+        conflicts.write_text(json.dumps({
+            "conflicts": [{"path": "base.txt", "resolution": "ours", "method": "manual", "reason": "fixture"}],
+            "additionalAdaptations": [{"path": "ours.txt", "change": "fixture", "evidence": "review.md"}],
+        }), encoding="utf-8")
+        code, data, _ = run_cli(
+            self.repo, "document", "--plan", str(plan_path), "--out-dir", "docs/upstream-merges",
+            "--conflict-decisions", str(conflicts), "--format", "json",
+        )
+        self.assertEqual(code, 0, data)
+        self.assertEqual(data["upstreamCommits"], 1)
+        self.assertEqual(data["decisions"], 1)
+        self.assertEqual(len(data["files"]), 2)
+        texts = [(self.repo / name).read_text(encoding="utf-8") for name in data["files"]]
+        self.assertTrue(any("Upstream merge" in text and "upstream" in text and "fixture" in text for text in texts))
+        self.assertTrue(any("Изменения upstream по commits" in text for text in texts))
+        self.assertTrue(any("Upstream changes by commit" in text for text in texts))
+        self.assertTrue(all("base.txt" in text and "ours.txt" in text for text in texts))
+        self.assertTrue(all("\0" not in text for text in texts))
+
+    def test_document_rejects_outside_out_dir(self) -> None:
+        git(self.repo, "switch", "-q", "-c", "opt/document-outside", "ours")
+        git(self.repo, "merge", "-q", "--no-ff", "upstream", "-m", "candidate")
+        plan = valid_plan("opt/document-outside")
+        plan["oursRef"] = "ours"
+        plan["upstreamRef"] = "upstream"
+        plan_path = self.root / "document-outside-plan.json"
+        plan_path.write_text(json.dumps(plan), encoding="utf-8")
+        code, data, _ = run_cli(
+            self.repo, "document", "--plan", str(plan_path), "--out-dir", "../outside", "--format", "json",
+        )
+        self.assertEqual(code, 2, data)
+        self.assertIn("out-dir", data["error"])
+
     def test_matrix(self) -> None:
         out = self.root / "matrix.json"
         code, data, _ = run_cli(

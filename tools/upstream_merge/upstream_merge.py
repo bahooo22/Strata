@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from merge_docs import generate as generate_docs
 from merge_gate import EXIT_BLOCKED, EXIT_INVALID, EXIT_OK, EXIT_REVIEW, GateError
 from merge_gate.console import configure_utf8
 from merge_gate.gate import evaluate
@@ -488,6 +489,13 @@ def check(args: argparse.Namespace) -> int:
     return code
 
 
+def document(args: argparse.Namespace) -> int:
+    plan = load_plan(args.plan, SCHEMA_PATH)
+    report = generate_docs(args.repo, plan, args.out_dir, args.conflict_decisions)
+    emit(report, args.format)
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Безопасный upstream merge: preflight, matrix, prepare, check, status, abort")
     sub = parser.add_subparsers(dest="mode", required=True)
@@ -547,6 +555,14 @@ def build_parser() -> argparse.ArgumentParser:
     chk.add_argument("--run-checks", action="store_true")
     chk.add_argument("--format", choices=("human", "json", "both"), default="human")
     chk.set_defaults(func=check)
+
+    doc = sub.add_parser("document", help="сохранить RU+EN MD-отчёт по upstream-изменениям и решениям")
+    doc.add_argument("--repo", required=True, type=Path)
+    doc.add_argument("--plan", required=True, type=Path)
+    doc.add_argument("--out-dir", type=Path, default=Path("docs/upstream-merges"))
+    doc.add_argument("--conflict-decisions", type=Path)
+    doc.add_argument("--format", choices=("human", "json"), default="human")
+    doc.set_defaults(func=document)
 
     st = sub.add_parser("status", help="показать ветку, HEAD и активную Git-операцию")
     st.add_argument("--repo", required=True, type=Path)
