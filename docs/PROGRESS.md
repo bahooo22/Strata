@@ -13,7 +13,7 @@
 | 5. FDEC q8 candidate | blocked-scope | main | maintainer answer | — | stacked experiment/адаптация к #3903 |
 | 6. Q4 experiment | planned | 3568a3e2 / main | experimentRef | — | Hadamard adapter + quality, не main |
 | 7. Fork integration | ready-to-run | main | accepted candidates | `8e2f2af94`, `11ff82f93`, `4d47b170f`, `bc46d7b1d`, `0c21904e7`, `e31f451b8` уже в main; upstream q36 delta пуста; combo-runner готов | default/FA/FDEC/both на свежем exe 160k/200k; отдельный merge не выполнять |
-| 8. Q7 | in-progress | main / 3568a3e2 | integrated binary | A: health OK, но 18 432/32 771 за 3578 s (~5,2 tok/s), timeout до decode; B layer-major speed-only запущена | stop/go по B; C..E только после прохождения pp/tg |
+| 8. Q7 | in-progress | main / 3568a3e2 | integrated binary | A auto: mean 9,8 tok/s; B8192: mean 18,2 tok/s; B LM32768 speed-only запущена | stop/go по A/B reserve512; C..E после pp/tg |
 | 9. Portable final | planned | main | Q7 verdict, kit artifact | target `G:/Strata/` | functional smoke + HDD A/B 160k/200k |
 
 ## Протокол
