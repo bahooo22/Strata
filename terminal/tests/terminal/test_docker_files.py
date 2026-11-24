@@ -12,32 +12,71 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-DOCKER = ROOT / "docker"
-SH = shutil.which("sh")
-BASH = shutil.which("bash")      # the full path: on Windows a bare "bash" can start the WSL launcher in System32 instead of Git bash
-CYGPATH = shutil.which("cygpath")
+DOCKER = ROOT.parent / "tools" / "docker"
+def _posix_bin_dir() -> Path | None:
+    import os
+    if os.name == "nt":
+        git = shutil.which("git")
+        if git:
+            usr_bin = Path(git).resolve().parents[1] / "usr" / "bin"
+            if usr_bin.is_dir():
+                return usr_bin
+    return None
+
+
+_USR_BIN = _posix_bin_dir()
+
+
+def _find_posix_tool(name: str) -> str | None:
+    """Prefer Git's usr/bin on Windows so System32/bash.exe (the WSL stub) is never mistaken for Git bash."""
+    import os
+    if _USR_BIN is not None:
+        cand = shutil.which(name, path=str(_USR_BIN))
+        if cand:
+            return cand
+    found = shutil.which(name)
+    if found and os.name == "nt" and "system32" in found.lower():
+        try:
+            if subprocess.run([found, "--version"], capture_output=True, timeout=5).returncode != 0:
+                return None
+        except OSError:
+            return None
+    return found
+
+
+def _run_posix(cmd: list[str], *, env: dict[str, str] | None = None, check: bool = False):
+    import os
+    run_env = dict(os.environ if env is None else env)
+    if _USR_BIN is not None:
+        run_env["PATH"] = str(_USR_BIN) + os.pathsep + run_env.get("PATH", "")
+    return subprocess.run(cmd, capture_output=True, text=True, env=run_env, check=check)
+
+
+SH = _find_posix_tool("sh")
+BASH = _find_posix_tool("bash")
+CYGPATH = _find_posix_tool("cygpath")
 
 
 def sh_path(p) -> str:
     """The path as the shell reads it. Git bash on Windows wants /c/Users/..., not C:\\Users\\... (tar even takes `C:` for a host)."""
     if CYGPATH is None:
         return str(p)
-    return subprocess.run([CYGPATH, "-u", str(p)], capture_output=True, text=True, check=True).stdout.strip()
+    return _run_posix([CYGPATH, "-u", str(p)], check=True).stdout.strip()
 
 
 class Scripts(unittest.TestCase):
     @unittest.skipIf(SH is None, "needs sh")
     def test_shell_scripts_parse(self):
         for name in ("entrypoint.sh", "strata-wrapper.sh", "healthcheck.sh", "build.sh", "publish.sh"):
-            r = subprocess.run([SH, "-n", sh_path(DOCKER / name)], capture_output=True, text=True)
+            r = _run_posix([SH, "-n", sh_path(DOCKER / name)])
             self.assertEqual(r.returncode, 0, f"{name}: {r.stderr}")
 
     @unittest.skipIf(BASH is None, "needs bash")
     def test_smoke_test_parses_with_bash(self):           # it is a bash script (process substitution), not POSIX sh
-        r = subprocess.run([BASH, "-n", sh_path(DOCKER / "smoke-test.sh")], capture_output=True, text=True)
+        r = _run_posix([BASH, "-n", sh_path(DOCKER / "smoke-test.sh")])
         self.assertEqual(r.returncode, 0, r.stderr)
 
-    @unittest.skipIf(SH is None or shutil.which("tar") is None, "needs sh and tar")
+    @unittest.skipIf(SH is None or _find_posix_tool("tar") is None, "needs sh and tar")
     def test_build_script_exits_zero_after_assembling_a_context(self):
         """--ctx-only stops after the context is made (no docker needed). The EXIT trap once returned 1 there, so a good run reported failure."""
         import tempfile
@@ -48,8 +87,7 @@ class Scripts(unittest.TestCase):
             (pkg / "strata").write_text("#!/bin/sh\n", encoding="utf-8")
             (pkg / "strata").chmod(0o755)
             ctx = Path(tmp) / "ctx"
-            r = subprocess.run([SH, sh_path(DOCKER / "build.sh"), "--flavor", "cuda", "--engine", sh_path(pkg), "--ctx", sh_path(ctx), "--ctx-only"],
-                               capture_output=True, text=True)
+            r = _run_posix([SH, sh_path(DOCKER / "build.sh"), "--flavor", "cuda", "--engine", sh_path(pkg), "--ctx", sh_path(ctx), "--ctx-only"])
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             self.assertTrue((ctx / "Dockerfile").is_file())
             self.assertTrue((ctx / "terminal-src" / "docs" / "TERMINAL_LAUNCH.md").is_file())
@@ -61,22 +99,21 @@ class Scripts(unittest.TestCase):
             (hy4pkg / "engine-component.json").write_text('{"shape": "hy4", "entrypoint": "strata-hy4"}', encoding="utf-8")
             (hy4pkg / "strata-hy4").write_text("#!/bin/sh\n", encoding="utf-8")
             ctx2 = Path(tmp) / "ctx2"
-            r2 = subprocess.run([SH, sh_path(DOCKER / "build.sh"), "--flavor", "cuda", "--engine", sh_path(pkg),
-                                 "--shape-engine", f"hy4:{sh_path(hy4pkg)}", "--ctx", sh_path(ctx2), "--ctx-only"],
-                                capture_output=True, text=True)
+            r2 = _run_posix([SH, sh_path(DOCKER / "build.sh"), "--flavor", "cuda", "--engine", sh_path(pkg),
+                             "--shape-engine", f"hy4:{sh_path(hy4pkg)}", "--ctx", sh_path(ctx2), "--ctx-only"])
             self.assertEqual(r2.returncode, 0, r2.stdout + r2.stderr)
             self.assertTrue((ctx2 / "shapes" / "hy4" / "engine" / "hy4pkg" / "engine-component.json").is_file())
             self.assertTrue((ctx2 / "shapes" / "hy4" / "engine" / "hy4pkg" / "strata-hy4").is_file())
             # the bundle reads tools/ modules by path as well (INSTALLER_SCRIPTS), and the DeepSeek ones are nested: every name must be in the
             # context, or package_terminal.py stops the build at "installer tool missing: tools/<name>.py" (the image build after v0.2.4.1 was broken this way)
-            pt = ast.parse((ROOT / "packaging" / "package_terminal.py").read_text(encoding="utf-8"))
+            pt = ast.parse((ROOT.parent / "tools" / "packaging" / "package_terminal.py").read_text(encoding="utf-8"))
             tools: set[str] = set()
             for node in pt.body:
                 if isinstance(node, ast.Assign) and any(getattr(t, "id", "") in ("INSTALLER_TOOLS", "INSTALLER_SCRIPTS") for t in node.targets):
                     tools.update(ast.literal_eval(node.value))
             self.assertTrue(tools, "package_terminal.py names its installer tools")
             for name in sorted(tools):
-                self.assertTrue((ctx / "terminal-src" / "tools" / f"{name}.py").is_file(), f"build.sh did not copy tools/{name}.py into the context")
+                self.assertTrue((ctx / "terminal-src" / "terminal" / "tools" / f"{name}.py").is_file(), f"build.sh did not copy tools/{name}.py into the context")
             # the Mac repack scripts the bundle carries (the v0.2.11 image build stopped at "No such file ... metal/tools/metal_repack.py")
             metal: set[str] = set()
             for node in pt.body:
@@ -84,7 +121,7 @@ class Scripts(unittest.TestCase):
                     metal.update(ast.literal_eval(node.value))
             self.assertTrue(metal)
             for name in sorted(metal):
-                self.assertTrue((ctx / "terminal-src" / "metal" / "tools" / f"{name}.py").is_file(), f"build.sh did not copy metal/tools/{name}.py into the context")
+                self.assertTrue((ctx / "terminal-src" / "engine" / "metal" / "tools" / f"{name}.py").is_file(), f"build.sh did not copy metal/tools/{name}.py into the context")
 
     def test_scripts_use_unix_line_ends(self):
         for name in ("entrypoint.sh", "strata-wrapper.sh", "healthcheck.sh", "build.sh", "publish.sh"):
@@ -92,7 +129,7 @@ class Scripts(unittest.TestCase):
 
 
 class Dockerfiles(unittest.TestCase):
-    FILES = (DOCKER / "Dockerfile", ROOT / "Dockerfile")
+    FILES = (DOCKER / "Dockerfile", ROOT.parent / "tools" / "docker" / "Dockerfile.src")
 
     def test_only_legacy_builder_syntax(self):
         for f in self.FILES:
@@ -116,9 +153,18 @@ class Dockerfiles(unittest.TestCase):
         self.assertIn("binary_deps.py", text)
         self.assertIn("ldd", text)                       # the finished image resolves every library of the package
 
+    def test_source_dockerfile_packages_shape_engines(self):
+        text = (DOCKER / "Dockerfile.src").read_text(encoding="utf-8")
+        self.assertIn("--shape hy4", text)
+        self.assertIn("--shape inkling2", text)
+        self.assertIn("/shapes/hy4/engine", text)
+        self.assertIn("/shapes/inkling2/engine", text)
+        self.assertIn("COPY --from=engine-build /shapes/ /opt/strata/components/shapes/", text)
+        self.assertIn("ldd", text)
+
     def test_binary_deps_and_package_engine_exist_where_the_dockerfile_copies_them(self):
         for name in ("package_engine.py", "binary_deps.py", "package_terminal.py"):
-            self.assertTrue((ROOT / "packaging" / name).is_file(), name)
+            self.assertTrue((ROOT.parent / "tools" / "packaging" / name).is_file(), name)
 
 
 class Compose(unittest.TestCase):
@@ -167,27 +213,28 @@ class LegacyModelsGuard(unittest.TestCase):
         body = body[:body.index("\n}\n") + 3]
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "guard.sh"
-            script.write_text("warn() { printf '[!] %s\\n' \"$*\" >&2; }\ndie() { printf '[X] %s\\n' \"$*\" >&2; exit \"${2:-1}\"; }\n" + body
+            script.write_text("warn() { printf '[!] %s\\n' \"$*\" >&2; }\ndie() { printf '[X] %s\\n' \"$1\" >&2; exit \"${2:-1}\"; }\n" + body
                               + f"\nlegacy_models_guard '{model_path}' '{sh_path(folder)}'\necho CONTINUED\n", encoding="utf-8", newline="\n")
             env = dict(os.environ)
             env.pop("ALLOW_DOWNLOAD", None)
             if allow is not None:
                 env["ALLOW_DOWNLOAD"] = allow
-            return subprocess.run([SH, sh_path(script)], capture_output=True, text=True, env=env)
+            return _run_posix([SH, sh_path(script)], env=env)
 
     def test_files_in_the_older_place_stop_the_start_with_the_folder_named(self):
         import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            shards = Path(tmp) / "IQ3_XXS"
-            shards.mkdir()
-            (shards / "model-00001-of-00002.gguf").write_bytes(b"GGUF")
-            done = self.run_guard(Path(tmp))
-            self.assertEqual(done.returncode, 2, done.stdout + done.stderr)
-            self.assertNotIn("CONTINUED", done.stdout)
-            self.assertIn(shards.name, done.stderr)
-            self.assertIn("MODEL_PATH", done.stderr)
-            self.assertIn("ALLOW_DOWNLOAD=1", done.stderr)
-            self.assertIn("Nothing was downloaded", done.stderr)
+        for filename in ("model-00001-of-00002.gguf", "Inkling-2-Mini-SQ-10.strata", "model-00001-of-00001.safetensors"):
+            with tempfile.TemporaryDirectory() as tmp:
+                shards = Path(tmp) / "legacy-model"
+                shards.mkdir()
+                (shards / filename).write_bytes(b"MODEL")
+                done = self.run_guard(Path(tmp))
+                self.assertEqual(done.returncode, 2, f"{filename}: {done.stdout}{done.stderr}")
+                self.assertNotIn("CONTINUED", done.stdout)
+                self.assertIn(shards.name, done.stderr)
+                self.assertIn("MODEL_PATH", done.stderr)
+                self.assertIn("ALLOW_DOWNLOAD=1", done.stderr)
+                self.assertIn("Nothing was downloaded", done.stderr)
 
     def test_model_path_allow_download_an_empty_folder_and_a_missing_one_go_on(self):
         import tempfile
@@ -210,10 +257,62 @@ class LegacyModelsGuard(unittest.TestCase):
         entry = (DOCKER / "entrypoint.sh").read_text(encoding="utf-8")
         self.assertLess(entry.index('legacy_models_guard "$model_path"'), entry.index('--model "$MODEL"'))
 
+    def test_model_path_accepts_gguf_strata_and_safetensors(self):
+        import tempfile
+        entry = (DOCKER / "entrypoint.sh").read_text(encoding="utf-8")
+        start = entry.index('model_path="${MODEL_PATH:-${GGUF_DIR:-}}"')
+        end = entry.index('legacy_models_guard "$model_path"')
+        block = entry[start:end]
+
+        def check_path(path: Path):
+            with tempfile.TemporaryDirectory() as tmp:
+                script = Path(tmp) / "check.sh"
+                script.write_text(
+                    'die() { printf "[X] %s\\n" "$1" >&2; exit "${2:-1}"; }\n'
+                    f'MODEL_PATH="{sh_path(path)}"\n' + block + '\necho ACCEPTED\n',
+                    encoding="utf-8",
+                    newline="\n",
+                )
+                return _run_posix([SH, sh_path(script)])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name, fname in (("gguf_dir", "m.gguf"), ("strata_dir", "m.strata"), ("hf_dir", "model-00001-of-00001.safetensors")):
+                d = root / name
+                d.mkdir()
+                (d / fname).write_bytes(b"DATA")
+                r = check_path(d)
+                self.assertEqual((r.returncode, "ACCEPTED" in r.stdout), (0, True), f"{name}: {r.stdout}{r.stderr}")
+            idx_dir = root / "indexed_hf"
+            (idx_dir / "tensors").mkdir(parents=True)
+            (idx_dir / "model.safetensors.index.json").write_text("{}", encoding="utf-8")
+            (idx_dir / "tensors" / "model-00001-of-00002.safetensors").write_bytes(b"DATA")
+            r = check_path(idx_dir)
+            self.assertEqual((r.returncode, "ACCEPTED" in r.stdout), (0, True), r.stdout + r.stderr)
+            parent = root / "parent"
+            (parent / "sub").mkdir(parents=True)
+            (parent / "sub" / "model.safetensors").write_bytes(b"DATA")
+            r = check_path(parent)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("sub", r.stderr)
+            empty = root / "empty"
+            empty.mkdir()
+            r = check_path(empty)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn(".safetensors", r.stderr)
+            for name in ("model.gguf", "model.strata", "model.safetensors"):
+                with self.subTest(directory=name):
+                    dummy = empty / name
+                    dummy.mkdir()
+                    r = check_path(empty)
+                    dummy.rmdir()
+                    self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                    self.assertIn("holds no", r.stderr)
+
 
 class Document(unittest.TestCase):
     def test_every_documented_setting_is_read_by_the_entry_point(self):
-        doc = (ROOT / "docs" / "DOCKER.md").read_text(encoding="utf-8")
+        doc = (ROOT.parent / "docs" / "DOCKER.md").read_text(encoding="utf-8")
         section = doc.split("## Settings", 1)[1].split("###", 1)[0]
         entry = (DOCKER / "entrypoint.sh").read_text(encoding="utf-8")
         names: set[str] = set()
@@ -225,15 +324,15 @@ class Document(unittest.TestCase):
             self.assertIn(name, entry, f"docs/DOCKER.md lists {name} but docker/entrypoint.sh does not read it")
 
     def test_tags_in_the_document_match_the_compose_defaults(self):
-        doc = (ROOT / "docs" / "DOCKER.md").read_text(encoding="utf-8")
-        for tag in ("0.2.7-cuda13", "0.2.7-cuda12", "0.2.7-rocm-gfx120x", "0.2.7-rocm-gfx110x", "0.2.7-rocm-gfx1151", "0.2.7-sycl"):
+        doc = (ROOT.parent / "docs" / "DOCKER.md").read_text(encoding="utf-8")
+        for tag in ("0.2.20-cuda13", "0.2.20-cuda12", "0.2.20-rocm-gfx120x", "0.2.20-rocm-gfx110x", "0.2.20-rocm-gfx1151", "0.2.20-sycl"):
             self.assertIn(tag, doc)
-        for name, tag in (("docker-compose.nvidia.yml", "ghcr.io/niko1221/strata:0.2.7-cuda13"), ("docker-compose.amd.yml", "ghcr.io/niko1221/strata:0.2.7-rocm-gfx120x"),
-                          ("docker-compose.intel.yml", "ghcr.io/niko1221/strata:0.2.7-sycl")):
+        for name, tag in (("docker-compose.nvidia.yml", "ghcr.io/niko1221/strata:0.2.20-cuda13"), ("docker-compose.amd.yml", "ghcr.io/niko1221/strata:0.2.20-rocm-gfx120x"),
+                          ("docker-compose.intel.yml", "ghcr.io/niko1221/strata:0.2.20-sycl")):
             self.assertIn(tag, (DOCKER / "compose" / name).read_text(encoding="utf-8"))
 
     def test_the_user_doc_says_images_are_published_from_0_2_1(self):
-        doc = (ROOT / "docs" / "DOCKER.md").read_text(encoding="utf-8")
+        doc = (ROOT.parent / "docs" / "DOCKER.md").read_text(encoding="utf-8")
         self.assertNotIn("TODO(owner)", doc)
         self.assertNotIn("not available yet", doc)
         self.assertIn("published from version 0.2.1 on", doc)
@@ -241,13 +340,13 @@ class Document(unittest.TestCase):
 
 
 class Publishing(unittest.TestCase):
-    """The scripts that publish the images (docker/publish.sh, docker/fetch-engines.py). The workflow that ran them
-    is upstream-only: this fork removed it, so the check that read it was removed with it."""
+    """The scripts and the workflow that publish the images (docker/publish.sh, docker/fetch-engines.py, .github/workflows/docker-images.yml)."""
+    WORKFLOW = ROOT.parent / ".github" / "workflows" / "docker-images.yml"
 
     @unittest.skipIf(SH is None, "needs sh")
     def test_publish_script_parses_and_defaults_to_not_pushing(self):
         path = DOCKER / "publish.sh"
-        self.assertEqual(subprocess.run([SH, "-n", sh_path(path)], capture_output=True, text=True).returncode, 0)
+        self.assertEqual(_run_posix([SH, "-n", sh_path(path)]).returncode, 0)
         text = path.read_text(encoding="utf-8")
         self.assertNotIn("\r", text)
         self.assertIn('push=""', text)                      # no --push, no docker push
@@ -257,35 +356,50 @@ class Publishing(unittest.TestCase):
     def test_every_flavor_of_the_document_is_one_the_fetch_script_knows(self):
         src = (DOCKER / "fetch-engines.py").read_text(encoding="utf-8")
         flavors = re.findall(r'^    "([a-z0-9-]+)": \("', src, re.M)
-        doc = (ROOT / "docs" / "DOCKER.md").read_text(encoding="utf-8")
+        doc = (ROOT.parent / "docs" / "DOCKER.md").read_text(encoding="utf-8")
         self.assertTrue({"cuda13", "cuda12", "rocm-gfx120x", "rocm-gfx110x", "rocm-gfx1151", "sycl"} <= set(flavors), flavors)
         for flavor in flavors:
-            self.assertIn(f"0.2.7-{flavor}", doc)
+            self.assertIn(f"0.2.20-{flavor}", doc)
 
     def test_build_script_copies_everything_the_terminal_package_needs(self):
         """docker/build.sh lists the Terminal's files by hand; the list must cover package_terminal.py's payload (it once missed docs/TERMINAL_LAUNCH.md)."""
         build = (DOCKER / "build.sh").read_text(encoding="utf-8")
         listed = re.search(r'^paths="([^"]+)"', build, re.M).group(1).split()
-        pt = ast.parse((ROOT / "packaging" / "package_terminal.py").read_text(encoding="utf-8"))
+        pt = ast.parse((ROOT.parent / "tools" / "packaging" / "package_terminal.py").read_text(encoding="utf-8"))
         payload = None
         for node in pt.body:
             if isinstance(node, ast.Assign) and any(getattr(t, "id", "") == "PAYLOAD" for t in node.targets):
                 payload = ast.literal_eval(node.value)
         self.assertTrue(payload)
         for item in payload:
+            item = item if item.startswith("docs/") else "terminal/" + item     # the payload is the Terminal's; build.sh lists repository paths
             self.assertTrue(any(item == p or item.startswith(p.rstrip("/") + "/") for p in listed), f"build.sh does not copy {item}")
 
     def test_the_source_build_passes_the_commit_to_the_terminal_stage(self):
         """.git is not in the build context (.dockerignore), so the root Dockerfile's terminal stage gets the commit as a build argument, the way
         docker/Dockerfile does; without it package_terminal.py stops (#3644). The documented source-build commands pass it."""
-        for dockerfile in (ROOT / "Dockerfile", DOCKER / "Dockerfile"):
+        for dockerfile in (ROOT.parent / "tools" / "docker" / "Dockerfile.src", DOCKER / "Dockerfile"):
             text = dockerfile.read_text(encoding="utf-8")
             self.assertRegex(text, r"(?m)^ARG STRATA_COMMIT=", dockerfile.name)
             self.assertIn("ENV STRATA_BUILD_COMMIT=${STRATA_COMMIT}", text, dockerfile.name)
-        self.assertIn(".git", (ROOT / ".dockerignore").read_text(encoding="utf-8").split())
-        doc = (ROOT / "docs" / "DOCKER.md").read_text(encoding="utf-8")
+        self.assertIn(".git", (ROOT.parent / "tools" / "docker" / "Dockerfile.src.dockerignore").read_text(encoding="utf-8").split())
+        doc = (ROOT.parent / "docs" / "DOCKER.md").read_text(encoding="utf-8")
         self.assertEqual(doc.count("docker build -t strata:src"), doc.count("--build-arg STRATA_COMMIT=$(git rev-parse HEAD)"))
-        self.assertIn("/data/install/", (ROOT / ".dockerignore").read_text(encoding="utf-8"))
+        self.assertIn("/data/install/", (ROOT.parent / "tools" / "docker" / "Dockerfile.src.dockerignore").read_text(encoding="utf-8"))
+
+    def test_workflow_is_manual_and_pushes_only_on_request(self):
+        data = yaml.safe_load(self.WORKFLOW.read_text(encoding="utf-8"))
+        triggers = data.get("on", data.get(True))            # YAML 1.1 reads a bare `on` as True
+        self.assertEqual(set(triggers), {"workflow_dispatch"})
+        inputs = triggers["workflow_dispatch"]["inputs"]
+        self.assertIn("release_tag", inputs)
+        self.assertFalse(inputs["push"]["default"])
+        self.assertEqual(data["permissions"], {"contents": "read"})
+        self.assertEqual(data["jobs"]["image"]["permissions"], {"contents": "read", "packages": "write"})
+        text = self.WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("ghcr.io/niko1221/strata", text)
+        self.assertIn("docker/publish.sh", text)
+        self.assertNotIn("${{ secrets.GITHUB_TOKEN }}\" |", text)   # the token goes through an env variable, not into the command line
 
 
 if __name__ == "__main__":

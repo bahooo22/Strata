@@ -73,9 +73,10 @@ def problems(types: dict[str, int], known_types=None) -> list[str]:
     return out
 
 
-#: setup.py OWN_PATH_FAMILIES["qwen36"]["models"] and its file name pattern (tests/terminal/test_q36_types.py keeps them the same)
+#: setup.py OWN_PATH_FAMILIES["qwen36"]["models"]; FILE_SIZES are the three files using the common pattern (the fork catalogs have their own names).
 FAMILY = "qwen36"
-SIZES = ("UD-Q4_K_XL", "UD-Q6_K_XL", "Q8_0")
+SIZES = ("UD-Q4_K_XL", "IQ4_XS-KAT", "IQ4_XS-Huihui", "UD-Q6_K_XL", "Q8_0")
+FILE_SIZES = ("UD-Q4_K_XL", "UD-Q6_K_XL", "Q8_0")
 FILE = "Qwen3.6-35B-A3B-{q}.gguf"
 
 
@@ -83,7 +84,7 @@ def size_for(file_name: str, types: dict[str, int]) -> tuple[str, bool]:
     """(the catalog size setup installs this file as, whether that is the published file's own name). A file under another name is
     taken as the size whose routed experts it is closest to: Q8_0 gate/up -> Q8_0, Q6_K -> UD-Q6_K_XL, anything else -> UD-Q4_K_XL (setup
     uses the size only for its RAM and context advice; the file is read as it is)."""
-    for q in SIZES:
+    for q in FILE_SIZES:
         if file_name == FILE.format(q=q):
             return q, True
     gate = {t for n, t in types.items() if n.endswith("ffn_gate_exps.weight")}
