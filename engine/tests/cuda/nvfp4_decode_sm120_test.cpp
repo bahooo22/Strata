@@ -468,6 +468,15 @@ int main(int argc, char** argv) {
     run_grouped_pair_case("Q2_0/Q2_0 ff640", 42, 42, 2560, 640, 24, 2, 0, 0, 1.f, 1.f, 1.f, bench);
     run_grouped_pair_case("NVFP4/NVFP4 ff640", 40, 40, 2560, 640, 24, 2, 0, 0, 0.003f, 0.003f, 0.003f, bench);
 
+    run_grouped_pair_case("Q3_K/Q3_K 2048 sh0", 11, 11, 2048, 512, 24, 2, 0, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("Q3_K/Q3_K 2048 sh2", 11, 11, 2048, 512, 24, 2, 2, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("Q2_K/Q2_K 2048 sh0", 10, 10, 2048, 512, 24, 2, 0, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("Q2_K/Q2_K 2048 sh2", 10, 10, 2048, 512, 24, 2, 2, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("IQ3_XXS/Q2_K 2048 sh0", 18, 10, 2048, 512, 24, 2, 0, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("IQ3_XXS/Q2_K 2048 sh2", 18, 10, 2048, 512, 24, 2, 2, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("IQ3_S/Q2_K 2048 sh0", 21, 10, 2048, 512, 24, 2, 0, 0, 1.f, 1.f, 1.f, bench);
+    run_grouped_pair_case("IQ3_S/Q2_K 2048 sh2", 21, 10, 2048, 512, 24, 2, 2, 0, 1.f, 1.f, 1.f, bench);
+
     std::printf("nvfp4_decode_sm120_test: ok\n");
     return 0;
 }

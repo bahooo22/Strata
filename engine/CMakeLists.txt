@@ -749,6 +749,13 @@ if(STRATA_NATIVE_EXPERTS)
         set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120
                              ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
       endforeach()
+      # Full routed Q2_K/Q3_K/IQ3 pairs at the whole-block 2048 x 512 geometry.
+      foreach(_pair q3_K/q3_K q2_K/q2_K iq3_xxs/q2_K iq3_s/q2_K)
+        string(REPLACE "/" "_" _name "${_pair}")
+        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
+        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 180
+                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
+      endforeach()
       add_test(NAME native_expert_parity_q5_1_min COMMAND native_expert_parity --q5_1-min)
       # Unsloth v3.1 Qwen3.8-Flash-Next sets (UD-IQ1_M .. UD-IQ4_XS, round 0214): every gate/up x down pair their layers use,
       # at the real shapes (hidden 2560, FF 640): gate/up IQ2_XXS IQ2_XS IQ2_S IQ3_XXS IQ4_XS (+ IQ1_M, the GSQ-RCO packs'),

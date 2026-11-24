@@ -58,6 +58,12 @@ class MirrorEqualsTheEngine(unittest.TestCase):
         self.assertEqual(numbers(gu[0]), set(q36_types.EXPERT_GATE_UP))
         self.assertEqual(numbers(dn[0]), set(q36_types.EXPERT_DOWN))
         self.assertLess(iq.index("#ifdef STRATA_Q6K_EXPERTS"), iq.index("#define STRATA_GU_FMTS"))
+        self.assertEqual(numbers(gu[1]), set(q36_types.EXPERT_GATE_UP) - {14})
+        self.assertEqual(numbers(dn[1]), set(q36_types.EXPERT_DOWN) - {14})
+        for symbol in ("ld_i32_b2_or_b4", "q3_k_scale_at", "vec_dot_q3_K_q8_1",
+                       "template<> struct Fmt<10>", "template<> struct Fmt<11>",
+                       "template<> struct Split<10>", "template<> struct Split<11>"):
+            self.assertIn(symbol, iq)
         mm = (ROOT.parent / "engine" / "src" / "kernels" / "cuda" / "native_mmvq.cu").read_text(encoding="utf-8", errors="replace")
         body = mm[mm.index("bool native_mmvq_supported(int ggml_type) noexcept {"):]
         body = body[:body.index("}")]

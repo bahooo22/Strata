@@ -49,6 +49,8 @@ T* dalloc(size_t n) {
 
 const char* name_of(int t) {
     switch (t) {
+        case 10: return "Q2_K";
+        case 11: return "Q3_K";
         case 16: return "IQ2_XXS";
         case 17: return "IQ2_XS";
         case 18: return "IQ3_XXS";
@@ -76,7 +78,15 @@ std::vector<uint8_t> random_rows(int t, int64_t rows, int64_t n, std::mt19937& r
     std::uniform_int_distribution<int> byte(0, 255), ex(2, 8), man(0, 1023), sgn(0, 1);
     for (auto& b : w) b = (uint8_t) byte(rng);
     for (size_t o = 0; o < w.size(); o += bs) {
-        if (t == 29) {
+        if (t == 10) {   // Q2_K: d/dmin follow the qs and scale fields
+            const uint16_t d = (uint16_t) ((sgn(rng) ? 0x8000 : 0) | (ex(rng) << 10) | man(rng));
+            const uint16_t dmin = (uint16_t) ((sgn(rng) ? 0x8000 : 0) | (ex(rng) << 10) | man(rng));
+            std::memcpy(&w[o + 80], &d, 2);
+            std::memcpy(&w[o + 82], &dmin, 2);
+        } else if (t == 11) {   // Q3_K: d follows the hessian scales
+            const uint16_t d = (uint16_t) ((sgn(rng) ? 0x8000 : 0) | (ex(rng) << 10) | man(rng));
+            std::memcpy(&w[o + 108], &d, 2);
+        } else if (t == 29) {
             // IQ1_M: the fp16 scale is the top nibbles of its four scale words (bytes 48..55), the sign and the
             // exponent's top bits in the last: 0x1 / 0x2 there (0x9 / 0xA negative) keeps it in 2^-11 .. 2^-3
             const uint8_t nib = (uint8_t) ((sgn(rng) ? 0x8 : 0x0) | (1 + (byte(rng) & 1)));
@@ -412,6 +422,8 @@ int main(int argc, char** argv) {
     for (int gu : {29, 16, 17, 22, 42, 18, 23})
         for (int dt : {42, 20, 6, 8}) check(gu, dt, 2560, 640, s, rng);
     check(21, 23, 2560, 768, s, rng);
+    for (int gu : {10, 11, 18, 21})
+        for (int dt : {10, 11, 18, 21}) check(gu, dt, 2048, 512, s, rng);
     if (do_bench) bench(s, rng);
     std::printf("native_grouped_parity: %d failures\n", g_fail);
     cudaStreamDestroy(s);
