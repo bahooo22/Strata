@@ -77,12 +77,12 @@ Structured measured evidence:
 
 - correctness passed: CTest 5/5; grouped default/sub8=0/sub8=1/mode0 rc=0; mode8 совпал с baseline по failures 768/49 и новым expert pairs bitwise; MMVQ default/KQ rc=0; sm120 skip на sm86;
 - route passed: default 160k, FA v2/tile4 160k/200k и MTP2 diagnostic rc=0;
-- fallback passed: q36 engine и FA/FDEC headers идентичны code candidate; default route остаётся fallback для optional FA/FDEC;
-- benchmarksResources passed: сопоставимый KAT IQ4_XS/CUDA sm86 профиль и результаты default/FA v2 160k/200k;
+- fallback passed: FA v2 32k rc0 (pp1441.7/tg21.3, answer `Контекст получен.`) → barrier GPU used19MiB → default 32k rc0 (pp1244.3/tg25.5, answer `Контекст загружен.`); raw `fallback-resource-32k/summary.json` и console logs;
+- benchmarksResources passed: samples 36/38; min free VRAM1100MiB; max used VRAM6925MiB; max RAM34087141376 bytes; GPU util100; raw `fallback-resource-32k/*-samples.jsonl`;
 - regression passed: performance и quality находятся в паритете с эталоном;
 - targetCoverage passed: KAT IQ4_XS, CUDA sm86, default/FA v2/tile4/q4_0/MTP0/MTP2, 160k/200k/needle24k/MTP2 content+drafts; gap HIP/SYCL/Metal.
 
-Waivers `backends`, `bisect`, `rollback`, `implementationCombinations` предложены, но не приняты: reviewer/date/manualVerdict ждут решения аналитика.
+Waivers accepted: `backends` и `implementationCombinations` — analyst `3568a3e2`, date `2026-11-24`, manualVerdict `accepted`; `bisect` и `rollback` — main `443fddf1`, date `2026-11-24`, manualVerdict `accepted` (`main-process-waivers-2026-11-24.json`). Exact warning `evidence-not-applicable:implementationCombinations` не может быть записан в `warningAcknowledgments` из-за schema pattern с camelCase; waiver decision сохранена в evidence item и main waiver file.
 
 Performance gate закрыт для code candidate `65ec7c975`:
 

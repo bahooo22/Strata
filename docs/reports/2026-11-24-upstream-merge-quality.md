@@ -19,15 +19,13 @@ MTP2 diagnostic route-smoke завершён rc=0: 32k, prompt 29242, pp1136.5, 
 
 ## Waivers / not-applicable
 
-Следующие категории предложены как not-applicable для данного pre-merge CUDA candidate scope, но ещё не приняты. В plan они остаются not-run до reviewer/date/manualVerdict аналитика.
+Waivers accepted:
 
-- `backends`: candidate build/profile — CUDA; HIP/SYCL/Metal вне этого merge scope.
-- `implementationCombinations`: top-level decision `ours`; matrix не содержит `hybrid`/`delta`, поэтому комбинационная матрица не требуется.
-- `bisect`: candidate не promoted в main; bisect процесса merge не выполняется на pre-merge этапе.
-- `rollback`: candidate не promoted; откат обеспечивается локальными tags/branches, rollback drill не выполняется.
+- `backends` и `implementationCombinations`: analyst `3568a3e2-cc53-4e0e-9673-b35d1dfbbca6`, date `2026-11-24`, manualVerdict `accepted`;
+- `bisect` и `rollback`: main `443fddf1-c6a1-4de1-a762-0b61e5ca941c`, date `2026-11-24`, manualVerdict `accepted` (`main-process-waivers-2026-11-24.json`).
 
-Reviewer waivers: pending аналитик `3568a3e2-cc53-4e0e-9673-b35d1dfbbca6`; date/manualVerdict будут заполнены только после его решения.
+Exact warning `evidence-not-applicable:implementationCombinations` не записывается в `warningAcknowledgments` из-за schema pattern с camelCase; waiver decision сохранена в evidence item и main waiver file.
 
 ## Остаётся not-run / pending
 
-`backends`, `bisect`, `rollback`, `implementationCombinations` — waiver pending; повторный semantic review и final acceptance — pending. Structured measured evidence покрывает correctness/quality/route/fallback/benchmarksResources/regression/targetCoverage для перечисленных профилей.
+Повторный semantic review и final acceptance — pending. Structured measured evidence покрывает correctness/quality/route/fallback/benchmarksResources/regression/targetCoverage; fallback/resource raw logs находятся в `fallback-resource-32k/`.
