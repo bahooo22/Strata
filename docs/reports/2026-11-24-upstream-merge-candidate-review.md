@@ -95,3 +95,11 @@ Performance gate закрыт для code candidate `65ec7c975`:
 - логи: `live-fa-v2-160k/` и `live-fa-v2-200k/`; консолидированное evidence — `performance-evidence-2026-11-24.json`.
 
 Это performance-паритет для указанных окон и профиля. FA command/config/banner сохранены в `fa-v2-profile-attestation.json`; exe SHA-256 и явные `--fa -2 --fa-tile 4` подтверждены main. `performance-regression-2026-11-24.json` помечен `superseded` и не является актуальным verdict.
+
+## Final acceptance 2026-11-25
+
+- Независимый аналитик `3568a3e2` поставил `APPROVE` кандидату и evidence-пакету; code blockers отсутствуют.
+- Main gate с documented override для exact `implementationCombinations` warning: `result=pass`, `exitCode=0`, blockers 0.
+- Main переведён `ff-only` на `cc195b909a1a6878a2a44bf9cabb1462e3d55d6a`; main и candidate-ветка отправлены в origin атомарно.
+- Локальный candidate worktree и локальная ветка удалены; GitHub-ветка `sync/upstream-merge-final-2026-11-24` сохранена.
+- Normalization warning-code fix и RU+EN MD-генератор остаются отдельной следующей работой над merge tool.

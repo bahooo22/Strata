@@ -8,7 +8,7 @@
 | LAUNCH-OWN-SIZE | launch для GGUF с нестандартным именем | delta | done | main | `ba9ae196e`; health/API/connect/logs/stop OK | monitor 404 — отдельный блокер |
 | REFACTOR-SRP | широкий рефакторинг engine/ownership | idea only | not-in-scope | main | `docs/plans/2026-11-24-upstream-safe-refactor.md` | только документ, без candidate/main |
 | EXPERT-TYPES | полный routed-expert контракт 10/11/18/21 | delta к upstream | done | main / 3568a3e2 / b8bd12b8 | `a8ebf5d59`; patch SHA `017d5621`; CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29 | HIP not-run с waiver только для этого patch; отдельная приёмка при появлении toolchain |
-| UPSTREAM-MERGE | fork sync с upstream `d46f5f2` | matrix ours/upstream/delta/hybrid | helper-prep | helper b8bd12b8 / аналитик 3568a3e2 / main | main `9e08a6732`; merge-base `923e2df4d`; ahead/behind `240/291`; helper candidate worktree создан | полный пакет + независимый review + main approval; main меняется только после ff-only |
+| UPSTREAM-MERGE | fork sync с upstream `d46f5f2` | matrix ours/upstream/delta/hybrid | done | helper b8bd12b8 / аналитик 3568a3e2 / main | `cc195b909`; merge-base `923e2df4d`; main ahead upstream `253/0`; analyst APPROVE; main gate pass; push rc=0 | RU+EN MD-отчёты; warning-code fix отдельным коммитом |
 | INTEGRATION-COMBO | default/FA/FDEC/both snapshot | ours | done-snapshot | main / 3568a3e2 | 8/8 rc=0; raw audit 8/8; quality 16/22 + needle PASS; MTP2 answer Принято; eager/copy equal=True | no-regression без repeats не заявлен; HIP not-run; FA optional, FDEC/both не рекомендованы |
 | FA-v2 | q36 FA v2 16x32 | ours | combo-reviewed | main / 3568a3e2 | combo 160k pp 579,1/tg 13,7; 200k pp 381,9/tg 11,0; review APPROVE optional snapshot | не default; upstream follow-up только по явному решению |
 | FA-PROF-V | слот V в FA_PROF | delta к FA-v2 | not-standalone | main | `FA_PHASE(2)`, пять фаз | включить в FA candidate |
@@ -33,6 +33,6 @@
 
 ## Upstream snapshot
 
-- 2026-11-24 финальный fetch: `upstream/main` `6a6db7ff5` → `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6` (+276); merge-base `923e2df4d`; main ahead/behind `240/291`; merge не выполнялся.
+- 2026-11-25 merge выполнен: upstream `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6`, merge-base `923e2df4d`, main `cc195b909a1a6878a2a44bf9cabb1462e3d55d6a`; main ahead/behind к upstream `253/0`; push main и candidate-ветки rc=0.
 - Refs и состояние дерева зафиксированы в `glm/2026-11-24_session/final-upstream-snapshot-2026-11-24.log`.
 - Read-only supersession review `final-upstream-supersession-review-2026-11-24.md`: новый upstream не заменяет пакет целиком; перед merge нужен re-anchor анализ и повторная сборка/GPU-приёмка.

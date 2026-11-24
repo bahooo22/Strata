@@ -1,6 +1,6 @@
 # Прогресс завершения Strata
 
-Дата: 2026-11-24. Обновляется сразу после каждого подпункта.
+Дата: 2026-11-25. Обновляется сразу после каждого подпункта.
 
 | Этап | Статус | Owner | Зависимости | Acceptance / последнее evidence | Next action |
 |---|---|---|---|---|---|
@@ -16,7 +16,7 @@
 | 7. Fork integration | done-snapshot | main | accepted candidates | 8/8 combo rc=0; eager/copy equal=True; quality 16/22 + needle PASS; MTP2 answer Принято; review APPROVE snapshot | no-regression без repeats не заявлен; HIP not-run; Portable final |
 | 8. Q7 | blocked | main / 3568a3e2 | integrated binary | A auto 9,8; B8192 18,2; B LM32768 ~63,3 tok/s, затем 503; C20 exit 2 без static expert-profile | unblock: Swift profile + диагностика 503 + повтор C20; quality/C24/D/E not-run |
 | 9. Portable final | done | main | Q7 verdict, kit artifact | functional OK; HDD 200k pp 376,7/tg 11,0; 160k pp 560,6/tg 13,7; VRAM 0 | абсолютный HDD-вариант; финальный completion audit |
-| 10. Upstream merge `d46f5f2` | helper-prep | helper → аналитик → helper → main | main `9e08a6732`, upstream `d46f5f2` | helper worktree `sync/upstream-merge-2026-11-24`; owner guard main/helper rc=0 | полный merge-plan/evidence/review; main утверждает и применяет ff-only |
+| 10. Upstream merge `d46f5f2` | done | helper → аналитик → helper → main | upstream `d46f5f2` | atomic candidate `cc195b909`; analyst APPROVE; main gate pass; performance/quality/MTP2/fallback/resources приняты; push main+candidate rc=0 | RU+EN MD-отчёты по изменениям и решениям; warning-code fix отдельным коммитом |
 
 ## Протокол
 
