@@ -749,7 +749,7 @@ class Strata:
             return self.inkling_size(family, model)
         if not d or model not in d["models"]:
             return None
-        size_gb = d["sha256"][d["file"].format(q=model)][0] / 1e9
+        size_gb = self.setup_module().own_size(d, model) / 1e9
         return {"about": d["models"][model]["about"], "download_gb": round(size_gb, 1), "ram_gb": d["models"][model]["ram_gb"],
                 # the routed experts are ~93% of the file (setup.own_path_parallel_fits_all); the dense part and buffers ~1 GB more
                 "arena_gb": round(size_gb * 0.93, 1), "vision": bool(d.get("vision", True)),

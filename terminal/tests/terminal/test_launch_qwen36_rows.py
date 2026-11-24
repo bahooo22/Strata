@@ -25,6 +25,13 @@ class Qwen36Rows(unittest.TestCase):
         self.assertEqual({r.family_title for r in mine}, {table["title"]})
         self.assertEqual([r.about for r in mine], [s["about"] for s in table["sizes"]])
 
+    def test_kat_and_huihui_use_their_own_file_sizes(self):
+        cat, _rows = self.rows()
+        table = next(f for f in cat.strata.model_table(cat.hardware()) if f["family"] == "qwen36")
+        sizes = {s["model"]: s for s in table["sizes"]}
+        self.assertEqual(sizes["IQ4_XS-KAT"]["download_gb"], 19.2)
+        self.assertEqual(sizes["IQ4_XS-Huihui"]["download_gb"], 18.7)
+
     def test_the_flash_next_rows_are_unchanged(self):
         cat, rows = self.rows()
         own = set(cat.strata.own_families())
