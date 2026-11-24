@@ -25,10 +25,10 @@
 | q3-k-parity | `311c9fc61` `engine/src/kernels/cuda/iq_kernels.cu:823` | `d46f5f268` `engine/src/kernels/cuda/iq_kernels.cu:621` | `65ec7c975` `engine/src/kernels/cuda/iq_kernels.cu:823` |
 | expert-macros | `311c9fc61` `engine/src/kernels/cuda/iq_kernels.cu:914` | `d46f5f268` `engine/src/kernels/cuda/iq_kernels.cu:927` | `65ec7c975` `engine/src/kernels/cuda/iq_kernels.cu:914` |
 | down-sub8 | `311c9fc61` `engine/src/kernels/cuda/iq_kernels.cu:7138` | `d46f5f268` `engine/src/kernels/cuda/iq_kernels.cu:2418` | `65ec7c975` `engine/src/kernels/cuda/iq_kernels.cu:7138` |
-| expert-harness | `311c9fc61` `engine/cmake/strata_gpu_engine.cmake:946` | `d46f5f268` `engine/CMakeLists.txt:824` | `65ec7c975` `engine/cmake/strata_gpu_engine.cmake:946` |
+| expert-harness | `311c9fc61` `engine/cmake/strata_gpu_engine.cmake:946` | `d46f5f268` `engine/CMakeLists.txt:824` | `65ec7c975` `engine/cmake/strata_gpu_engine.cmake:958` |
 | expert-python | `311c9fc61` `terminal/strata_control/q36_types.py:22` | `d46f5f268` `terminal/strata_control/q36_types.py:22` | `65ec7c975` `terminal/strata_control/q36_types.py:22` |
 | q36-intake | `311c9fc61` `terminal/strata_control/q36_types.py:78` | `d46f5f268` `terminal/strata_control/q36_types.py:78` | `65ec7c975` `terminal/strata_control/q36_types.py:78` |
-| fa-v2 | `311c9fc61` `engine/src/qwen35/q36_engine.cu:2827` | `d46f5f268` `engine/src/qwen35/q36_engine.cu:1962` | `65ec7c975` `engine/src/qwen35/q36_engine.cu:2827` |
+| fa-v2 | `311c9fc61` `engine/src/qwen35/q36_engine.cu:2828` | `d46f5f268` `engine/src/qwen35/q36_engine.cu:1962` | `65ec7c975` `engine/src/qwen35/q36_engine.cu:2828` |
 | fa-prof | `311c9fc61` `engine/src/qwen35/q36_engine.cu:1743` | `d46f5f268` `engine/src/qwen35/q36_engine.cu:1962` | `65ec7c975` `engine/src/qwen35/q36_engine.cu:1743` |
 | fdec-q8-q4 | `311c9fc61` `engine/src/qwen35/q36_engine.cu:2925` | `d46f5f268` `engine/src/qwen35/q36_engine.cu:1962` | `65ec7c975` `engine/src/qwen35/q36_engine.cu:2925` |
 | copy-session | `311c9fc61` `engine/src/qwen35/q36_engine.cu:3897` | `d46f5f268` `engine/src/qwen35/q36_engine.cu:3909` | `65ec7c975` `engine/src/qwen35/q36_engine.cu:3897` |
