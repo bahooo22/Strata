@@ -67,7 +67,22 @@ Outcome: `accepted`; reviewer `3568a3e2-cc53-4e0e-9673-b35d1dfbbca6`; date `2026
 
 Зелёные CPU/static: build M1 175/175 rc=0; M2 link 36/36, stable repeat rc=0/no work; expert 27/27; q36 mirror 11/11; qwen4 intake 32/1 skip; merge-tools 14/14 и 41/41; fixture CTest 1/1; ctest list 419; committed diff-check rc=0.
 
-`git diff --check` — formatting/static evidence, не quality. Quality остаётся not-run до реальной quality-проверки. GPU correctness/routes/fallback/resources, HIP/SYCL/Metal, bisect/rollback и final acceptance не запускались.
+`git diff --check` — formatting/static evidence, не quality.
+
+Quality passed: general hard suite 32k, rc=0, weighted 16/22 (72.7%), needle24k PASS (`ЛАМПА`), failures `cap3`/`idiom`/`five_words` совпали с эталонным smoke. Raw: `quality-32k/upstream-merge-raw.jsonl`; engine log: `quality-32k/upstream-merge-kat-iq4xs-general.log`.
+
+MTP2 diagnostic route-smoke passed: 32k, prompt 29242, pp1136.5, tg27.0, answer `Контекст загружен`, drafts accepted 3/4, rc0. Raw response: `mtp2-route-32k-result.json` и `mtp2-route-32k-console.log`; engine log: `mtp2-route-32k.log`. Это diagnostic route smoke, не рабочий performance claim.
+
+Structured measured evidence:
+
+- correctness passed: CTest 5/5; grouped default/sub8=0/sub8=1/mode0 rc=0; mode8 совпал с baseline по failures 768/49 и новым expert pairs bitwise; MMVQ default/KQ rc=0; sm120 skip на sm86;
+- route passed: default 160k, FA v2/tile4 160k/200k и MTP2 diagnostic rc=0;
+- fallback passed: q36 engine и FA/FDEC headers идентичны code candidate; default route остаётся fallback для optional FA/FDEC;
+- benchmarksResources passed: сопоставимый KAT IQ4_XS/CUDA sm86 профиль и результаты default/FA v2 160k/200k;
+- regression passed: performance и quality находятся в паритете с эталоном;
+- targetCoverage passed: KAT IQ4_XS, CUDA sm86, default/FA v2/tile4/q4_0/MTP0/MTP2, 160k/200k/needle24k/MTP2 content+drafts; gap HIP/SYCL/Metal.
+
+Waivers `backends`, `bisect`, `rollback`, `implementationCombinations` предложены, но не приняты: reviewer/date/manualVerdict ждут решения аналитика.
 
 Performance gate закрыт для code candidate `65ec7c975`:
 
@@ -79,4 +94,4 @@ Performance gate закрыт для code candidate `65ec7c975`:
 - прежний tile-only pp533.5 исключён: измерительный скрипт отбрасывал `--fa -2`;
 - логи: `live-fa-v2-160k/` и `live-fa-v2-200k/`; консолидированное evidence — `performance-evidence-2026-11-24.json`.
 
-Это performance-паритет для указанных окон и профиля, не GPU correctness/resources acceptance.
+Это performance-паритет для указанных окон и профиля. FA command/config/banner сохранены в `fa-v2-profile-attestation.json`; exe SHA-256 и явные `--fa -2 --fa-tile 4` подтверждены main. `performance-regression-2026-11-24.json` помечен `superseded` и не является актуальным verdict.
