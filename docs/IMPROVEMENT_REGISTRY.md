@@ -19,7 +19,7 @@
 | DOWN-SUB8 | opt-out 8-lane down | delta | pr-open | main | #6898, CI success | ждать review, не дублировать |
 | Q4.5 | kit sync/ctx=max | not-relevant | done | main | tracked `packaging/kit` пуст; `ctx=max` только в docs-коммитах | отметить в основном плане; новый reproducer — отдельный дефект |
 | Q5.5 | connect/logs/monitor/stop | ours | done | main | launch/connect/logs/stop OK; `ci-portable-verdict.md`; прямые monitor endpoints 404 — отдельный блокер | installer/source — отдельный QUICKSTART |
-| QUICKSTART | три пути 1-click | ours | in-progress | main | installer/source OK: setup build rc=0, hygiene rc=0, marker 29/29, smoke answer Да; Portable target `G:/Strata/` | Portable smoke+HDD A/B последним |
+| QUICKSTART | три пути 1-click | ours | done | main | installer/source OK; Portable wrapper/inner/engine SHA; functional API/connect/logs/monitor/stop OK; HDD 200k 376,7/11,0, 160k 560,6/13,7 | HDD числа абсолютные, не SSD claim; models remain on D: |
 | Q7 | Swift Qwen3.8 32k | ours/existing knobs | blocked | main / 3568a3e2 | A auto 9,8; B8192 18,2; B LM32768 ~63,3 tok/s, затем 503; C20 exit 2 без static expert-profile; build `exp/q7-native-spec0` | unblock: Swift profile + диагностика 503 + повтор C20; quality/C24/D/E not-run |
 
 ## Upstream publication protocol
@@ -32,6 +32,6 @@
 
 ## Upstream snapshot
 
-- 2026-11-24: `git fetch upstream --prune` rc=0; old/new `upstream/main` = `6a6db7ff58c283cf28d2b913404b5fa31a767eaa` (новых коммитов нет).
-- merge-base с main = `923e2df4d060c4b6ac061c6c32f53cb56d35a2f7`; main ahead/behind = `235/15`.
-- Refs и состояние дерева зафиксированы в `glm/2026-11-24_session/upstream-fetch-2026-11-24.log`.
+- 2026-11-24 финальный fetch: `upstream/main` `6a6db7ff5` → `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6` (+276); merge-base `923e2df4d`; main ahead/behind `240/291`; merge не выполнялся.
+- Refs и состояние дерева зафиксированы в `glm/2026-11-24_session/final-upstream-snapshot-2026-11-24.log`.
+- Read-only supersession review `final-upstream-supersession-review-2026-11-24.md`: новый upstream не заменяет пакет целиком; перед merge нужен re-anchor анализ и повторная сборка/GPU-приёмка.
