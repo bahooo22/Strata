@@ -58,7 +58,7 @@
 
 Аналитик явно принял шесть warnings для данного scope:
 
-- `large-diff-files`, `large-diff-lines`: ожидаемы для полного upstream merge (695 файлов / +101375/-5403 от merge-base).
+- `large-diff-files`, `large-diff-lines`: ожидаемы для полного upstream merge; точная финальная delta хранится в `gate-facts-summary.json`.
 - `ifdef-growth`, `global-state`, `offset-coupling`, `copy-paste`: эвристики трёхточечного скана; прямого merge-дефекта в сохранённых Q2/FA/FDEC/session путях не найдено.
 
 Outcome: `accepted`; reviewer `3568a3e2-cc53-4e0e-9673-b35d1dfbbca6`; date `2026-11-24`. Это не приёмка GPU и не финальный merge.
@@ -69,4 +69,14 @@ Outcome: `accepted`; reviewer `3568a3e2-cc53-4e0e-9673-b35d1dfbbca6`; date `2026
 
 `git diff --check` — formatting/static evidence, не quality. Quality остаётся not-run до реальной quality-проверки. GPU correctness/routes/fallback/resources, HIP/SYCL/Metal, bisect/rollback и final acceptance не запускались.
 
-Performance: candidate default pp530.6 против old default pp532.0 — паритет; 899.0/741.6 относятся к `--fa-tile 4` и не сравниваются с default.
+Performance gate закрыт для code candidate `65ec7c975`:
+
+- модель KAT IQ4_XS; graph on; KV q4_0; MTP0; super-chunk8; att-mb256; reserve512; prefill2048; chunk128; batch1;
+- явные `--fa -2 --fa-tile 4`; config и engine banner подтверждены main;
+- default 160k: pp530.6 против old default control pp532.0 — паритет;
+- FA v2/tile4 160k: pp886.7/tg14.8/rc0 против эталона pp899.0 — паритет;
+- FA v2/tile4 200k: pp731.2/tg12.4/rc0 против эталона pp741.6 — паритет;
+- прежний tile-only pp533.5 исключён: измерительный скрипт отбрасывал `--fa -2`;
+- логи: `live-fa-v2-160k/` и `live-fa-v2-200k/`; консолидированное evidence — `performance-evidence-2026-11-24.json`.
+
+Это performance-паритет для указанных окон и профиля, не GPU correctness/resources acceptance.
