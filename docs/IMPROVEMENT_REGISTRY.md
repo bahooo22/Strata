@@ -7,9 +7,10 @@
 | TOOLS-MERGE | upstream merge gate/lifecycle/owner guard | ours, internal | fork-only | b8bd12b8 / main | unit 14/14; selftest 41/41; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно |
 | LAUNCH-OWN-SIZE | launch для GGUF с нестандартным именем | delta | done | main | `ba9ae196e`; health/API/connect/logs/stop OK | monitor 404 — отдельный блокер |
 | REFACTOR-SRP | широкий рефакторинг engine/ownership | idea only | not-in-scope | main | `docs/plans/2026-11-24-upstream-safe-refactor.md` | только документ, без candidate/main |
-| FA-v2 | q36 FA v2 16x32 | ours | analysis-done | main / 3568a3e2 | pp +16 % 200k, +14,6 % 160k; временный комментарий в #5467 удалён | публикация остановлена; follow-up только по явному решению |
+| EXPERT-TYPES | полный routed-expert контракт 10/11/18/21 | delta к upstream | candidate-build | main / 3568a3e2 / b8bd12b8 | `exp/expert-types-full` от `20f7e077c`; итоговый patch SHA `bbe334f7`; static 27/27; compile-fix `Split<10>::sc uint8_t` | повторная CUDA build + GPU parity/fallback + independent review; затем commit/ff-only |
+| FA-v2 | q36 FA v2 16x32 | ours | combo-reviewed | main / 3568a3e2 | combo 160k pp 579,1/tg 13,7; 200k pp 381,9/tg 11,0; review APPROVE optional snapshot | не default; upstream follow-up только по явному решению |
 | FA-PROF-V | слот V в FA_PROF | delta к FA-v2 | not-standalone | main | `FA_PHASE(2)`, пять фаз | включить в FA candidate |
-| FDEC-Q8 | decode MMA для upstream INT8 layout | delta | analysis-done | main / 3568a3e2 | наш q8 tg +27,6 % 160k; временный комментарий в #3903 удалён | публикация остановлена; stacked experiment/адаптация только по явному решению |
+| FDEC-Q8 | decode MMA для upstream INT8 layout | delta | combo-regression | main / 3568a3e2 | combo MTP0/q4_0/graph: 160k tg 12,4 vs 13,2; 200k tg 9,8 vs 10,8; review не рекомендует FDEC/both | не заявлять улучшение в этой конфигурации; не default |
 | FDEC-Q4 | decode MMA для rotated Q4 | defer | experiment-only | 3568a3e2 / main | наш q4 KL идентичен без FDEC; upstream Hadamard | experimentRef, Hadamard Q/inverse V, quality |
 | FDEC-VERDICT | armed/no-route строка | delta к FDEC-Q8 | not-standalone | main | `e31f451b8` на форке | включить в FDEC q8 PR |
 | FDEC-GOLDEN-Q8 | golden распаковки q8 | hybrid/часть FDEC-Q8 | analysis | main | 12288/0 на нашем header | использовать реальные upstream helpers; q8 evidence в PR |
