@@ -9,7 +9,7 @@
 | 1. Merge tools | fork-only | b8bd12b8 / main | post-mutation fix | unit 14/14; selftest 41/41; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно; инструмент остаётся в форке |
 | 2. Локальная приёмка | done | main | existing binaries/artifact | Q5.5 done; installer setup build rc=0, hygiene rc=0, marker 29/29, smoke health OK/answer Да | поддерживать evidence; Portable отдельно |
 | 3. Upstream analysis/scope | analysis-done | 3568a3e2 / main | refreshed refs | anchors/evidence собраны; временные комментарии в #5467/#3903 удалены; duplicate PR не создавались | публикация остановлена; follow-up только по явному решению |
-| 3.1 Экспертные типы 10/11/18/21 | candidate-build | main / 3568a3e2 / b8bd12b8 | main `20f7e077c` | candidate `exp/expert-types-full`; patch SHA `bbe334f7`; static 27/27; compile-fix `Split<10>::sc uint8_t` | повторная CUDA build, GPU parity/sub8/mode0/8, review, commit/ff-only |
+| 3.1 Экспертные типы 10/11/18/21 | done | main / 3568a3e2 / b8bd12b8 | main `a8ebf5d59` | CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29; review APPROVE | HIP not-run с waiver; quality/MTP smoke, затем Portable |
 | 4. FA candidate | blocked-scope | main | maintainer answer | — | follow-up к #5467 или отдельный candidate |
 | 5. FDEC q8 candidate | blocked-scope | main | maintainer answer | — | stacked experiment/адаптация к #3903 |
 | 6. Q4 experiment | planned | 3568a3e2 / main | experimentRef | — | Hadamard adapter + quality, не main |
