@@ -12,11 +12,12 @@
 | `strata.py connect opencode --check --output json` | done | rc=0; prompt `pong`; tool call `get_weather(city=Paris)` | проверяет сервер, не устанавливает OpenCode |
 | `strata.py logs --follow` | done | rc=124 от таймаута после 12 с; видны queued/admitted/first_token/finished | таймаут ожидаем для follow |
 | `strata.py launch --stop` | done | rc=0; `Stopped ud-q4_k_xl-32k`; процессов нет | — |
-| `/api-monitor`, `/api/requests` | blocked | оба 404 даже после `--set api_monitor=true` на installed engine 0.1.65 | нужен engine/server с monitor API или точный флаг конфигурации |
+| `strata.py monitor --once --output json` | done | rc=0, `ok:true`, snapshot `server-v1`, model loaded | прямые `/api-monitor` и `/api/requests` в 0.1.65 дают 404; CLI использует рабочий endpoint |
 | Q4.5 `kit/ sync`, `ctx=max` | not-relevant | tracked packaging/kit пуст; ctx=max только в docs-коммитах | новый reproducer — отдельный дефект |
 
 ## Вывод
 
-Launch/connect/logs/stop работают на форке с произвольным именем GGUF после `ba9ae196e`.
-Monitor API в установленном engine 0.1.65 недоступен — это отдельный блокер, не скрытый PASS.
-Installer/source QUICKSTART и Portable на `G:/Strata/` проверяются следующими этапами.
+Launch/connect/logs/monitor/stop работают на форке с произвольным именем GGUF после `ba9ae196e`.
+Прямые `/api-monitor` и `/api/requests` в установленном engine 0.1.65 недоступны, но штатный
+`strata monitor --once` возвращает корректный server-v1 snapshot. Installer/source QUICKSTART и
+Portable на `G:/Strata/` проверяются следующими этапами.

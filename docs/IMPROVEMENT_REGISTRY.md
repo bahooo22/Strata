@@ -16,7 +16,7 @@
 | STAGING-ONE | один staging-буфер | delta | pr-open | main | #6902, CI success | ждать review, не дублировать |
 | DOWN-SUB8 | opt-out 8-lane down | delta | pr-open | main | #6898, CI success | ждать review, не дублировать |
 | Q4.5 | kit sync/ctx=max | not-relevant | done | main | tracked `packaging/kit` пуст; `ctx=max` только в docs-коммитах | отметить в основном плане; новый reproducer — отдельный дефект |
-| Q5.5 | connect/logs/monitor/stop | ours | partial | main | launch/connect/logs/stop OK; monitor 404 | `ci-portable-verdict.md`; monitor blocker |
+| Q5.5 | connect/logs/monitor/stop | ours | done | main | launch/connect/logs/monitor/stop OK; `ci-portable-verdict.md` | installer/source — отдельный QUICKSTART |
 | QUICKSTART | три пути 1-click | ours | planned | main | kit artifact готов; Portable target `G:/Strata/` | installer/source сейчас; Portable smoke+HDD benchmark последним |
 | Q7 | Swift Qwen3.8 32k | ours/existing knobs | experiment | main / 3568a3e2 | GGUF `D:/Strata/models`; pack `C:/Strata/swift-qwen38-data`; 42,9 ГБ; build `exp/q7-native-spec0` | stop/go, A..E, needle/QA |
 
