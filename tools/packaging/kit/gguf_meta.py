@@ -22,6 +22,11 @@ import struct
 import sys
 import tempfile
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 MIB = 1024 ** 2
 GIB = 1024 ** 3
 

@@ -19,6 +19,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import run_all as R  # noqa: E402
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 HERE = Path(__file__).parent
 ROOT = HERE.parent
 BASE_CFG = HERE / "base-iq2_xs.json"          # the configuration every arm starts from

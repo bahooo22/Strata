@@ -15,6 +15,11 @@ from pathlib import Path
 
 import requests
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 URL = "http://127.0.0.1:8080/v1/chat/completions"
 HERE = Path(__file__).parent
 OUT = {"coding": [], "reasoning": [], "tools": [], "json": [], "followup": [], "ukrainian": []}

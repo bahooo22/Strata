@@ -27,6 +27,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 # Категории, по которым принимается решение «класть в комплект или нет». Порядок проверки важен:
 # msvc-страница Windows (vcruntime*) ищется первой, потому что cudart тоже кончается на .dll.
 CUDA_RE = re.compile(r"^(cudart|cublas|cublasLt|cufft|curand|cusolver|cusparse|nvrtc|nppu|nppc"

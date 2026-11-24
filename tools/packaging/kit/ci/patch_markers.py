@@ -33,6 +33,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 # Маркер обязан быть ASCII: побайтный поиск по exe/dll не видит кириллицу (она живёт в UTF-16
 # секции #US), и не-ASCII маркер вечно светился бы красным при собранном патче.
 ASCII_ONLY = True

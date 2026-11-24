@@ -65,6 +65,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 DEFAULT_ENTRY = "serve/server.py"
 # serve/server.py:61-63: в sys.path идут корень дерева и корень/tools. Значение по умолчанию
 # живёт здесь ровно один раз; pack_kit.ps1 передаёт тот же список, собранный из $WEB_SPECS.

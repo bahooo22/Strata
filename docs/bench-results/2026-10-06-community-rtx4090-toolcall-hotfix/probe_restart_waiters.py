@@ -18,6 +18,12 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import sys
+
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
 
 REPO = "/home/dgbox/Strata"
 CFG = REPO + "/strata-200k.json"

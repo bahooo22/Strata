@@ -45,6 +45,11 @@ import gguf_meta            # noqa: E402
 import classify as classify_mod   # noqa: E402  (нужен kit_archs, а не только сама функция)
 from classify import BASE, classify   # noqa: E402
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 MIB = 1024 ** 2
 KV_TYPE = "q4_0"          # измеренный рабочий тип KV на всех пяти окнах
 LADDER = (65536, 81920, 98304, 131072, 163840, 229376)

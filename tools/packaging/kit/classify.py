@@ -28,6 +28,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 # Наша база. Окна и параметры подобраны именно под неё, поэтому сравнение
 # идёт с этими числами, а не с абстрактным "достаточно мощно".
 BASE = {

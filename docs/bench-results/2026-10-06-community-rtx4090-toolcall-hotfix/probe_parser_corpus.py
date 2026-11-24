@@ -18,6 +18,11 @@ ROOT = pathlib.Path("/home/dgbox/Strata")
 sys.path.insert(0, str(ROOT))
 from serve.frontend import OutputParser  # noqa: E402
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 SPECIMENS = json.loads((ROOT / "serve/fixtures/rcall_specimens.json").read_text(encoding="utf-8"))["specimens"]
 WIDTHS = (1, 2, 3, 7, 0, 100_000)
 

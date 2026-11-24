@@ -30,6 +30,11 @@ import threading
 import time
 import urllib.request
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 REPO = os.environ.get("STRATA_REPO", "/home/dgbox/Strata")
 CFG = os.environ.get("STRATA_CFG", REPO + "/strata-200k.json")
 PORT = int(os.environ.get("STRATA_PORT", "8080"))

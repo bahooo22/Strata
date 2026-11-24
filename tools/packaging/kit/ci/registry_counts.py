@@ -31,6 +31,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 # Корень репы Страты: packaging/kit/ci -> на три уровня выше.
 ENGINE_ROOT = Path(__file__).resolve().parents[3]
 REGISTRY = Path(__file__).with_name("patch-markers.json")

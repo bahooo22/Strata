@@ -29,6 +29,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
+
 try:
     import winreg
 except ImportError:
