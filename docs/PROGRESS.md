@@ -7,7 +7,7 @@
 | 0. Upstream refresh + tools preflight | done | main | approval | fetch rc=0, upstream unchanged `6a6db7ff5`; 14 tests OK; selftest 41/41; edge rc=0; owner guard 0/2; AST/leakcheck/diff-check rc=0 | поддерживать snapshot |
 | 0. Реестры | done | main | preflight | созданы `IMPROVEMENT_REGISTRY.md`, `PROGRESS.md`; `deep-cloud-owl.md` обновлён | поддерживать статусы сразу |
 | 1. Merge tools | fork-only | b8bd12b8 / main | post-mutation fix | unit 14/14; selftest 41/41; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно; инструмент остаётся в форке |
-| 2. Локальная приёмка | in-progress | main | existing binaries/artifact | Q5.5 done; installer worktree готов, setup tests 17/17, acceptance-скрипт проверен | setup --build, marker 29/29, hygiene, smoke |
+| 2. Локальная приёмка | done | main | existing binaries/artifact | Q5.5 done; installer setup build rc=0, hygiene rc=0, marker 29/29, smoke health OK/answer Да | поддерживать evidence; Portable отдельно |
 | 3. Upstream analysis/scope | analysis-done | 3568a3e2 / main | refreshed refs | anchors/evidence собраны; временные комментарии в #5467/#3903 удалены; duplicate PR не создавались | публикация остановлена; follow-up только по явному решению |
 | 4. FA candidate | blocked-scope | main | maintainer answer | — | follow-up к #5467 или отдельный candidate |
 | 5. FDEC q8 candidate | blocked-scope | main | maintainer answer | — | stacked experiment/адаптация к #3903 |

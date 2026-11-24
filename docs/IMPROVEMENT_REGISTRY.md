@@ -17,7 +17,7 @@
 | DOWN-SUB8 | opt-out 8-lane down | delta | pr-open | main | #6898, CI success | ждать review, не дублировать |
 | Q4.5 | kit sync/ctx=max | not-relevant | done | main | tracked `packaging/kit` пуст; `ctx=max` только в docs-коммитах | отметить в основном плане; новый reproducer — отдельный дефект |
 | Q5.5 | connect/logs/monitor/stop | ours | done | main | launch/connect/logs/stop OK; `ci-portable-verdict.md`; прямые monitor endpoints 404 — отдельный блокер | installer/source — отдельный QUICKSTART |
-| QUICKSTART | три пути 1-click | ours | in-progress | main | kit artifact готов; installer worktree/скрипт готовы, setup tests 17/17; Portable target `G:/Strata/` | installer build/marker/hygiene/smoke; Portable последним |
+| QUICKSTART | три пути 1-click | ours | in-progress | main | installer/source OK: setup build rc=0, hygiene rc=0, marker 29/29, smoke answer Да; Portable target `G:/Strata/` | Portable smoke+HDD A/B последним |
 | Q7 | Swift Qwen3.8 32k | ours/existing knobs | blocked | main / 3568a3e2 | A auto 9,8; B8192 18,2; B LM32768 ~63,3 tok/s, затем 503; C20 exit 2 без static expert-profile; build `exp/q7-native-spec0` | unblock: Swift profile + диагностика 503 + повтор C20; quality/C24/D/E not-run |
 
 ## Upstream publication protocol
@@ -31,5 +31,5 @@
 ## Upstream snapshot
 
 - 2026-11-24: `git fetch upstream --prune` rc=0; old/new `upstream/main` = `6a6db7ff58c283cf28d2b913404b5fa31a767eaa` (новых коммитов нет).
-- merge-base с main = `923e2df4d060c4b6ac061c6c32f53cb56d35a2f7`; main ahead/behind = `233/15`.
+- merge-base с main = `923e2df4d060c4b6ac061c6c32f53cb56d35a2f7`; main ahead/behind = `235/15`.
 - Refs и состояние дерева зафиксированы в `glm/2026-11-24_session/upstream-fetch-2026-11-24.log`.
