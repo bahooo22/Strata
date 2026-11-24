@@ -43,7 +43,8 @@
 - Eager + batch2 + session copy: ctx 16k, FA+FDEC; `A='Принято'`, `B='Принято'`, equal=True. Лог `copy-session-both-eager-fixed.log`.
 - Independent review `3568a3e2-cc53-4e0e-9673-b35d1dfbbca6`: APPROVE как интеграция кода/default baseline; REJECT как полное no-regression/quality acceptance. FA optional, FDEC/both не рекомендованы и не default.
 - Review подтвердил сырые строки 8/8, rc=0, отсутствие error/fallback, fdec-check 752/753/880/880 с cos 1.000000 и max_abs до 1.415e-3.
-- Условия полного acceptance: baseline/repeats/чередование перед заявлением no-regression; quality, MTP/copy_session, eager, fallback и backend compile gates. Eager/batch2/session-copy уже сняты отдельно; quality/needle и HIP/non-Q6K для combo not-run.
+- Условия полного acceptance: baseline/repeats/чередование перед заявлением no-regression; quality, MTP/copy_session, eager, fallback и backend compile gates. Eager/batch2/session-copy сняты; quality smoke 32k дал 16/22 с needle PASS; MTP2 дал ответ `Принято` и 2/2 drafts. HIP остаётся not-run без toolchain; non-Q6K compile завершён rc=0.
+- Quality smoke: general hard suite 16/22; needle `ЛАМПА` PASS; failures `cap3`, `idiom`, `five_words` зафиксированы. Это diagnostic smoke, не полный quality acceptance.
 - `exp/integration-combo-final` = `8789c08ac`; `20f7e077c` — дочерний docs-only main. Код candidate идентичен installer build `631d80302`.
 
 ## Артефакты
@@ -53,3 +54,5 @@
 - `glm/2026-11-24_session/combo-<variant>-<window>.log`.
 - `glm/2026-11-24_session/combo-<variant>-<window>-console.log`.
 - `glm/2026-11-24_session/integration-combo-resume.log`.
+- `glm/2026-11-24_session/integration-quality-final-summary.md`.
+- `glm/2026-11-24_session/mtp2-smoke-final-summary.md`.

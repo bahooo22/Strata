@@ -13,7 +13,7 @@
 | 4. FA candidate | blocked-scope | main | maintainer answer | — | follow-up к #5467 или отдельный candidate |
 | 5. FDEC q8 candidate | blocked-scope | main | maintainer answer | — | stacked experiment/адаптация к #3903 |
 | 6. Q4 experiment | planned | 3568a3e2 / main | experimentRef | — | Hadamard adapter + quality, не main |
-| 7. Fork integration | reviewed-snapshot | main | accepted candidates | 8/8 combo rc=0; eager/batch2/session copy equal=True; review APPROVE code/default snapshot, REJECT полный no-regression/quality | не заявлять no-regression; quality/MTP/eager/fallback/backend gaps явно перечислены; отдельный merge не выполнять |
+| 7. Fork integration | done-snapshot | main | accepted candidates | 8/8 combo rc=0; eager/copy equal=True; quality 16/22 + needle PASS; MTP2 answer Принято; review APPROVE snapshot | no-regression без repeats не заявлен; HIP not-run; Portable final |
 | 8. Q7 | blocked | main / 3568a3e2 | integrated binary | A auto 9,8; B8192 18,2; B LM32768 ~63,3 tok/s, затем 503; C20 exit 2 без static expert-profile | unblock: Swift profile + диагностика 503 + повтор C20; quality/C24/D/E not-run |
 | 9. Portable final | planned | main | Q7 verdict, kit artifact | target `G:/Strata/` | functional smoke + HDD A/B 160k/200k |
 

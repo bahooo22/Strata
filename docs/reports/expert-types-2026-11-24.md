@@ -1,11 +1,11 @@
 # Полный routed-expert контракт 10/11/18/21
 
-Дата: 2026-11-24. Статус: **CUDA/non-Q6K candidate принят reviewer; HIP not-run с waiver**.
+Дата: 2026-11-24. Статус: **принято в main `a8ebf5d59`; HIP not-run с waiver**.
 
 ## Кандидат
 
 - Ветка: `exp/expert-types-full`.
-- База candidate: `20f7e077cf582b3a6d4eb65f4659c01a103c1a69`; актуальный main на момент отчёта: `84246fc87e8e9120023d34cdd4403e05ef457653`.
+- База candidate: `20f7e077cf582b3a6d4eb65f4659c01a103c1a69`; code commit в main: `a8ebf5d598583e8a1001d39232e957e14157a2a5`; docs commit: `e5da8229cad8284cca80a5eb965817b21231569f`.
 - Итоговый patch: `expert-types-final-q2fix-2026-11-24.patch`.
 - SHA-256 patch: `017d562152e87600fa422887f95db2f32b490c922e20496cfc193eec9ca33b7a`.
 - Diff: 9 файлов, `+233/-53`.
@@ -58,7 +58,7 @@
 
 ## Следующие gates
 
-1. Commit candidate, rebase на актуальный main, `--ff-only`, push main.
-2. Quality/MTP smoke на финальном binary.
-3. Portable final остаётся последним GPU-этапом.
-4. При появлении HIP toolchain выполнить отдельную compile/runtime приёмку.
+1. Portable final остаётся последним GPU-этапом.
+2. При появлении HIP toolchain выполнить отдельную compile/runtime приёмку.
+
+Quality/MTP smoke закрыт отдельно: general 16/22 с needle PASS; MTP2 ответ `Принято`, drafts 2/2.

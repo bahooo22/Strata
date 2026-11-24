@@ -8,6 +8,7 @@
 | LAUNCH-OWN-SIZE | launch для GGUF с нестандартным именем | delta | done | main | `ba9ae196e`; health/API/connect/logs/stop OK | monitor 404 — отдельный блокер |
 | REFACTOR-SRP | широкий рефакторинг engine/ownership | idea only | not-in-scope | main | `docs/plans/2026-11-24-upstream-safe-refactor.md` | только документ, без candidate/main |
 | EXPERT-TYPES | полный routed-expert контракт 10/11/18/21 | delta к upstream | done | main / 3568a3e2 / b8bd12b8 | `a8ebf5d59`; patch SHA `017d5621`; CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29 | HIP not-run с waiver только для этого patch; отдельная приёмка при появлении toolchain |
+| INTEGRATION-COMBO | default/FA/FDEC/both snapshot | ours | done-snapshot | main / 3568a3e2 | 8/8 rc=0; raw audit 8/8; quality 16/22 + needle PASS; MTP2 answer Принято; eager/copy equal=True | no-regression без repeats не заявлен; HIP not-run; FA optional, FDEC/both не рекомендованы |
 | FA-v2 | q36 FA v2 16x32 | ours | combo-reviewed | main / 3568a3e2 | combo 160k pp 579,1/tg 13,7; 200k pp 381,9/tg 11,0; review APPROVE optional snapshot | не default; upstream follow-up только по явному решению |
 | FA-PROF-V | слот V в FA_PROF | delta к FA-v2 | not-standalone | main | `FA_PHASE(2)`, пять фаз | включить в FA candidate |
 | FDEC-Q8 | decode MMA для upstream INT8 layout | delta | combo-regression | main / 3568a3e2 | combo MTP0/q4_0/graph: 160k tg 12,4 vs 13,2; 200k tg 9,8 vs 10,8; review не рекомендует FDEC/both | не заявлять улучшение в этой конфигурации; не default |
