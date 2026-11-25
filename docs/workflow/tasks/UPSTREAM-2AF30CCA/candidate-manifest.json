@@ -5,7 +5,7 @@
   "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
   "candidateCodeRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
   "docsRef": "c8c939c05a4ef26de6daf55ec27c1677e97b916a",
-  "finalTip": "D3",
+  "finalTip": "D4",
   "commits": {
     "C1": "ce67d696cef760f462518bc63623d27bd43b6523",
     "C2": "d484ccdeb4193c82188ae745b13f36e37ed6257b",
@@ -18,8 +18,10 @@
   "qwen35Unchanged": true,
   "textualConflicts": 0,
   "review": {
-    "verdict": "R_DOC",
-    "reportSha256": "44fb670e5605dc096bb0a1ed0e4e4549f128020364a07b14f895f188e13ac37b",
-    "note": "D3 fixes semantic algorithm evidence; repeat N review required"
+    "verdict": "CODE_APPROVED",
+    "reviewer": "9ba7a8a6-9973-4bce-8a66-93acde030932",
+    "reportSha256": "fa2b1acf08e330ea18df0c09c88d98cb6cf80e8bb92a642425007821108c6811",
+    "approvedTip": "dcb524a6fe06f25fc0ba951d2017bb28ec9d07d1",
+    "note": "D4 records approval; code tree unchanged"
   }
 }
