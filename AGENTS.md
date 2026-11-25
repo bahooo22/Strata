@@ -77,6 +77,10 @@ Source setup does not make an unsupported model or backend compatible. Strata's 
 - Keep the docs' style: plain words, short sentences, written for non-technical users first. Give measured numbers
   with what they were measured on. Make no claim without a measurement.
 
+## Workflow v3
+
+Для изменений форка действует `docs/workflow/README.md`: отдельные сеансы A/H/N, запрет субагентов и self-approval, task-worktree, артефакты с SHA-256, fast 32k ≥3 и full 160k/200k отдельно. Merge разрешён только при progress на обоих full-окнах; no_change архивируется. Инструмент — `tools/workflow/workflow.py`, guard — `tools/workflow/workflow_hook.ps1`.
+
 ## Contributing a change or report
 
 The rules are in **[CONTRIBUTING.md](.github/CONTRIBUTING.md)**. Read it before you open an issue or a pull request, and

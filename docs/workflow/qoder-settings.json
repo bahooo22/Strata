@@ -1,0 +1,105 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Context"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: роль и текущий gate"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Pre"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: проверка мутации"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Pre"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: проверка записи"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Pre"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: проверка правки"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Pre"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: субагенты запрещены"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Post"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: audit события"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Post"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: audit события"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Program Files/PowerShell/7/pwsh.exe",
+            "args": ["-NoLogo", "-NoProfile", "-File", "${QODER_PROJECT_DIR}/tools/workflow/workflow_hook.ps1", "-Mode", "Post"],
+            "timeout": 5,
+            "statusMessage": "Workflow v3: audit события"
+          }
+        ]
+      }
+    ]
+  }
+}
