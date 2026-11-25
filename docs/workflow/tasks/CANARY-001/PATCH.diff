@@ -1,0 +1,155 @@
+diff --git a/docs/workflow/tasks/CANARY-001/IMPL_PLAN.md b/docs/workflow/tasks/CANARY-001/IMPL_PLAN.md
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/CANARY-001/IMPL_PLAN.md
+@@ -0,0 +1,8 @@
++# IMPL_PLAN CANARY-001
++
++- implementation_algorithm: engine-код не меняется. Сравнить default `STRATA_Q36_READ_WINDOWS=1` и candidate env `STRATA_Q36_READ_WINDOWS=2` на одном профиле KAT IQ4_XS / graph on / q4_0 / MTP0 / super-chunk8 / att256 / reserve512 / FA v2 tile4. Сначала baseline 32k в том же окне, затем candidate 32k ≥3, после этого отдельные full 160k и 200k.
++- code_parts: только `docs/workflow/tasks/CANARY-001/experiment-profile.json`; engine patch отсутствует. Параметр читается существующим knob `STRATA_Q36_READ_WINDOWS` в q36 engine.
++- delegation: H готовит profile/PATCH/DOC_IMPL; A выполняет прогоны и метрики; N выполняет read-only review C1–C10; self-approval запрещён.
++- risks: expected effect не задан; малые pp/tg дельты могут быть шумом; full merge разрешён только при progress на обоих 160k и 200k.
++- preflight: model, exe и server-root `C:/Projects/Strata-3060Ti/engine/terminal` существуют; GPU/build/commit/push/merge H не выполнял.
++- acceptance: fast 32k — минимум 3 candidate runs и сравнение с same-window baseline; full — отдельные 160k/200k, merge только при progress на обоих; no_change/regress/critical_risk архивируются.
+diff --git a/docs/workflow/tasks/CANARY-001/DOC_IMPL.md b/docs/workflow/tasks/CANARY-001/DOC_IMPL.md
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/CANARY-001/DOC_IMPL.md
+@@ -0,0 +1,5 @@
++# DOC_IMPL CANARY-001
++
++- math: изменяемый параметр — целое число decode windows между двумя prompt chunks. Это не изменение математики attention/experts; сравнение производится по pp/tg на одинаковых model/prompt/window/profile. Для 32k используется median и spread минимум трёх candidate runs.
++- code_map: `engine/src/qwen35/q36_engine.cu` — knob `--read-windows` / `STRATA_Q36_READ_WINDOWS`, разрешение значения в `Engine::init`, цикл `window()` между prompt chunks. Engine-код candidate не изменяется.
++- algorithm_argumentation: env 2 может изменить interleaving decode окон и латентность полного prompt, но ожидаемый эффект заранее неизвестен. Изолируется одна переменная; default 1 и env 2 сравниваются только в одинаковых окнах и профилях. Fallback/default semantics сохраняются.
+diff --git a/docs/workflow/tasks/CANARY-001/experiment-profile.json b/docs/workflow/tasks/CANARY-001/experiment-profile.json
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/CANARY-001/experiment-profile.json
+@@ -0,0 +1,127 @@
++{
++  "taskId": "CANARY-001",
++  "date": "2026-11-25",
++  "role": "H",
++  "status": "prepared-not-approved",
++  "baseSha": "4356a467780900923cbf83d92675790e7fbeb32a",
++  "branch": "task/CANARY-001",
++  "experiment": {
++    "id": "CANARY-001-read-windows-2",
++    "parameter": "STRATA_Q36_READ_WINDOWS",
++    "baselineValue": 1,
++    "candidateValue": 2,
++    "expectedEffect": null,
++    "engineCodeChanged": false
++  },
++  "profile": {
++    "model": "D:/Strata/models/katcoder/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
++    "exe": "F:/tmp/upstream-merge-prep-build/strata-q36.exe",
++    "serverRoot": "C:/Projects/Strata-3060Ti/engine/terminal",
++    "graph": true,
++    "kvType": "q4_0",
++    "mtp": 0,
++    "superChunk": 8,
++    "attMb": 256,
++    "reserveMb": 512,
++    "prefill": 2048,
++    "chunk": 128,
++    "batch": 1,
++    "fa": {
++      "layer": -2,
++      "tile": 4,
++      "explicitArgs": [
++        "--fa",
++        "-2",
++        "--fa-tile",
++        "4"
++      ]
++    },
++    "env": {
++      "STRATA_Q36_READ_WINDOWS": "2"
++    }
++  },
++  "baselineProfile": {
++    "model": "D:/Strata/models/katcoder/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
++    "exe": "F:/tmp/upstream-merge-prep-build/strata-q36.exe",
++    "serverRoot": "C:/Projects/Strata-3060Ti/engine/terminal",
++    "graph": true,
++    "kvType": "q4_0",
++    "mtp": 0,
++    "superChunk": 8,
++    "attMb": 256,
++    "reserveMb": 512,
++    "prefill": 2048,
++    "chunk": 128,
++    "batch": 1,
++    "fa": {
++      "layer": -2,
++      "tile": 4,
++      "explicitArgs": [
++        "--fa",
++        "-2",
++        "--fa-tile",
++        "4"
++      ]
++    },
++    "env": {
++      "STRATA_Q36_READ_WINDOWS": "1"
++    }
++  },
++  "preflight": {
++    "modelExists": true,
++    "exeExists": true,
++    "serverRootExists": true,
++    "blocker": null,
++    "serverRoot": "C:/Projects/Strata-3060Ti/engine/terminal"
++  },
++  "windows": [
++    {
++      "name": "32k",
++      "context": 32768,
++      "candidateRuns": 3,
++      "baseline": "same-window baseline before candidate",
++      "decisionRule": "pass only after >=3 candidate runs and median/spread comparison"
++    },
++    {
++      "name": "160k",
++      "context": 163840,
++      "candidateRuns": 1,
++      "baseline": {
++        "pp": 886.7,
++        "tg": 14.8
++      },
++      "decisionRule": "progress required for merge"
++    },
++    {
++      "name": "200k",
++      "context": 204800,
++      "candidateRuns": 1,
++      "baseline": {
++        "pp": 731.2,
++        "tg": 12.4
++      },
++      "decisionRule": "progress required for merge"
++    }
++  ],
++  "runOrder": [
++    "baseline-32k",
++    "candidate-32k-run-1",
++    "candidate-32k-run-2",
++    "candidate-32k-run-3",
++    "candidate-160k",
++    "candidate-200k"
++  ],
++  "acceptance": {
++    "fast32k": ">=3 candidate runs; compare only with same-window baseline",
++    "fullMerge": "progress on both 160k and 200k",
++    "archive": "no_change, regress or critical_risk",
++    "smallDelta": "treat 1-1.5 percent performance deltas as noise until repeated"
++  },
++  "notRunByH": [
++    "GPU",
++    "build",
++    "commit",
++    "push",
++    "merge"
++  ]
++}
