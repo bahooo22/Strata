@@ -563,6 +563,35 @@
       },
       "createdAt": "2026-11-25T18:57:40+00:00",
       "updatedAt": "2026-11-25T18:57:40+00:00"
+    },
+    "Q35-ADAPT-SUPER": {
+      "taskId": "Q35-ADAPT-SUPER",
+      "gate": "G1",
+      "baseSha": "316bb4a962832f0203dd7d52078b0b862ea2902f",
+      "branch": "task/Q35-ADAPT-SUPER",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/Q35-ADAPT-SUPER/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "b6dc69eaa3df321950ff0fbe613334fcd682fd69ae21b5b840a6cac6fe2b790f",
+          "status": null,
+          "recordedAt": "2026-11-25T18:58:24+00:00"
+        }
+      },
+      "metrics": {},
+      "review": {
+        "verdict": "pending",
+        "criteria": {}
+      },
+      "integration": {
+        "verdict": "pending"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T18:58:24+00:00",
+      "updatedAt": "2026-11-25T18:58:24+00:00"
     }
   }
 }
