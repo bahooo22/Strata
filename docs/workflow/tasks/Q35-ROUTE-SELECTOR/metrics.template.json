@@ -1,0 +1,32 @@
+{
+  "taskId": "Q35-ROUTE-SELECTOR",
+  "metrics": {
+    "32k": {
+      "profile": "",
+      "baseline": {
+        "window": "32k",
+        "profile": ""
+      },
+      "runs": [],
+      "decision": "pass"
+    },
+    "160k": {
+      "profile": "",
+      "baseline": {
+        "window": "160k",
+        "profile": ""
+      },
+      "runs": [],
+      "decision": "progress"
+    },
+    "200k": {
+      "profile": "",
+      "baseline": {
+        "window": "200k",
+        "profile": ""
+      },
+      "runs": [],
+      "decision": "progress"
+    }
+  }
+}

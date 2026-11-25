@@ -476,6 +476,35 @@
         "expectedUpperPct": 3,
         "decision": "excluded"
       }
+    },
+    "Q35-ROUTE-SELECTOR": {
+      "taskId": "Q35-ROUTE-SELECTOR",
+      "gate": "G1",
+      "baseSha": "91120267f0d55da976cce99aa464cd2bf9b6b164",
+      "branch": "task/Q35-ROUTE-SELECTOR",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/Q35-ROUTE-SELECTOR/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "1147291482219347a75e91e92effe4d4a3dd4a29f4af53470dd5069475a36da2",
+          "status": null,
+          "recordedAt": "2026-11-25T18:54:49+00:00"
+        }
+      },
+      "metrics": {},
+      "review": {
+        "verdict": "pending",
+        "criteria": {}
+      },
+      "integration": {
+        "verdict": "pending"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T18:54:49+00:00",
+      "updatedAt": "2026-11-25T18:54:49+00:00"
     }
   }
 }
