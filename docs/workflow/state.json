@@ -433,6 +433,35 @@
         }
       ],
       "workflowNote": "Generic state-machine требует optimization progress и три fast runs; утверждённый upstream sync план допускает no_change/no_confirmed_regression и два smoke run. Закрытие выполнено A после N INTEGRATION_APPROVED и semantic gate PASS."
+    },
+    "MMQ-DEVICE-METADATA": {
+      "taskId": "MMQ-DEVICE-METADATA",
+      "gate": "G1",
+      "baseSha": "c5e4212c610f908390f1341bc53bdd2f53813058",
+      "branch": "task/MMQ-DEVICE-METADATA",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/MMQ-DEVICE-METADATA/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "45c7430aeec264e9a8ac5a6630a897580389c6a09cecc3b897a8e8bcabd42c72",
+          "status": null,
+          "recordedAt": "2026-11-25T17:58:03+00:00"
+        }
+      },
+      "metrics": {},
+      "review": {
+        "verdict": "pending",
+        "criteria": {}
+      },
+      "integration": {
+        "verdict": "pending"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T17:57:45+00:00",
+      "updatedAt": "2026-11-25T17:58:03+00:00"
     }
   }
 }
