@@ -592,6 +592,35 @@
       },
       "createdAt": "2026-11-25T18:58:24+00:00",
       "updatedAt": "2026-11-25T18:58:24+00:00"
+    },
+    "Q35-PREFIX-CACHE": {
+      "taskId": "Q35-PREFIX-CACHE",
+      "gate": "G1",
+      "baseSha": "5fb5f913dd7f63b6b09b5ef9a3e1db9c8414833a",
+      "branch": "task/Q35-PREFIX-CACHE",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/Q35-PREFIX-CACHE/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "98be4193d80a1ad51b33612737dfdef59a3d7f197db20fb9a8fa34489748e85a",
+          "status": null,
+          "recordedAt": "2026-11-25T19:01:59+00:00"
+        }
+      },
+      "metrics": {},
+      "review": {
+        "verdict": "pending",
+        "criteria": {}
+      },
+      "integration": {
+        "verdict": "pending"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T19:01:59+00:00",
+      "updatedAt": "2026-11-25T19:01:59+00:00"
     }
   }
 }
