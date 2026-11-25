@@ -4,6 +4,8 @@
   "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
   "candidateCodeRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
   "docsRef": "c8c939c05a4ef26de6daf55ec27c1677e97b916a",
+  "evidenceRef": "033ee300a2fdefb66fab56e0a877baf0afb90abd",
+  "finalTip": "D3",
   "planSha256": "26ba01e64c53b09e5fa21f5f55470fb26bbee47357d7e14dec19e3d48fc5232b",
   "matrixSha256": "250ea63606119ae18b1fbe08a0ea92d44abf29b39ab64a4bb78ef2720625a6b3",
   "files": [
@@ -19,8 +21,8 @@
     },
     {
       "path": "candidate-manifest.json",
-      "bytes": 818,
-      "sha256": "29dcf28060ca5a3403442b765dbc19594edd6b5843616ef998b1df380d21b7fe"
+      "bytes": 1031,
+      "sha256": "3dbc23916c1e4bcfc59d417e6e61b2502e71dab1e6b1addbd67339985aeae990"
     },
     {
       "path": "DECISION_RECORD.md",
@@ -94,8 +96,8 @@
     },
     {
       "path": "evidence/provisional-merge-plan.json",
-      "bytes": 79888,
-      "sha256": "e38471b386ee78b1a701d5544beb25d94fd4df3941a07aabe52c8b1123388188"
+      "bytes": 80147,
+      "sha256": "bd92da5e6ee63221aa216fa43652a43d8a613231c8a73d7968013a20017f4306"
     },
     {
       "path": "evidence/upstream-delta.txt",
@@ -144,8 +146,8 @@
     },
     {
       "path": "REVIEW_REPORT.md",
-      "bytes": 62,
-      "sha256": "b66ed04c2c86d7e3a56ba38f289105b6fbfe6dfb3381e614046ad741b967eb57"
+      "bytes": 11867,
+      "sha256": "44fb670e5605dc096bb0a1ed0e4e4549f128020364a07b14f895f188e13ac37b"
     },
     {
       "path": "TASK_IDEA.md",

@@ -47,8 +47,8 @@
         }
       ],
       "upstreamStatus": "full",
-      "oursAlgorithm": "Control-only hotfix version bump; app and engine package versions unchanged.",
-      "upstreamAlgorithm": "Control-only hotfix version bump; app and engine package versions unchanged.",
+      "oursAlgorithm": "Control 0.1.67 / Terminal 0.2.21; app и engine packages 0.2.21/0.1.67.",
+      "upstreamAlgorithm": "Control 0.1.68 / Terminal 0.2.21.1; app и engine packages остаются 0.2.21/0.1.67.",
       "contract": {
         "ours": "Control-only hotfix version bump; app and engine package versions unchanged.",
         "upstream": "Control-only hotfix version bump; app and engine package versions unchanged.",
@@ -257,8 +257,8 @@
         }
       ],
       "upstreamStatus": "full",
-      "oursAlgorithm": "Create the Terminal install folder before the first config/run script.",
-      "upstreamAlgorithm": "Create the Terminal install folder before the first config/run script.",
+      "oursAlgorithm": "Первый config/run script пишется без предварительного создания install folder.",
+      "upstreamAlgorithm": "Создаются STRATA_INSTALL_DIR, parent write_config и home() до первой атомарной записи.",
       "contract": {
         "ours": "Create the Terminal install folder before the first config/run script.",
         "upstream": "Create the Terminal install folder before the first config/run script.",
@@ -467,8 +467,8 @@
         }
       ],
       "upstreamStatus": "full",
-      "oursAlgorithm": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
-      "upstreamAlgorithm": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+      "oursAlgorithm": "HIP card+RAM план не получает дополнительного RAM cap slack.",
+      "upstreamAlgorithm": "Для HIP card+RAM/no SSD добавляется max(0.75 GiB, 5% expert GiB), ограниченный свободной RAM.",
       "contract": {
         "ours": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
         "upstream": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
@@ -677,8 +677,8 @@
         }
       ],
       "upstreamStatus": "full",
-      "oursAlgorithm": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
-      "upstreamAlgorithm": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+      "oursAlgorithm": "HIP planner считает полный context и прежний KV type.",
+      "upstreamAlgorithm": "HIP planner считает min(context,32768) и выбранный fp8/fp16; non-HIP не меняется.",
       "contract": {
         "ours": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
         "upstream": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
@@ -887,8 +887,8 @@
         }
       ],
       "upstreamStatus": "partial",
-      "oursAlgorithm": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
-      "upstreamAlgorithm": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+      "oursAlgorithm": "Fork catalog содержит IQ4_XS-KAT и IQ4_XS-Huihui.",
+      "upstreamAlgorithm": "Upstream catalog не содержит эти две fork-модели.",
       "contract": {
         "ours": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
         "upstream": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
@@ -1097,8 +1097,8 @@
         }
       ],
       "upstreamStatus": "partial",
-      "oursAlgorithm": "Upstream delta changes only the version line; expert options and CTest stay ours.",
-      "upstreamAlgorithm": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+      "oursAlgorithm": "Fork сохраняет STRATA_Q6K_EXPERTS, STRATA_NATIVE_EXPERTS и q36_expert_info_test.",
+      "upstreamAlgorithm": "Upstream delta меняет только version line и не заменяет expert build contracts.",
       "contract": {
         "ours": "Upstream delta changes only the version line; expert options and CTest stay ours.",
         "upstream": "Upstream delta changes only the version line; expert options and CTest stay ours.",
@@ -1307,8 +1307,8 @@
         }
       ],
       "upstreamStatus": "partial",
-      "oursAlgorithm": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
-      "upstreamAlgorithm": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+      "oursAlgorithm": "Fork сохраняет VRAM_SAFETY_GB, KV_CARD_HEADROOM_GB и FREE_RAM_MARGIN_GB.",
+      "upstreamAlgorithm": "Upstream добавляет HIP_KV_WINDOW_TOKENS и HIP KV choice, не меняя fork constants.",
       "contract": {
         "ours": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
         "upstream": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
@@ -1517,8 +1517,8 @@
         }
       ],
       "upstreamStatus": "partial",
-      "oursAlgorithm": "Take the upstream version line, retain fork packaging documentation.",
-      "upstreamAlgorithm": "Take the upstream version line, retain fork packaging documentation.",
+      "oursAlgorithm": "Fork packaging README сохраняет собственные разделы.",
+      "upstreamAlgorithm": "Upstream обновляет version line Control 0.1.68 / Terminal 0.2.21.1.",
       "contract": {
         "ours": "Take the upstream version line, retain fork packaging documentation.",
         "upstream": "Take the upstream version line, retain fork packaging documentation.",
@@ -1727,8 +1727,8 @@
         }
       ],
       "upstreamStatus": "full",
-      "oursAlgorithm": "Accept upstream regression coverage without deleting existing fork tests.",
-      "upstreamAlgorithm": "Accept upstream regression coverage without deleting existing fork tests.",
+      "oursAlgorithm": "Fork сохраняет существующие setup/planner/version/release tests.",
+      "upstreamAlgorithm": "Upstream добавляет regression coverage для install folder, HIP RAM slack, HIP KV window/type и release manifest.",
       "contract": {
         "ours": "Accept upstream regression coverage without deleting existing fork tests.",
         "upstream": "Accept upstream regression coverage without deleting existing fork tests.",
@@ -1937,8 +1937,8 @@
         }
       ],
       "upstreamStatus": "partial",
-      "oursAlgorithm": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
-      "upstreamAlgorithm": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+      "oursAlgorithm": "qwen35 tree зафиксирован на ours 996eb9195.",
+      "upstreamAlgorithm": "qwen35 tree на upstream 2af30cca не отличается; candidate обязан быть побитово равен ours.",
       "contract": {
         "ours": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
         "upstream": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
