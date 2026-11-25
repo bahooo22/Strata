@@ -1,0 +1,8 @@
+rc base 3221226505, test 3221226505
+are placed after the engine's buffers; device: 38 SMs, 32 ssm v-heads)
+strata-q36: knobs: defaults held
+strata-q36: prompt experts on the native grouped kernels
+strata-q36: context 4096 cells, prompt chunk 2048, MTP block loaded, 3.74 GiB of VRAM free
+strata-q36: hybrid experts: 38 of 256 per layer in VRAM (2.42 GiB), all 16.34 GiB in host memory, the rest of a batch of <= 128 rows on 4 CPU threads, bigger prompt chunks streamed (0.80 GiB staging); 57.0 s
+strata-q36: expert host memory: 37 of 41 layers pinned
+strata-q36: warmed up in 3.6 s (one prompt chunk, a decode step, a speculative step)

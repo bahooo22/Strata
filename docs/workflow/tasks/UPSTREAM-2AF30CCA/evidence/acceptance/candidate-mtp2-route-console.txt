@@ -1,0 +1,3 @@
+health ok
+answer ok: 'Контекст получен'
+RESULT pp=1313.4 tg=18.2 prefill_ms=22264 gen_ms=274 chars=80000

@@ -1,0 +1,349 @@
+{
+  "ok": true,
+  "candidate": "f6070dce04d053e268abc8d7e65e2f65f9e59847",
+  "checks": [
+    {
+      "name": "inkling-tests",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "unittest",
+        "tests.terminal.test_inkling_fit_free",
+        "tests.terminal.test_inkling_fit_hip_window"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+      "rc": 0,
+      "seconds": 1.25,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\inkling-tests.log"
+    },
+    {
+      "name": "setup-tests",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "terminal/tools/test_setup_config.py"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 2.74,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\setup-tests.log"
+    },
+    {
+      "name": "release-tests",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "tools/test_release_manifest.py"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 1.05,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\release-tests.log"
+    },
+    {
+      "name": "version-tests",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "unittest",
+        "tests.terminal.test_tui2_023_versions"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+      "rc": 0,
+      "seconds": 2.28,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\version-tests.log"
+    },
+    {
+      "name": "merge-selftest",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "tools/upstream_merge/upstream_merge.py",
+        "selftest"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 16.66,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\merge-selftest.log"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "996eb9195b1790f954dd48f50be27893cae93937",
+        "f6070dce04d053e268abc8d7e65e2f65f9e59847",
+        "--",
+        ".",
+        ":(exclude)**/*.diff"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0.03,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\diff-check.log"
+    },
+    {
+      "name": "qwen35-diff",
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "996eb9195b1790f954dd48f50be27893cae93937",
+        "f6070dce04d053e268abc8d7e65e2f65f9e59847",
+        "--",
+        "engine/src/qwen35",
+        "engine/include/strata/qwen35"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0.01,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\qwen35-diff.log"
+    },
+    {
+      "name": "unmerged",
+      "argv": [
+        "git",
+        "ls-files",
+        "-u"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0.01,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\unmerged.log"
+    },
+    {
+      "name": "json:anchor-evidence.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\anchor-evidence.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-anchor-evidence.json.log"
+    },
+    {
+      "name": "json:anchor-matrix-draft.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\anchor-matrix-draft.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-anchor-matrix-draft.json.log"
+    },
+    {
+      "name": "json:candidate-manifest.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\candidate-manifest.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-candidate-manifest.json.log"
+    },
+    {
+      "name": "json:conflict-decisions.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\conflict-decisions.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-conflict-decisions.json.log"
+    },
+    {
+      "name": "json:content-commits.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\content-commits.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-content-commits.json.log"
+    },
+    {
+      "name": "json:h-package-copy-verify.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\h-package-copy-verify.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-h-package-copy-verify.json.log"
+    },
+    {
+      "name": "json:h-package-verification.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\h-package-verification.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-h-package-verification.json.log"
+    },
+    {
+      "name": "json:provisional-merge-plan.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\provisional-merge-plan.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-provisional-merge-plan.json.log"
+    },
+    {
+      "name": "json:evidence-index.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence-index.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-evidence-index.json.log"
+    },
+    {
+      "name": "json:merge-matrix.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\merge-matrix.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-merge-matrix.json.log"
+    },
+    {
+      "name": "json:merge-profile.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\merge-profile.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-merge-profile.json.log"
+    },
+    {
+      "name": "json:metrics.template.json",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "json.tool",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\metrics.template.json"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\json-metrics.template.json.log"
+    },
+    {
+      "name": "leakcheck",
+      "argv": [
+        "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "E:\\eXample\\Documents\\Source\\Github\\leakcheck\\leakcheck.py",
+        "--prose",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\anchor-evidence.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\anchor-matrix-draft.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\candidate-manifest.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\DECISION_RECORD.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\DOC_IMPL.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\anchor-audit.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\candidate-anchor-audit.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\commit-history.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\conflict-decisions.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\content-commits.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\h-package-copy-verify.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\h-package-verification.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\M-audit.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\merge-tree.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\pre-M-audit.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\predicted-tree-audit.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\provisional-merge-plan.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence\\upstream-delta.txt",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\evidence-index.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\FAST_RUN_REPORT.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\FULL_RUN_REPORT.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\IMPL_PLAN.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\INTEGRATION_REPORT.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\merge-matrix.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\merge-profile.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\metrics.template.json",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\PLAN.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\REVIEW_REPORT.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\TASK_IDEA.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\workflow\\tasks\\UPSTREAM-2AF30CCA\\UPSTREAM_PR_CHECK.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\upstream-merges\\2af30ccaa072-cc5f3e668ed6-2026-11-25.en.md",
+        "E:\\tmp\\workflow-upstream-2af30cca-candidate\\docs\\upstream-merges\\2af30ccaa072-cc5f3e668ed6-2026-11-25.ru.md"
+      ],
+      "cwd": "E:\\tmp\\workflow-upstream-2af30cca-candidate",
+      "rc": 0,
+      "seconds": 0,
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\static-acceptance\\leakcheck.log"
+    }
+  ]
+}

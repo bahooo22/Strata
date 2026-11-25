@@ -1,0 +1,848 @@
+{
+  "ok": true,
+  "checks": {
+    "performance": true,
+    "static": true,
+    "smoke": true,
+    "build": true,
+    "buildIdentity": true,
+    "kvQuality": true,
+    "kvQualityNoRegression": true,
+    "qualityGeneralRun": true,
+    "qualityGeneralNoRegression": true,
+    "needle": true,
+    "resourcesRun": true,
+    "resourcesCases": true,
+    "mtpRun": true,
+    "mtpDraftsParsed": true,
+    "mtpRouteActive": true,
+    "mtpAnswersEqual": true
+  },
+  "performance": {
+    "ok": true,
+    "noisePct": 1.5,
+    "aggregation": "per-window; order-adjusted when both orders exist",
+    "rows": [
+      {
+        "window": "160k",
+        "repeats": 1,
+        "baselinePp": 890.6699574163353,
+        "candidatePp": 888.6698564593302,
+        "deltaPp": -0.22,
+        "baselineTg": 15.942941053073211,
+        "candidateTg": 15.797131573477449,
+        "deltaTg": -0.91,
+        "rawMedianDeltaPp": -0.22,
+        "rawMedianDeltaTg": -0.91,
+        "aggregation": "median of paired deltas",
+        "decision": "no_change",
+        "warning": null,
+        "pairs": [
+          {
+            "label": "full",
+            "order": "baseline->candidate",
+            "generatedTokens": 76,
+            "baselinePp": 890.6699574163353,
+            "candidatePp": 888.6698564593302,
+            "deltaPp": -0.22,
+            "baselineTg": 15.942941053073211,
+            "candidateTg": 15.797131573477449,
+            "deltaTg": -0.91
+          }
+        ]
+      },
+      {
+        "window": "200k",
+        "repeats": 3,
+        "baselinePp": 733.7989615693772,
+        "candidatePp": 732.9868495291004,
+        "deltaPp": 0.02,
+        "baselineTg": 12.543664655446172,
+        "candidateTg": 12.484197218710493,
+        "deltaTg": -1.58,
+        "rawMedianDeltaPp": -0.18,
+        "rawMedianDeltaTg": -2.24,
+        "aggregation": "order-adjusted difference-in-differences",
+        "decision": "no_confirmed_regression",
+        "warning": "Порог 1.5% превышен оценкой с контролем порядка, но обратный порядок даёт противоположный знак; регрессия не подтверждена.",
+        "pairs": [
+          {
+            "label": "full",
+            "order": "baseline->candidate",
+            "generatedTokens": 79,
+            "baselinePp": 733.0504796215114,
+            "candidatePp": 733.7033255859418,
+            "deltaPp": 0.09,
+            "baselineTg": 12.870641902899967,
+            "candidateTg": 12.484197218710493,
+            "deltaTg": -3.0
+          },
+          {
+            "label": "repeat",
+            "order": "baseline->candidate",
+            "generatedTokens": 79,
+            "baselinePp": 733.7989615693772,
+            "candidatePp": 731.0540611709707,
+            "deltaPp": -0.37,
+            "baselineTg": 12.543664655446172,
+            "candidateTg": 12.26327227569078,
+            "deltaTg": -2.24
+          },
+          {
+            "label": "repeat2",
+            "order": "candidate->baseline",
+            "generatedTokens": 79,
+            "baselinePp": 734.309441509598,
+            "candidatePp": 732.9868495291004,
+            "deltaPp": -0.18,
+            "baselineTg": 12.456638284452854,
+            "candidateTg": 12.523779327837667,
+            "deltaTg": 0.54
+          }
+        ]
+      }
+    ]
+  },
+  "static": {
+    "ok": true,
+    "checks": 21
+  },
+  "smoke": {
+    "ok": true,
+    "mode": "smoke",
+    "runs": [
+      {
+        "name": "candidate-32k",
+        "argv": [
+          "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+          "-X",
+          "utf8",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\run_one_160k_2026-11-20.py",
+          "--exe",
+          "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+          "--model",
+          "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+          "--port",
+          "8186",
+          "--ctx",
+          "32768",
+          "--chars",
+          "30000",
+          "--super",
+          "8",
+          "--att",
+          "256",
+          "--reserve",
+          "512",
+          "--mtp",
+          "0",
+          "--prefill",
+          "2048",
+          "--kv-type",
+          "q4_0",
+          "--max-tokens",
+          "64",
+          "--fa",
+          "-2",
+          "--fa-tile",
+          "4",
+          "--server-root",
+          "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+          "--log",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k-engine.log",
+          "--graph"
+        ],
+        "rc": 0,
+        "seconds": 113.26,
+        "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k.log"
+      },
+      {
+        "name": "candidate-32k-eager",
+        "argv": [
+          "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+          "-X",
+          "utf8",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\run_one_160k_2026-11-20.py",
+          "--exe",
+          "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+          "--model",
+          "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+          "--port",
+          "8186",
+          "--ctx",
+          "32768",
+          "--chars",
+          "16000",
+          "--super",
+          "8",
+          "--att",
+          "256",
+          "--reserve",
+          "512",
+          "--mtp",
+          "0",
+          "--prefill",
+          "2048",
+          "--kv-type",
+          "q4_0",
+          "--max-tokens",
+          "32",
+          "--fa",
+          "-2",
+          "--fa-tile",
+          "4",
+          "--server-root",
+          "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+          "--log",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k-eager-engine.log"
+        ],
+        "rc": 0,
+        "seconds": 103.67,
+        "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k-eager.log"
+      }
+    ]
+  },
+  "build": {
+    "candidate": "f6070dce04d053e268abc8d7e65e2f65f9e59847",
+    "buildDir": "F:/tmp/upstream-2af30cca-build",
+    "pinCache": "F:/tmp/upstream-merge-prep-build/CMakeCache.txt",
+    "configureRc": 0,
+    "buildRc": 0,
+    "hygieneRc": 0,
+    "markers": {
+      "pin": "29/29",
+      "candidate": "29/29",
+      "missing": 0,
+      "mutationRc": 1
+    },
+    "exe": {
+      "strata-q36.exe": "296fc6b8462182bf08267a957ee924ccea2626d331a2abcd219321d9e5b00685",
+      "strata.exe": "f0247cd7468c4226deebfba138ee054f4b1255ede5f2534dca5b215143201435"
+    },
+    "flags": [
+      "STRATA_PORTABLE=ON",
+      "STRATA_ENABLE_CUDA=ON",
+      "STRATA_BUILD_TESTS=ON",
+      "STRATA_NATIVE_EXPERTS=ON",
+      "STRATA_Q6K_EXPERTS=ON",
+      "STRATA_MMQ=ON",
+      "STRATA_MMQ_KQUANTS=ON",
+      "STRATA_MMQ_TQ_OVERLAY=ON"
+    ],
+    "toolsCheck": {
+      "candidate": "failed: identical baseline docs links/settings register; 9 steps not-run due missing cmake/pytest/Node/torch",
+      "main": "failed: identical docs links/settings register",
+      "regression": false
+    }
+  },
+  "buildIdentity": {
+    "ok": true,
+    "normalizedCompileCommandsEqual": true,
+    "hostTextSectionsEqual": true,
+    "compileCommands": {
+      "baseline": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"0.1.67\\\" -IE:\\tmp\\upstream-merge-prep-2026-11-24\\engine\\include -IE:\\tmp\\upstream-merge-prep-2026-11-24\\engine\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c E:\\tmp\\upstream-merge-prep-2026-11-24\\engine\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS",
+      "candidate": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"0.1.68\\\" -IE:\\tmp\\workflow-upstream-2af30cca-candidate\\engine\\include -IE:\\tmp\\workflow-upstream-2af30cca-candidate\\engine\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c E:\\tmp\\workflow-upstream-2af30cca-candidate\\engine\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS"
+    },
+    "normalizedCompileCommands": {
+      "baseline": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"<VERSION>\\\" -I<SOURCE>\\include -I<SOURCE>\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c <SOURCE>\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS",
+      "candidate": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"<VERSION>\\\" -I<SOURCE>\\include -I<SOURCE>\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c <SOURCE>\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS"
+    },
+    "objects": {
+      "baseline": {
+        "path": "F:\\tmp\\upstream-merge-prep-build\\CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj",
+        "bytes": 8634568,
+        "sha256": "b810c050d8dbe9d2d594f6bff08faa89a00fea1e2e8c5031034ec022ed214506"
+      },
+      "candidate": {
+        "path": "F:\\tmp\\upstream-2af30cca-build\\CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj",
+        "bytes": 8634594,
+        "sha256": "05f5411e034f323e46f1e6e6fc327684eec2cfcf2c7ccd0bff9ed8be0bfe9f53"
+      }
+    },
+    "coffSections": {
+      "baseline": {
+        ".drectve": {
+          "bytes": 469,
+          "sha256": "18ebd76468a9c52518b5383fb0131727e89f8ffacaa1fec63059ca0c5bd6af75"
+        },
+        ".debug$S": {
+          "bytes": 172,
+          "sha256": "70376fefdd0b8772ea366cee3b5341e20baf5a4b7bea51d374857f8d363392f1"
+        },
+        ".rdata": {
+          "bytes": 16,
+          "sha256": "6db4845ea3835187f15ebd6bdf52f0c51684d803eb0d4ac481f48faf042421f1"
+        },
+        ".bss": {
+          "bytes": 8,
+          "sha256": "4d2e30ceeb4a1097c93ed8ec39d96f482afb5e3b8917866cd85205f7af266099"
+        },
+        ".nv_fatbin": {
+          "bytes": 4987648,
+          "sha256": "57b7ecf1132ca8a8652f502ea41747455ae260808a59393998d112a6e7908406"
+        },
+        ".nvFatBinSegment": {
+          "bytes": 24,
+          "sha256": "8d9b65c40e2717f4078b89ae4b8a508609acf8dcbfa63f29a7db70e81e12d973"
+        },
+        ".text$mn": {
+          "bytes": 80,
+          "sha256": "fbfad4765960234f3df7142380b7fb6a8e796f23d78472b6022aad29dc4f6dd1"
+        },
+        ".CRT$XCT": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        ".text$x": {
+          "bytes": 12,
+          "sha256": "3bfa28c200a433d2e2086325ce9cc6cf2f3ce494784cd2c575c011efc6644f69"
+        },
+        ".xdata": {
+          "bytes": 12,
+          "sha256": "39455c244cd3d4de53471a0adec96067c74300ddc0ba6db9733fe8f8e3a9ffc4"
+        },
+        ".pdata": {
+          "bytes": 12,
+          "sha256": "6a3b0ccfeb3d0fcce3543375aae2160f764514ab3929b4fefe86bb8e21253dd6"
+        },
+        ".data$r": {
+          "bytes": 124,
+          "sha256": "0278f6fad207193450f094b10acf97634ba7756f55f8dc4620d9b849edb15235"
+        },
+        ".xdata$x": {
+          "bytes": 20,
+          "sha256": "c75eeff218c4e3c7142fc8c157817d0bdf537b3446164e4fc26453bc42c4c62d"
+        },
+        ".data": {
+          "bytes": 16,
+          "sha256": "b15c0825f56c18d83e23f123bd56f2d07143f7997456af9ec4de6016cfa043b1"
+        },
+        ".rdata$r": {
+          "bytes": 36,
+          "sha256": "225ecdefb3610ec8466659f6c18fca8882deae6441fb62951a3e0baecfdf16c6"
+        },
+        ".data$rs": {
+          "bytes": 156,
+          "sha256": "3536be33009578f1aca02a0f6d87c276e0960275b8778acfd76bc9be35816fb6"
+        },
+        ".chks64": {
+          "bytes": 86456,
+          "sha256": "6ca5d58c7d02c8f854d67c30f544d20ec7bdb7779b20240231ae3c07cf9d2ea4"
+        }
+      },
+      "candidate": {
+        ".drectve": {
+          "bytes": 469,
+          "sha256": "18ebd76468a9c52518b5383fb0131727e89f8ffacaa1fec63059ca0c5bd6af75"
+        },
+        ".debug$S": {
+          "bytes": 172,
+          "sha256": "7097570536d6e53d3018c4515e4e4fcc59231b20012536cdb6efb53fab7a0079"
+        },
+        ".rdata": {
+          "bytes": 16,
+          "sha256": "6db4845ea3835187f15ebd6bdf52f0c51684d803eb0d4ac481f48faf042421f1"
+        },
+        ".bss": {
+          "bytes": 8,
+          "sha256": "ec75668307f7fedd187099f5f972e073bcdd57c78f4a54adf81f4b4b1995f984"
+        },
+        ".nv_fatbin": {
+          "bytes": 4987664,
+          "sha256": "8b2625814d270b97f1b3d53e61dee17f9371033cb8daaad1beb4713ba88b5c45"
+        },
+        ".nvFatBinSegment": {
+          "bytes": 24,
+          "sha256": "8d9b65c40e2717f4078b89ae4b8a508609acf8dcbfa63f29a7db70e81e12d973"
+        },
+        ".text$mn": {
+          "bytes": 80,
+          "sha256": "fbfad4765960234f3df7142380b7fb6a8e796f23d78472b6022aad29dc4f6dd1"
+        },
+        ".CRT$XCT": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        ".text$x": {
+          "bytes": 12,
+          "sha256": "3bfa28c200a433d2e2086325ce9cc6cf2f3ce494784cd2c575c011efc6644f69"
+        },
+        ".xdata": {
+          "bytes": 12,
+          "sha256": "39455c244cd3d4de53471a0adec96067c74300ddc0ba6db9733fe8f8e3a9ffc4"
+        },
+        ".pdata": {
+          "bytes": 12,
+          "sha256": "6a3b0ccfeb3d0fcce3543375aae2160f764514ab3929b4fefe86bb8e21253dd6"
+        },
+        ".data$r": {
+          "bytes": 124,
+          "sha256": "97e922a083b3a829bda00ca03f4a7bc303eafbaa0b56d8fe4ee32da995d37634"
+        },
+        ".xdata$x": {
+          "bytes": 20,
+          "sha256": "c75eeff218c4e3c7142fc8c157817d0bdf537b3446164e4fc26453bc42c4c62d"
+        },
+        ".data": {
+          "bytes": 16,
+          "sha256": "b15c0825f56c18d83e23f123bd56f2d07143f7997456af9ec4de6016cfa043b1"
+        },
+        ".rdata$r": {
+          "bytes": 36,
+          "sha256": "225ecdefb3610ec8466659f6c18fca8882deae6441fb62951a3e0baecfdf16c6"
+        },
+        ".data$rs": {
+          "bytes": 156,
+          "sha256": "5053d0fb0a1237bedb13c841e41537ec0306e8538ef9781a88d40d180b7a380b"
+        },
+        ".chks64": {
+          "bytes": 86456,
+          "sha256": "ae60fb45f8bef9732c47379be8f7f8e18f9556afd59affdadae4d69cb8aea4a7"
+        }
+      }
+    },
+    "sourceChecks": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--exit-code",
+          "65ec7c975f39fc4edb4c3c7f446a5e60e3114247",
+          "996eb9195b1790f954dd48f50be27893cae93937",
+          "--",
+          "engine"
+        ],
+        "rc": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--exit-code",
+          "996eb9195b1790f954dd48f50be27893cae93937",
+          "HEAD",
+          "--",
+          "engine/src/qwen35",
+          "engine/include/strata/qwen35"
+        ],
+        "rc": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "conclusion": "qwen35 source, compile flags и host .text секции совпадают; различия команд ограничены STRATA_VERSION и source path. Различие object/fatbin hash само по себе не доказывает изменение алгоритма."
+  },
+  "kvQuality": {
+    "run": {
+      "ok": true,
+      "mode": "quality",
+      "runs": [
+        {
+          "name": "kv-quality",
+          "argv": [
+            "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+            "-X",
+            "utf8",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\kv_quality_2026-11-24.py",
+            "--run",
+            "--exe",
+            "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+            "--model",
+            "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+            "--kv",
+            "q4_0",
+            "--fdec",
+            "0",
+            "--out",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\kv-quality"
+          ],
+          "rc": 0,
+          "seconds": 150.69,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\kv-quality.log"
+        }
+      ]
+    },
+    "raw": {
+      "base_self": {
+        "steps": 10,
+        "kl_mean": 0.0,
+        "kl_max": 0.0,
+        "top1": "10/10",
+        "top5": "50/50"
+      },
+      "q4_0_fdec0": {
+        "steps": 10,
+        "kl_mean": 0.0040518743917346,
+        "kl_max": 0.028094377368688583,
+        "top1": "10/10",
+        "top5": "44/50"
+      }
+    },
+    "baselineRaw": {
+      "base_self": {
+        "steps": 10,
+        "kl_mean": 0.0,
+        "kl_max": 0.0,
+        "top1": "10/10",
+        "top5": "50/50"
+      },
+      "q4_0_fdec0": {
+        "steps": 10,
+        "kl_mean": 0.0040518743917346,
+        "kl_max": 0.028094377368688583,
+        "top1": "10/10",
+        "top5": "44/50"
+      }
+    }
+  },
+  "qualityGeneral": {
+    "run": {
+      "ok": true,
+      "mode": "quality-general",
+      "runs": [
+        {
+          "name": "quality-general-32k",
+          "argv": [
+            "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+            "-X",
+            "utf8",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\hard_suite_2026-11-22.py",
+            "--model",
+            "kat-iq4xs",
+            "--profile",
+            "general",
+            "--exe",
+            "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+            "--port",
+            "8186",
+            "--ctx",
+            "32768",
+            "--tag",
+            "upstream-2af30cca",
+            "--out",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\quality-general-32k",
+            "--server-root",
+            "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal"
+          ],
+          "rc": 0,
+          "seconds": 159.48,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\quality-general-32k.log"
+        }
+      ]
+    },
+    "score": {
+      "pass_w": 16,
+      "total_w": 22,
+      "rate": 0.727
+    },
+    "baselineScore": {
+      "pass_w": 16,
+      "total_w": 22,
+      "rate": 0.727
+    },
+    "failures": [
+      "cap3",
+      "five_words",
+      "idiom"
+    ],
+    "baselineFailures": [
+      "cap3",
+      "five_words",
+      "idiom"
+    ],
+    "needle": {
+      "task": "needle24k",
+      "weight": 3,
+      "ok": true,
+      "sec": 10.48,
+      "answer": "ЛАМПА"
+    }
+  },
+  "resources": {
+    "run": {
+      "ok": true,
+      "mode": "resources",
+      "runs": [
+        {
+          "name": "resources-32k",
+          "argv": [
+            "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+            "-X",
+            "utf8",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\upstream_2af30cca_resource_accept_2026-11-25.py"
+          ],
+          "rc": 0,
+          "seconds": 206.05,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k.log"
+        }
+      ]
+    },
+    "summary": {
+      "before": {
+        "ok": true,
+        "gpu": {
+          "used_mib": 40.0,
+          "free_mib": 7985.0,
+          "util_gpu": 0.0,
+          "power_w": 36.85,
+          "temp_c": 46.12
+        }
+      },
+      "fa": {
+        "name": "fa-v2-32k",
+        "fa": true,
+        "argv": [
+          "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+          "-X",
+          "utf8",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\run_one_160k_2026-11-20.py",
+          "--exe",
+          "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+          "--model",
+          "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+          "--port",
+          "8186",
+          "--ctx",
+          "32768",
+          "--chars",
+          "80000",
+          "--master",
+          "E:\\tmp\\master.txt",
+          "--super",
+          "8",
+          "--att",
+          "256",
+          "--reserve",
+          "512",
+          "--mtp",
+          "0",
+          "--prefill",
+          "2048",
+          "--kv-type",
+          "q4_0",
+          "--max-tokens",
+          "64",
+          "--server-root",
+          "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+          "--log",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\fa-v2-32k.log",
+          "--graph",
+          "--no-thinking",
+          "--fa",
+          "-2",
+          "--fa-tile",
+          "4"
+        ],
+        "rc": 0,
+        "answer": "'Контекст получен.'",
+        "pp": 1441.6,
+        "tg": 26.3,
+        "drafts": "0/0",
+        "samples": 34,
+        "min_free_vram_mib": 1079.0,
+        "max_used_vram_mib": 6946.0,
+        "max_ram_used": 33945358336,
+        "max_gpu_util": 100,
+        "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\fa-v2-32k.log",
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\fa-v2-32k-console.log",
+        "samplesFile": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\fa-v2-32k-samples.jsonl"
+      },
+      "between": {
+        "ok": true,
+        "gpu": {
+          "used_mib": 40.0,
+          "free_mib": 7985.0,
+          "util_gpu": 0.0,
+          "power_w": 27.44,
+          "temp_c": 48.72
+        }
+      },
+      "default": {
+        "name": "default-32k-after-fa",
+        "fa": false,
+        "argv": [
+          "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+          "-X",
+          "utf8",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\run_one_160k_2026-11-20.py",
+          "--exe",
+          "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+          "--model",
+          "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+          "--port",
+          "8186",
+          "--ctx",
+          "32768",
+          "--chars",
+          "80000",
+          "--master",
+          "E:\\tmp\\master.txt",
+          "--super",
+          "8",
+          "--att",
+          "256",
+          "--reserve",
+          "512",
+          "--mtp",
+          "0",
+          "--prefill",
+          "2048",
+          "--kv-type",
+          "q4_0",
+          "--max-tokens",
+          "64",
+          "--server-root",
+          "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+          "--log",
+          "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\default-32k-after-fa.log",
+          "--graph",
+          "--no-thinking"
+        ],
+        "rc": 0,
+        "answer": "'Контекст загружен.'",
+        "pp": 1228.8,
+        "tg": 22.8,
+        "drafts": "0/0",
+        "samples": 38,
+        "min_free_vram_mib": 1079.0,
+        "max_used_vram_mib": 6946.0,
+        "max_ram_used": 33756942336,
+        "max_gpu_util": 100,
+        "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\default-32k-after-fa.log",
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\default-32k-after-fa-console.log",
+        "samplesFile": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\resources-32k\\default-32k-after-fa-samples.jsonl"
+      },
+      "after": {
+        "ok": true,
+        "gpu": {
+          "used_mib": 40.0,
+          "free_mib": 7985.0,
+          "util_gpu": 0.0,
+          "power_w": 17.38,
+          "temp_c": 49.75
+        }
+      }
+    }
+  },
+  "mtp": {
+    "run": {
+      "ok": true,
+      "mode": "mtp-route",
+      "runs": [
+        {
+          "name": "baseline-mtp2-route",
+          "argv": [
+            "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+            "-X",
+            "utf8",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\run_one_160k_2026-11-20.py",
+            "--exe",
+            "F:\\tmp\\upstream-merge-prep-build\\strata-q36.exe",
+            "--model",
+            "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+            "--port",
+            "8186",
+            "--ctx",
+            "32768",
+            "--chars",
+            "80000",
+            "--master",
+            "E:/tmp/master.txt",
+            "--super",
+            "8",
+            "--att",
+            "256",
+            "--reserve",
+            "512",
+            "--mtp",
+            "2",
+            "--prefill",
+            "2048",
+            "--kv-type",
+            "q4_0",
+            "--max-tokens",
+            "64",
+            "--fa",
+            "-2",
+            "--fa-tile",
+            "4",
+            "--server-root",
+            "C:\\Projects\\Strata-3060Ti\\engine\\terminal",
+            "--log",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\baseline-mtp2-route-engine.log",
+            "--graph",
+            "--no-thinking"
+          ],
+          "rc": 0,
+          "seconds": 95.14,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\baseline-mtp2-route.log"
+        },
+        {
+          "name": "candidate-mtp2-route",
+          "argv": [
+            "C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe",
+            "-X",
+            "utf8",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\scripts\\run_one_160k_2026-11-20.py",
+            "--exe",
+            "F:\\tmp\\upstream-2af30cca-build\\strata-q36.exe",
+            "--model",
+            "D:\\Strata\\models\\katcoder\\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+            "--port",
+            "8186",
+            "--ctx",
+            "32768",
+            "--chars",
+            "80000",
+            "--master",
+            "E:/tmp/master.txt",
+            "--super",
+            "8",
+            "--att",
+            "256",
+            "--reserve",
+            "512",
+            "--mtp",
+            "2",
+            "--prefill",
+            "2048",
+            "--kv-type",
+            "q4_0",
+            "--max-tokens",
+            "64",
+            "--fa",
+            "-2",
+            "--fa-tile",
+            "4",
+            "--server-root",
+            "E:\\tmp\\workflow-upstream-2af30cca-candidate\\terminal",
+            "--log",
+            "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-mtp2-route-engine.log",
+            "--graph",
+            "--no-thinking"
+          ],
+          "rc": 0,
+          "seconds": 101.34,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-mtp2-route.log"
+        }
+      ]
+    },
+    "accepted": [
+      "baseline 2/4",
+      "candidate 2/4"
+    ],
+    "answers": [
+      "'Контекст получен'",
+      "'Контекст получен'"
+    ],
+    "tokenDiff": 0,
+    "cliDiagnostic": "mtp_accept.py завершился 0xC0000409 одинаково на baseline/candidate; принятие идёт через штатный serve launcher."
+  },
+  "notRunOrBaseline": {
+    "toolsCheck": "docs links/settings register fail identically on main and candidate; cmake/pytest/Node/torch steps not run",
+    "hip": "not run: HIP toolchain/hardware absent; upstream HIP changes covered by static tests and N review",
+    "mtpCliDiagnostic": "mtp_accept.py завершился 0xC0000409 одинаково на baseline/candidate; обязательный MTP2 route smoke выполнен через штатный serve launcher."
+  }
+}

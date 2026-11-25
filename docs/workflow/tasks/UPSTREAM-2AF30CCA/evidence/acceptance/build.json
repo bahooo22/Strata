@@ -1,0 +1,19 @@
+{
+  "candidate": "f6070dce04d053e268abc8d7e65e2f65f9e59847",
+  "buildDir": "F:/tmp/upstream-2af30cca-build",
+  "pinCache": "F:/tmp/upstream-merge-prep-build/CMakeCache.txt",
+  "configureRc": 0,
+  "buildRc": 0,
+  "hygieneRc": 0,
+  "markers": {"pin": "29/29", "candidate": "29/29", "missing": 0, "mutationRc": 1},
+  "exe": {
+    "strata-q36.exe": "296fc6b8462182bf08267a957ee924ccea2626d331a2abcd219321d9e5b00685",
+    "strata.exe": "f0247cd7468c4226deebfba138ee054f4b1255ede5f2534dca5b215143201435"
+  },
+  "flags": ["STRATA_PORTABLE=ON", "STRATA_ENABLE_CUDA=ON", "STRATA_BUILD_TESTS=ON", "STRATA_NATIVE_EXPERTS=ON", "STRATA_Q6K_EXPERTS=ON", "STRATA_MMQ=ON", "STRATA_MMQ_KQUANTS=ON", "STRATA_MMQ_TQ_OVERLAY=ON"],
+  "toolsCheck": {
+    "candidate": "failed: identical baseline docs links/settings register; 9 steps not-run due missing cmake/pytest/Node/torch",
+    "main": "failed: identical docs links/settings register",
+    "regression": false
+  }
+}

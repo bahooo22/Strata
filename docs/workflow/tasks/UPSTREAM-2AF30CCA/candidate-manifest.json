@@ -5,7 +5,7 @@
   "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
   "candidateCodeRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
   "docsRef": "c8c939c05a4ef26de6daf55ec27c1677e97b916a",
-  "finalTip": "D4",
+  "finalTip": "D5",
   "commits": {
     "C1": "ce67d696cef760f462518bc63623d27bd43b6523",
     "C2": "d484ccdeb4193c82188ae745b13f36e37ed6257b",
@@ -13,7 +13,10 @@
     "C4": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500",
     "C5": "9ec1982ff3a75e2b5698fefc83af77a8973b71c0",
     "M": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
-    "D1": "c8c939c05a4ef26de6daf55ec27c1677e97b916a"
+    "D1": "c8c939c05a4ef26de6daf55ec27c1677e97b916a",
+    "D2": "033ee300a2fdefb66fab56e0a877baf0afb90abd",
+    "D3": "dcb524a6fe06f25fc0ba951d2017bb28ec9d07d1",
+    "D4": "f6070dce04d053e268abc8d7e65e2f65f9e59847"
   },
   "qwen35Unchanged": true,
   "textualConflicts": 0,
@@ -23,5 +26,10 @@
     "reportSha256": "fa2b1acf08e330ea18df0c09c88d98cb6cf80e8bb92a642425007821108c6811",
     "approvedTip": "dcb524a6fe06f25fc0ba951d2017bb28ec9d07d1",
     "note": "D4 records approval; code tree unchanged"
+  },
+  "acceptance": {
+    "status": "passed",
+    "artifact": "evidence/acceptance/summary.json",
+    "note": "A acceptance; code tree unchanged from D4"
   }
 }

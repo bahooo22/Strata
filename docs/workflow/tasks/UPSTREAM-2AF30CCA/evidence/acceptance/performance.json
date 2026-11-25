@@ -1,0 +1,85 @@
+{
+  "ok": true,
+  "noisePct": 1.5,
+  "aggregation": "per-window; order-adjusted when both orders exist",
+  "rows": [
+    {
+      "window": "160k",
+      "repeats": 1,
+      "baselinePp": 890.6699574163353,
+      "candidatePp": 888.6698564593302,
+      "deltaPp": -0.22,
+      "baselineTg": 15.942941053073211,
+      "candidateTg": 15.797131573477449,
+      "deltaTg": -0.91,
+      "rawMedianDeltaPp": -0.22,
+      "rawMedianDeltaTg": -0.91,
+      "aggregation": "median of paired deltas",
+      "decision": "no_change",
+      "warning": null,
+      "pairs": [
+        {
+          "label": "full",
+          "order": "baseline->candidate",
+          "generatedTokens": 76,
+          "baselinePp": 890.6699574163353,
+          "candidatePp": 888.6698564593302,
+          "deltaPp": -0.22,
+          "baselineTg": 15.942941053073211,
+          "candidateTg": 15.797131573477449,
+          "deltaTg": -0.91
+        }
+      ]
+    },
+    {
+      "window": "200k",
+      "repeats": 3,
+      "baselinePp": 733.7989615693772,
+      "candidatePp": 732.9868495291004,
+      "deltaPp": 0.02,
+      "baselineTg": 12.543664655446172,
+      "candidateTg": 12.484197218710493,
+      "deltaTg": -1.58,
+      "rawMedianDeltaPp": -0.18,
+      "rawMedianDeltaTg": -2.24,
+      "aggregation": "order-adjusted difference-in-differences",
+      "decision": "no_confirmed_regression",
+      "warning": "Порог 1.5% превышен оценкой с контролем порядка, но обратный порядок даёт противоположный знак; регрессия не подтверждена.",
+      "pairs": [
+        {
+          "label": "full",
+          "order": "baseline->candidate",
+          "generatedTokens": 79,
+          "baselinePp": 733.0504796215114,
+          "candidatePp": 733.7033255859418,
+          "deltaPp": 0.09,
+          "baselineTg": 12.870641902899967,
+          "candidateTg": 12.484197218710493,
+          "deltaTg": -3.0
+        },
+        {
+          "label": "repeat",
+          "order": "baseline->candidate",
+          "generatedTokens": 79,
+          "baselinePp": 733.7989615693772,
+          "candidatePp": 731.0540611709707,
+          "deltaPp": -0.37,
+          "baselineTg": 12.543664655446172,
+          "candidateTg": 12.26327227569078,
+          "deltaTg": -2.24
+        },
+        {
+          "label": "repeat2",
+          "order": "candidate->baseline",
+          "generatedTokens": 79,
+          "baselinePp": 734.309441509598,
+          "candidatePp": 732.9868495291004,
+          "deltaPp": -0.18,
+          "baselineTg": 12.456638284452854,
+          "candidateTg": 12.523779327837667,
+          "deltaTg": 0.54
+        }
+      ]
+    }
+  ]
+}

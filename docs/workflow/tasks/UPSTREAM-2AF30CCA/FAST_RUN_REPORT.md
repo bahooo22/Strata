@@ -1,10 +1,5 @@
 # FAST_RUN_REPORT
 
-- window: 32k
-- runs: >=3
-- hardware:
-- build_flags:
-- median:
-- spread:
-- sanity_threshold:
-- delta_vs_32k_baseline:
+- candidate 32k graph: rc=0.
+- candidate 32k eager fallback: rc=0.
+- health и answer проверены штатным launcher.

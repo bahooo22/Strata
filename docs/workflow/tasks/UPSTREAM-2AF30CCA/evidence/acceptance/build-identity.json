@@ -1,0 +1,199 @@
+{
+  "ok": true,
+  "normalizedCompileCommandsEqual": true,
+  "hostTextSectionsEqual": true,
+  "compileCommands": {
+    "baseline": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"0.1.67\\\" -IE:\\tmp\\upstream-merge-prep-2026-11-24\\engine\\include -IE:\\tmp\\upstream-merge-prep-2026-11-24\\engine\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c E:\\tmp\\upstream-merge-prep-2026-11-24\\engine\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS",
+    "candidate": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"0.1.68\\\" -IE:\\tmp\\workflow-upstream-2af30cca-candidate\\engine\\include -IE:\\tmp\\workflow-upstream-2af30cca-candidate\\engine\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c E:\\tmp\\workflow-upstream-2af30cca-candidate\\engine\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS"
+  },
+  "normalizedCompileCommands": {
+    "baseline": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"<VERSION>\\\" -I<SOURCE>\\include -I<SOURCE>\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c <SOURCE>\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS",
+    "candidate": "F:\\CUDA\\cuda-13.3\\bin\\nvcc.exe -forward-unknown-to-host-compiler -DSTRATA_CUBLASLT_MXFP8=1 -DSTRATA_HAVE_DFLASH2=1 -DSTRATA_NATIVE_EXPERTS=1 -DSTRATA_OWN_CPU_QUANT=1 -DSTRATA_PREFILL_FUSED=1 -DSTRATA_Q36_CPU_POOL=1 -DSTRATA_Q6K_EXPERTS=1 -DSTRATA_VERIFY_MAX_T=8 -DSTRATA_VERSION=\\\"<VERSION>\\\" -I<SOURCE>\\include -I<SOURCE>\\third_party\\strata-ggml\\ggml\\src\\..\\include -isystem F:\\CUDA\\cuda-13.3\\include -isystem F:\\CUDA\\cuda-13.3\\include\\cccl -D_WINDOWS -Xcompiler=\" /EHsc\" -Xcompiler=\"-O2 -Ob2\" -DNDEBUG -std=c++20 \"--generate-code=arch=compute_86,code=[compute_86,sm_86]\" \"--generate-code=arch=compute_89,code=[compute_89,sm_89]\" \"--generate-code=arch=compute_120,code=[compute_120,sm_120]\" -Xcompiler=-MT -Xcompiler=/W4 -x cu -c <SOURCE>\\src\\qwen35\\q36_engine.cu -o CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj -Xcompiler=-FdCMakeFiles\\strata_qwen35.dir\\strata_qwen35.pdb,-FS"
+  },
+  "objects": {
+    "baseline": {
+      "path": "F:\\tmp\\upstream-merge-prep-build\\CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj",
+      "bytes": 8634568,
+      "sha256": "b810c050d8dbe9d2d594f6bff08faa89a00fea1e2e8c5031034ec022ed214506"
+    },
+    "candidate": {
+      "path": "F:\\tmp\\upstream-2af30cca-build\\CMakeFiles\\strata_qwen35.dir\\src\\qwen35\\q36_engine.cu.obj",
+      "bytes": 8634594,
+      "sha256": "05f5411e034f323e46f1e6e6fc327684eec2cfcf2c7ccd0bff9ed8be0bfe9f53"
+    }
+  },
+  "coffSections": {
+    "baseline": {
+      ".drectve": {
+        "bytes": 469,
+        "sha256": "18ebd76468a9c52518b5383fb0131727e89f8ffacaa1fec63059ca0c5bd6af75"
+      },
+      ".debug$S": {
+        "bytes": 172,
+        "sha256": "70376fefdd0b8772ea366cee3b5341e20baf5a4b7bea51d374857f8d363392f1"
+      },
+      ".rdata": {
+        "bytes": 16,
+        "sha256": "6db4845ea3835187f15ebd6bdf52f0c51684d803eb0d4ac481f48faf042421f1"
+      },
+      ".bss": {
+        "bytes": 8,
+        "sha256": "4d2e30ceeb4a1097c93ed8ec39d96f482afb5e3b8917866cd85205f7af266099"
+      },
+      ".nv_fatbin": {
+        "bytes": 4987648,
+        "sha256": "57b7ecf1132ca8a8652f502ea41747455ae260808a59393998d112a6e7908406"
+      },
+      ".nvFatBinSegment": {
+        "bytes": 24,
+        "sha256": "8d9b65c40e2717f4078b89ae4b8a508609acf8dcbfa63f29a7db70e81e12d973"
+      },
+      ".text$mn": {
+        "bytes": 80,
+        "sha256": "fbfad4765960234f3df7142380b7fb6a8e796f23d78472b6022aad29dc4f6dd1"
+      },
+      ".CRT$XCT": {
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+      },
+      ".text$x": {
+        "bytes": 12,
+        "sha256": "3bfa28c200a433d2e2086325ce9cc6cf2f3ce494784cd2c575c011efc6644f69"
+      },
+      ".xdata": {
+        "bytes": 12,
+        "sha256": "39455c244cd3d4de53471a0adec96067c74300ddc0ba6db9733fe8f8e3a9ffc4"
+      },
+      ".pdata": {
+        "bytes": 12,
+        "sha256": "6a3b0ccfeb3d0fcce3543375aae2160f764514ab3929b4fefe86bb8e21253dd6"
+      },
+      ".data$r": {
+        "bytes": 124,
+        "sha256": "0278f6fad207193450f094b10acf97634ba7756f55f8dc4620d9b849edb15235"
+      },
+      ".xdata$x": {
+        "bytes": 20,
+        "sha256": "c75eeff218c4e3c7142fc8c157817d0bdf537b3446164e4fc26453bc42c4c62d"
+      },
+      ".data": {
+        "bytes": 16,
+        "sha256": "b15c0825f56c18d83e23f123bd56f2d07143f7997456af9ec4de6016cfa043b1"
+      },
+      ".rdata$r": {
+        "bytes": 36,
+        "sha256": "225ecdefb3610ec8466659f6c18fca8882deae6441fb62951a3e0baecfdf16c6"
+      },
+      ".data$rs": {
+        "bytes": 156,
+        "sha256": "3536be33009578f1aca02a0f6d87c276e0960275b8778acfd76bc9be35816fb6"
+      },
+      ".chks64": {
+        "bytes": 86456,
+        "sha256": "6ca5d58c7d02c8f854d67c30f544d20ec7bdb7779b20240231ae3c07cf9d2ea4"
+      }
+    },
+    "candidate": {
+      ".drectve": {
+        "bytes": 469,
+        "sha256": "18ebd76468a9c52518b5383fb0131727e89f8ffacaa1fec63059ca0c5bd6af75"
+      },
+      ".debug$S": {
+        "bytes": 172,
+        "sha256": "7097570536d6e53d3018c4515e4e4fcc59231b20012536cdb6efb53fab7a0079"
+      },
+      ".rdata": {
+        "bytes": 16,
+        "sha256": "6db4845ea3835187f15ebd6bdf52f0c51684d803eb0d4ac481f48faf042421f1"
+      },
+      ".bss": {
+        "bytes": 8,
+        "sha256": "ec75668307f7fedd187099f5f972e073bcdd57c78f4a54adf81f4b4b1995f984"
+      },
+      ".nv_fatbin": {
+        "bytes": 4987664,
+        "sha256": "8b2625814d270b97f1b3d53e61dee17f9371033cb8daaad1beb4713ba88b5c45"
+      },
+      ".nvFatBinSegment": {
+        "bytes": 24,
+        "sha256": "8d9b65c40e2717f4078b89ae4b8a508609acf8dcbfa63f29a7db70e81e12d973"
+      },
+      ".text$mn": {
+        "bytes": 80,
+        "sha256": "fbfad4765960234f3df7142380b7fb6a8e796f23d78472b6022aad29dc4f6dd1"
+      },
+      ".CRT$XCT": {
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+      },
+      ".text$x": {
+        "bytes": 12,
+        "sha256": "3bfa28c200a433d2e2086325ce9cc6cf2f3ce494784cd2c575c011efc6644f69"
+      },
+      ".xdata": {
+        "bytes": 12,
+        "sha256": "39455c244cd3d4de53471a0adec96067c74300ddc0ba6db9733fe8f8e3a9ffc4"
+      },
+      ".pdata": {
+        "bytes": 12,
+        "sha256": "6a3b0ccfeb3d0fcce3543375aae2160f764514ab3929b4fefe86bb8e21253dd6"
+      },
+      ".data$r": {
+        "bytes": 124,
+        "sha256": "97e922a083b3a829bda00ca03f4a7bc303eafbaa0b56d8fe4ee32da995d37634"
+      },
+      ".xdata$x": {
+        "bytes": 20,
+        "sha256": "c75eeff218c4e3c7142fc8c157817d0bdf537b3446164e4fc26453bc42c4c62d"
+      },
+      ".data": {
+        "bytes": 16,
+        "sha256": "b15c0825f56c18d83e23f123bd56f2d07143f7997456af9ec4de6016cfa043b1"
+      },
+      ".rdata$r": {
+        "bytes": 36,
+        "sha256": "225ecdefb3610ec8466659f6c18fca8882deae6441fb62951a3e0baecfdf16c6"
+      },
+      ".data$rs": {
+        "bytes": 156,
+        "sha256": "5053d0fb0a1237bedb13c841e41537ec0306e8538ef9781a88d40d180b7a380b"
+      },
+      ".chks64": {
+        "bytes": 86456,
+        "sha256": "ae60fb45f8bef9732c47379be8f7f8e18f9556afd59affdadae4d69cb8aea4a7"
+      }
+    }
+  },
+  "sourceChecks": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "65ec7c975f39fc4edb4c3c7f446a5e60e3114247",
+        "996eb9195b1790f954dd48f50be27893cae93937",
+        "--",
+        "engine"
+      ],
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "996eb9195b1790f954dd48f50be27893cae93937",
+        "HEAD",
+        "--",
+        "engine/src/qwen35",
+        "engine/include/strata/qwen35"
+      ],
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "conclusion": "qwen35 source, compile flags и host .text секции совпадают; различия команд ограничены STRATA_VERSION и source path. Различие object/fatbin hash само по себе не доказывает изменение алгоритма."
+}
