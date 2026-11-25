@@ -38,3 +38,6 @@
 {"time": "2026-11-25T17:57:45+00:00", "taskId": "MMQ-DEVICE-METADATA", "event": "init", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "baseSha": "c5e4212c610f908390f1341bc53bdd2f53813058", "branch": "task/MMQ-DEVICE-METADATA"}
 {"time": "2026-11-25T17:58:03+00:00", "taskId": "MMQ-DEVICE-METADATA", "event": "artifact", "actor": "A", "name": "TASK_IDEA", "path": "docs/workflow/tasks/MMQ-DEVICE-METADATA/TASK_IDEA.md", "status": null}
 {"time": "2026-11-25T17:58:03+00:00", "taskId": "MMQ-DEVICE-METADATA", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G0", "to": "G1"}
+{"time": "2026-11-25T18:25:19+00:00", "taskId": "MMQ-DEVICE-METADATA", "event": "artifact", "actor": "A", "name": "DECISION_RECORD", "path": "docs/workflow/tasks/MMQ-DEVICE-METADATA/DECISION_RECORD.md", "status": "ARCHIVED"}
+{"time": "2026-11-25T18:25:19+00:00", "taskId": "MMQ-DEVICE-METADATA", "event": "threshold-exclusion", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "minimumEndToEndPct": 5, "expectedUpperPct": 3, "decision": "excluded"}
+{"time": "2026-11-25T18:25:19+00:00", "taskId": "MMQ-DEVICE-METADATA", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G1", "to": "CLEANUP", "note": "Порог 5% исключил гипотезу до реализации; generic optimization transition не применяется."}

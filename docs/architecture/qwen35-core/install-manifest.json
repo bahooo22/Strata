@@ -64,13 +64,13 @@
     {
       "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\five-improvements-ranked.md",
       "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\improvements.md",
-      "sha256": "a2d8b9e9df49a60fcb197b26075cd39ea2c118cef0d1cc3b76e54e4c88d9dc35",
+      "sha256": "2764737926f01c39d6e925f035139fe8cf557be6eebc5f7ca4a850b2c517bbbd",
       "ok": true
     },
     {
       "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\architecture-package.json",
       "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\architecture-package.json",
-      "sha256": "45e7c6fc3ed83f6b9cef5a07ec760ddd73f5b375920b62f2f6b9afe363c046f1",
+      "sha256": "d6a2023fa6f8e243f3abc8560c6cdd53bc01cb3d6715ccd6a1b8806f784ec930",
       "ok": true
     }
   ]

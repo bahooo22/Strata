@@ -436,7 +436,7 @@
     },
     "MMQ-DEVICE-METADATA": {
       "taskId": "MMQ-DEVICE-METADATA",
-      "gate": "G1",
+      "gate": "CLEANUP",
       "baseSha": "c5e4212c610f908390f1341bc53bdd2f53813058",
       "branch": "task/MMQ-DEVICE-METADATA",
       "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
@@ -447,21 +447,35 @@
           "sha256": "45c7430aeec264e9a8ac5a6630a897580389c6a09cecc3b897a8e8bcabd42c72",
           "status": null,
           "recordedAt": "2026-11-25T17:58:03+00:00"
+        },
+        "DECISION_RECORD": {
+          "path": "docs/workflow/tasks/MMQ-DEVICE-METADATA/DECISION_RECORD.md",
+          "author": "A",
+          "sha256": "ea807aa7257f90cb1b9e1cd5886124bb9e2ce254b6fb0fee97dc7a63109ee172",
+          "status": "ARCHIVED",
+          "recordedAt": "2026-11-25T18:25:19+00:00"
         }
       },
       "metrics": {},
       "review": {
-        "verdict": "pending",
-        "criteria": {}
+        "verdict": "not-required",
+        "reason": "Эксперимент исключён до code/review/build/GPU."
       },
       "integration": {
-        "verdict": "pending"
+        "verdict": "ARCHIVED",
+        "at": "2026-11-25T18:25:19+00:00",
+        "reason": "Ожидаемый эффект +1–3% pp ниже пользовательского порога 5%."
       },
       "upstreamPr": {
         "status": "not-run"
       },
       "createdAt": "2026-11-25T17:57:45+00:00",
-      "updatedAt": "2026-11-25T17:58:03+00:00"
+      "updatedAt": "2026-11-25T18:25:19+00:00",
+      "threshold": {
+        "minimumEndToEndPct": 5,
+        "expectedUpperPct": 3,
+        "decision": "excluded"
+      }
     }
   }
 }

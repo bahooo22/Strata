@@ -26,4 +26,4 @@
 - `[ ]` не начат; `[~]` частично; `[x]` принят и проверен; `[x-неактуален]` доказанно не относится; `[blocked]` есть блокер; `[defer]` experiment only.
 - Каждый переход требует evidence/commit/PR, owner и next action.
 | 12. qwen35 core architecture | done | main | post-merge SHA | 27 классов/237 символов/300 call edges; 659/659 sourceRefs; пять Mermaid sources; master-схема в docs/architecture/qwen35-core | поддерживать sourceRefs при изменениях ядра |
-| 13. Пять ускорений qwen35 | analysis-done | main | architecture audit | ranked shortlist и внешние первичные источники в docs/architecture/qwen35-core/improvements.md; best practical #4 device-side MMQ metadata | реализация только отдельным TASK_IDEA |
+| 13. Пять ускорений qwen35 | analysis-done | main | architecture audit + порог 5% | ranked shortlist опубликован; #4 (+1–3%) и #5 (+1–4%) исключены; первый candidate #2 adaptive super-chunk | новый TASK_IDEA для #2 и обязательная приёмка ≥5% end-to-end |
