@@ -8,7 +8,7 @@
 | 0. Реестры | done | main | preflight | созданы `IMPROVEMENT_REGISTRY.md`, `PROGRESS.md`; `deep-cloud-owl.md` обновлён | поддерживать статусы сразу |
 | 1. Merge tools | fork-only | b8bd12b8 / main | post-mutation fix | unit 16/16; selftest 42/42; edge/leakcheck clean; PR #6950 закрыт по решению заказчика | не публиковать повторно; инструмент остаётся в форке |
 | 1.1 RU+EN merge docs | done | main | accepted merge tool | `document` генерирует MD по upstream commits, matrix decisions, conflicts, adaptations, evidence и waivers; реальный отчёт 291/697/18/4/4 | поддерживать генератор и включать отчёты в candidate |
-| 1.2 Workflow v3 | in-progress | A/H/N | approved plan | state-machine unit 6/6; hook selftest 6/6; docs/workflow и шаблоны созданы | canary, cutover permissions, реальный CANARY-001 |
+| 1.2 Workflow v3 | done | A/H/N | approved plan | unit 6/6; hook selftest 7/7; cutover выполнен; CANARY-001 дошёл до CLEANUP с ARCHIVED/no_change; архивная ветка `301eda3ba` сохранена на GitHub | поддерживать guard/state; отдельная задача launch #18 остаётся |
 | 2. Локальная приёмка | done | main | existing binaries/artifact | Q5.5 done; installer setup build rc=0, hygiene rc=0, marker 29/29, smoke health OK/answer Да | поддерживать evidence; Portable отдельно |
 | 3. Upstream analysis/scope | analysis-done | 3568a3e2 / main | refreshed refs | anchors/evidence собраны; временные комментарии в #5467/#3903 удалены; duplicate PR не создавались | публикация остановлена; follow-up только по явному решению |
 | 3.1 Экспертные типы 10/11/18/21 | done | main / 3568a3e2 / b8bd12b8 | main `a8ebf5d59` | CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29; review APPROVE | HIP not-run с waiver; quality/MTP smoke, затем Portable |
@@ -18,7 +18,7 @@
 | 7. Fork integration | done-snapshot | main | accepted candidates | 8/8 combo rc=0; eager/copy equal=True; quality 16/22 + needle PASS; MTP2 answer Принято; review APPROVE snapshot | no-regression без repeats не заявлен; HIP not-run; Portable final |
 | 8. Q7 | blocked | main / 3568a3e2 | integrated binary | A auto 9,8; B8192 18,2; B LM32768 ~63,3 tok/s, затем 503; C20 exit 2 без static expert-profile | unblock: Swift profile + диагностика 503 + повтор C20; quality/C24/D/E not-run |
 | 9. Portable final | done | main | Q7 verdict, kit artifact | functional OK; HDD 200k pp 376,7/tg 11,0; 160k pp 560,6/tg 13,7; VRAM 0 | абсолютный HDD-вариант; финальный completion audit |
-| 10. Upstream merge `d46f5f2` | done | helper → аналитик → helper → main | upstream `d46f5f2` | atomic candidate `cc195b909`; analyst APPROVE; main gate pass; performance/quality/MTP2/fallback/resources приняты; push main+candidate rc=0 | RU+EN MD-отчёты по изменениям и решениям; warning-code fix отдельным коммитом |
+| 10. Upstream merge `d46f5f2` | done | helper → аналитик → helper → main | upstream `d46f5f2` | atomic candidate `cc195b909`; analyst APPROVE; main gate pass; performance/quality/MTP2/fallback/resources приняты; push main+candidate rc=0; RU+EN MD и warning-code fix приняты | поддерживать refs и generated reports |
 
 ## Протокол
 

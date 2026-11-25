@@ -1,4 +1,215 @@
 {
   "version": 1,
-  "tasks": {}
+  "tasks": {
+    "CANARY-001": {
+      "taskId": "CANARY-001",
+      "gate": "CLEANUP",
+      "baseSha": "4356a467780900923cbf83d92675790e7fbeb32a",
+      "branch": "task/CANARY-001",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/CANARY-001/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "a446ff444332f64fab224d728e6a8a9c0d43d7c0d81f33d7612340aac8355393",
+          "status": null,
+          "recordedAt": "2026-11-25T01:00:03+00:00"
+        },
+        "IMPL_PLAN": {
+          "path": "docs/workflow/tasks/CANARY-001/IMPL_PLAN.md",
+          "author": "H",
+          "sha256": "b1df50bb6b2a67c2d1eadca912354c3f1b1275405594baefb6508b3321691e8b",
+          "status": null,
+          "recordedAt": "2026-11-25T01:13:28+00:00"
+        },
+        "PATCH": {
+          "path": "docs/workflow/tasks/CANARY-001/PATCH.diff",
+          "author": "H",
+          "sha256": "717b921eb7e3eda1939b9e822751340da446cddf4ba2759af602459ae4b5c20a",
+          "status": null,
+          "recordedAt": "2026-11-25T01:13:29+00:00"
+        },
+        "DOC_IMPL": {
+          "path": "docs/workflow/tasks/CANARY-001/DOC_IMPL.md",
+          "author": "H",
+          "sha256": "30434a243d4063d1f3eec81cbb3966d729e9a9da0b5a3279f46904669387ab67",
+          "status": null,
+          "recordedAt": "2026-11-25T01:13:29+00:00"
+        },
+        "FAST_RUN_REPORT": {
+          "path": "docs/workflow/tasks/CANARY-001/FAST_RUN_REPORT.md",
+          "author": "A",
+          "sha256": "2bd49cb02ce9cc0e026f5a70828b82436ba522d125dbd2b4f72f98a3694a9e22",
+          "status": null,
+          "recordedAt": "2026-11-25T01:17:10+00:00"
+        },
+        "REVIEW_REPORT": {
+          "path": "docs/workflow/tasks/CANARY-001/REVIEW_REPORT.md",
+          "author": "N",
+          "sha256": "fce58f1509b4935ca63cb07ae3387337533a1b67317c9fc4ad3f1772d348bd71",
+          "status": "CODE_APPROVED",
+          "recordedAt": "2026-11-25T01:35:02+00:00"
+        },
+        "FULL_RUN_REPORT": {
+          "path": "docs/workflow/tasks/CANARY-001/FULL_RUN_REPORT.md",
+          "author": "A",
+          "sha256": "1e9f8b83f453183c1828b0c4e4255273a0920bb1957d547e9891255bfec0edc9",
+          "status": null,
+          "recordedAt": "2026-11-25T01:55:40+00:00"
+        },
+        "INTEGRATION_REPORT": {
+          "path": "docs/workflow/tasks/CANARY-001/INTEGRATION_REPORT.md",
+          "author": "A",
+          "sha256": "beeb21bd2a1d1704e5b7a5b2af1f61e5ed6c9addd00ee8228577b4ff9e3bdf74",
+          "status": "ARCHIVED",
+          "recordedAt": "2026-11-25T01:55:40+00:00"
+        },
+        "DECISION_RECORD": {
+          "path": "docs/workflow/tasks/CANARY-001/DECISION_RECORD.md",
+          "author": "A",
+          "sha256": "6ec6d29a63b79b367c4daa9017db182eebcc008640044f152e43b64971e1d4a2",
+          "status": "ARCHIVED",
+          "recordedAt": "2026-11-25T01:55:40+00:00"
+        }
+      },
+      "metrics": {
+        "32k": {
+          "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+          "baseline": {
+            "window": "32k",
+            "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+            "medianPp": 1439.3
+          },
+          "runs": [
+            {
+              "window": "32k",
+              "readWindows": 1,
+              "pp": 1438.9,
+              "tg": 26.1,
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw1-32k-1.log"
+            },
+            {
+              "window": "32k",
+              "readWindows": 1,
+              "pp": 1446.4,
+              "tg": 24.0,
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw1-32k-2.log"
+            },
+            {
+              "window": "32k",
+              "readWindows": 1,
+              "pp": 1439.3,
+              "tg": 22.1,
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw1-32k-3.log"
+            },
+            {
+              "window": "32k",
+              "readWindows": 2,
+              "pp": 1445.5,
+              "tg": 25.5,
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw2-32k-1.log"
+            },
+            {
+              "window": "32k",
+              "readWindows": 2,
+              "pp": 1435.8,
+              "tg": 23.5,
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw2-32k-2.log"
+            },
+            {
+              "window": "32k",
+              "readWindows": 2,
+              "pp": 1432.6,
+              "tg": 25.5,
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw2-32k-3.log"
+            }
+          ],
+          "medianPp": 1435.8,
+          "spreadPp": 12.9,
+          "decision": "pass",
+          "notes": "delta -0.24%, шум; sanity pass"
+        },
+        "160k": {
+          "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+          "baseline": {
+            "window": "160k",
+            "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+            "pp": 886.7,
+            "tg": 14.8
+          },
+          "runs": [
+            {
+              "window": "160k",
+              "readWindows": 2,
+              "pp": 896.6,
+              "tg": 15.9,
+              "rc": 0,
+              "promptTokens": 139299,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-full\\combo-fa-160k.log"
+            }
+          ],
+          "deltaPp": 1.12,
+          "deltaTg": 7.43,
+          "decision": "no_change",
+          "notes": "pp внутри шумового диапазона 1–1.5%"
+        },
+        "200k": {
+          "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+          "baseline": {
+            "window": "200k",
+            "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+            "pp": 731.2,
+            "tg": 12.4
+          },
+          "runs": [
+            {
+              "window": "200k",
+              "readWindows": 2,
+              "pp": 735.7,
+              "tg": 12.5,
+              "rc": 0,
+              "promptTokens": 202665,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-full\\combo-fa-200k.log"
+            }
+          ],
+          "deltaPp": 0.62,
+          "deltaTg": 0.81,
+          "decision": "no_change",
+          "notes": "pp внутри шумового диапазона 1–1.5%"
+        }
+      },
+      "review": {
+        "verdict": "CODE_APPROVED",
+        "reviewer": "9ba7a8a6-9973-4bce-8a66-93acde030932",
+        "criteria": {
+          "C1": true,
+          "C2": true,
+          "C3": true,
+          "C4": true,
+          "C5": true,
+          "C6": true,
+          "C7": true,
+          "C8": true,
+          "C9": true,
+          "C10": true
+        },
+        "report": "docs/workflow/tasks/CANARY-001/REVIEW_REPORT.md"
+      },
+      "integration": {
+        "verdict": "ARCHIVED",
+        "at": "2026-11-25T01:57:46+00:00"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T00:59:04+00:00",
+      "updatedAt": "2026-11-25T01:57:46+00:00"
+    }
+  }
 }

@@ -1,0 +1,67 @@
+{
+  "taskId": "CANARY-001",
+  "metrics": {
+    "32k": {
+      "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+      "baseline": {
+        "window": "32k",
+        "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0",
+        "medianPp": 1439.3
+      },
+      "runs": [
+        {
+          "window": "32k",
+          "readWindows": 1,
+          "pp": 1438.9,
+          "tg": 26.1,
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw1-32k-1.log"
+        },
+        {
+          "window": "32k",
+          "readWindows": 1,
+          "pp": 1446.4,
+          "tg": 24.0,
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw1-32k-2.log"
+        },
+        {
+          "window": "32k",
+          "readWindows": 1,
+          "pp": 1439.3,
+          "tg": 22.1,
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw1-32k-3.log"
+        },
+        {
+          "window": "32k",
+          "readWindows": 2,
+          "pp": 1445.5,
+          "tg": 25.5,
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw2-32k-1.log"
+        },
+        {
+          "window": "32k",
+          "readWindows": 2,
+          "pp": 1435.8,
+          "tg": 23.5,
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw2-32k-2.log"
+        },
+        {
+          "window": "32k",
+          "readWindows": 2,
+          "pp": 1432.6,
+          "tg": 25.5,
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-merge-tool\\canary-001-fast\\rw2-32k-3.log"
+        }
+      ],
+      "medianPp": 1435.8,
+      "spreadPp": 12.9,
+      "decision": "pass",
+      "notes": "delta -0.24%, шум; sanity pass"
+    }
+  }
+}

@@ -8,7 +8,7 @@
 - H — helper: IMPL_PLAN, PATCH и DOC_IMPL в отдельной task-ветке.
 - N — аналитик: read-only REVIEW_REPORT по C1–C10.
 
-Текущие session id хранятся в `participants.json`. До cutover действуют старые роли; после cutover guard использует новый реестр.
+Текущие session id хранятся в `participants.json`. Cutover выполнен: guard использует новый реестр A/H/N, полномочия старого reviewer отозваны.
 
 ## Команды
 
@@ -55,4 +55,14 @@ A/H/N — отдельные сеансы в одном workspace. H работ�
 
 Qoder блокирует forwarding делегированной задачи, поэтому маршрут такой: A→H, H→A, A→N, N→A. Перед отправкой A проверяет target через `read_chat_session` и `wait_chat_sessions timeoutMs=0`, затем использует `callbackMode=supervise`.
 
-`qoder-settings.json` содержит подготовленную конфигурацию hooks. Она активируется на cutover; до этого действует старый owner guard.
+`qoder-settings.json` содержит конфигурацию hooks, активированную на cutover. Локальный `.qoder/settings.json` подключён к workflow guard; tracked template остаётся в docs.
+
+## Canary CANARY-001
+
+- Задача: `STRATA_Q36_READ_WINDOWS=2` для KAT IQ4_XS.
+- Fast 32k: baseline median 1439.3, candidate 1435.8, delta -0.24%, шум.
+- Full 160k: pp 886.7→896.6 (+1.12%), tg 14.8→15.9.
+- Full 200k: pp 731.2→735.7 (+0.62%), tg 12.4→12.5.
+- N: `CODE_APPROVED`, C1–C10 PASS.
+- Итог: оба full pp внутри шумового диапазона 1–1.5%, поэтому `no_change` и `ARCHIVED`; merge не выполнялся.
+- Архивная ветка: `task/CANARY-001`, commit `301eda3ba`; локальный worktree и ветка удалены, удалённая ветка сохранена.

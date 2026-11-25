@@ -102,9 +102,17 @@ function Assert-PreToolUse {
     if (-not $mutation) { return $null }
 
     $role = Get-Role $Event $Participants
-    if ($role -in @('N', 'FOREIGN')) { return "Workflow v3: роль $role не выполняет мутации, build или GPU." }
+    if ($role -eq 'FOREIGN') { return 'Workflow v3: FOREIGN не выполняет мутации, build или GPU.' }
 
     if ($tool -in @('Write', 'Edit')) {
+        if ($role -eq 'N') {
+            $path = Get-ToolPath $Event
+            $normalized = $path.Replace('\', '/')
+            if ($normalized -notmatch '^docs/workflow/tasks/[^/]+/REVIEW_REPORT\.(md|json)$') {
+                return 'Workflow v3: N пишет только REVIEW_REPORT.md/.json в каталог задачи.'
+            }
+            return $null
+        }
         if ($role -eq 'H') {
             $branch = Get-Branch $Repo
             if ($branch -notmatch '^task/') { return 'Workflow v3: H редактирует только отдельную task-ветку.' }
@@ -192,6 +200,8 @@ function Invoke-Selftest {
     Check ($null -ne (Assert-PreToolUse $hCommit $repo $participants)) 'H commit запрещён'
     $nWrite = [pscustomobject]@{ tool_name = 'Write'; session_id = 'N'; tool_input = @{ file_path = 'x.txt' } }
     Check ($null -ne (Assert-PreToolUse $nWrite $repo $participants)) 'N edit запрещён'
+    $nReview = [pscustomobject]@{ tool_name = 'Write'; session_id = 'N'; tool_input = @{ file_path = 'docs/workflow/tasks/T1/REVIEW_REPORT.md' } }
+    Check ($null -eq (Assert-PreToolUse $nReview $repo $participants)) 'N REVIEW_REPORT разрешён'
     $foreign = [pscustomobject]@{ tool_name = 'Bash'; session_id = 'X'; tool_input = @{ command = 'ninja' } }
     Check ($null -ne (Assert-PreToolUse $foreign $repo $participants)) 'Foreign build запрещён'
     $aPush = [pscustomobject]@{ tool_name = 'Bash'; session_id = 'A'; tool_input = @{ command = 'git push origin main' } }

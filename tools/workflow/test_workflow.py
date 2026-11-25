@@ -119,6 +119,10 @@ class WorkflowTests(unittest.TestCase):
         self.artifact("DECISION_RECORD", "A")
         code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "ARCHIVED")
         self.assertEqual(code, 0, data)
+        code, data = run(self.repo, "status", "--task-id", "T1")
+        self.assertEqual(data["task"]["integration"]["verdict"], "ARCHIVED")
+        code, data = run(self.repo, "validate", "--task-id", "T1")
+        self.assertEqual(code, 0, data)
         code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "UPSTREAM_PR_CHECK")
         self.assertEqual(code, 1, data)
 

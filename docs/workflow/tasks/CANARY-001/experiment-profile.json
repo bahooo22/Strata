@@ -1,0 +1,127 @@
+{
+  "taskId": "CANARY-001",
+  "date": "2026-11-25",
+  "role": "H",
+  "status": "prepared-not-approved",
+  "baseSha": "4356a467780900923cbf83d92675790e7fbeb32a",
+  "branch": "task/CANARY-001",
+  "experiment": {
+    "id": "CANARY-001-read-windows-2",
+    "parameter": "STRATA_Q36_READ_WINDOWS",
+    "baselineValue": 1,
+    "candidateValue": 2,
+    "expectedEffect": null,
+    "engineCodeChanged": false
+  },
+  "profile": {
+    "model": "D:/Strata/models/katcoder/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+    "exe": "F:/tmp/upstream-merge-prep-build/strata-q36.exe",
+    "serverRoot": "C:/Projects/Strata-3060Ti/engine/terminal",
+    "graph": true,
+    "kvType": "q4_0",
+    "mtp": 0,
+    "superChunk": 8,
+    "attMb": 256,
+    "reserveMb": 512,
+    "prefill": 2048,
+    "chunk": 128,
+    "batch": 1,
+    "fa": {
+      "layer": -2,
+      "tile": 4,
+      "explicitArgs": [
+        "--fa",
+        "-2",
+        "--fa-tile",
+        "4"
+      ]
+    },
+    "env": {
+      "STRATA_Q36_READ_WINDOWS": "2"
+    }
+  },
+  "baselineProfile": {
+    "model": "D:/Strata/models/katcoder/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
+    "exe": "F:/tmp/upstream-merge-prep-build/strata-q36.exe",
+    "serverRoot": "C:/Projects/Strata-3060Ti/engine/terminal",
+    "graph": true,
+    "kvType": "q4_0",
+    "mtp": 0,
+    "superChunk": 8,
+    "attMb": 256,
+    "reserveMb": 512,
+    "prefill": 2048,
+    "chunk": 128,
+    "batch": 1,
+    "fa": {
+      "layer": -2,
+      "tile": 4,
+      "explicitArgs": [
+        "--fa",
+        "-2",
+        "--fa-tile",
+        "4"
+      ]
+    },
+    "env": {
+      "STRATA_Q36_READ_WINDOWS": "1"
+    }
+  },
+  "preflight": {
+    "modelExists": true,
+    "exeExists": true,
+    "serverRootExists": true,
+    "blocker": null,
+    "serverRoot": "C:/Projects/Strata-3060Ti/engine/terminal"
+  },
+  "windows": [
+    {
+      "name": "32k",
+      "context": 32768,
+      "candidateRuns": 3,
+      "baseline": "same-window baseline before candidate",
+      "decisionRule": "pass only after >=3 candidate runs and median/spread comparison"
+    },
+    {
+      "name": "160k",
+      "context": 163840,
+      "candidateRuns": 1,
+      "baseline": {
+        "pp": 886.7,
+        "tg": 14.8
+      },
+      "decisionRule": "progress required for merge"
+    },
+    {
+      "name": "200k",
+      "context": 204800,
+      "candidateRuns": 1,
+      "baseline": {
+        "pp": 731.2,
+        "tg": 12.4
+      },
+      "decisionRule": "progress required for merge"
+    }
+  ],
+  "runOrder": [
+    "baseline-32k",
+    "candidate-32k-run-1",
+    "candidate-32k-run-2",
+    "candidate-32k-run-3",
+    "candidate-160k",
+    "candidate-200k"
+  ],
+  "acceptance": {
+    "fast32k": ">=3 candidate runs; compare only with same-window baseline",
+    "fullMerge": "progress on both 160k and 200k",
+    "archive": "no_change, regress or critical_risk",
+    "smallDelta": "treat 1-1.5 percent performance deltas as noise until repeated"
+  },
+  "notRunByH": [
+    "GPU",
+    "build",
+    "commit",
+    "push",
+    "merge"
+  ]
+}

@@ -255,6 +255,10 @@ def validate_task(repo: Path, task: dict[str, Any]) -> None:
         validate_review(repo, task)
     if task.get("gate") in {"UPSTREAM_PR_CHECK", "MERGED"}:
         validate_full_metrics(task)
+    if task.get("gate") in {"ARCHIVED", "CLEANUP"}:
+        report = task.get("artifacts", {}).get("INTEGRATION_REPORT", {})
+        if report.get("status") == "ARCHIVED" and task.get("integration", {}).get("verdict") != "ARCHIVED":
+            raise WorkflowError("archive gate требует integration verdict ARCHIVED")
 
 
 def cmd_init(args: argparse.Namespace) -> dict[str, Any]:
@@ -411,6 +415,7 @@ def cmd_transition(args: argparse.Namespace) -> dict[str, Any]:
         if target == "ARCHIVED":
             if not any(task.get("metrics", {}).get(window, {}).get("decision") in {"no_change", "regress", "critical_risk"} for window in ("160k", "200k")):
                 raise WorkflowError("archive требует no_change/regress/critical_risk")
+            task["integration"] = {"verdict": "ARCHIVED", "at": utc_now()}
         if target == "MERGED":
             if task["artifacts"]["UPSTREAM_PR_CHECK"].get("status") != "pass":
                 raise WorkflowError("upstream PR check не pass")

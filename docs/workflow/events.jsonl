@@ -1,1 +1,21 @@
 
+{"time": "2026-11-25T00:59:04+00:00", "taskId": "CANARY-001", "event": "init", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "baseSha": "4356a467780900923cbf83d92675790e7fbeb32a", "branch": "task/CANARY-001"}
+{"time": "2026-11-25T01:00:03+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "A", "name": "TASK_IDEA", "path": "docs/workflow/tasks/CANARY-001/TASK_IDEA.md", "status": null}
+{"time": "2026-11-25T01:00:04+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G0", "to": "G1"}
+{"time": "2026-11-25T01:13:28+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "H", "name": "IMPL_PLAN", "path": "docs/workflow/tasks/CANARY-001/IMPL_PLAN.md", "status": null}
+{"time": "2026-11-25T01:13:29+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G1", "to": "G2"}
+{"time": "2026-11-25T01:13:29+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "H", "name": "PATCH", "path": "docs/workflow/tasks/CANARY-001/PATCH.diff", "status": null}
+{"time": "2026-11-25T01:13:29+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "H", "name": "DOC_IMPL", "path": "docs/workflow/tasks/CANARY-001/DOC_IMPL.md", "status": null}
+{"time": "2026-11-25T01:13:29+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G2", "to": "G3"}
+{"time": "2026-11-25T01:17:10+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "A", "name": "FAST_RUN_REPORT", "path": "docs/workflow/tasks/CANARY-001/FAST_RUN_REPORT.md", "status": null}
+{"time": "2026-11-25T01:17:10+00:00", "taskId": "CANARY-001", "event": "metrics", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "file": "docs\\workflow\\tasks\\CANARY-001\\metrics-fast.json"}
+{"time": "2026-11-25T01:17:11+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G3", "to": "G4"}
+{"time": "2026-11-25T01:35:02+00:00", "taskId": "CANARY-001", "event": "review", "actor": "9ba7a8a6-9973-4bce-8a66-93acde030932", "verdict": "CODE_APPROVED", "failedCriterion": null}
+{"time": "2026-11-25T01:35:02+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G4", "to": "G5"}
+{"time": "2026-11-25T01:55:40+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "A", "name": "FULL_RUN_REPORT", "path": "docs/workflow/tasks/CANARY-001/FULL_RUN_REPORT.md", "status": null}
+{"time": "2026-11-25T01:55:40+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "A", "name": "INTEGRATION_REPORT", "path": "docs/workflow/tasks/CANARY-001/INTEGRATION_REPORT.md", "status": "ARCHIVED"}
+{"time": "2026-11-25T01:55:40+00:00", "taskId": "CANARY-001", "event": "artifact", "actor": "A", "name": "DECISION_RECORD", "path": "docs/workflow/tasks/CANARY-001/DECISION_RECORD.md", "status": "ARCHIVED"}
+{"time": "2026-11-25T01:55:40+00:00", "taskId": "CANARY-001", "event": "metrics", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "file": "docs\\workflow\\tasks\\CANARY-001\\metrics-full.json"}
+{"time": "2026-11-25T01:55:50+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "G5", "to": "ARCHIVED"}
+{"time": "2026-11-25T01:57:46+00:00", "taskId": "CANARY-001", "event": "transition", "actor": "443fddf1-c6a1-4de1-a762-0b61e5ca941c", "from": "ARCHIVED", "to": "CLEANUP"}
+{"time": "2026-11-25T01:58:49+00:00", "taskId": "CANARY-001", "event": "integration-repair", "actor": "A", "note": "archive transition now records ARCHIVED verdict"}
