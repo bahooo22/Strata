@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "validator": "mermaid_inventory_validate_2026-11-25.py",
+      "rc": 0,
+      "output": "{\"ok\": true, \"files\": 5, \"missing\": []}\n"
+    },
+    {
+      "validator": "architecture_source_refs_validate_2026-11-25.py",
+      "rc": 0,
+      "output": "{\"ok\": true, \"total\": 659, \"failed\": 0}\n"
+    }
+  ],
+  "files": [
+    {
+      "name": "README-draft.md",
+      "bytes": 1701,
+      "sha256": "fa9e040befc555b12c099dea1ce8fc8a6f18bca0ebc60456ff24da38d8163441"
+    },
+    {
+      "name": "architecture-understanding.md",
+      "bytes": 4096,
+      "sha256": "12413eebab195b6e3adc2b67f494e1e59f4539da76d715688289213fb6b49450"
+    },
+    {
+      "name": "evidence-draft.md",
+      "bytes": 3691,
+      "sha256": "0eff09afe9f027b178f63dfe1198a9727d415e5e84bfa7aad80c3c5074d1cc37"
+    },
+    {
+      "name": "symbol-index.json",
+      "bytes": 211463,
+      "sha256": "33af836b7b9f0b56d83a9f42f2e48d96fc7826b3fd321d5a6fa408045e029fe5"
+    },
+    {
+      "name": "core-classes.mmd",
+      "bytes": 3732,
+      "sha256": "113b946f22fd78f4e38cd7a6ec32f3f31428ce38d4b7b697fb425551332f8640"
+    },
+    {
+      "name": "core-interactions.mmd",
+      "bytes": 4243,
+      "sha256": "f502a4af23443690e07d346e0f2b6e8bf4407b9975b98f0c956fe2c042720d66"
+    },
+    {
+      "name": "prefill-flow.mmd",
+      "bytes": 1675,
+      "sha256": "6793a6721e73608f706d7b1869e8a0899ccd38723e4f26bda638d8b530291397"
+    },
+    {
+      "name": "decode-mtp-flow.mmd",
+      "bytes": 1482,
+      "sha256": "e3b606e94cd0c3fa1e1aea977f65498eae31d7af07c2ccacf367821f8a4f340a"
+    },
+    {
+      "name": "session-kv-flow.mmd",
+      "bytes": 1550,
+      "sha256": "a90fde8cdcc75756d7155330936466c474bb14d6387ef0acd3591101a8e8f470"
+    },
+    {
+      "name": "external-research.md",
+      "bytes": 5814,
+      "sha256": "8dd0814b14f3267f1dbe601ef85909b9d4a667214695c52cb2b80fb8a2461131"
+    },
+    {
+      "name": "five-improvements-ranked.md",
+      "bytes": 9430,
+      "sha256": "a2d8b9e9df49a60fcb197b26075cd39ea2c118cef0d1cc3b76e54e4c88d9dc35"
+    }
+  ]
+}

@@ -2,31 +2,92 @@
   "taskId": "UPSTREAM-2AF30CCA",
   "metrics": {
     "32k": {
-      "profile": "",
-      "baseline": {
-        "window": "32k",
-        "profile": ""
-      },
-      "runs": [],
-      "decision": "pass"
+      "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0; graph и eager fallback",
+      "runs": [
+        {
+          "window": "32k",
+          "name": "candidate-32k",
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k.log"
+        },
+        {
+          "window": "32k",
+          "name": "candidate-32k-eager",
+          "rc": 0,
+          "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k-eager.log"
+        }
+      ],
+      "decision": "pass",
+      "notes": "Два smoke run разрешены утверждённым upstream sync планом; generic optimization workflow требует три."
     },
     "160k": {
-      "profile": "",
+      "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0 graph super8 att256 reserve512",
       "baseline": {
         "window": "160k",
-        "profile": ""
+        "pp": 890.6699574163353,
+        "tg": 15.942941053073211
       },
-      "runs": [],
-      "decision": "progress"
+      "candidate": {
+        "window": "160k",
+        "pp": 888.6698564593302,
+        "tg": 15.797131573477449
+      },
+      "deltaPp": -0.22,
+      "deltaTg": -0.91,
+      "decision": "no_change"
     },
     "200k": {
-      "profile": "",
+      "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0 graph super8 att256 reserve512",
       "baseline": {
         "window": "200k",
-        "profile": ""
+        "pp": 733.7989615693772,
+        "tg": 12.543664655446172
       },
-      "runs": [],
-      "decision": "progress"
+      "candidate": {
+        "window": "200k",
+        "pp": 732.9868495291004,
+        "tg": 12.484197218710493
+      },
+      "deltaPp": 0.02,
+      "deltaTg": -1.58,
+      "rawMedianDeltaTg": -2.24,
+      "decision": "no_confirmed_regression",
+      "warning": "Порог 1.5% превышен оценкой с контролем порядка, но обратный порядок даёт противоположный знак; регрессия не подтверждена.",
+      "runs": [
+        {
+          "label": "full",
+          "order": "baseline->candidate",
+          "generatedTokens": 79,
+          "baselinePp": 733.0504796215114,
+          "candidatePp": 733.7033255859418,
+          "deltaPp": 0.09,
+          "baselineTg": 12.870641902899967,
+          "candidateTg": 12.484197218710493,
+          "deltaTg": -3.0
+        },
+        {
+          "label": "repeat",
+          "order": "baseline->candidate",
+          "generatedTokens": 79,
+          "baselinePp": 733.7989615693772,
+          "candidatePp": 731.0540611709707,
+          "deltaPp": -0.37,
+          "baselineTg": 12.543664655446172,
+          "candidateTg": 12.26327227569078,
+          "deltaTg": -2.24
+        },
+        {
+          "label": "repeat2",
+          "order": "candidate->baseline",
+          "generatedTokens": 79,
+          "baselinePp": 734.309441509598,
+          "candidatePp": 732.9868495291004,
+          "deltaPp": -0.18,
+          "baselineTg": 12.456638284452854,
+          "candidateTg": 12.523779327837667,
+          "deltaTg": 0.54
+        }
+      ]
     }
   }
 }

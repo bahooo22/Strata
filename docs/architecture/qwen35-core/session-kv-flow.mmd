@@ -1,0 +1,57 @@
+flowchart TB
+  subgraph OWNER["Engine::Sess — владелец состояния сессии"]
+    S["Sess<br/>engine/src/qwen35/q36_engine.cu:1847"]
+    CONV["conv[l]"]
+    STATE["S[l]"]
+    KC["kc[l] / kq[l]"]
+    VC["vc[l] / vq[l]"]
+    HLAST["hlast"]
+    POS["pos"]
+    LIVE["live / imgs / rdelta"]
+    S --> CONV
+    S --> STATE
+    S --> KC
+    S --> VC
+    S --> HLAST
+    S --> POS
+    S --> LIVE
+  end
+
+  subgraph ENGINE["Engine — текущий выбранный session view"]
+    SELECT["Engine::select<br/>engine/src/qwen35/q36_engine.cu:2026"]
+    LOADCUR["Engine::load_cur<br/>engine/src/qwen35/q36_engine.cu:2032"]
+    CUR["conv / S / kc / vc / kq / vq / hlast / pos"]
+    SELECT --> LOADCUR
+    LOADCUR --> CUR
+  end
+
+  subgraph BATCH["Batch rows"]
+    ROW["Row / Group<br/>engine/src/qwen35/q36_engine.cu:3741/3746"]
+    TABS["d_*_tab / d_rcell / d_rslot / d_rdelta"]
+    RUN["Engine::run_rows<br/>engine/src/qwen35/q36_engine.cu:3758"]
+    COMMIT["Engine::commit_rows<br/>engine/src/qwen35/q36_engine.cu:3812"]
+    ROW --> TABS
+    TABS --> RUN
+    RUN --> COMMIT
+  end
+
+  subgraph COPY["Копирование сессии"]
+    COPYFN["Engine::copy_session<br/>engine/src/qwen35/q36_engine.cu:3897"]
+    D2D["cudaMemcpyAsync DeviceToDevice<br/>engine/src/qwen35/q36_engine.cu:3907-3929"]
+    COPYFN --> D2D
+  end
+
+  SELECT --> S
+  CUR --> CONV
+  CUR --> STATE
+  CUR --> KC
+  CUR --> VC
+  TABS --> S
+  COMMIT --> POS
+  COMMIT --> LIVE
+  COPYFN --> S
+  D2D --> CONV
+  D2D --> STATE
+  D2D --> KC
+  D2D --> VC
+  D2D --> HLAST

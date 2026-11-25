@@ -1,0 +1,41 @@
+flowchart TB
+  A["Serve::request<br/>engine/src/qwen35/q36_engine.cu:4753"] --> B["Engine::process<br/>engine/src/qwen35/q36_engine.cu:3640"]
+  B --> C{"super_n > 1 and n > tmax?"}
+  C -- "да" --> D["Engine::forward_super<br/>engine/src/qwen35/q36_engine.cu:3186"]
+  C -- "нет" --> E["Engine::forward<br/>engine/src/qwen35/q36_engine.cu:3154"]
+  D --> F["embed + norm once<br/>xsuper / hsuper"]
+  E --> G["embed + norm chunk"]
+  F --> H["layer-major sub-chunks"]
+  H --> I["Engine::layer<br/>engine/src/qwen35/q36_engine.cu:2714"]
+  G --> I
+  I --> J{"L.attn?"}
+  J -- "нет" --> K["GDN: qkv/zg → conv → state → ssm_out"]
+  J -- "да" --> L["q/k/v + RoPE + KV write"]
+  L --> M{"T > kGemmT?"}
+  M -- "да" --> N{"FA supported?"}
+  N -- "да" --> O["q36fa::k_fa_prefill<br/>engine/src/qwen35/q36_fa.cuh:169"]
+  N -- "нет" --> P["cuBLAS QK + softmax + PV"]
+  M -- "нет" --> Q{"FDEC and T <= 4?"}
+  Q -- "да" --> R["k_fdec_part + merge"]
+  Q -- "нет" --> S["split-K k_attn_part + merge"]
+  K --> T["add_rms_post"]
+  O --> T
+  P --> T
+  R --> T
+  S --> T
+  T --> U["router_ext / router + top-k"]
+  U --> V{"prompt MoE route"}
+  V -- "MMQ" --> W["count/scan/scatter → quant → MMQ gu/dn"]
+  V -- "streamed grouped" --> X["stream_take → grouped/int8/P4"]
+  V -- "hybrid rows" --> Y["moe_hybrid_gpu + moe_hybrid_cpu"]
+  W --> Z["shared expert + moe_end"]
+  X --> Z
+  Y --> Z
+  Z --> AA["next layer / head_rows"]
+  W --> AB["stream_done → prefetch next layer"]
+  X --> AB
+  AA --> AC["hmain / logits / pick"]
+  AC --> AD["hlast copy + pos advance"]
+  AD --> AE{"cancel?"}
+  AE -- "да" --> AF["rebalance + return processed"]
+  AE -- "нет" --> B

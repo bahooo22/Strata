@@ -210,6 +210,229 @@
       },
       "createdAt": "2026-11-25T00:59:04+00:00",
       "updatedAt": "2026-11-25T01:57:46+00:00"
+    },
+    "UPSTREAM-2AF30CCA": {
+      "taskId": "UPSTREAM-2AF30CCA",
+      "gate": "CLEANUP",
+      "baseSha": "996eb9195b1790f954dd48f50be27893cae93937",
+      "branch": "sync/upstream-2af30cca",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "eb20d6da3b1db93da2abb1baa1cc518c013fcb210fad6f6f40b021e275008c37",
+          "status": null,
+          "recordedAt": "2026-11-25T11:14:21+00:00"
+        },
+        "IMPL_PLAN": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/IMPL_PLAN.md",
+          "author": "H",
+          "sha256": "f43938f348c96429b0a1662664cc64f2cee255999db6edbafae9d6f47621a07f",
+          "status": null,
+          "recordedAt": "2026-11-25T14:30:34+00:00"
+        },
+        "PATCH": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+          "author": "H",
+          "sha256": "4126c26b1b4ca775b118ee15cd234ac5664dfb2917df9361a32eb8c25eead760",
+          "status": null,
+          "recordedAt": "2026-11-25T14:30:34+00:00"
+        },
+        "DOC_IMPL": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/DOC_IMPL.md",
+          "author": "H",
+          "sha256": "efbf142bbf758a9ec3e664800e8247f1422e42e9ef43d2941c5de04e146c5896",
+          "status": null,
+          "recordedAt": "2026-11-25T14:30:35+00:00"
+        },
+        "REVIEW_REPORT": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/REVIEW_REPORT.md",
+          "author": "N",
+          "sha256": "fa2b1acf08e330ea18df0c09c88d98cb6cf80e8bb92a642425007821108c6811",
+          "status": "CODE_APPROVED",
+          "recordedAt": "2026-11-25T15:49:10+00:00"
+        },
+        "FAST_RUN_REPORT": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/FAST_RUN_REPORT.md",
+          "author": "A",
+          "sha256": "f9c13d9c9ddab96966dc9d5260a388c50a554e40963949369288c8e9f67f7d22",
+          "status": null,
+          "recordedAt": "2026-11-25T17:54:59+00:00"
+        },
+        "FULL_RUN_REPORT": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/FULL_RUN_REPORT.md",
+          "author": "A",
+          "sha256": "d699980a70b46a239c1830bdc697b16d243d31c23e172ae8974d0625dca8827a",
+          "status": null,
+          "recordedAt": "2026-11-25T17:54:59+00:00"
+        },
+        "INTEGRATION_REPORT": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/INTEGRATION_REPORT.md",
+          "author": "A",
+          "sha256": "6655df637e7d7c3ce783384b5b5d0521259d8a493bdac4c311efeb812c28b28e",
+          "status": "INTEGRATION_APPROVED",
+          "recordedAt": "2026-11-25T17:54:59+00:00"
+        },
+        "UPSTREAM_PR_CHECK": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/UPSTREAM_PR_CHECK.md",
+          "author": "A",
+          "sha256": "eadffd84728cc4bc95ca2937097abcbd88f8c5a1281e329439458a0d50c8aaa2",
+          "status": "pass",
+          "recordedAt": "2026-11-25T17:54:59+00:00"
+        },
+        "DECISION_RECORD": {
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/DECISION_RECORD.md",
+          "author": "A",
+          "sha256": "3ba390d1355736e68ba3699ab5fafcb029c5481af734e8704a582bdcd81424e5",
+          "status": "MERGED",
+          "recordedAt": "2026-11-25T17:54:59+00:00"
+        }
+      },
+      "metrics": {
+        "32k": {
+          "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0; graph и eager fallback",
+          "runs": [
+            {
+              "window": "32k",
+              "name": "candidate-32k",
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k.log"
+            },
+            {
+              "window": "32k",
+              "name": "candidate-32k-eager",
+              "rc": 0,
+              "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\gpu-acceptance\\candidate-32k-eager.log"
+            }
+          ],
+          "decision": "pass",
+          "notes": "Два smoke run разрешены утверждённым upstream sync планом; generic optimization workflow требует три."
+        },
+        "160k": {
+          "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0 graph super8 att256 reserve512",
+          "baseline": {
+            "window": "160k",
+            "pp": 890.6699574163353,
+            "tg": 15.942941053073211
+          },
+          "candidate": {
+            "window": "160k",
+            "pp": 888.6698564593302,
+            "tg": 15.797131573477449
+          },
+          "deltaPp": -0.22,
+          "deltaTg": -0.91,
+          "decision": "no_change"
+        },
+        "200k": {
+          "profile": "KAT IQ4_XS FA v2 tile4 q4_0 MTP0 graph super8 att256 reserve512",
+          "baseline": {
+            "window": "200k",
+            "pp": 733.7989615693772,
+            "tg": 12.543664655446172
+          },
+          "candidate": {
+            "window": "200k",
+            "pp": 732.9868495291004,
+            "tg": 12.484197218710493
+          },
+          "deltaPp": 0.02,
+          "deltaTg": -1.58,
+          "rawMedianDeltaTg": -2.24,
+          "decision": "no_confirmed_regression",
+          "warning": "Порог 1.5% превышен оценкой с контролем порядка, но обратный порядок даёт противоположный знак; регрессия не подтверждена.",
+          "runs": [
+            {
+              "label": "full",
+              "order": "baseline->candidate",
+              "generatedTokens": 79,
+              "baselinePp": 733.0504796215114,
+              "candidatePp": 733.7033255859418,
+              "deltaPp": 0.09,
+              "baselineTg": 12.870641902899967,
+              "candidateTg": 12.484197218710493,
+              "deltaTg": -3.0
+            },
+            {
+              "label": "repeat",
+              "order": "baseline->candidate",
+              "generatedTokens": 79,
+              "baselinePp": 733.7989615693772,
+              "candidatePp": 731.0540611709707,
+              "deltaPp": -0.37,
+              "baselineTg": 12.543664655446172,
+              "candidateTg": 12.26327227569078,
+              "deltaTg": -2.24
+            },
+            {
+              "label": "repeat2",
+              "order": "candidate->baseline",
+              "generatedTokens": 79,
+              "baselinePp": 734.309441509598,
+              "candidatePp": 732.9868495291004,
+              "deltaPp": -0.18,
+              "baselineTg": 12.456638284452854,
+              "candidateTg": 12.523779327837667,
+              "deltaTg": 0.54
+            }
+          ]
+        }
+      },
+      "review": {
+        "verdict": "CODE_APPROVED",
+        "reviewer": "9ba7a8a6-9973-4bce-8a66-93acde030932",
+        "criteria": {
+          "C1": true,
+          "C2": true,
+          "C3": true,
+          "C4": true,
+          "C5": true,
+          "C6": true,
+          "C7": true,
+          "C8": true,
+          "C9": true,
+          "C10": true
+        },
+        "report": "docs/workflow/tasks/UPSTREAM-2AF30CCA/REVIEW_REPORT.md",
+        "finalVerdict": "INTEGRATION_APPROVED",
+        "finalReport": "docs/reports/2026-11-25-upstream-2af30cca-final-review.md",
+        "finalReportSha256": "18ff7c6816389867da91cdf2cc31242ebcb8c921d59dd1bc257e5fbdc9657b37"
+      },
+      "integration": {
+        "verdict": "MERGED",
+        "at": "2026-11-25T17:54:59+00:00",
+        "candidateRef": "36e044b045bf18e35e3089a9527fc9c86c57ee88",
+        "mainRef": "36e044b045bf18e35e3089a9527fc9c86c57ee88",
+        "mergeMode": "ff-only",
+        "pushMode": "atomic",
+        "archiveTag": "archive/upstream-2af30cca-36e044b04",
+        "semanticGate": "pass"
+      },
+      "upstreamPr": {
+        "status": "not-run",
+        "reason": "Upstream PR запрещён решением пользователя; изменения остаются в форке."
+      },
+      "createdAt": "2026-11-25T11:13:43+00:00",
+      "updatedAt": "2026-11-25T17:54:59+00:00",
+      "toolOverrides": [
+        {
+          "id": "schema-author",
+          "status": "accepted",
+          "semanticValue": "443fddf1-c6a1-4de1-a762-0b61e5ca941c",
+          "canonicalSchemaError": "unknown top-level field author",
+          "reason": "Расхождение metadata-контракта; semantic-проверка независимости корректна; schema/tool не ослаблялись.",
+          "reviewerIndependent": true
+        },
+        {
+          "id": "schema-warning-code",
+          "status": "accepted",
+          "semanticCode": "evidence-not-applicable:implementationCombinations",
+          "canonicalAlias": "evidence-not-applicable:implementation-combinations",
+          "reason": "Расхождение представления; waiver evidence/reviewer/date/manualVerdict заполнены; проверка не пропущена и не ослаблена."
+        }
+      ],
+      "workflowNote": "Generic state-machine требует optimization progress и три fast runs; утверждённый upstream sync план допускает no_change/no_confirmed_regression и два smoke run. Закрытие выполнено A после N INTEGRATION_APPROVED и semantic gate PASS."
     }
   }
 }

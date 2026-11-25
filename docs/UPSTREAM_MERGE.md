@@ -67,3 +67,14 @@ python tools/upstream_merge/upstream_merge.py selftest
 6. Сборка, тесты, correctness/quality и контрольные точки.
 7. `check --run-checks`.
 8. Переход `main` через `--ff-only` только после зелёного гейта.
+
+## Текущий sync `2af30cca`
+
+- ours/base: `996eb9195b1790f954dd48f50be27893cae93937`.
+- upstream: `2af30ccaa0729177c4725ee2073f72bf550e2f86`; merge-base: `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6`.
+- candidate/main: `36e044b045bf18e35e3089a9527fc9c86c57ee88`; code merge: `cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1`; qwen35 diff пуст.
+- N review: `CODE_APPROVED`; static 21/21; CUDA build rc=0; markers 29/29.
+- Runtime: 32k graph/eager, 160k/200k A/B, KV quality, general hard 16/22, needle24k, MTP2 route, resources PASS.
+- Performance warning: 200k raw median tg -2.24%, order-adjusted -1.58%, обратная пара +0.54%; регрессия не подтверждена.
+- Not-run: HIP runtime; `tools/check` сохраняет идентичные main/candidate baseline docs-ошибки и отсутствующие cmake/pytest/Node/torch.
+- Raw evidence: `glm/2026-11-25_session/upstream-2af30cca/`; candidate evidence: `docs/workflow/tasks/UPSTREAM-2AF30CCA/`.

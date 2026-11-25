@@ -5,9 +5,9 @@
   "candidateCodeRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
   "docsRef": "c8c939c05a4ef26de6daf55ec27c1677e97b916a",
   "evidenceRef": "dcb524a6fe06f25fc0ba951d2017bb28ec9d07d1",
-  "finalTip": "D5",
-  "planSha256": "26ba01e64c53b09e5fa21f5f55470fb26bbee47357d7e14dec19e3d48fc5232b",
-  "matrixSha256": "250ea63606119ae18b1fbe08a0ea92d44abf29b39ab64a4bb78ef2720625a6b3",
+  "finalTip": "POST_MERGE",
+  "planSha256": "35724947f9859b2be5dba048afbc18a863d03c1de04f557776a72adc4a2b0d8c",
+  "matrixSha256": "c9f33e8a399d30b6c598c41b7d61a6731ea6f381cf16f643c53bdabafe91422e",
   "files": [
     {
       "path": "anchor-evidence.json",
@@ -16,8 +16,8 @@
     },
     {
       "path": "anchor-matrix-draft.json",
-      "bytes": 9972,
-      "sha256": "250ea63606119ae18b1fbe08a0ea92d44abf29b39ab64a4bb78ef2720625a6b3"
+      "bytes": 10235,
+      "sha256": "c9f33e8a399d30b6c598c41b7d61a6731ea6f381cf16f643c53bdabafe91422e"
     },
     {
       "path": "candidate-manifest.json",
@@ -26,13 +26,13 @@
     },
     {
       "path": "DECISION_RECORD.md",
-      "bytes": 71,
-      "sha256": "0ff6e891ec5433cfceaa8e14ac5878d188ec55e9cf23f95daa974eb6ba952014"
+      "bytes": 978,
+      "sha256": "3ba390d1355736e68ba3699ab5fafcb029c5481af734e8704a582bdcd81424e5"
     },
     {
       "path": "DOC_IMPL.md",
-      "bytes": 953,
-      "sha256": "efbf142bbf758a9ec3e664800e8247f1422e42e9ef43d2941c5de04e146c5896"
+      "bytes": 958,
+      "sha256": "16de9fcb2bd88e82a3284598cc8d50561985cfdb02c85d6017217cb4a44d2fef"
     },
     {
       "path": "evidence/acceptance/baseline-mtp2-route-console.txt",
@@ -41,8 +41,8 @@
     },
     {
       "path": "evidence/acceptance/baseline-mtp2-route-engine.txt",
-      "bytes": 1626,
-      "sha256": "ffc9be20ef58af9dc60c7e72096aa8431ce52f576952b630d91177c45e851c0f"
+      "bytes": 1627,
+      "sha256": "447b67c9cb9e03dfd45a07831297bc26cf87bdfeca1a523fefd17148790051c9"
     },
     {
       "path": "evidence/acceptance/build-identity.json",
@@ -51,8 +51,8 @@
     },
     {
       "path": "evidence/acceptance/build.json",
-      "bytes": 950,
-      "sha256": "48dd99b1312a07686b189eaa0dfb0d5f78bf2a890e103529f351aa700f846dd7"
+      "bytes": 969,
+      "sha256": "5a43b5d8cad078cbbce542f457f1120083c28e091a1b5d9b70c6a4de7928e548"
     },
     {
       "path": "evidence/acceptance/candidate-mtp2-route-console.txt",
@@ -121,8 +121,8 @@
     },
     {
       "path": "evidence/anchor-audit.txt",
-      "bytes": 9096,
-      "sha256": "e8d1aedfe3f381559ff3eaa5aabd3873e05a866bccab4f5c683cba787e03b8e8"
+      "bytes": 9168,
+      "sha256": "2d9bd0dd3d6497476f0c969aedc09e66eb28e030730b785b57f9c66b76dae24e"
     },
     {
       "path": "evidence/candidate-anchor-audit.txt",
@@ -156,28 +156,28 @@
     },
     {
       "path": "evidence/M-audit.txt",
-      "bytes": 271,
-      "sha256": "c4ee25f0c0f7bb4844533ff20c932c0973e269a70e07f8dd7f38ff8d37c1d569"
+      "bytes": 277,
+      "sha256": "05c72b94c264c12e5b61831b4bc2d603603b46de2b7198b8fd5d7eddc2cf5342"
     },
     {
       "path": "evidence/main-upstream-overlap.diff",
-      "bytes": 25477,
-      "sha256": "8ca6384b8980a0c6e62fdba249fc55e1215de3a9038895956e03496b7c4835ed"
+      "bytes": 25812,
+      "sha256": "d71a113e4016b2a74cb46f323edb6a5e2439477709d77e133e1811f4cc80e195"
     },
     {
       "path": "evidence/merge-tree.txt",
-      "bytes": 189,
-      "sha256": "038057635a2a141164f8f19c3cceb5618b1289502b206ba3ea887e1a428a6972"
+      "bytes": 193,
+      "sha256": "b5a92eb6a0fa16c7ed8e7965eaf88797a80e94594ecd4765b03734ab03ccd54e"
     },
     {
       "path": "evidence/pre-M-audit.txt",
-      "bytes": 166,
-      "sha256": "113ba08ea526824c5648d8bf6d663b0a9f71f4393c2fd514e062e3cc51f259d5"
+      "bytes": 170,
+      "sha256": "0245b5d56ab967df1720c27def2fbdf42a44db7de546ed13dcc758b22fce2e03"
     },
     {
       "path": "evidence/predicted-tree-audit.txt",
-      "bytes": 5768,
-      "sha256": "9e8221d65782c971c76fce9381f6f2ff02a20a9969ad57428e10436a4499f6e8"
+      "bytes": 5810,
+      "sha256": "f85798a0931bf5489fb264da71503142633fc83147c813b5ead9f8890547c2ec"
     },
     {
       "path": "evidence/provisional-merge-plan.json",
@@ -186,8 +186,8 @@
     },
     {
       "path": "evidence/upstream-delta.txt",
-      "bytes": 993,
-      "sha256": "2dcf7aa830e93c7dc1dbe06173e5166e8aa3df6fe1c58343ec82f96009f3c145"
+      "bytes": 1015,
+      "sha256": "93a3151498660a936a003ab67f7b1969a3ad678679219a5ef5c5925da3772f4c"
     },
     {
       "path": "FAST_RUN_REPORT.md",
@@ -201,8 +201,8 @@
     },
     {
       "path": "IMPL_PLAN.md",
-      "bytes": 1642,
-      "sha256": "f43938f348c96429b0a1662664cc64f2cee255999db6edbafae9d6f47621a07f"
+      "bytes": 1651,
+      "sha256": "20d32e18695b2b9530f58e666de6b5b5bd2b2df4f6a4f728dd4707a101cac381"
     },
     {
       "path": "INTEGRATION_REPORT.md",
@@ -216,18 +216,18 @@
     },
     {
       "path": "merge-profile.json",
-      "bytes": 4766,
-      "sha256": "d963926ef35edb0826b55feb9295fbe6c1eec74d828998fc285131a95957d999"
+      "bytes": 4880,
+      "sha256": "1d2ce2813e3509ae93bf1dfaa615b825a58f09a2f93f53a6e479eaf0dbb34cba"
     },
     {
       "path": "metrics.template.json",
-      "bytes": 579,
-      "sha256": "7bda976520d1df086fed948b1c788dcd63b12ba736eb14c4ffea03df4fbf0af8"
+      "bytes": 3204,
+      "sha256": "40f0f017776f8a56a196bc7ce708614f2cc8724ea60bc8cdf627dc45ed40180f"
     },
     {
       "path": "PLAN.md",
-      "bytes": 9577,
-      "sha256": "26ba01e64c53b09e5fa21f5f55470fb26bbee47357d7e14dec19e3d48fc5232b"
+      "bytes": 9692,
+      "sha256": "35724947f9859b2be5dba048afbc18a863d03c1de04f557776a72adc4a2b0d8c"
     },
     {
       "path": "REVIEW_REPORT.md",
@@ -241,8 +241,8 @@
     },
     {
       "path": "UPSTREAM_PR_CHECK.md",
-      "bytes": 71,
-      "sha256": "f44a6d212a61c9590ff5d59274c5f28ee515d5614e918211a4f4999901d0d750"
+      "bytes": 322,
+      "sha256": "eadffd84728cc4bc95ca2937097abcbd88f8c5a1281e329439458a0d50c8aaa2"
     }
   ],
   "patch": {

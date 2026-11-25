@@ -1,0 +1,134 @@
+classDiagram
+  direction LR
+  class RowSel["RowSel<br/>engine/src/qwen35/q36_engine.cu:258"]
+  class Mat["Mat<br/>engine/src/qwen35/q36_engine.cu:1366"]
+  class Layer["Layer<br/>engine/src/qwen35/q36_engine.cu:1372"]
+  class Model["Model<br/>engine/src/qwen35/q36_engine.cu:1397"]
+  class ImgKey["ImgKey<br/>engine/src/qwen35/q36_engine.cu:1713"]
+  class Engine["Engine<br/>engine/src/qwen35/q36_engine.cu:1719"]
+  class Engine {
+    +~Engine()
+    +gs()
+    +knob()
+    +lhy()
+    +host_expert()
+    +rebalance_every()
+    +rebalance_swaps()
+    +count_rows()
+    +after_rows()
+    +alloc_session()
+    +select()
+    +load_cur()
+    +set_delta()
+    +init()
+    +reset()
+    +mm()
+    +f32mm()
+    +prep()
+    +apply()
+    +quant()
+    +verify_cmp()
+    +q8_small()
+    +verify_q8()
+    +prep_in()
+    +add_rms_post()
+    +shared_gu()
+    +mmq_ref()
+    +group_old()
+    +group_verify()
+    +route_group()
+    +group_entries()
+    +moe_end()
+    +mmq()
+    +layer()
+    +forward()
+    +forward_super()
+    +head_rows()
+    +head_draft()
+    +forward_mtp()
+    +commit()
+    +layer_at()
+    +stream_begin()
+    +stream_kick()
+    +stream_take()
+    +stream_done()
+    +moe_hybrid_gpu()
+    +moe_hybrid_cpu()
+    +rebalance()
+    +sort()
+    +sort()
+    +restore_placement()
+    +shrink_att()
+    +reset_graphs()
+    +graph_run()
+    +set_images()
+    +clear_images()
+    +chunk_pictures()
+    +process()
+    +run_graph_key()
+    +run_rows()
+    +step_rows()
+    +commit_rows()
+    +mtp_rows()
+    +host_logits_row()
+    +copy_session()
+    +mtp_seed()
+    +spec_step()
+    +warmup()
+    +greedy()
+    +host_logits()
+  }
+  class GSet["GSet<br/>engine/src/qwen35/q36_engine.cu:1769"]
+  class Knob["Knob<br/>engine/src/qwen35/q36_engine.cu:1807"]
+  class Sess["Sess<br/>engine/src/qwen35/q36_engine.cu:1847"]
+  class Hy["Hy<br/>engine/src/qwen35/q36_engine.cu:1888"]
+  class Row["Row<br/>engine/src/qwen35/q36_engine.cu:3741"]
+  class Group["Group<br/>engine/src/qwen35/q36_engine.cu:3746"]
+  class MtpRow["MtpRow<br/>engine/src/qwen35/q36_engine.cu:3840"]
+  class ImgReq["ImgReq<br/>engine/src/qwen35/q36_engine.cu:4406"]
+  class Img["Img<br/>engine/src/qwen35/q36_engine.cu:4420"]
+  class Slot["Slot<br/>engine/src/qwen35/q36_engine.cu:4483"]
+  class Serve["Serve<br/>engine/src/qwen35/q36_engine.cu:4501"]
+  class Serve {
+    +Serve()
+    +poll_control()
+    +window_mtp()
+    +window()
+    +window_plain()
+    +match_len()
+    +pick_session()
+    +request()
+    +process()
+    +process()
+    +run()
+  }
+  class Report["Report<br/>engine/src/qwen35/q36_engine.cu:5294"]
+  class Report {
+    +~Report()
+  }
+  class QB["QB<br/>engine/src/qwen35/q36_kernels.cuh:19"]
+  class Cfg["Cfg<br/>engine/src/qwen35/q36_fa.cuh:69"]
+  class Args["Args<br/>engine/src/qwen35/q36_fa.cuh:109"]
+  class SmemT["SmemT<br/>engine/src/qwen35/q36_fa.cuh:126"]
+  class Shape["Shape<br/>engine/src/qwen35/q36_fa.cuh:404"]
+  class Tensor["Tensor<br/>engine/src/qwen35/q36ref.cu:348"]
+  class Model_2["Model<br/>engine/src/qwen35/q36ref.cu:444"]
+  class Model_2 {
+    +W()
+    +F()
+  }
+  class State["State<br/>engine/src/qwen35/q36ref.cu:542"]
+  class Sampling["Sampling<br/>engine/include/strata/qwen35/sampling.hpp:13"]
+  class Sampling {
+    +needs_logits()
+  }
+  Serve --> Engine : request() x9
+  Serve --> Engine : window_mtp() x4
+  Serve --> Engine : window_plain() x2
+  Engine --> Serve : f32mm() x1
+  Engine --> Serve : layer() x1
+  Engine --> Serve : process() x1
+  Serve --> Sampling : request() x1
+  Serve --> Sampling : window() x1
+  Serve --> Sampling : window_mtp() x1
+  Serve --> Sampling : window_plain() x1

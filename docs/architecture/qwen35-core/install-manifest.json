@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "files": [
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\README-draft.md",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\README.md",
+      "sha256": "fa9e040befc555b12c099dea1ce8fc8a6f18bca0ebc60456ff24da38d8163441",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\architecture-understanding.md",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\architecture-understanding.md",
+      "sha256": "12413eebab195b6e3adc2b67f494e1e59f4539da76d715688289213fb6b49450",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\evidence-draft.md",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\evidence.md",
+      "sha256": "0eff09afe9f027b178f63dfe1198a9727d415e5e84bfa7aad80c3c5074d1cc37",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\symbol-index.json",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\symbol-index.json",
+      "sha256": "33af836b7b9f0b56d83a9f42f2e48d96fc7826b3fd321d5a6fa408045e029fe5",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\core-classes.mmd",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\core-classes.mmd",
+      "sha256": "113b946f22fd78f4e38cd7a6ec32f3f31428ce38d4b7b697fb425551332f8640",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\core-interactions.mmd",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\core-interactions.mmd",
+      "sha256": "f502a4af23443690e07d346e0f2b6e8bf4407b9975b98f0c956fe2c042720d66",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\prefill-flow.mmd",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\prefill-flow.mmd",
+      "sha256": "6793a6721e73608f706d7b1869e8a0899ccd38723e4f26bda638d8b530291397",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\decode-mtp-flow.mmd",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\decode-mtp-flow.mmd",
+      "sha256": "e3b606e94cd0c3fa1e1aea977f65498eae31d7af07c2ccacf367821f8a4f340a",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\session-kv-flow.mmd",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\session-kv-flow.mmd",
+      "sha256": "a90fde8cdcc75756d7155330936466c474bb14d6387ef0acd3591101a8e8f470",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\external-research.md",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\external-research.md",
+      "sha256": "8dd0814b14f3267f1dbe601ef85909b9d4a667214695c52cb2b80fb8a2461131",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\five-improvements-ranked.md",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\improvements.md",
+      "sha256": "a2d8b9e9df49a60fcb197b26075cd39ea2c118cef0d1cc3b76e54e4c88d9dc35",
+      "ok": true
+    },
+    {
+      "source": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-25_session\\upstream-2af30cca\\architecture\\architecture-package.json",
+      "target": "C:\\Projects\\Strata-3060Ti\\engine\\docs\\architecture\\qwen35-core\\architecture-package.json",
+      "sha256": "45e7c6fc3ed83f6b9cef5a07ec760ddd73f5b375920b62f2f6b9afe363c046f1",
+      "ok": true
+    }
+  ]
+}

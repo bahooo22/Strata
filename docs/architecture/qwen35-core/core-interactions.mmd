@@ -1,0 +1,78 @@
+flowchart TB
+  subgraph ENTRY["Вход и orchestration"]
+    MAIN["engine/src/qwen35/q36_main.cpp:5<br/>main"] --> RUN["engine/src/qwen35/q36_engine.cu:5071<br/>strata::qwen35::run"]
+    RUN --> LOAD["engine/src/qwen35/q36_engine.cu:1515<br/>load(Model)"]
+    RUN --> PLACE["engine/src/qwen35/q36_engine.cu:4068<br/>place_experts"]
+    RUN --> INIT["Engine::init<br/>engine/src/qwen35/q36_engine.cu:2050"]
+    RUN --> SERVE["Serve::run<br/>engine/src/qwen35/q36_engine.cu:5013"]
+  end
+
+  subgraph CORE["Engine и состояние"]
+    INIT --> MODEL["Model<br/>engine/src/qwen35/q36_engine.cu:1397"]
+    INIT --> LAYER["Layer / Mat<br/>engine/src/qwen35/q36_engine.cu:1372/1366"]
+    INIT --> SESS["Engine::Sess<br/>engine/src/qwen35/q36_engine.cu:1847"]
+    INIT --> HY["Engine::Hy<br/>engine/src/qwen35/q36_engine.cu:1888"]
+    INIT --> GSET["Engine::GSet<br/>engine/src/qwen35/q36_engine.cu:1769"]
+    SERVE --> REQUEST["Serve::request<br/>engine/src/qwen35/q36_engine.cu:4753"]
+    REQUEST --> SELECT["Engine::select<br/>engine/src/qwen35/q36_engine.cu:2026"]
+    REQUEST --> PROCESS["Engine::process<br/>engine/src/qwen35/q36_engine.cu:3640"]
+    PROCESS --> FORWARD["Engine::forward<br/>engine/src/qwen35/q36_engine.cu:3154"]
+    PROCESS --> SUPER["Engine::forward_super<br/>engine/src/qwen35/q36_engine.cu:3186"]
+    FORWARD --> LAYERFN["Engine::layer<br/>engine/src/qwen35/q36_engine.cu:2714"]
+    SUPER --> LAYERFN
+    LAYERFN --> HEAD["Engine::head_rows<br/>engine/src/qwen35/q36_engine.cu:3235"]
+  end
+
+  subgraph MOE["MoE, streaming и fallback"]
+    LAYERFN --> ROUTE["route_group / native_router_topk<br/>engine/src/qwen35/q36_engine.cu:2629/3031"]
+    ROUTE --> MMQ["MMQ prompt path<br/>engine/src/qwen35/q36_engine.cu:3037-3081"]
+    ROUTE --> GRP["grouped / int8 / P4 prompt<br/>engine/src/qwen35/q36_engine.cu:3082-3122"]
+    ROUTE --> HYGPU["Engine::moe_hybrid_gpu<br/>engine/src/qwen35/q36_engine.cu:3410"]
+    HYGPU --> HYCPU["Engine::moe_hybrid_cpu<br/>engine/src/qwen35/q36_engine.cu:3424"]
+    MMQ --> STREAM["Engine::stream_begin/kick/take/done<br/>engine/src/qwen35/q36_engine.cu:3313-3406"]
+    GRP --> STREAM
+    MMQ --> MOEEND["Engine::moe_end<br/>engine/src/qwen35/q36_engine.cu:2674"]
+    GRP --> MOEEND
+    HYCPU --> MOEEND
+    MOEEND --> REBAL["Engine::rebalance<br/>engine/src/qwen35/q36_engine.cu:3484"]
+  end
+
+  subgraph ATTN["Attention / GDN / KV"]
+    LAYERFN --> GDN["k_conv_seq / k_gdn_seq<br/>engine/src/qwen35/q36_engine.cu:2739-2760"]
+    LAYERFN --> PREP["k_attn_prep<br/>engine/src/qwen35/q36_engine.cu:2780"]
+    PREP --> FA["q36fa::k_fa_prefill<br/>engine/src/qwen35/q36_fa.cuh:169"]
+    PREP --> FDEC["k_fdec_part / k_fdec_merge<br/>engine/src/qwen35/q36_engine.cu:2924-2940"]
+    PREP --> SPLIT["k_attn_part / k_attn_merge<br/>engine/src/qwen35/q36_engine.cu:2972-2987"]
+    FA --> GATE["k_gate_mul<br/>engine/src/qwen35/q36_engine.cu:2923"]
+    FDEC --> GATE
+    SPLIT --> GATE
+  end
+
+  subgraph BATCH["Batch / MTP / sessions"]
+    SERVE --> WINDOW["Serve::window / window_plain / window_mtp<br/>engine/src/qwen35/q36_engine.cu:4674-4723"]
+    WINDOW --> STEP["Engine::step_rows<br/>engine/src/qwen35/q36_engine.cu:3805"]
+    STEP --> RUNROWS["Engine::run_rows<br/>engine/src/qwen35/q36_engine.cu:3758"]
+    RUNROWS --> FORWARD
+    RUNROWS --> COMMITROWS["Engine::commit_rows<br/>engine/src/qwen35/q36_engine.cu:3812"]
+    WINDOW --> MTPROWS["Engine::mtp_rows<br/>engine/src/qwen35/q36_engine.cu:3844"]
+    REQUEST --> SPEC["Engine::spec_step<br/>engine/src/qwen35/q36_engine.cu:3947"]
+    SPEC --> MTPFORWARD["Engine::forward_mtp<br/>engine/src/qwen35/q36_engine.cu:3279"]
+    SPEC --> FORWARD
+    SPEC --> COMMIT["Engine::commit<br/>engine/src/qwen35/q36_engine.cu:3297"]
+    REQUEST --> COPY["Engine::copy_session<br/>engine/src/qwen35/q36_engine.cu:3897"]
+    COPY --> SESS
+  end
+
+  subgraph DATA["Владение данными"]
+    MODEL --> MAT["Mat: device weights"]
+    LAYER --> BLOBS["Layer: expert blobs / slots"]
+    SESS --> KV["KV / recurrent state / hlast / live"]
+    HY --> SLOTS["slot_of / exp_in_slot / host cache"]
+    GSET --> GRAPHS["cudaGraphExec_t decode/verify/MTP"]
+  end
+
+  LOAD --> MODEL
+  PLACE --> HY
+  INIT --> GSET
+  SELECT --> SESS
+  PROCESS --> REBAL

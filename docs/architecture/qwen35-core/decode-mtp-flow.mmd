@@ -1,0 +1,28 @@
+flowchart TB
+  A["Serve::window<br/>engine/src/qwen35/q36_engine.cu:4674"] --> B{"batch MTP possible?"}
+  B -- "да" --> C["Serve::window_mtp<br/>engine/src/qwen35/q36_engine.cu:4540"]
+  B -- "нет" --> D["Serve::window_plain<br/>engine/src/qwen35/q36_engine.cu:4686"]
+  C --> E["Engine::mtp_rows<br/>engine/src/qwen35/q36_engine.cu:3844"]
+  E --> F["Engine::run_rows<br/>engine/src/qwen35/q36_engine.cu:3758"]
+  D --> G["Engine::step_rows<br/>engine/src/qwen35/q36_engine.cu:3805"]
+  G --> F
+  F --> H["graph_run / forward<br/>engine/src/qwen35/q36_engine.cu:3575/3154"]
+  H --> I["Engine::layer × N<br/>engine/src/qwen35/q36_engine.cu:2714"]
+  I --> J["head_rows / rows_pick<br/>engine/src/qwen35/q36_engine.cu:3235"]
+  C --> K["compare draft picks"]
+  K --> L["Engine::commit_rows<br/>engine/src/qwen35/q36_engine.cu:3812"]
+  D --> M["session live/history update"]
+  L --> M
+  M --> N["next Serve::window"]
+
+  O["Serve::request single slot"] --> P["Engine::spec_step<br/>engine/src/qwen35/q36_engine.cu:3947"]
+  P --> Q["Engine::forward_mtp draft 0<br/>engine/src/qwen35/q36_engine.cu:3279"]
+  Q --> R{"D > 0?"}
+  R -- "да" --> S["chained MTP drafts 1..D-1"]
+  R -- "нет" --> T["verify window T = D + 1"]
+  S --> T
+  T --> U["forward verify=True<br/>GDN state read-only"]
+  U --> V["compare picks → accepted a"]
+  V --> W["Engine::commit a+1<br/>engine/src/qwen35/q36_engine.cu:3297"]
+  W --> X["hlast copy + pos advance"]
+  X --> Y["after_rows / rebalance boundary"]
