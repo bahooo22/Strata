@@ -505,6 +505,35 @@
       },
       "createdAt": "2026-11-25T18:54:49+00:00",
       "updatedAt": "2026-11-25T18:54:49+00:00"
+    },
+    "Q35-VRAM-RECLAIM": {
+      "taskId": "Q35-VRAM-RECLAIM",
+      "gate": "G1",
+      "baseSha": "65a7012e5ab39dff8bbddd0b35de10764269f2b0",
+      "branch": "task/Q35-VRAM-RECLAIM",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/Q35-VRAM-RECLAIM/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "dd3d7ca02ff19ccc57aaefdc7262ea6fea2752bd0d48c37d836c0d002b7bdeb1",
+          "status": null,
+          "recordedAt": "2026-11-25T18:56:58+00:00"
+        }
+      },
+      "metrics": {},
+      "review": {
+        "verdict": "pending",
+        "criteria": {}
+      },
+      "integration": {
+        "verdict": "pending"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T18:56:58+00:00",
+      "updatedAt": "2026-11-25T18:56:58+00:00"
     }
   }
 }
