@@ -1,0 +1,11 @@
+2fdbdb56d fix(setup): make the install folder before writing a run config into it (#7012)
+688999468 fix(setup): plan the HIP K/V as a 32K window, and plan the K/V type the person chose (#7022)
+2ddda80a6 fix(launch): give the RAM cap of a HIP card + RAM plan with no SSD tier some room
+2af30ccaa Control 0.1.68 / Terminal 0.2.21.1: version bump for the Control-only fixes (app stays 0.2.21, engine packages stay 0.1.67)
+ce67d696c Upstream: обновить версии Control/Terminal и packaging
+d484ccdeb Upstream: создать install folder перед первым config
+194b68c7c Upstream: добавить HIP RAM slack для expert plan
+b1c2c9377 Upstream: планировать HIP K/V window и выбранный тип
+9ec1982ff Upstream: добавить regression tests для setup/HIP/release
+cc5f3e668 Merge: upstream 2af30cca в fork candidate
+c8c939c05 Docs: добавить RU+EN отчёт upstream merge 2af30cca

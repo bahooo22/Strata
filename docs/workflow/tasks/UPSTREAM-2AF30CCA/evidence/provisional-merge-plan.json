@@ -1,0 +1,2220 @@
+{
+  "version": 1,
+  "oursRef": "996eb9195b1790f954dd48f50be27893cae93937",
+  "upstreamRef": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+  "candidateRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+  "decision": "upstream",
+  "rationale": "Принять upstream Control/Terminal hotfix `2af30cca` поверх форка: content commits C1..C5, merge commit M с ancestry ours/upstream и деревом C5; qwen35 и fork defaults сохранены. N review и runtime acceptance pending.",
+  "matrix": [
+    {
+      "id": "release-version-bump",
+      "oursAnchor": "project(strata VERSION 0.1.67",
+      "upstreamAnchor": "project(strata VERSION 0.1.68",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "engine/CMakeLists.txt",
+          "line": 13,
+          "symbol": "project(strata VERSION 0.1.67"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "engine/CMakeLists.txt",
+          "line": 13,
+          "symbol": "project(strata VERSION 0.1.68"
+        }
+      },
+      "anchorStatus": "adapted",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "project(strata VERSION 0.1.67",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "engine/CMakeLists.txt"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "full",
+      "oursAlgorithm": "Control-only hotfix version bump; app and engine package versions unchanged.",
+      "upstreamAlgorithm": "Control-only hotfix version bump; app and engine package versions unchanged.",
+      "contract": {
+        "ours": "Control-only hotfix version bump; app and engine package versions unchanged.",
+        "upstream": "Control-only hotfix version bump; app and engine package versions unchanged.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Control-only hotfix version bump; app and engine package versions unchanged.",
+        "upstream": "Control-only hotfix version bump; app and engine package versions unchanged.",
+        "candidate": "Reviewed content commit ce67d696cef760f462518bc63623d27bd43b6523; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "release-version-bump-invariant",
+          "statement": "Control-only hotfix version bump; app and engine package versions unchanged.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 10,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "upstream",
+      "reason": "Control-only hotfix version bump; app and engine package versions unchanged.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "ce67d696cef760f462518bc63623d27bd43b6523"
+    },
+    {
+      "id": "setup-install-folder",
+      "oursAnchor": "def write_config",
+      "upstreamAnchor": "def write_config",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "terminal/setup.py",
+          "line": 7555,
+          "symbol": "def write_config"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "terminal/setup.py",
+          "line": 7531,
+          "symbol": "def write_config"
+        }
+      },
+      "anchorStatus": "adapted",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "def write_config",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "terminal/setup.py"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "full",
+      "oursAlgorithm": "Create the Terminal install folder before the first config/run script.",
+      "upstreamAlgorithm": "Create the Terminal install folder before the first config/run script.",
+      "contract": {
+        "ours": "Create the Terminal install folder before the first config/run script.",
+        "upstream": "Create the Terminal install folder before the first config/run script.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Create the Terminal install folder before the first config/run script.",
+        "upstream": "Create the Terminal install folder before the first config/run script.",
+        "candidate": "Reviewed content commit d484ccdeb4193c82188ae745b13f36e37ed6257b; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "setup-install-folder-invariant",
+          "statement": "Create the Terminal install folder before the first config/run script.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 2,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "upstream",
+      "reason": "Create the Terminal install folder before the first config/run script.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "d484ccdeb4193c82188ae745b13f36e37ed6257b"
+    },
+    {
+      "id": "setup-hip-ram-slack",
+      "oursAnchor": "def inkling_expert_flags",
+      "upstreamAnchor": "def inkling_expert_flags",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "terminal/setup.py",
+          "line": 10561,
+          "symbol": "def inkling_expert_flags"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "terminal/setup.py",
+          "line": 10552,
+          "symbol": "def inkling_expert_flags"
+        }
+      },
+      "anchorStatus": "adapted",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "def inkling_expert_flags",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "terminal/setup.py"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "full",
+      "oursAlgorithm": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+      "upstreamAlgorithm": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+      "contract": {
+        "ours": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+        "upstream": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+        "upstream": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+        "candidate": "Reviewed content commit 194b68c7c247a8fba8664d3d55ac196184a1c99f; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "setup-hip-ram-slack-invariant",
+          "statement": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 2,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "upstream",
+      "reason": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "194b68c7c247a8fba8664d3d55ac196184a1c99f"
+    },
+    {
+      "id": "hip-kv-window-choice",
+      "oursAnchor": "def non_expert_gb",
+      "upstreamAnchor": "HIP_KV_WINDOW_TOKENS",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "terminal/strata_control/inkling_fit.py",
+          "line": 204,
+          "symbol": "def non_expert_gb"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "terminal/strata_control/inkling_fit.py",
+          "line": 26,
+          "symbol": "HIP_KV_WINDOW_TOKENS"
+        }
+      },
+      "anchorStatus": "adapted",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "def non_expert_gb",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "terminal/strata_control/inkling_fit.py"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "full",
+      "oursAlgorithm": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+      "upstreamAlgorithm": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+      "contract": {
+        "ours": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+        "upstream": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+        "upstream": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+        "candidate": "Reviewed content commit b1c2c937753cfd2e4c88c9cea93721ac6b41d500; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "hip-kv-window-choice-invariant",
+          "statement": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 3,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "upstream",
+      "reason": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500"
+    },
+    {
+      "id": "qwen36-catalog-preserve",
+      "oursAnchor": "IQ4_XS-KAT",
+      "upstreamAnchor": "qwen36",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "terminal/setup.py",
+          "line": 804,
+          "symbol": "IQ4_XS-KAT"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "terminal/setup.py",
+          "line": 790,
+          "symbol": "qwen36"
+        }
+      },
+      "anchorStatus": "preserved",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "IQ4_XS-KAT",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "terminal/setup.py"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "partial",
+      "oursAlgorithm": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+      "upstreamAlgorithm": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+      "contract": {
+        "ours": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+        "upstream": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+        "upstream": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+        "candidate": "Reviewed content commit b1c2c937753cfd2e4c88c9cea93721ac6b41d500; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "qwen36-catalog-preserve-invariant",
+          "statement": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 1,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "ours",
+      "reason": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500"
+    },
+    {
+      "id": "expert-build-preserve",
+      "oursAnchor": "STRATA_Q6K_EXPERTS",
+      "upstreamAnchor": "project(strata VERSION 0.1.68",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "engine/CMakeLists.txt",
+          "line": 142,
+          "symbol": "STRATA_Q6K_EXPERTS"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "engine/CMakeLists.txt",
+          "line": 13,
+          "symbol": "project(strata VERSION 0.1.68"
+        }
+      },
+      "anchorStatus": "preserved",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "STRATA_Q6K_EXPERTS",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "engine/CMakeLists.txt"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "partial",
+      "oursAlgorithm": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+      "upstreamAlgorithm": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+      "contract": {
+        "ours": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+        "upstream": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+        "upstream": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+        "candidate": "Reviewed content commit ce67d696cef760f462518bc63623d27bd43b6523; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "expert-build-preserve-invariant",
+          "statement": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 1,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "ours",
+      "reason": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "ce67d696cef760f462518bc63623d27bd43b6523"
+    },
+    {
+      "id": "fork-planner-base",
+      "oursAnchor": "VRAM_SAFETY_GB",
+      "upstreamAnchor": "VRAM_SAFETY_GB",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "terminal/strata_control/inkling_fit.py",
+          "line": 33,
+          "symbol": "VRAM_SAFETY_GB"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "terminal/strata_control/inkling_fit.py",
+          "line": 35,
+          "symbol": "VRAM_SAFETY_GB"
+        }
+      },
+      "anchorStatus": "preserved",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "VRAM_SAFETY_GB",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "terminal/strata_control/inkling_fit.py"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "partial",
+      "oursAlgorithm": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+      "upstreamAlgorithm": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+      "contract": {
+        "ours": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+        "upstream": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+        "upstream": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+        "candidate": "Reviewed content commit b1c2c937753cfd2e4c88c9cea93721ac6b41d500; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "fork-planner-base-invariant",
+          "statement": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 1,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "ours",
+      "reason": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500"
+    },
+    {
+      "id": "packaging-fork-notes",
+      "oursAnchor": "Strata packaging",
+      "upstreamAnchor": "Control 0.1.68",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "tools/packaging/README.md",
+          "line": 1,
+          "symbol": "Strata packaging"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "tools/packaging/README.md",
+          "line": 4,
+          "symbol": "Control 0.1.68"
+        }
+      },
+      "anchorStatus": "preserved",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "Strata packaging",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "tools/packaging/README.md"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "partial",
+      "oursAlgorithm": "Take the upstream version line, retain fork packaging documentation.",
+      "upstreamAlgorithm": "Take the upstream version line, retain fork packaging documentation.",
+      "contract": {
+        "ours": "Take the upstream version line, retain fork packaging documentation.",
+        "upstream": "Take the upstream version line, retain fork packaging documentation.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Take the upstream version line, retain fork packaging documentation.",
+        "upstream": "Take the upstream version line, retain fork packaging documentation.",
+        "candidate": "Reviewed content commit ce67d696cef760f462518bc63623d27bd43b6523; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "packaging-fork-notes-invariant",
+          "statement": "Take the upstream version line, retain fork packaging documentation.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 1,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "ours",
+      "reason": "Take the upstream version line, retain fork packaging documentation.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "ce67d696cef760f462518bc63623d27bd43b6523"
+    },
+    {
+      "id": "upstream-tests",
+      "oursAnchor": "test_vram_margin_is_taken_off_the_free_memory",
+      "upstreamAnchor": "test_a_longer_context_plans_like_32k",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "terminal/tests/terminal/test_inkling_fit_free.py",
+          "line": 20,
+          "symbol": "test_vram_margin_is_taken_off_the_free_memory"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
+          "line": 30,
+          "symbol": "test_a_longer_context_plans_like_32k"
+        }
+      },
+      "anchorStatus": "adapted",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "test_vram_margin_is_taken_off_the_free_memory",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "terminal/tests/terminal/test_inkling_fit_free.py"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "full",
+      "oursAlgorithm": "Accept upstream regression coverage without deleting existing fork tests.",
+      "upstreamAlgorithm": "Accept upstream regression coverage without deleting existing fork tests.",
+      "contract": {
+        "ours": "Accept upstream regression coverage without deleting existing fork tests.",
+        "upstream": "Accept upstream regression coverage without deleting existing fork tests.",
+        "equivalence": "compatible",
+        "numericalTolerance": null,
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Accept upstream regression coverage without deleting existing fork tests.",
+        "upstream": "Accept upstream regression coverage without deleting existing fork tests.",
+        "candidate": "Reviewed content commit 9ec1982ff3a75e2b5698fefc83af77a8973b71c0; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "upstream-tests-invariant",
+          "statement": "Accept upstream regression coverage without deleting existing fork tests.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 5,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "upstream",
+      "reason": "Accept upstream regression coverage without deleting existing fork tests.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "9ec1982ff3a75e2b5698fefc83af77a8973b71c0"
+    },
+    {
+      "id": "qwen35-no-delta",
+      "oursAnchor": "q36_engine",
+      "upstreamAnchor": "q36_engine",
+      "anchorLocations": {
+        "ours": {
+          "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "line": 1,
+          "symbol": "q36_engine"
+        },
+        "upstream": {
+          "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "line": 1,
+          "symbol": "q36_engine"
+        }
+      },
+      "anchorStatus": "preserved",
+      "anchorMethod": {
+        "method": "symbol-search",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-F",
+          "q36_engine",
+          "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+          "--",
+          "engine/src/qwen35/q36_engine.cu"
+        ]
+      },
+      "anchorEvidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "upstreamStatus": "partial",
+      "oursAlgorithm": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+      "upstreamAlgorithm": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+      "contract": {
+        "ours": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+        "upstream": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+        "equivalence": "bit-exact",
+        "numericalTolerance": {
+          "metric": "qwen35 tree",
+          "kind": "exact",
+          "limit": 0,
+          "unit": "bytes"
+        },
+        "determinism": "preserved",
+        "boundaryBehavior": "Upstream tests и существующие fork tests должны сохранить граничные случаи.",
+        "errorBehavior": "Ошибки setup/planner остаются в существующих upstream/fork путях; скрытого fallback не добавляется.",
+        "sessionSemantics": "KV layout, MTP, copy_session и session lifetime не меняются."
+      },
+      "route": {
+        "ours": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+        "upstream": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+        "candidate": "Reviewed content commit cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1; merge ancestry зафиксирован в cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1.",
+        "gate": "Статические якоря и predicted/candidate tree; runtime tests выполняет A после N review.",
+        "dispatch": "Без нового runtime dispatch.",
+        "fallback": "Существующие setup/planner и engine fallback пути сохраняются.",
+        "defaultFlags": "Без изменений.",
+        "target": "Terminal/Control packaging; CUDA поведение сохраняется, HIP fixes применяются только к HIP.",
+        "verified": false,
+        "evidence": [
+          {
+            "category": "route",
+            "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+            "status": "passed",
+            "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+          }
+        ]
+      },
+      "invariants": [
+        {
+          "id": "qwen35-no-delta-invariant",
+          "statement": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+          "ours": "preserved",
+          "upstream": "preserved",
+          "candidate": "preserved",
+          "changed": false,
+          "evidence": [
+            {
+              "category": "route",
+              "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+              "status": "passed",
+              "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+            }
+          ]
+        }
+      ],
+      "resources": {
+        "measurementStatus": "not-measured",
+        "ours": {},
+        "upstream": {},
+        "candidate": {},
+        "comparison": "Performance/resources измеряются A после N review на 32k/160k/200k.",
+        "evidence": []
+      },
+      "coverage": {
+        "status": "declared",
+        "ours": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "upstream": {
+          "models": [
+            "Terminal/Control"
+          ],
+          "backends": [
+            "HIP"
+          ],
+          "formats": [
+            "release-metadata"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "candidate": {
+          "models": [
+            "KAT IQ4_XS",
+            "Huihui IQ4_XS"
+          ],
+          "backends": [
+            "CUDA",
+            "HIP"
+          ],
+          "formats": [
+            "GGUF"
+          ],
+          "flags": [],
+          "edgeCases": [
+            "install-folder-missing",
+            "hip-kv-choice",
+            "hip-ram-cap"
+          ]
+        },
+        "gaps": [
+          "Runtime GPU acceptance после N review"
+        ],
+        "evidence": []
+      },
+      "compatibility": {
+        "ours": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options"
+        ],
+        "upstream": [
+          "HIP fixes",
+          "version metadata"
+        ],
+        "candidate": [
+          "CUDA planner",
+          "qwen36 catalog",
+          "expert build options",
+          "HIP fixes",
+          "version metadata"
+        ],
+        "assessment": "compatible",
+        "conditions": [
+          "Сохранить fork defaults; HIP changes только для HIP."
+        ],
+        "evidence": []
+      },
+      "adaptationCost": {
+        "changedFiles": 2,
+        "conflictZones": 0,
+        "effort": "low",
+        "reversible": true,
+        "nextMergeRisk": "low",
+        "rationale": "Upstream delta изолирован; content commits сохраняют наши якоря."
+      },
+      "reworkEffect": "same",
+      "decision": "ours",
+      "reason": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+      "evidence": [
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/candidate-anchor-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        },
+        {
+          "category": "route",
+          "artifact": "docs/workflow/tasks/UPSTREAM-2AF30CCA/evidence/predicted-tree-audit.txt",
+          "status": "passed",
+          "revision": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+        }
+      ],
+      "commitRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+    }
+  ],
+  "invariantsChanged": [],
+  "evidence": {
+    "build": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "tests": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "correctness": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "quality": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "route": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "fallback": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "backends": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "architectureReview": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "benchmarksResources": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "implementationCombinations": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "targetCoverage": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "regression": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "bisect": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    },
+    "rollback": {
+      "status": "not-run",
+      "reason": "pending A acceptance",
+      "details": "Выполняется после независимого N review."
+    }
+  },
+  "checks": [],
+  "warningAcknowledgments": [],
+  "thresholds": {
+    "maxChangedFiles": 60,
+    "maxChangedLines": 3000,
+    "maxIfdefAdded": 25,
+    "maxInvariantsChanged": 1
+  },
+  "architectureReview": {
+    "status": "pending",
+    "scope": [
+      "release-version-bump",
+      "setup-install-folder",
+      "setup-hip-ram-slack",
+      "hip-kv-window-choice",
+      "qwen36-catalog-preserve",
+      "expert-build-preserve",
+      "fork-planner-base",
+      "packaging-fork-notes",
+      "upstream-tests",
+      "qwen35-no-delta"
+    ],
+    "author": "A",
+    "alternatives": [],
+    "verdict": "pending"
+  },
+  "acceptance": {
+    "status": "pending",
+    "gateResult": "not-run",
+    "candidateCommitRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+    "notes": "Provisional plan для D1; независимый N review и A acceptance выполняются после candidate package."
+  }
+}

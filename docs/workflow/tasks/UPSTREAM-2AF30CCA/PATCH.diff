@@ -1,0 +1,1829 @@
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/PLAN.md b/docs/workflow/tasks/UPSTREAM-2AF30cca/PLAN.md
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/PLAN.md
+@@ -0,0 +1,115 @@
++# UPSTREAM-2AF30CCA — план v5 подготовки fork candidate
++
++## Статус
++
++План v5 подготовлен для утверждения пользователем. Worktree, merge, commit, push, tests, build и GPU не выполнялись. Субагенты не запускались.
++
++## Роли
++
++- A `443fddf1`: создаёт task-worktree и task-ветку, сохраняет пакет H во внешний raw-evidence, создаёт отдельный detached candidate-worktree и sync-ветку уже там, выполняет content commits `C1..C5`, merge commit `M`, docs commits `D1/D2`, CPU/static tests, CUDA build и GPU acceptance.
++- H `b8bd12b8`: после создания worktree готовит только некоммиченные `IMPL_PLAN.md`, `DOC_IMPL.md`, `PATCH.diff`, `merge-profile.json`, draft matrix/anchor evidence. H не создаёт commits/sync-ветку, не запускает Python tests/selftest/build/GPU.
++- N `9ba7a8a6`: независимый read-only review candidate и evidence.
++
++## Pinned refs и прогноз
++
++- ours/baseSha: `996eb9195b1790f954dd48f50be27893cae93937`
++- upstream: `2af30ccaa0729177c4725ee2073f72bf550e2f86`
++- previousUpstream/merge-base: `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6`
++- ahead/behind: `258/4`
++- delta: 4 коммита, 16 файлов; `engine/src/qwen35/*` в delta не затронут.
++- прогноз `git merge-tree --write-tree`: tree `d2d23a55d707d553ecc52e14c7fbe27d0748f993`, rc=0, текстовых конфликтов нет.
++- predicted tree сохраняет qwen35, IQ4_XS-KAT/Huihui, expert build options и fork planner constants; upstream setup/HIP fixes применяются.
++
++## Решения матрицы
++
++| ID | Decision | Файлы/якоря | Основание |
++|---|---|---|---|
++| release-version-bump | upstream | `engine/CMakeLists.txt:13`, `terminal/strata_cli/__init__.py:15`, `docs/data/release.json:6-7`, `tools/packaging/README.md:4`, version tests | Control 0.1.68 / Terminal 0.2.21.1; app и engine packages остаются 0.2.21/0.1.67 |
++| setup-install-folder | upstream | `terminal/setup.py:write_config`, `write_run_script`; `test_write_config_makes_the_folder`, `test_write_run_script_makes_the_folder` | #7012 |
++| setup-hip-ram-slack | upstream | `RAM_TIER_SLACK_GIB/FRAC`, `inkling_expert_flags(...)`, call site `10943` | HIP RAM cap fix; другие backend не меняются |
++| hip-kv-window-choice | upstream | `HIP_KV_WINDOW_TOKENS`, `non_expert_gb`, `inkling_plan_kv`; `test_inkling_fit_hip_window.py` | HIP 32K K/V window и выбранный тип |
++| qwen36-catalog-preserve | ours | `terminal/setup.py:804` `IQ4_XS-KAT`, `:807` `IQ4_XS-Huihui` | upstream не содержит эти fork-модели |
++| expert-build-preserve | ours | `engine/CMakeLists.txt:142` `STRATA_Q6K_EXPERTS`, `:178` `STRATA_NATIVE_EXPERTS`, `:486` `q36_expert_info_test` | upstream delta меняет только version line |
++| fork-planner-base | ours | `inkling_fit.py:VRAM_SAFETY_GB`, `KV_CARD_HEADROOM_GB`, `FREE_RAM_MARGIN_GB` | наши CUDA/desktop/RAM правила сохраняются |
++| packaging-fork-notes | ours | `tools/packaging/README.md` fork sections | version line обновляется upstream, fork docs сохраняются |
++| upstream-tests | upstream | `test_inkling_fit_free.py`, new `test_inkling_fit_hip_window.py`, `test_setup_config.py`, version/release tests | upstream regression coverage |
++| qwen35-no-delta | ours | `engine/src/qwen35/*`, `engine/include/strata/qwen35/*` | predicted tree побитово равен main |
++
++`hybrid/defer/drop` не требуются: auto-merge чист, semantic overlap закрывается раздельными `ours`/`upstream` строками.
++
++## CommitRefs и evidence
++
++- H только предлагает mapping; реальные SHA создаёт A.
++- Пакет H остаётся некоммиченным в `E:/tmp/workflow-upstream-2af30cca`. A сохраняет файлы и `git diff` во внешний raw-evidence до любых переключений.
++- A создаёт отдельный detached candidate-worktree `E:/tmp/workflow-upstream-2af30cca-candidate` от baseSha и только там ветку `sync/upstream-2af30cca`. Task-worktree H не переключается и не очищается до переноса evidence.
++- A применяет reviewed delta обычными content commits: `C1` version/packaging, `C2` setup install folder, `C3` HIP RAM slack, `C4` HIP K/V window/choice, `C5` upstream tests.
++- После `C5` A выполняет `git merge --no-ff --no-commit upstream` и создаёт `M` с parents `C5`/upstream; дерево `M` должно совпасть с `C5`.
++- Один реальный SHA на matrix-строку: release=`C1`, setup-folder=`C2`, hip-ram=`C3`, hip-kv=`C4`, qwen36-preserve=`C4`, expert-preserve=`C1`, planner-base=`C4`, packaging-notes=`C1`, tests=`C5`, qwen35-guard=`M`.
++- `D1` — RU+EN merge report по provisional plan candidate `M`.
++- `D2` — candidate-internal anchor evidence, conflict decisions, проверяемые artifacts/logs, `IMPL_PLAN.md`, `DOC_IMPL.md`, `PATCH.diff`, evidence index. `D2` является final candidate tip; evidence plan ссылается на revision `D2`.
++- Внешние final matrix/plan — derived output после чистого `D2`; они не заменяют candidate-internal evidence.
++
++## Команды по ролям после утверждения
++
++### A: создание worktree и task-ветки
++
++```text
++git -C C:/Projects/Strata-3060Ti/engine worktree add --detach E:/tmp/workflow-upstream-2af30cca 996eb9195b1790f954dd48f50be27893cae93937
++git -C E:/tmp/workflow-upstream-2af30cca switch -c task/UPSTREAM-2AF30cca
++```
++
++### H: некоммиченный пакет
++
++H читает pinned refs/diff, пишет только task-файлы и draft evidence. Допустимы `git diff`, `git grep`, `git show`, `sha256sum`, `python -m json.tool`, canonical leakcheck и `git apply --check PATCH.diff`. Запрещены commits, sync-ветка, Python tests/selftest, build и GPU.
++
++### A: сохранение пакета H и отдельный candidate-worktree
++
++```text
++# A сохраняет некоммиченный пакет H и diff во внешний raw-evidence до переключений
++cp -a E:/tmp/workflow-upstream-2af30cca/docs/workflow/tasks/UPSTREAM-2AF30cca E:/eXample/Documents/Source/Github/_work_with_llm/glm/2026-11-25_session/upstream-2af30cca/h-package/
++git -C E:/tmp/workflow-upstream-2af30cca diff --binary > E:/eXample/Documents/Source/Github/_work_with_llm/glm/2026-11-25_session/upstream-2af30cca/h-package.diff
++git -C C:/Projects/Strata-3060Ti/engine worktree add --detach E:/tmp/workflow-upstream-2af30cca-candidate 996eb9195b1790f954dd48f50be27893cae93937
++git -C E:/tmp/workflow-upstream-2af30cca-candidate switch -c sync/upstream-2af30cca
++# A применяет reviewed content changes и создаёт C1..C5 в candidate-worktree
++git merge --no-ff --no-commit 2af30ccaa0729177c4725ee2073f72bf550e2f86
++# A проверяет дерево и создаёт M с parents C5/upstream
++# A создаёт D1/D2 с candidate-internal evidence
++```
++
++Task-worktree H не переключается на sync-ветку и не очищается до завершения переноса evidence.
++
++## Anchor-проверки
++
++```text
++git ls-files -u
++git -c core.whitespace=cr-at-eol diff --cached --check
++git diff --exit-code 996eb9195b1790f954dd48f50be27893cae93937 HEAD -- engine/src/qwen35 engine/include/strata/qwen35
++git grep -n -F 'IQ4_XS-KAT' HEAD -- terminal/setup.py
++git grep -n -F 'IQ4_XS-Huihui' HEAD -- terminal/setup.py
++git grep -n -F 'STRATA_Q6K_EXPERTS' HEAD -- engine/CMakeLists.txt
++git grep -n -F 'STRATA_NATIVE_EXPERTS' HEAD -- engine/CMakeLists.txt
++git grep -n -F 'HIP_KV_WINDOW_TOKENS' HEAD -- terminal/strata_control/inkling_fit.py
++git grep -n -F 'RAM_TIER_SLACK_GIB' HEAD -- terminal/setup.py
++git grep -n -F 'PRODUCT_VERSION = "0.2.21.1"' HEAD -- terminal/strata_cli/__init__.py
++M=$(git rev-parse HEAD)
++git merge-base --is-ancestor 996eb9195b1790f954dd48f50be27893cae93937 "$M"
++git merge-base --is-ancestor 2af30ccaa0729177c4725ee2073f72bf550e2f86 "$M"
++git diff --exit-code "$M^1" "$M"
++git rev-list --parents -n 1 "$M"
++```
++
++## Проверки A после N review
++
++- CPU/static: `test_inkling_fit_free`, `test_inkling_fit_hip_window`, `test_setup_config`, `test_release_manifest`, version tests, merge-tools selftest.
++- CUDA build и `tools/check --strict`.
++- 32k smoke, 160k/200k A/B, quality/MTP/fallback/resources.
++- Независимый N review до любого продвижения main.
++
++## Риски и blockers
++
++- GPU barrier blocked чужим Huihui 200k run PID 8208; не прерывать.
++- Main worktree dirty только workflow state/events/task dir; H не трогает его.
++- Нельзя переключать task-worktree H на sync-ветку: некоммиченный пакет может загрязнить C1..C5. Candidate создаётся в отдельном worktree.
++- Чистый auto-merge не доказывает сохранение fork defaults; A обязан проверить anchors и tree.
++- Любое отличие qwen35 от main после merge — ошибка candidate.
++- До утверждения v5 выполнять worktree/merge/commit/tests/build/GPU нельзя.
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/anchor-matrix-draft.json b/docs/workflow/tasks/UPSTREAM-2AF30cca/anchor-matrix-draft.json
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/anchor-matrix-draft.json
+@@ -0,0 +1,263 @@
++{
++  "taskId": "UPSTREAM-2AF30CCA",
++  "status": "draft-awaiting-user-approval-v5",
++  "ours": "996eb9195b1790f954dd48f50be27893cae93937",
++  "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++  "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
++  "predictedTree": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++  "rows": [
++    {
++      "id": "release-version-bump",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.67"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "files": [
++        "docs/AI_REFERENCE.md",
++        "docs/CAPABILITIES.md",
++        "docs/data/release.json",
++        "engine/CMakeLists.txt",
++        "terminal/strata_cli/__init__.py",
++        "terminal/tests/terminal/test_tui2_023_versions.py",
++        "tools/packaging/README.md",
++        "tools/packaging/UPDATES.md",
++        "tools/release_manifest.py",
++        "tools/test_release_manifest.py"
++      ],
++      "reason": "Control-only hotfix version bump; app and engine package versions unchanged.",
++      "commitRefPlan": "C1"
++    },
++    {
++      "id": "setup-install-folder",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 7555,
++        "symbol": "def write_config"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 7531,
++        "symbol": "def write_config"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/tools/test_setup_config.py"
++      ],
++      "reason": "Create the Terminal install folder before the first config/run script.",
++      "commitRefPlan": "C2"
++    },
++    {
++      "id": "setup-hip-ram-slack",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 10561,
++        "symbol": "def inkling_expert_flags"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 10552,
++        "symbol": "def inkling_expert_flags"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/tests/terminal/test_inkling_fit_free.py"
++      ],
++      "reason": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
++      "commitRefPlan": "C3"
++    },
++    {
++      "id": "hip-kv-window-choice",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 204,
++        "symbol": "def non_expert_gb"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 26,
++        "symbol": "HIP_KV_WINDOW_TOKENS"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/strata_control/inkling_fit.py",
++        "terminal/tests/terminal/test_inkling_fit_hip_window.py"
++      ],
++      "reason": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
++      "commitRefPlan": "C4"
++    },
++    {
++      "id": "qwen36-catalog-preserve",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 804,
++        "symbol": "IQ4_XS-KAT"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 790,
++        "symbol": "qwen36"
++      },
++      "files": [
++        "terminal/setup.py"
++      ],
++      "reason": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
++      "commitRefPlan": "C4"
++    },
++    {
++      "id": "expert-build-preserve",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/CMakeLists.txt",
++        "line": 142,
++        "symbol": "STRATA_Q6K_EXPERTS"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "files": [
++        "engine/CMakeLists.txt"
++      ],
++      "reason": "Upstream delta changes only the version line; expert options and CTest stay ours.",
++      "commitRefPlan": "C1"
++    },
++    {
++      "id": "fork-planner-base",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 33,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 35,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "files": [
++        "terminal/strata_control/inkling_fit.py"
++      ],
++      "reason": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
++      "commitRefPlan": "C4"
++    },
++    {
++      "id": "packaging-fork-notes",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "tools/packaging/README.md",
++        "line": 1,
++        "symbol": "Strata packaging"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "tools/packaging/README.md",
++        "line": 4,
++        "symbol": "Control 0.1.68"
++      },
++      "files": [
++        "tools/packaging/README.md"
++      ],
++      "reason": "Take the upstream version line, retain fork packaging documentation.",
++      "commitRefPlan": "C1"
++    },
++    {
++      "id": "upstream-tests",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/tests/terminal/test_inkling_fit_free.py",
++        "line": 20,
++        "symbol": "test_vram_margin_is_taken_off_the_free_memory"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "line": 30,
++        "symbol": "test_a_longer_context_plans_like_32k"
++      },
++      "files": [
++        "terminal/tests/terminal/test_inkling_fit_free.py",
++        "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "terminal/tests/terminal/test_tui2_023_versions.py",
++        "terminal/tools/test_setup_config.py",
++        "tools/test_release_manifest.py"
++      ],
++      "reason": "Accept upstream regression coverage without deleting existing fork tests.",
++      "commitRefPlan": "C5"
++    },
++    {
++      "id": "qwen35-no-delta",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "files": [
++        "engine/src/qwen35",
++        "engine/include/strata/qwen35"
++      ],
++      "reason": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
++      "commitRefPlan": "M"
++    }
++  ],
++  "commitStrategy": "A preserves the H task-worktree package externally, creates a separate candidate worktree from baseSha, applies C1..C5 there, merges upstream into M with parents C5/upstream and the same tree, then creates D1/D2. H makes no commits and the task worktree is not switched.",
++  "evidencePackagePlan": {
++    "D1": "RU+EN merge report generated by A from provisional plan pinned to M.",
++    "D2": "Candidate-internal anchor evidence, conflict decisions, verifiable artifacts/logs, IMPL_PLAN.md, DOC_IMPL.md, PATCH.diff and evidence index. D2 is the final candidate tip.",
++    "derivedOutputs": "Final matrix/plan are external derived outputs after clean D2; evidence revision is D2 and each matrix commitRef is one real C1..C5/M SHA.",
++    "taskPackage": "A copies the uncommitted H task package and git diff to external raw evidence before any branch switch.",
++    "candidateEvidence": "D2 in the separate candidate worktree contains anchor evidence, conflict decisions, verifiable artifacts/logs, IMPL_PLAN.md, DOC_IMPL.md, PATCH.diff and evidence index; D2 is the final candidate tip."
++  },
++  "roles": {
++    "A": "Creates task worktree/branch, preserves H package and git diff externally, creates a separate detached candidate worktree and sync branch there, makes C1..C5/M/D1/D2 commits, runs CPU/static/build/GPU after N review.",
++    "H": "Prepares only uncommitted IMPL_PLAN.md, DOC_IMPL.md, PATCH.diff, merge-profile.json, draft matrix/anchor evidence. No commits, sync branch, Python tests/selftest, build or GPU.",
++    "N": "Independent read-only review."
++  },
++  "helperAllowedCommands": [
++    "read-only git diff/show/grep/status",
++    "sha256sum",
++    "python -m json.tool",
++    "canonical leakcheck",
++    "git apply --check PATCH.diff"
++  ],
++  "candidateCreated": false,
++  "worktrees": {
++    "task": "E:/tmp/workflow-upstream-2af30cca on task/UPSTREAM-2AF30cca; H package remains uncommitted and the worktree is not switched or cleaned before evidence transfer.",
++    "candidate": "E:/tmp/workflow-upstream-2af30cca-candidate detached from 996eb9195, then sync/upstream-2af30cca; A creates C1..C5/M/D1/D2 here."
++  }
++}
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/IMPL_PLAN.md b/docs/workflow/tasks/UPSTREAM-2AF30cca/IMPL_PLAN.md
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/IMPL_PLAN.md
+@@ -0,0 +1,9 @@
++# IMPL_PLAN UPSTREAM-2AF30CCA
++
++- implementation_algorithm: A применяет upstream delta `d46f5f2..2af30cca` в отдельном candidate-worktree обычными content commits C1..C5, затем создаёт merge commit M с parents C5/upstream и деревом C5. H не коммитит и не переключает task-worktree.
++- code_parts: C1 version/packaging; C2 setup install folder; C3 HIP RAM slack; C4 HIP K/V window/choice; C5 upstream tests. qwen35 и fork qwen36/expert/planner/packaging якоря сохраняются.
++- delegation: A создаёт task- и candidate-worktree, commits, tests/build/GPU; H готовит только некоммиченный evidence package; N выполняет read-only review.
++- risks: чистый auto-merge не доказывает semantic parity; task-worktree H нельзя переключать на sync-ветку; GPU barrier blocked чужим Huihui 200k PID 8208; qwen35 delta отсутствует и любое отличие от main после merge является ошибкой.
++- acceptance: каждая matrix-строка получает один реальный SHA; D2 содержит candidate-internal evidence; A после N review запускает CPU/static tests, CUDA build, 32k smoke, 160k/200k A/B, quality/MTP/fallback/resources.
++- pinned_refs: ours `996eb9195b1790f954dd48f50be27893cae93937`; upstream `2af30ccaa0729177c4725ee2073f72bf550e2f86`; merge-base `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6`.
++- predicted_tree: `d2d23a55d707d553ecc52e14c7fbe27d0748f993`; текстовых конфликтов нет.
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/DOC_IMPL.md b/docs/workflow/tasks/UPSTREAM-2AF30cca/DOC_IMPL.md
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/DOC_IMPL.md
+@@ -0,0 +1,5 @@
++# DOC_IMPL UPSTREAM-2AF30CCA
++
++- math: version bump не меняет вычисления. HIP K/V window планируется как `min(context, 32768)`; RAM slack — `max(0.75 GiB, 5% экспертов)` с ограничением свободной RAM; выбранный K/V тип fp8/fp16 применяется только к HIP.
++- code_map: `terminal/setup.py:write_config/write_run_script` создают install folder; `RAM_TIER_SLACK_GIB/FRAC` и `inkling_expert_flags` добавляют HIP RAM room; `HIP_KV_WINDOW_TOKENS`, `non_expert_gb`, `inkling_plan_kv` задают HIP window/type; version files обновляют Control/Terminal версии.
++- algorithm_argumentation: upstream setup/HIP fixes изолированы от CUDA/других backend; qwen36 KAT/Huihui, expert build options и fork planner constants сохраняются; qwen35 не входит в delta. H package не меняет engine-код.
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/merge-profile.json b/docs/workflow/tasks/UPSTREAM-2AF30cca/merge-profile.json
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/merge-profile.json
+@@ -0,0 +1,114 @@
++{
++  "patches": [
++    {
++      "id": "release-version-bump",
++      "oursAnchor": "project(strata VERSION 0.1.67",
++      "upstreamAnchor": "project(strata VERSION 0.1.68",
++      "upstreamStatus": "full",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
++      "decision": "upstream",
++      "reworkEffect": "same",
++      "notes": "Control 0.1.68 / Terminal 0.2.21.1; app and engine package versions stay 0.2.21/0.1.67."
++    },
++    {
++      "id": "setup-install-folder",
++      "oursAnchor": "def write_config",
++      "upstreamAnchor": "def write_config",
++      "upstreamStatus": "full",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/main-upstream-overlap.diff"],
++      "decision": "upstream",
++      "reworkEffect": "same",
++      "notes": "#7012: create the Terminal install folder before the first config/run script."
++    },
++    {
++      "id": "setup-hip-ram-slack",
++      "oursAnchor": "def inkling_expert_flags",
++      "upstreamAnchor": "RAM_TIER_SLACK_GIB",
++      "upstreamStatus": "full",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/main-upstream-overlap.diff"],
++      "decision": "upstream",
++      "reworkEffect": "same",
++      "notes": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends stay unchanged."
++    },
++    {
++      "id": "hip-kv-window-choice",
++      "oursAnchor": "def non_expert_gb",
++      "upstreamAnchor": "HIP_KV_WINDOW_TOKENS",
++      "upstreamStatus": "full",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
++      "decision": "upstream",
++      "reworkEffect": "same",
++      "notes": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays."
++    },
++    {
++      "id": "qwen36-catalog-preserve",
++      "oursAnchor": "IQ4_XS-KAT",
++      "upstreamAnchor": "qwen36",
++      "upstreamStatus": "partial",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
++      "decision": "ours",
++      "reworkEffect": "same",
++      "notes": "Fork KAT/Huihui IQ4_XS entries are absent upstream and preserved in the predicted tree."
++    },
++    {
++      "id": "expert-build-preserve",
++      "oursAnchor": "STRATA_Q6K_EXPERTS",
++      "upstreamAnchor": "project(strata VERSION 0.1.68",
++      "upstreamStatus": "partial",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
++      "decision": "ours",
++      "reworkEffect": "same",
++      "notes": "Upstream delta changes only the version line; expert options and CTest stay ours."
++    },
++    {
++      "id": "fork-planner-base",
++      "oursAnchor": "VRAM_SAFETY_GB",
++      "upstreamAnchor": "VRAM_SAFETY_GB",
++      "upstreamStatus": "partial",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
++      "decision": "ours",
++      "reworkEffect": "same",
++      "notes": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive."
++    },
++    {
++      "id": "packaging-fork-notes",
++      "oursAnchor": "Strata packaging",
++      "upstreamAnchor": "Control 0.1.68",
++      "upstreamStatus": "partial",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/main-upstream-overlap.diff"],
++      "decision": "ours",
++      "reworkEffect": "same",
++      "notes": "Take the upstream version line, retain fork packaging documentation."
++    },
++    {
++      "id": "upstream-tests",
++      "oursAnchor": "test_vram_margin_is_taken_off_the_free_memory",
++      "upstreamAnchor": "test_a_longer_context_plans_like_32k",
++      "upstreamStatus": "full",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/upstream-delta.txt"],
++      "decision": "upstream",
++      "reworkEffect": "same",
++      "notes": "Accept upstream regression coverage without deleting existing fork tests."
++    },
++    {
++      "id": "qwen35-no-delta",
++      "oursAnchor": "q36_engine",
++      "upstreamAnchor": "q36_engine",
++      "upstreamStatus": "partial",
++      "statusReviewed": true,
++      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
++      "decision": "ours",
++      "reworkEffect": "same",
++      "notes": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard."
++    }
++  ]
++}
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/merge-matrix.json b/docs/workflow/tasks/UPSTREAM-2AF30cca/merge-matrix.json
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/merge-matrix.json
+@@ -0,0 +1,303 @@
++{
++  "taskId": "UPSTREAM-2AF30CCA",
++  "status": "draft-prepared-by-H",
++  "ours": "996eb9195b1790f954dd48f50be27893cae93937",
++  "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++  "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
++  "predictedTree": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++  "rows": [
++    {
++      "id": "release-version-bump",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.67"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "files": [
++        "docs/AI_REFERENCE.md",
++        "docs/CAPABILITIES.md",
++        "docs/data/release.json",
++        "engine/CMakeLists.txt",
++        "terminal/strata_cli/__init__.py",
++        "terminal/tests/terminal/test_tui2_023_versions.py",
++        "tools/packaging/README.md",
++        "tools/packaging/UPDATES.md",
++        "tools/release_manifest.py",
++        "tools/test_release_manifest.py"
++      ],
++      "reason": "Control-only hotfix version bump; app and engine package versions unchanged.",
++      "commitRefPlan": "C1",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "setup-install-folder",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 7555,
++        "symbol": "def write_config"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 7531,
++        "symbol": "def write_config"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/tools/test_setup_config.py"
++      ],
++      "reason": "Create the Terminal install folder before the first config/run script.",
++      "commitRefPlan": "C2",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "setup-hip-ram-slack",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 10561,
++        "symbol": "def inkling_expert_flags"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 10552,
++        "symbol": "def inkling_expert_flags"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/tests/terminal/test_inkling_fit_free.py"
++      ],
++      "reason": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
++      "commitRefPlan": "C3",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "hip-kv-window-choice",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 204,
++        "symbol": "def non_expert_gb"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 26,
++        "symbol": "HIP_KV_WINDOW_TOKENS"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/strata_control/inkling_fit.py",
++        "terminal/tests/terminal/test_inkling_fit_hip_window.py"
++      ],
++      "reason": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
++      "commitRefPlan": "C4",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "qwen36-catalog-preserve",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 804,
++        "symbol": "IQ4_XS-KAT"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 790,
++        "symbol": "qwen36"
++      },
++      "files": [
++        "terminal/setup.py"
++      ],
++      "reason": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
++      "commitRefPlan": "C4",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "expert-build-preserve",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/CMakeLists.txt",
++        "line": 142,
++        "symbol": "STRATA_Q6K_EXPERTS"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "files": [
++        "engine/CMakeLists.txt"
++      ],
++      "reason": "Upstream delta changes only the version line; expert options and CTest stay ours.",
++      "commitRefPlan": "C1",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "fork-planner-base",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 33,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 35,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "files": [
++        "terminal/strata_control/inkling_fit.py"
++      ],
++      "reason": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
++      "commitRefPlan": "C4",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "packaging-fork-notes",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "tools/packaging/README.md",
++        "line": 1,
++        "symbol": "Strata packaging"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "tools/packaging/README.md",
++        "line": 4,
++        "symbol": "Control 0.1.68"
++      },
++      "files": [
++        "tools/packaging/README.md"
++      ],
++      "reason": "Take the upstream version line, retain fork packaging documentation.",
++      "commitRefPlan": "C1",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "upstream-tests",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/tests/terminal/test_inkling_fit_free.py",
++        "line": 20,
++        "symbol": "test_vram_margin_is_taken_off_the_free_memory"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "line": 30,
++        "symbol": "test_a_longer_context_plans_like_32k"
++      },
++      "files": [
++        "terminal/tests/terminal/test_inkling_fit_free.py",
++        "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "terminal/tests/terminal/test_tui2_023_versions.py",
++        "terminal/tools/test_setup_config.py",
++        "tools/test_release_manifest.py"
++      ],
++      "reason": "Accept upstream regression coverage without deleting existing fork tests.",
++      "commitRefPlan": "C5",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "qwen35-no-delta",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "files": [
++        "engine/src/qwen35",
++        "engine/include/strata/qwen35"
++      ],
++      "reason": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
++      "commitRefPlan": "M",
++      "evidence": [
++        "anchor-evidence.json",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    }
++  ],
++  "commitStrategy": "A preserves the H task-worktree package externally, creates a separate candidate worktree from baseSha, applies C1..C5 there, merges upstream into M with parents C5/upstream and the same tree, then creates D1/D2. H makes no commits and the task worktree is not switched.",
++  "evidencePackagePlan": {
++    "D1": "RU+EN merge report generated by A from provisional plan pinned to M.",
++    "D2": "Candidate-internal anchor evidence, conflict decisions, verifiable artifacts/logs, IMPL_PLAN.md, DOC_IMPL.md, PATCH.diff and evidence index. D2 is the final candidate tip.",
++    "derivedOutputs": "Final matrix/plan are external derived outputs after clean D2; evidence revision is D2 and each matrix commitRef is one real C1..C5/M SHA.",
++    "taskPackage": "A copies the uncommitted H task package and git diff to external raw evidence before any branch switch.",
++    "candidateEvidence": "D2 in the separate candidate worktree contains anchor evidence, conflict decisions, verifiable artifacts/logs, IMPL_PLAN.md, DOC_IMPL.md, PATCH.diff and evidence index; D2 is the final candidate tip."
++  },
++  "roles": {
++    "A": "Creates task worktree/branch, preserves H package and git diff externally, creates a separate detached candidate worktree and sync branch there, makes C1..C5/M/D1/D2 commits, runs CPU/static/build/GPU after N review.",
++    "H": "Prepares only uncommitted IMPL_PLAN.md, DOC_IMPL.md, PATCH.diff, merge-profile.json, draft matrix/anchor evidence. No commits, sync branch, Python tests/selftest, build or GPU.",
++    "N": "Independent read-only review."
++  },
++  "helperAllowedCommands": [
++    "read-only git diff/show/grep/status",
++    "sha256sum",
++    "python -m json.tool",
++    "canonical leakcheck",
++    "git apply --check PATCH.diff"
++  ],
++  "candidateCreated": false,
++  "worktrees": {
++    "task": "E:/tmp/workflow-upstream-2af30cca on task/UPSTREAM-2AF30cca; H package remains uncommitted and the worktree is not switched or cleaned before evidence transfer.",
++    "candidate": "E:/tmp/workflow-upstream-2af30cca-candidate detached from 996eb9195, then sync/upstream-2af30cca; A creates C1..C5/M/D1/D2 here."
++  }
++}
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/anchor-evidence.json b/docs/workflow/tasks/UPSTREAM-2AF30cca/anchor-evidence.json
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/anchor-evidence.json
+@@ -0,0 +1,351 @@
++{
++  "taskId": "UPSTREAM-2AF30CCA",
++  "status": "draft-predicted-tree-evidence",
++  "ours": "996eb9195b1790f954dd48f50be27893cae93937",
++  "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++  "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
++  "predictedTree": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++  "candidateCreated": false,
++  "textualConflicts": [],
++  "qwen35DiffRc": 0,
++  "rows": [
++    {
++      "id": "release-version-bump",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.67"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "files": [
++        "docs/AI_REFERENCE.md",
++        "docs/CAPABILITIES.md",
++        "docs/data/release.json",
++        "engine/CMakeLists.txt",
++        "terminal/strata_cli/__init__.py",
++        "terminal/tests/terminal/test_tui2_023_versions.py",
++        "tools/packaging/README.md",
++        "tools/packaging/UPDATES.md",
++        "tools/release_manifest.py",
++        "tools/test_release_manifest.py"
++      ],
++      "reason": "Control-only hotfix version bump; app and engine package versions unchanged.",
++      "commitRefPlan": "C1",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "setup-install-folder",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 7555,
++        "symbol": "def write_config"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 7531,
++        "symbol": "def write_config"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/tools/test_setup_config.py"
++      ],
++      "reason": "Create the Terminal install folder before the first config/run script.",
++      "commitRefPlan": "C2",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "terminal/setup.py",
++        "line": 7555,
++        "symbol": "def write_config"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "setup-hip-ram-slack",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 10561,
++        "symbol": "def inkling_expert_flags"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 10552,
++        "symbol": "def inkling_expert_flags"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/tests/terminal/test_inkling_fit_free.py"
++      ],
++      "reason": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
++      "commitRefPlan": "C3",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "terminal/setup.py",
++        "line": 10572,
++        "symbol": "RAM_TIER_SLACK_GIB"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "hip-kv-window-choice",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 204,
++        "symbol": "def non_expert_gb"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 26,
++        "symbol": "HIP_KV_WINDOW_TOKENS"
++      },
++      "files": [
++        "terminal/setup.py",
++        "terminal/strata_control/inkling_fit.py",
++        "terminal/tests/terminal/test_inkling_fit_hip_window.py"
++      ],
++      "reason": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
++      "commitRefPlan": "C4",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 26,
++        "symbol": "HIP_KV_WINDOW_TOKENS"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "qwen36-catalog-preserve",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/setup.py",
++        "line": 804,
++        "symbol": "IQ4_XS-KAT"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/setup.py",
++        "line": 790,
++        "symbol": "qwen36"
++      },
++      "files": [
++        "terminal/setup.py"
++      ],
++      "reason": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
++      "commitRefPlan": "C4",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "terminal/setup.py",
++        "line": 804,
++        "symbol": "IQ4_XS-KAT"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "expert-build-preserve",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/CMakeLists.txt",
++        "line": 142,
++        "symbol": "STRATA_Q6K_EXPERTS"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/CMakeLists.txt",
++        "line": 13,
++        "symbol": "project(strata VERSION 0.1.68"
++      },
++      "files": [
++        "engine/CMakeLists.txt"
++      ],
++      "reason": "Upstream delta changes only the version line; expert options and CTest stay ours.",
++      "commitRefPlan": "C1",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "engine/CMakeLists.txt",
++        "line": 142,
++        "symbol": "STRATA_Q6K_EXPERTS"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "fork-planner-base",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 33,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 35,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "files": [
++        "terminal/strata_control/inkling_fit.py"
++      ],
++      "reason": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
++      "commitRefPlan": "C4",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "terminal/strata_control/inkling_fit.py",
++        "line": 35,
++        "symbol": "VRAM_SAFETY_GB"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "packaging-fork-notes",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "tools/packaging/README.md",
++        "line": 1,
++        "symbol": "Strata packaging"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "tools/packaging/README.md",
++        "line": 4,
++        "symbol": "Control 0.1.68"
++      },
++      "files": [
++        "tools/packaging/README.md"
++      ],
++      "reason": "Take the upstream version line, retain fork packaging documentation.",
++      "commitRefPlan": "C1",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "tools/packaging/README.md",
++        "line": 4,
++        "symbol": "Control 0.1.68"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "upstream-tests",
++      "decision": "upstream",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "terminal/tests/terminal/test_inkling_fit_free.py",
++        "line": 20,
++        "symbol": "test_vram_margin_is_taken_off_the_free_memory"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "line": 30,
++        "symbol": "test_a_longer_context_plans_like_32k"
++      },
++      "files": [
++        "terminal/tests/terminal/test_inkling_fit_free.py",
++        "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "terminal/tests/terminal/test_tui2_023_versions.py",
++        "terminal/tools/test_setup_config.py",
++        "tools/test_release_manifest.py"
++      ],
++      "reason": "Accept upstream regression coverage without deleting existing fork tests.",
++      "commitRefPlan": "C5",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
++        "line": 30,
++        "symbol": "test_a_longer_context_plans_like_32k"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    },
++    {
++      "id": "qwen35-no-delta",
++      "decision": "ours",
++      "oursAnchor": {
++        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "upstreamAnchor": {
++        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "files": [
++        "engine/src/qwen35",
++        "engine/include/strata/qwen35"
++      ],
++      "reason": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
++      "commitRefPlan": "M",
++      "candidateAnchor": {
++        "ref": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++        "path": "engine/src/qwen35/q36_engine.cu",
++        "line": 1,
++        "symbol": "q36_engine"
++      },
++      "evidence": [
++        "anchor-matrix-draft.json",
++        "evidence/candidate-anchor-audit.txt",
++        "evidence/predicted-tree-audit.txt"
++      ]
++    }
++  ]
++}
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence-index.json b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence-index.json
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence-index.json
+@@ -0,0 +1,79 @@
++{
++  "taskId": "UPSTREAM-2AF30CCA",
++  "baseSha": "996eb9195b1790f954dd48f50be27893cae93937",
++  "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
++  "predictedTree": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
++  "planSha256": "26ba01e64c53b09e5fa21f5f55470fb26bbee47357d7e14dec19e3d48fc5232b",
++  "matrixSha256": "250ea63606119ae18b1fbe08a0ea92d44abf29b39ab64a4bb78ef2720625a6b3",
++  "files": [
++    {
++      "path": "PLAN.md",
++      "bytes": 9577,
++      "sha256": "26ba01e64c53b09e5fa21f5f55470fb26bbee47357d7e14dec19e3d48fc5232b"
++    },
++    {
++      "path": "anchor-matrix-draft.json",
++      "bytes": 9972,
++      "sha256": "250ea63606119ae18b1fbe08a0ea92d44abf29b39ab64a4bb78ef2720625a6b3"
++    },
++    {
++      "path": "IMPL_PLAN.md",
++      "bytes": 1642,
++      "sha256": "f43938f348c96429b0a1662664cc64f2cee255999db6edbafae9d6f47621a07f"
++    },
++    {
++      "path": "DOC_IMPL.md",
++      "bytes": 953,
++      "sha256": "efbf142bbf758a9ec3e664800e8247f1422e42e9ef43d2941c5de04e146c5896"
++    },
++    {
++      "path": "merge-profile.json",
++      "bytes": 4766,
++      "sha256": "d963926ef35edb0826b55feb9295fbe6c1eec74d828998fc285131a95957d999"
++    },
++    {
++      "path": "merge-matrix.json",
++      "bytes": 11010,
++      "sha256": "38cd7fa99b02a3bef2f18f10ad499f4784430b4da47c45c25f9451ab5302d54c"
++    },
++    {
++      "path": "anchor-evidence.json",
++      "bytes": 11490,
++      "sha256": "228773f9a9aba7168a383d308c30fe483a0e9660535377dafb1d5317b7035e81"
++    },
++    {
++      "path": "evidence/upstream-delta.txt",
++      "bytes": 993,
++      "sha256": "2dcf7aa830e93c7dc1dbe06173e5166e8aa3df6fe1c58343ec82f96009f3c145"
++    },
++    {
++      "path": "evidence/merge-tree.txt",
++      "bytes": 189,
++      "sha256": "038057635a2a141164f8f19c3cceb5618b1289502b206ba3ea887e1a428a6972"
++    },
++    {
++      "path": "evidence/main-upstream-overlap.diff",
++      "bytes": 25477,
++      "sha256": "8ca6384b8980a0c6e62fdba249fc55e1215de3a9038895956e03496b7c4835ed"
++    },
++    {
++      "path": "evidence/anchor-audit.txt",
++      "bytes": 9096,
++      "sha256": "e8d1aedfe3f381559ff3eaa5aabd3873e05a866bccab4f5c683cba787e03b8e8"
++    },
++    {
++      "path": "evidence/predicted-tree-audit.txt",
++      "bytes": 5768,
++      "sha256": "9e8221d65782c971c76fce9381f6f2ff02a20a9969ad57428e10436a4499f6e8"
++    },
++    {
++      "path": "evidence/candidate-anchor-audit.txt",
++      "bytes": 5941,
++      "sha256": "ee092319e0040ca9beedf1fefbe204659409dc8397e6320b9e3c7b7695aa8022"
++    }
++  ],
++  "patch": {
++    "path": "PATCH.diff",
++    "note": "Aggregate additions diff; hash is reported externally to avoid circular dependency."
++  }
++}
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/upstream-delta.txt b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/upstream-delta.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/upstream-delta.txt
+@@ -0,0 +1,22 @@
++=== upstream commits ===
++2fdbdb56d fix(setup): make the install folder before writing a run config into it (#7012)
++688999468 fix(setup): plan the HIP K/V as a 32K window, and plan the K/V type the person chose (#7022)
++2ddda80a6 fix(launch): give the RAM cap of a HIP card + RAM plan with no SSD tier some room
++2af30ccaa Control 0.1.68 / Terminal 0.2.21.1: version bump for the Control-only fixes (app stays 0.2.21, engine packages stay 0.1.67)
++=== files ===
++M	docs/AI_REFERENCE.md
++M	docs/CAPABILITIES.md
++M	docs/data/release.json
++M	engine/CMakeLists.txt
++M	terminal/setup.py
++M	terminal/strata_cli/__init__.py
++M	terminal/strata_cli/cli.py
++M	terminal/strata_control/inkling_fit.py
++M	terminal/tests/terminal/test_inkling_fit_free.py
++A	terminal/tests/terminal/test_inkling_fit_hip_window.py
++M	terminal/tests/terminal/test_tui2_023_versions.py
++M	terminal/tools/test_setup_config.py
++M	tools/packaging/README.md
++M	tools/packaging/UPDATES.md
++M	tools/release_manifest.py
++M	tools/test_release_manifest.py
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/merge-tree.txt b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/merge-tree.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/merge-tree.txt
+@@ -0,0 +1,4 @@
++ours=996eb9195b1790f954dd48f50be27893cae93937
++upstream=2af30ccaa0729177c4725ee2073f72bf550e2f86
++merge-base=d46f5f268f8ed797e83a5c63a69bffbd7a581cf6
++d2d23a55d707d553ecc52e14c7fbe27d0748f993
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/main-upstream-overlap.diff b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/main-upstream-overlap.diff
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/main-upstream-overlap.diff
+@@ -0,0 +1,335 @@
++diff --git a/engine/CMakeLists.txt b/engine/CMakeLists.txt
++index cbc568c29..e98dbef31 100644
++--- a/engine/CMakeLists.txt
+++++ b/engine/CMakeLists.txt
++@@ -10,7 +10,7 @@
++ # building for a pre-Ampere arch would produce a binary that runs and is wrong about its own performance, which is
++ # the worst of both outcomes.
++ cmake_minimum_required(VERSION 3.24)
++-project(strata VERSION 0.1.67 LANGUAGES CXX)
+++project(strata VERSION 0.1.68 LANGUAGES CXX)
++ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/strata_geometry.cmake)   # -DSTRATA_GEOMETRY=<name>: the model shape the kernels are compiled for (default flash_next, no flag added)
++ # The build is cut by backend (cleanup 5.4): each file below only DEFINES macros (strata_<part>()), which run here, in this scope, at the place their
++ # block used to be - so this file reads in the order the old single CMakeLists.txt evaluated.
++@@ -812,7 +812,6 @@ if(STRATA_NATIVE_EXPERTS)
++       # q4_0/q4_0 and q4_0/q4_1: a plain llama-quantize Q4_0 file (bartowski's Qwen3.8-Flash-Next-Q4_0: gate/up Q4_0,
++       # down Q4_0 on 42 layers and Q4_1 on 6)
++       # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
++-      # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
++       set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1)
++       if(STRATA_Q6K_EXPERTS)
++         list(APPEND _strata_parity_pairs q6_K/q8_0)
++@@ -825,24 +824,6 @@ if(STRATA_NATIVE_EXPERTS)
++         add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++         set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120)
++       endforeach()
++-      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
++-      # is_iq() promised type 10 while dq_dispatch had no case for it, so the dequantizer left the destination
++-      # unwritten and the launch still reported success; these pairs pin the dequantizer against ggml's to_float.
++-      # Q2_K's 256-weight superblock needs whole blocks: the UD-IQ3_S geometry H=2048 FF=512, not the default
++-      # Flash-Next 2560/640 (FF=640 is not a multiple of 256, the pair is refused as "not whole blocks").
++-      foreach(_pair q2_K/q4_K q2_K/iq4_xs)
++-        string(REPLACE "/" "_" _name "${_pair}")
++-        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++-        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120
++-                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
++-      endforeach()
++-      # Full routed Q2_K/Q3_K/IQ3 pairs at the whole-block 2048 x 512 geometry.
++-      foreach(_pair q3_K/q3_K q2_K/q2_K iq3_xxs/q2_K iq3_s/q2_K)
++-        string(REPLACE "/" "_" _name "${_pair}")
++-        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++-        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 180
++-                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
++-      endforeach()
++       add_test(NAME native_expert_parity_q5_1_min COMMAND native_expert_parity --q5_1-min)
++       # Unsloth v3.1 Qwen3.8-Flash-Next sets (UD-IQ1_M .. UD-IQ4_XS, round 0214): every gate/up x down pair their layers use,
++       # at the real shapes (hidden 2560, FF 640): gate/up IQ2_XXS IQ2_XS IQ2_S IQ3_XXS IQ4_XS (+ IQ1_M, the GSQ-RCO packs'),
++diff --git a/terminal/setup.py b/terminal/setup.py
++index 6b151f293..9ec834e6b 100644
++--- a/terminal/setup.py
+++++ b/terminal/setup.py
++@@ -115,8 +115,6 @@ WIN = os.name == "nt"
++ # download (download()), unless a tester sets STRATA_ALLOW_UNPINNED=1.
++ HF_REVISIONS = {
++     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",        # 2026-09-29
++-    "mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF": "f4855f5360049541536f36b26fbc95663591ab21",   # 2026-11-23
++-    "mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF": "0e6e2a22728d3617f655899b191a9e81f11b8974",  # 2026-11-23
++     "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d",   # 2026-10-07 (adds IQ3_S)
++     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF": "bba88856f8c3c0c9e40e45f82d05e228b814ac43",  # 2026-10-19 (the new expert-pruned shard 1)
++     "unsloth/Qwen3.8-Flash-Next-GGUF": "38bb39ee97821de2c9009abb7e93950eec396e66",                   # 2026-09-30
++@@ -787,8 +785,6 @@ QWEN36_FILES = {
++     "Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf": (32611711264, "35fce994cd36104a7dc1bd8a4bdf13778145664c00fdef6773aebc9246e5019c"),
++     "Qwen3.6-35B-A3B-Q8_0.gguf": (37801097504, "c1283d8b80c3e38b2735ddbc9766d3b3126f44d6c484be419d4e101d09a76131"),
++     "mmproj-F16.gguf": (899283584, "71f3cbc1f7cc0f30d09d41cfa924c0060827ebc33bf15ace7e86661e856f0160"),
++-    "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf": (19179522752, "3db4507e8c2336e5444dbdb56da7fed45a7597f10c0f53299b998d1f5bba280a"),
++-    "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf": (18728779424, "6c5bb2431bdbe1a68dc09c33ae18cd1d3ff4e3932e5fe5c3b360eb61ab16e8ab"),
++ }
++ OWN_PATH_FAMILIES = {
++     "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
++@@ -801,12 +797,6 @@ OWN_PATH_FAMILIES = {
++                # so the file's size plus room for the OS and the rest (measured: UD-Q4_K_XL on a 46 GB PC with a 12 GB
++                # card, 18.75 GiB of experts pinned)
++                "models": {"UD-Q4_K_XL": {"about": "4-bit (Unsloth Dynamic), the smallest", "ram_gb": 32},
++-                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
++-                                         "file": "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
++-                                         "hf": hf("mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF")},
++-                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
++-                                            "file": "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf",
++-                                            "hf": hf("mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF")},
++                           "UD-Q6_K_XL": {"about": "6-bit (Unsloth Dynamic), closer to the full model", "ram_gb": 44},
++                           "Q8_0": {"about": "8-bit, the closest to the full model", "ram_gb": 52}},
++                "sha256": QWEN36_FILES,
++@@ -819,20 +809,6 @@ OWN_PATH_FAMILIES = {
++                # the 30 GDN layers (state_gb)
++                "vision": True, "state_gb": 0.07}
++ }
++-def own_file(fam: dict, model: str) -> str:
++-    """The model's published file name: the family's pattern, or the model's own (KAT/Huihui live in their own Hub repos)."""
++-    return fam["models"].get(model, {}).get("file", fam["file"]).format(q=model)
++-
++-
++-def own_size(fam: dict, model: str) -> int:
++-    return fam["sha256"][own_file(fam, model)][0]
++-
++-
++-def own_hf(fam: dict, model: str) -> str:
++-    """The Hub folder the file is fetched from: the family's, or the model's own."""
++-    return fam["models"].get(model, {}).get("hf", fam["hf"]).format(q=model)
++-
++-
++ PREVIEW_FAMILIES = OWN_PATH_FAMILIES             # the earlier name (tools and tests that import it)
++ 
++ # Tencent Hy4-Flash (220B-A12B), Strata's own `.strata` v1.0 builds: a family with its own engine program (strata-hy4, a component like a model shape's engine), its own files
++@@ -7554,7 +7530,11 @@ def data_folder_in_place() -> tuple:
++ 
++ def write_config(path: Path, cfg: dict):
++     """A run config, written whole or not at all (#459): to a temporary file first, then moved over the old one, so
++-    a setup stopped half-way (a closed window, a full disk) never leaves an empty strata-*.json behind."""
+++    a setup stopped half-way (a closed window, a full disk) never leaves an empty strata-*.json behind.
+++    #7012: the folder is made first.  The Terminal's install folder (<data home>/strata/install) is not made by anything
+++    before the first run config is written (the data folder beside it is), so the very first write failed there."""
+++    path = Path(path)
+++    path.parent.mkdir(parents=True, exist_ok=True)
++     tmp = path.with_name(path.name + ".tmp")
++     tmp.write_text(json.dumps(cfg, indent=1), encoding="utf-8")
++     atomic.replace(tmp, path)
++@@ -9258,6 +9238,7 @@ def write_run_script(model, cfg_path, port, open_browser=True):
++     """run-<model>.bat / .sh: the server with this config; `open_browser` False (#609: --no-browser) leaves --open out."""
++     serve = [sys.executable, str(ROOT / "serve" / "server.py"), "--engine", "strata", "--config", str(cfg_path),
++              "--port", str(port)] + (["--open"] if open_browser else [])
+++    home().mkdir(parents=True, exist_ok=True)           # #7012: the Terminal's install folder may not exist yet
++     if WIN:
++         script = home() / f"run-{model.lower()}.bat"
++         script.write_bytes(("@echo off\r\ntitle Strata " + model + "\r\ncd /d \"" + str(ROOT) + "\"\r\n" +
++@@ -9736,7 +9717,7 @@ def own_path_context_warning(fam: dict, model: str, vram_gb: float, ctx: int) ->
++ def own_path_size(fam: dict, ram: float) -> str:
++     """The recommended size: the largest file whose RAM need this PC has (the smallest when none fits)."""
++     fits = [m for m, d in fam["models"].items() if ram >= d["ram_gb"]]
++-    return max(fits, key=lambda m: own_size(fam, m)) if fits else next(iter(fam["models"]))
+++    return max(fits, key=lambda m: fam["sha256"][fam["file"].format(q=m)][0]) if fits else next(iter(fam["models"]))
++ 
++ 
++ def own_path_vision(a, fam: dict, gpu: dict, hip: bool) -> str:
++@@ -9786,7 +9767,7 @@ PARALLEL_SMALL_SHARE = 0.35     # a card that does not hold every expert: the sl
++ def own_path_parallel_fits_all(fam: dict, model: str, vram_gb: float, ctx: int, n: int) -> bool:
++     """True where every routed expert still sits in VRAM beside n slots' sessions (one more session than the slots: the
++     solo path's own)."""
++-    size = own_size(fam, model) / 1e9
+++    size = fam["sha256"][fam["file"].format(q=model)][0] / 1e9
++     base = size * 0.93 + 4.5       # the routed experts + the dense weights and buffers (the file's 7% beyond them)
++     return base + (n + 1) * own_path_parallel_slot_gb(fam, ctx) <= vram_gb
++ 
++@@ -9879,7 +9860,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
++     say()
++     for i, m in enumerate(names, 1):
++         d = fam["models"][m]
++-        size = own_size(fam, m)
+++        size = fam["sha256"][fam["file"].format(q=m)][0]
++         from strata_control import fit_label
++         fit = f"   <- {fit_label.label(size / 1e9, ram, low_ram_vram(gpu))}"        # the file against the RAM and the card's memory together
++         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
++@@ -9936,7 +9917,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
++     if a.kv and kv is None:
++         warn(f"--kv {a.kv} is a Flash-Next memory format: {fam['title']} takes fp32, fp16, fp8 or fp4 - kept at its default (fp32)")
++     folder = Path(a.gguf_dir) if a.gguf_dir else Path(a.models_dir) / tag
++-    published = own_file(fam, model)                  # the published file's name: its pinned size and SHA-256
+++    published = fam["file"].format(q=model)           # the published file's name: its pinned size and SHA-256
++     gguf = folder / published
++     if a.gguf_dir and not gguf.exists():
++         gguf = own_path_gguf_in(folder) or gguf        # #5869: the person's own file under another name (the importer checked its types)
++@@ -9979,7 +9960,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
++     else:
++         if a.gguf_dir:
++             fail(f"{gguf} is missing", f"put {gguf.name} in {folder}, or drop --gguf-dir to download it")
++-        download(own_hf(fam, model) + gguf.name, gguf)
+++        download(fam["hf"] + gguf.name, gguf)
++     verify_sha256(gguf, *fam["sha256"][published], own=bool(a.gguf_dir))
++     ok(f"model file: {gguf}")
++     if vision != "none" and fam.get("mmproj"):         # the image encoder: Unsloth's mmproj, pinned, size + SHA-256 checked
++@@ -10558,7 +10539,17 @@ def inkling_pc(gpu, ram) -> tuple:
++     return effective_vram_gb(g), float(ram), False, False, arch
++ 
++ 
++-def inkling_expert_flags(placed) -> list:
+++# A plan that fills the card and the RAM with every expert and leaves nothing for the SSD has its two caps equal to the plan.  The engine counts its experts a
+++# little differently (each one's real bytes, and the 65-slot bounce ring the SSD-streaming mode takes out of the RAM cap), so a few percent of them do not fit
+++# under caps with no room, the engine switches to GPU+SSD streaming and reads them from the SSD on every use: SQ-20 on an RX 7900 XT (20 GiB, 32K context) wrote
+++# 12.53 + 2.08 GiB = exactly its 15.68 GB, the engine kept 47 experts on the SSD and decode / prefill fell 7% / 19% below 0.2.20, which (before the GiB fix #6792) wrote
+++# caps 7.4% above its plan.  So the RAM cap of such a plan gets this much room: the larger of RAM_TIER_SLACK_GIB and RAM_TIER_SLACK_FRAC of the experts, bounded
+++# by the free RAM the planner was given.  HIP only: that is where it was measured (boxia, RX 7900 XT); the other backends write the caps they always wrote.
+++RAM_TIER_SLACK_GIB = 0.75
+++RAM_TIER_SLACK_FRAC = 0.05
+++
+++
+++def inkling_expert_flags(placed, ram_free_gib=None, backend=None) -> list:
++     """--vram-experts-gb / --ram-experts-gb for a planner placement.  The planner counts GB (10^9 bytes); strata-inkling reads the two
++     flags as GiB (2^30 bytes): written as they were, the engine's cap sat 7.4% above the plan (#6792)."""
++     # Rounded UP to the 0.01 GiB the flag carries: an exact figure rounded down cuts the last expert off (UD-Q4_K_XL: 15.48 GB written as 14.42 GiB left
++@@ -10569,7 +10560,15 @@ def inkling_expert_flags(placed) -> list:
++     # strata-inkling reads --ram-experts-gb 0 as "no RAM tier, GPU + SSD only": a plan with every expert on the card leaves it
++     # out, so experts that do not fit after all (a bigger context, a --vram-experts-gb cap) go to RAM, not the SSD (#6752)
++     if placed["ram_gb"] > 0.05 or placed.get("ssd_gb", 0.0) > 0.05:
++-        flags += ["--ram-experts-gb", f"{up(placed['ram_gb']):.2f}"]
+++        ram_slack = 0.0
+++        if backend == "hip" and placed["ram_gb"] > 0.05 and placed.get("ssd_gb", 0.0) <= 0.05 and not placed.get("full_vram"):
+++            # card + RAM, no SSD tier, no room: give the RAM cap room (see RAM_TIER_SLACK_GIB), never more than the free RAM allows
+++            total_gib = (placed["vram_gb"] + placed["ram_gb"]) / inkling_fit.GIB_TO_GB
+++            ram_slack = max(RAM_TIER_SLACK_GIB, RAM_TIER_SLACK_FRAC * total_gib)
+++            if ram_free_gib is not None:
+++                room = float(ram_free_gib) - placed["ram_gb"] / inkling_fit.GIB_TO_GB - inkling_fit.FREE_RAM_MARGIN_GB / inkling_fit.GIB_TO_GB
+++                ram_slack = max(0.0, min(ram_slack, room))
+++        flags += ["--ram-experts-gb", f"{up(placed['ram_gb'], ram_slack):.2f}"]
++     return flags
++ 
++ 
++@@ -10594,6 +10593,19 @@ def inkling_plan_extra(gpu) -> dict:
++     return out
++ 
++ 
+++def inkling_plan_kv(a, backend) -> dict:
+++    """The K/V type the person chose, for the HIP plan only (#7022): fp8 or fp16 is planned as asked (the plan assumed FP16 on a card of more than 13 GiB, twice the K/V of an
+++    --kv fp8 start); no choice, or another backend, leaves the planner's own rule (the other backends' plans are the ones they always were)."""
+++    if backend != "hip":
+++        return {}
+++    asked = str(getattr(a, "kv", None) or "").strip().lower()
+++    if asked in ("fp8", "k8v8", "k8v4"):                  # setup turns k8v8 / k8v4 into fp8 on HIP (below)
+++        return {"fp8_kv": True}
+++    if asked == "fp16":
+++        return {"fp8_kv": False}
+++    return {}
+++
+++
++ def inkling_menu_lines(vram_gib, ram_gib, unified, ctx=None, vision=inkling_family.DEFAULT_VISION, *, igpu=False, arch=None, extra=None) -> list:
++     extra = extra or {}
++     rec = inkling_fit.recommend(vram_gib, ram_gib, unified, ctx, vision, igpu=igpu, arch=arch, **extra)["build"]
++@@ -10819,7 +10831,7 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
++             say(f"  {i}) {c // 1024}K tokens" + ("   (recommended)" if c == inkling_family.DEFAULT_CONTEXT else ""))
++         ctx = ctxs[int(ask("Context?", [str(i) for i in range(1, len(ctxs) + 1)], str(ctxs.index(inkling_family.DEFAULT_CONTEXT) + 1), a.yes)) - 1]
++     par = max(1, min(inkling_family.MAX_PARALLEL, int(getattr(a, "parallel", None) or 1)))     # --parallel N: the slots the planner makes room for (0221 APPTUI: it planned for one)
++-    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, vision, parallel=par, **plan_extra)
+++    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, vision, parallel=par, **plan_extra, **inkling_plan_kv(a, plan_extra.get("backend")))
++     mode = inkling_fit.mode(placed)
++     if mode == "cross_tier_ssd":
++         warn(f"{model} exceeds this PC's memory: about {placed['ssd_gb']:.1f} GB stream from SSD ({rec['build']} fits better)")
++@@ -10911,7 +10923,7 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
++     # A slightly different answer is accepted, a loss in speed is not (owner, 11-23); the run config starts as "auto".
++     drafting_mode = "off" if (not want_dspark or (is_gguf and dspark_path is None)) else (
++         inkling_family.DEFAULT_DRAFTER if drafter_asked == "dspark" else inkling_family.default_drafting(ink_backend))
++-    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, bool(vision and vision_path is not None), parallel=par, dspark=(drafting_mode != "off"), **{**plan_extra, "backend": ink_backend})
+++    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, bool(vision and vision_path is not None), parallel=par, dspark=(drafting_mode != "off"), **{**plan_extra, "backend": ink_backend, **inkling_plan_kv(a, ink_backend)})
++     args = ["--native", str(model_file), "--max-context", str(ctx)]
++     kv_asked = str(getattr(a, "kv", None) or "").strip().lower()
++     if kv_asked in ("fp16", "fp8", "k8v8", "k8v4"):
++@@ -10928,7 +10940,7 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
++     if mgpu_flags:
++         args += mgpu_flags
++     if not unified and len(ink_gpus) < 2:
++-        args += inkling_expert_flags(placed)
+++        args += inkling_expert_flags(placed, ram_free_gib=plan_extra.get("ram_free_gib"), backend=ink_backend)
++         if placed.get("ssd_gb", 0.0) > 0.05:
++             args += ["--ssd-experts"]
++     cfg = {
++@@ -10999,14 +11011,14 @@ def preview_family(a) -> int:
++     ram = ram_gb()
++     for i, m in enumerate(names, 1):
++         d = fam["models"][m]
++-        size = own_size(fam, m)
+++        size = fam["sha256"][fam["file"].format(q=m)][0]
++         fit = "" if ram >= d["ram_gb"] else f"   <- needs {d['ram_gb']} GB RAM, you have {ram:.0f}"
++         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
++     if a.check:
++         return 0
++     model = a.model or names[int(ask("Which size?", [str(i) for i in range(1, len(names) + 1)], "1", a.yes)) - 1]
++     say(f"  Its license: {fam['license']}")
++-    want = [own_file(fam, model)]
+++    want = [fam["file"].format(q=model)]
++     if a.vision in ("yes", "gpu", "cpu"):
++         want.append(fam["mmproj"])
++     folder = Path(a.models_dir) / (fam["tag"] + model)
++diff --git a/terminal/strata_control/inkling_fit.py b/terminal/strata_control/inkling_fit.py
++index ab30ba542..74c1b5d91 100644
++--- a/terminal/strata_control/inkling_fit.py
+++++ b/terminal/strata_control/inkling_fit.py
++@@ -23,6 +23,8 @@ GIB_TO_GB = 1.073741824
++ VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
++ VRAM_HYBRID_WORKSPACE_GB = 0.85  # hybrid ping-pong DMA ring + staging buffers + desktop margin (#6587, #6613)
++ KV_GROW_FACTOR = 1.60            # peak transient headroom for elastic/doubling KV pool growth (HIP grow_pool #6613)
+++HIP_KV_WINDOW_TOKENS = 32768     # HIP, discrete card: the K/V the plan keeps room for, per slot. The engine's pools start empty and grow on demand (VisitKvPool::grow_pool); when the
+++                                 # card is full the pool moves to host-mapped pinned memory, so a longer chat is slower, never a failure. Counting the whole context took the card from the experts (#7022)
++ SPLIT_GPU_OVERHEAD_GB = 1.00     # per-extra-GPU runtime/trunk/comm overhead on multi-GPU layer-split
++ DSPARK_BASE_GB = 0.11            # DSpark activation + compact SWA-1025 rings for layers 0 & 2
++ DSPARK_KV_BYTES_PER_TOK = 4096   # 1 global DSpark layer (L1) x 8 kv_heads x 128 head_dim x 2 (K+V) x 2B (FP16)
++@@ -206,17 +208,20 @@ def non_expert_gb(ctx: int | None = None, parallel: int = 1, vision: bool = Fals
++                   host_offload_global_kv: bool = False, backend: str | None = None) -> float:
++     """Video memory kept free of expert bodies: driver/desktop + hybrid workspace + DSpark KV + KV/SWA/ShortConv (+ peak KV growth margin + Vision shard)."""
++     slots = max(1, min(MAX_PARALLEL, int(parallel or 1)))
+++    kv_ctx = ctx
+++    if str(backend or "").strip().lower() == "hip":      # HIP (a card of its own): room for the K/V window; the pool grows on demand and spills to the host when the card is full
+++        kv_ctx = min(DEFAULT_CONTEXT if ctx is None else max(1024, int(ctx)), HIP_KV_WINDOW_TOKENS)
++     if host_offload_global_kv:
++         kv_vram = swa_sconv_gb(parallel, fp8_kv=fp8_kv, backend=backend)
++     else:
++         grow = 1.0 if _full_ctx_slots(backend) else KV_GROW_FACTOR       # SYCL allocates the whole K/V once: there is no growth to leave room for
++-        kv_vram = round(global_kv_gb(ctx, parallel, fp8_kv=fp8_kv, backend=backend) * grow
+++        kv_vram = round(global_kv_gb(kv_ctx, parallel, fp8_kv=fp8_kv, backend=backend) * grow
++                         + swa_sconv_gb(parallel, fp8_kv=fp8_kv, backend=backend), 3)
++     return round(
++         VRAM_DRIVER_GB
++         + (VRAM_HYBRID_WORKSPACE_GB if hybrid else 0.0)
++         + (SLOT_WORKSPACE_EXTRA_GB if slots >= 8 else 0.0)
++-        + dspark_gb(ctx, enabled=dspark, parallel=parallel, backend=backend)
+++        + dspark_gb(kv_ctx, enabled=dspark, parallel=parallel, backend=backend)
++         + kv_vram
++         + (VISION_GB if vision else 0.0),
++         3,
++@@ -687,3 +692,4 @@ def launch_parallel(build: str, vram_gib: float | None, ram_gib: float, ctx: int
++     if build not in BUILDS:
++         return table
++     return max(1, min(int(table), resident_parallel(build, vram_gib, ram_gib, ctx, cap=int(table), backend=backend, desktop=desktop, sm=sm, dspark=dspark)))
+++
++diff --git a/tools/packaging/README.md b/tools/packaging/README.md
++index 8f4be342e..e146f554f 100644
++--- a/tools/packaging/README.md
+++++ b/tools/packaging/README.md
++@@ -1,7 +1,7 @@
++ # Strata packaging: targets, recipes and locks
++ 
++ This page is for developers who build the desktop app, the Terminal archive and the engine packages. To install Strata, use
++-[docs/INSTALL.md](../../docs/INSTALL.md). It describes the current release (app and Terminal 0.2.21, Control 0.1.67, engines 0.1.67).
+++[docs/INSTALL.md](../../docs/INSTALL.md). It describes the current release (app and Terminal 0.2.21, Control 0.1.68, engines 0.1.67).
++ How packages are signed and published is in [UPDATES.md](UPDATES.md), and the package format is in [ENGINE-COMPONENT.md](ENGINE-COMPONENT.md).
++ 
++ Release assets show what was published; the platform guides and retained reports show what was tested. A published package does not
++@@ -134,10 +134,8 @@ The Terminal bundles a private Python and its dependencies for `windows-x86_64`,
++ 
++ ## Release checks and gaps
++ 
++-- This fork keeps only the kit workflows ([.github/workflows](../../.github/workflows)): `kit-build.yml` compiles the CUDA servers on demand
++-  (`workflow_dispatch` only since 13.11, measured on the branch) and `kit-release.yml` packs the portable kit on a published release or on demand.
++-  The upstream workflows for scripts, Terminal checks, Metal builds and Docker images were removed here, so those checks run in the upstream
++-  repository. CI does not replace native desktop packaging, signing or real-GPU acceptance on every target; some recipes still run by hand.
+++- CI covers scripts, Terminal checks, Metal builds and Docker images ([.github/workflows](../../.github/workflows)). It does not replace native desktop
+++  packaging, signing or real-GPU acceptance on every target. Some recipes still run by hand.
++ - Signing needs the owner's credentials, which are never in this tree. The feed and every engine package are signed with the feed key
++   (`feed_tool.py`); the app installers with the Tauri updater key ([UPDATES.md](UPDATES.md)). The Mac app and Terminal archive are signed and
++   notarised on a Mac that holds the Developer ID certificate. No Windows code-signing certificate is configured, so Windows may warn about the installer.
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/anchor-audit.txt b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/anchor-audit.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/anchor-audit.txt
+@@ -0,0 +1,72 @@
++=== version ===
++main:engine/CMakeLists.txt:13:project(strata VERSION 0.1.67 LANGUAGES CXX)
++upstream/main:docs/data/release.json:6: "terminal_version": "0.2.21.1",
++upstream/main:docs/data/release.json:7: "control_version": "0.1.68",
++upstream/main:docs/data/release.json:29:  "strata-control-0.1.68-linux-aarch64.tar.gz",
++upstream/main:docs/data/release.json:30:  "strata-control-0.1.68-linux-x86_64.tar.gz",
++upstream/main:docs/data/release.json:31:  "strata-control-0.1.68-macos-arm64.tar.gz",
++upstream/main:docs/data/release.json:32:  "strata-control-0.1.68-windows-x86_64.zip",
++upstream/main:engine/CMakeLists.txt:13:project(strata VERSION 0.1.68 LANGUAGES CXX)
++upstream/main:terminal/strata_cli/__init__.py:15:PRODUCT_VERSION = "0.2.21.1"
++upstream/main:tools/packaging/README.md:4:[docs/INSTALL.md](../../docs/INSTALL.md). It describes the current release (app and Terminal 0.2.21, Control 0.1.68, engines 0.1.67).
++=== setup fixes ===
++main:terminal/setup.py:7555:def write_config(path: Path, cfg: dict):
++main:terminal/setup.py:9257:def write_run_script(model, cfg_path, port, open_browser=True):
++main:terminal/setup.py:10561:def inkling_expert_flags(placed) -> list:
++upstream/main:terminal/setup.py:7531:def write_config(path: Path, cfg: dict):
++upstream/main:terminal/setup.py:9237:def write_run_script(model, cfg_path, port, open_browser=True):
++upstream/main:terminal/setup.py:10546:# caps 7.4% above its plan.  So the RAM cap of such a plan gets this much room: the larger of RAM_TIER_SLACK_GIB and RAM_TIER_SLACK_FRAC of the experts, bounded
++upstream/main:terminal/setup.py:10548:RAM_TIER_SLACK_GIB = 0.75
++upstream/main:terminal/setup.py:10549:RAM_TIER_SLACK_FRAC = 0.05
++upstream/main:terminal/setup.py:10552:def inkling_expert_flags(placed, ram_free_gib=None, backend=None) -> list:
++upstream/main:terminal/setup.py:10565:            # card + RAM, no SSD tier, no room: give the RAM cap room (see RAM_TIER_SLACK_GIB), never more than the free RAM allows
++upstream/main:terminal/setup.py:10567:            ram_slack = max(RAM_TIER_SLACK_GIB, RAM_TIER_SLACK_FRAC * total_gib)
++upstream/main:terminal/setup.py:10596:def inkling_plan_kv(a, backend) -> dict:
++upstream/main:terminal/setup.py:10834:    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, vision, parallel=par, **plan_extra, **inkling_plan_kv(a, plan_extra.get("backend")))
++upstream/main:terminal/setup.py:10926:    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, bool(vision and vision_path is not None), parallel=par, dspark=(drafting_mode != "off"), **{**plan_extra, "backend": ink_backend, **inkling_plan_kv(a, ink_backend)})
++=== qwen36 ours ===
++main:terminal/setup.py:794:    "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
++main:terminal/setup.py:797:               "hf": hf("unsloth/Qwen3.6-35B-A3B-MTP-GGUF"), "file": "Qwen3.6-35B-A3B-{q}.gguf", "tag": "qwen36-",
++main:terminal/setup.py:804:                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
++main:terminal/setup.py:807:                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
++main:terminal/setup.py:10988:    """--family qwen36: a family setup knows but the engine does not run yet (PREVIEW_FAMILIES).  Downloads the chosen
++main:terminal/setup.py:11029:        "development); nothing was configured. Run setup again without --family qwen36 to install a model it runs.")
++main:terminal/setup.py:11470:                    help="qwen = Qwen3.8-Flash-Next, swift = Swift 1.5, qwen36 = Qwen3.6-35B-A3B (pictures with --vision, "
++upstream/main:terminal/setup.py:790:    "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
++upstream/main:terminal/setup.py:793:               "hf": hf("unsloth/Qwen3.6-35B-A3B-MTP-GGUF"), "file": "Qwen3.6-35B-A3B-{q}.gguf", "tag": "qwen36-",
++upstream/main:terminal/setup.py:11000:    """--family qwen36: a family setup knows but the engine does not run yet (PREVIEW_FAMILIES).  Downloads the chosen
++upstream/main:terminal/setup.py:11041:        "development); nothing was configured. Run setup again without --family qwen36 to install a model it runs.")
++upstream/main:terminal/setup.py:11482:                    help="qwen = Qwen3.8-Flash-Next, swift = Swift 1.5, qwen36 = Qwen3.6-35B-A3B (pictures with --vision, "
++=== inkling planner ===
++main:terminal/strata_control/inkling_fit.py:23:VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
++main:terminal/strata_control/inkling_fit.py:33:VRAM_SAFETY_GB = 0.30            # taken off the card's free memory before anything is placed
++main:terminal/strata_control/inkling_fit.py:34:KV_CARD_HEADROOM_GB = 0.50       # CUDA: the K/V stays in the card only with this much to spare; with less, the program that takes the memory next (browser, video) ends the growth (#6905)
++main:terminal/strata_control/inkling_fit.py:36:FREE_RAM_MARGIN_GB = 1.50        # free RAM that stays free beside the experts held in RAM
++main:terminal/strata_control/inkling_fit.py:204:def non_expert_gb(ctx: int | None = None, parallel: int = 1, vision: bool = False, *,
++main:terminal/strata_control/inkling_fit.py:305:    vram_gb = max(0.0, v_gib * GIB_TO_GB - split_overhead - (VRAM_SAFETY_GB if v_gib > 0.0 else 0.0)
++main:terminal/strata_control/inkling_fit.py:330:                                           float(ram_free_gib) * GIB_TO_GB - FREE_RAM_MARGIN_GB - (VISION_GB if vision else 0.0)))
++main:terminal/strata_control/inkling_fit.py:338:    kv_headroom = KV_CARD_HEADROOM_GB if (backend_low == "cuda" and effective_offload == "auto" and glob_kv > 1.0) else 0.0
++upstream/main:terminal/strata_control/inkling_fit.py:23:VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
++upstream/main:terminal/strata_control/inkling_fit.py:26:HIP_KV_WINDOW_TOKENS = 32768     # HIP, discrete card: the K/V the plan keeps room for, per slot. The engine's pools start empty and grow on demand (VisitKvPool::grow_pool); when the
++upstream/main:terminal/strata_control/inkling_fit.py:35:VRAM_SAFETY_GB = 0.30            # taken off the card's free memory before anything is placed
++upstream/main:terminal/strata_control/inkling_fit.py:36:KV_CARD_HEADROOM_GB = 0.50       # CUDA: the K/V stays in the card only with this much to spare; with less, the program that takes the memory next (browser, video) ends the growth (#6905)
++upstream/main:terminal/strata_control/inkling_fit.py:38:FREE_RAM_MARGIN_GB = 1.50        # free RAM that stays free beside the experts held in RAM
++upstream/main:terminal/strata_control/inkling_fit.py:206:def non_expert_gb(ctx: int | None = None, parallel: int = 1, vision: bool = False, *,
++upstream/main:terminal/strata_control/inkling_fit.py:213:        kv_ctx = min(DEFAULT_CONTEXT if ctx is None else max(1024, int(ctx)), HIP_KV_WINDOW_TOKENS)
++upstream/main:terminal/strata_control/inkling_fit.py:310:    vram_gb = max(0.0, v_gib * GIB_TO_GB - split_overhead - (VRAM_SAFETY_GB if v_gib > 0.0 else 0.0)
++upstream/main:terminal/strata_control/inkling_fit.py:335:                                           float(ram_free_gib) * GIB_TO_GB - FREE_RAM_MARGIN_GB - (VISION_GB if vision else 0.0)))
++upstream/main:terminal/strata_control/inkling_fit.py:343:    kv_headroom = KV_CARD_HEADROOM_GB if (backend_low == "cuda" and effective_offload == "auto" and glob_kv > 1.0) else 0.0
++=== expert/build ours ===
++main:engine/CMakeLists.txt:141:# measured to leave every expert-cache slot count as it was (P100, R9700).  -DSTRATA_Q6K_EXPERTS=OFF drops it.
++main:engine/CMakeLists.txt:142:option(STRATA_Q6K_EXPERTS "Build the Q6_K gate/up grouped expert kernels (UD-Q6_K_XL, UD-Q5_K_XL)" ON)
++main:engine/CMakeLists.txt:143:if(STRATA_Q6K_EXPERTS)
++main:engine/CMakeLists.txt:144:  add_compile_definitions(STRATA_Q6K_EXPERTS=1)
++main:engine/CMakeLists.txt:178:option(STRATA_NATIVE_EXPERTS "Native (IQ) expert support through ggml-cpu" ON)
++main:engine/CMakeLists.txt:484:  add_executable(q36_expert_info_test tests/program/q36_expert_info_test.cpp)
++main:engine/CMakeLists.txt:485:  target_include_directories(q36_expert_info_test PRIVATE include)
++main:engine/CMakeLists.txt:486:  add_test(NAME q36_expert_info_test COMMAND q36_expert_info_test)
++main:engine/CMakeLists.txt:599:  # with the quant layer (STRATA_NATIVE_EXPERTS, defined further down): the table's geometry against strata::quant::type_info too
++main:engine/CMakeLists.txt:725:if(STRATA_NATIVE_EXPERTS)
++main:engine/CMakeLists.txt:817:      if(STRATA_Q6K_EXPERTS)
++main:engine/CMakeLists.txt:1036:  if(NOT STRATA_NATIVE_EXPERTS)
++main:engine/CMakeLists.txt:1037:    string(APPEND _strata_test_kinds " (native-expert tests not registered: STRATA_NATIVE_EXPERTS=OFF)")
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/predicted-tree-audit.txt b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/predicted-tree-audit.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/predicted-tree-audit.txt
+@@ -0,0 +1,42 @@
++=== qwen35 main vs predicted merge-tree ===
++rc=0
++=== overlap main vs predicted merge-tree ===
++ engine/CMakeLists.txt                  |  2 +-
++ terminal/setup.py                      | 48 +++++++++++++++++++++++++++++-----
++ terminal/strata_control/inkling_fit.py |  9 +++++--
++ tools/packaging/README.md              |  2 +-
++ 4 files changed, 51 insertions(+), 10 deletions(-)
++=== required ours anchors in predicted tree ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:141:# measured to leave every expert-cache slot count as it was (P100, R9700).  -DSTRATA_Q6K_EXPERTS=OFF drops it.
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:142:option(STRATA_Q6K_EXPERTS "Build the Q6_K gate/up grouped expert kernels (UD-Q6_K_XL, UD-Q5_K_XL)" ON)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:143:if(STRATA_Q6K_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:144:  add_compile_definitions(STRATA_Q6K_EXPERTS=1)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:178:option(STRATA_NATIVE_EXPERTS "Native (IQ) expert support through ggml-cpu" ON)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:599:  # with the quant layer (STRATA_NATIVE_EXPERTS, defined further down): the table's geometry against strata::quant::type_info too
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:725:if(STRATA_NATIVE_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:817:      if(STRATA_Q6K_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:1036:  if(NOT STRATA_NATIVE_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:1037:    string(APPEND _strata_test_kinds " (native-expert tests not registered: STRATA_NATIVE_EXPERTS=OFF)")
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:804:                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:807:                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:5721:                 "-DSTRATA_Q6K_EXPERTS=ON", "-DCMAKE_HIP_ARCHITECTURES=" + ";".join(archs),
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:6966:                    ["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF", "-DSTRATA_Q6K_EXPERTS=ON",
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10593:                room = float(ram_free_gib) - placed["ram_gb"] / inkling_fit.GIB_TO_GB - inkling_fit.FREE_RAM_MARGIN_GB / inkling_fit.GIB_TO_GB
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:23:VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:35:VRAM_SAFETY_GB = 0.30            # taken off the card's free memory before anything is placed
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:36:KV_CARD_HEADROOM_GB = 0.50       # CUDA: the K/V stays in the card only with this much to spare; with less, the program that takes the memory next (browser, video) ends the growth (#6905)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:38:FREE_RAM_MARGIN_GB = 1.50        # free RAM that stays free beside the experts held in RAM
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:310:    vram_gb = max(0.0, v_gib * GIB_TO_GB - split_overhead - (VRAM_SAFETY_GB if v_gib > 0.0 else 0.0)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:335:                                           float(ram_free_gib) * GIB_TO_GB - FREE_RAM_MARGIN_GB - (VISION_GB if vision else 0.0)))
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:343:    kv_headroom = KV_CARD_HEADROOM_GB if (backend_low == "cuda" and effective_offload == "auto" and glob_kv > 1.0) else 0.0
++=== upstream fixes in predicted tree ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:7561:    path.parent.mkdir(parents=True, exist_ok=True)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10570:# caps 7.4% above its plan.  So the RAM cap of such a plan gets this much room: the larger of RAM_TIER_SLACK_GIB and RAM_TIER_SLACK_FRAC of the experts, bounded
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10572:RAM_TIER_SLACK_GIB = 0.75
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10573:RAM_TIER_SLACK_FRAC = 0.05
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10589:            # card + RAM, no SSD tier, no room: give the RAM cap room (see RAM_TIER_SLACK_GIB), never more than the free RAM allows
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10591:            ram_slack = max(RAM_TIER_SLACK_GIB, RAM_TIER_SLACK_FRAC * total_gib)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10620:def inkling_plan_kv(a, backend) -> dict:
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_cli/__init__.py:15:PRODUCT_VERSION = "0.2.21.1"
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:26:HIP_KV_WINDOW_TOKENS = 32768     # HIP, discrete card: the K/V the plan keeps room for, per slot. The engine's pools start empty and grow on demand (VisitKvPool::grow_pool); when the
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:213:        kv_ctx = min(DEFAULT_CONTEXT if ctx is None else max(1024, int(ctx)), HIP_KV_WINDOW_TOKENS)
+diff --git a/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/candidate-anchor-audit.txt b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/candidate-anchor-audit.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/workflow/tasks/UPSTREAM-2AF30cca/evidence/candidate-anchor-audit.txt
+@@ -0,0 +1,45 @@
++=== version ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:13:project(strata VERSION 0.1.68 LANGUAGES CXX)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_cli/__init__.py:15:PRODUCT_VERSION = "0.2.21.1"
++=== setup ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:7555:def write_config(path: Path, cfg: dict):
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:7561:    path.parent.mkdir(parents=True, exist_ok=True)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10570:# caps 7.4% above its plan.  So the RAM cap of such a plan gets this much room: the larger of RAM_TIER_SLACK_GIB and RAM_TIER_SLACK_FRAC of the experts, bounded
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10572:RAM_TIER_SLACK_GIB = 0.75
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10589:            # card + RAM, no SSD tier, no room: give the RAM cap room (see RAM_TIER_SLACK_GIB), never more than the free RAM allows
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10591:            ram_slack = max(RAM_TIER_SLACK_GIB, RAM_TIER_SLACK_FRAC * total_gib)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:10620:def inkling_plan_kv(a, backend) -> dict:
++=== planner ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:26:HIP_KV_WINDOW_TOKENS = 32768     # HIP, discrete card: the K/V the plan keeps room for, per slot. The engine's pools start empty and grow on demand (VisitKvPool::grow_pool); when the
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:213:        kv_ctx = min(DEFAULT_CONTEXT if ctx is None else max(1024, int(ctx)), HIP_KV_WINDOW_TOKENS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:23:VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:35:VRAM_SAFETY_GB = 0.30            # taken off the card's free memory before anything is placed
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:310:    vram_gb = max(0.0, v_gib * GIB_TO_GB - split_overhead - (VRAM_SAFETY_GB if v_gib > 0.0 else 0.0)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:36:KV_CARD_HEADROOM_GB = 0.50       # CUDA: the K/V stays in the card only with this much to spare; with less, the program that takes the memory next (browser, video) ends the growth (#6905)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:343:    kv_headroom = KV_CARD_HEADROOM_GB if (backend_low == "cuda" and effective_offload == "auto" and glob_kv > 1.0) else 0.0
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:38:FREE_RAM_MARGIN_GB = 1.50        # free RAM that stays free beside the experts held in RAM
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/strata_control/inkling_fit.py:335:                                           float(ram_free_gib) * GIB_TO_GB - FREE_RAM_MARGIN_GB - (VISION_GB if vision else 0.0)))
++=== qwen36 ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:804:                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/setup.py:807:                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
++=== expert ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:141:# measured to leave every expert-cache slot count as it was (P100, R9700).  -DSTRATA_Q6K_EXPERTS=OFF drops it.
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:142:option(STRATA_Q6K_EXPERTS "Build the Q6_K gate/up grouped expert kernels (UD-Q6_K_XL, UD-Q5_K_XL)" ON)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:143:if(STRATA_Q6K_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:144:  add_compile_definitions(STRATA_Q6K_EXPERTS=1)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:817:      if(STRATA_Q6K_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:178:option(STRATA_NATIVE_EXPERTS "Native (IQ) expert support through ggml-cpu" ON)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:599:  # with the quant layer (STRATA_NATIVE_EXPERTS, defined further down): the table's geometry against strata::quant::type_info too
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:725:if(STRATA_NATIVE_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:1036:  if(NOT STRATA_NATIVE_EXPERTS)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:1037:    string(APPEND _strata_test_kinds " (native-expert tests not registered: STRATA_NATIVE_EXPERTS=OFF)")
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:484:  add_executable(q36_expert_info_test tests/program/q36_expert_info_test.cpp)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:485:  target_include_directories(q36_expert_info_test PRIVATE include)
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:engine/CMakeLists.txt:486:  add_test(NAME q36_expert_info_test COMMAND q36_expert_info_test)
++=== tests ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/tests/terminal/test_inkling_fit_hip_window.py:30:    def test_a_longer_context_plans_like_32k(self):
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:terminal/tools/test_setup_config.py:303:    def test_write_config_makes_the_folder(self):
++=== packaging ===
++d2d23a55d707d553ecc52e14c7fbe27d0748f993:tools/packaging/README.md:4:[docs/INSTALL.md](../../docs/INSTALL.md). It describes the current release (app and Terminal 0.2.21, Control 0.1.68, engines 0.1.67).
++=== qwen35 guard ===
++qwen35_diff_rc=0

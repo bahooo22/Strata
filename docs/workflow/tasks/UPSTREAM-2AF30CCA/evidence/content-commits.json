@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "commits": [
+    {
+      "id": "C1",
+      "sha": "ce67d696cef760f462518bc63623d27bd43b6523",
+      "subject": "Upstream: обновить версии Control/Terminal и packaging",
+      "numstat": "1\t1\tdocs/AI_REFERENCE.md\n1\t1\tdocs/CAPABILITIES.md\n7\t2\tdocs/data/release.json\n1\t1\tengine/CMakeLists.txt\n1\t1\tterminal/strata_cli/__init__.py\n1\t1\ttools/packaging/README.md\n3\t3\ttools/packaging/UPDATES.md\n3\t1\ttools/release_manifest.py"
+    },
+    {
+      "id": "C2",
+      "sha": "d484ccdeb4193c82188ae745b13f36e37ed6257b",
+      "subject": "Upstream: создать install folder перед первым config",
+      "numstat": "6\t1\tterminal/setup.py\n4\t0\tterminal/strata_cli/cli.py"
+    },
+    {
+      "id": "C3",
+      "sha": "194b68c7c247a8fba8664d3d55ac196184a1c99f",
+      "subject": "Upstream: добавить HIP RAM slack для expert plan",
+      "numstat": "21\t3\tterminal/setup.py"
+    },
+    {
+      "id": "C4",
+      "sha": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500",
+      "subject": "Upstream: планировать HIP K/V window и выбранный тип",
+      "numstat": "15\t2\tterminal/setup.py\n7\t2\tterminal/strata_control/inkling_fit.py"
+    },
+    {
+      "id": "C5",
+      "sha": "9ec1982ff3a75e2b5698fefc83af77a8973b71c0",
+      "subject": "Upstream: добавить regression tests для setup/HIP/release",
+      "numstat": "41\t1\tterminal/tests/terminal/test_inkling_fit_free.py\n102\t0\tterminal/tests/terminal/test_inkling_fit_hip_window.py\n5\t4\tterminal/tests/terminal/test_tui2_023_versions.py\n56\t0\tterminal/tools/test_setup_config.py\n17\t0\ttools/test_release_manifest.py"
+    }
+  ]
+}

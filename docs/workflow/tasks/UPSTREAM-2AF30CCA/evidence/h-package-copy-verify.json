@@ -1,0 +1,66 @@
+{
+  "ok": true,
+  "files": 15,
+  "rows": [
+    {
+      "path": "anchor-evidence.json",
+      "ok": true
+    },
+    {
+      "path": "anchor-matrix-draft.json",
+      "ok": true
+    },
+    {
+      "path": "DOC_IMPL.md",
+      "ok": true
+    },
+    {
+      "path": "evidence-index.json",
+      "ok": true
+    },
+    {
+      "path": "IMPL_PLAN.md",
+      "ok": true
+    },
+    {
+      "path": "merge-matrix.json",
+      "ok": true
+    },
+    {
+      "path": "merge-profile.json",
+      "ok": true
+    },
+    {
+      "path": "PATCH.diff",
+      "ok": true
+    },
+    {
+      "path": "PLAN.md",
+      "ok": true
+    },
+    {
+      "path": "evidence\\anchor-audit.txt",
+      "ok": true
+    },
+    {
+      "path": "evidence\\candidate-anchor-audit.txt",
+      "ok": true
+    },
+    {
+      "path": "evidence\\main-upstream-overlap.diff",
+      "ok": true
+    },
+    {
+      "path": "evidence\\merge-tree.txt",
+      "ok": true
+    },
+    {
+      "path": "evidence\\predicted-tree-audit.txt",
+      "ok": true
+    },
+    {
+      "path": "evidence\\upstream-delta.txt",
+      "ok": true
+    }
+  ]
+}

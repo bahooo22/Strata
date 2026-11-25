@@ -1,0 +1,114 @@
+{
+  "patches": [
+    {
+      "id": "release-version-bump",
+      "oursAnchor": "project(strata VERSION 0.1.67",
+      "upstreamAnchor": "project(strata VERSION 0.1.68",
+      "upstreamStatus": "full",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
+      "decision": "upstream",
+      "reworkEffect": "same",
+      "notes": "Control 0.1.68 / Terminal 0.2.21.1; app and engine package versions stay 0.2.21/0.1.67."
+    },
+    {
+      "id": "setup-install-folder",
+      "oursAnchor": "def write_config",
+      "upstreamAnchor": "def write_config",
+      "upstreamStatus": "full",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/main-upstream-overlap.diff"],
+      "decision": "upstream",
+      "reworkEffect": "same",
+      "notes": "#7012: create the Terminal install folder before the first config/run script."
+    },
+    {
+      "id": "setup-hip-ram-slack",
+      "oursAnchor": "def inkling_expert_flags",
+      "upstreamAnchor": "RAM_TIER_SLACK_GIB",
+      "upstreamStatus": "full",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/main-upstream-overlap.diff"],
+      "decision": "upstream",
+      "reworkEffect": "same",
+      "notes": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends stay unchanged."
+    },
+    {
+      "id": "hip-kv-window-choice",
+      "oursAnchor": "def non_expert_gb",
+      "upstreamAnchor": "HIP_KV_WINDOW_TOKENS",
+      "upstreamStatus": "full",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
+      "decision": "upstream",
+      "reworkEffect": "same",
+      "notes": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays."
+    },
+    {
+      "id": "qwen36-catalog-preserve",
+      "oursAnchor": "IQ4_XS-KAT",
+      "upstreamAnchor": "qwen36",
+      "upstreamStatus": "partial",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
+      "decision": "ours",
+      "reworkEffect": "same",
+      "notes": "Fork KAT/Huihui IQ4_XS entries are absent upstream and preserved in the predicted tree."
+    },
+    {
+      "id": "expert-build-preserve",
+      "oursAnchor": "STRATA_Q6K_EXPERTS",
+      "upstreamAnchor": "project(strata VERSION 0.1.68",
+      "upstreamStatus": "partial",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
+      "decision": "ours",
+      "reworkEffect": "same",
+      "notes": "Upstream delta changes only the version line; expert options and CTest stay ours."
+    },
+    {
+      "id": "fork-planner-base",
+      "oursAnchor": "VRAM_SAFETY_GB",
+      "upstreamAnchor": "VRAM_SAFETY_GB",
+      "upstreamStatus": "partial",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
+      "decision": "ours",
+      "reworkEffect": "same",
+      "notes": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive."
+    },
+    {
+      "id": "packaging-fork-notes",
+      "oursAnchor": "Strata packaging",
+      "upstreamAnchor": "Control 0.1.68",
+      "upstreamStatus": "partial",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/main-upstream-overlap.diff"],
+      "decision": "ours",
+      "reworkEffect": "same",
+      "notes": "Take the upstream version line, retain fork packaging documentation."
+    },
+    {
+      "id": "upstream-tests",
+      "oursAnchor": "test_vram_margin_is_taken_off_the_free_memory",
+      "upstreamAnchor": "test_a_longer_context_plans_like_32k",
+      "upstreamStatus": "full",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/upstream-delta.txt"],
+      "decision": "upstream",
+      "reworkEffect": "same",
+      "notes": "Accept upstream regression coverage without deleting existing fork tests."
+    },
+    {
+      "id": "qwen35-no-delta",
+      "oursAnchor": "q36_engine",
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial",
+      "statusReviewed": true,
+      "statusEvidence": ["anchor-matrix-draft.json", "anchor-evidence.json", "evidence/predicted-tree-audit.txt"],
+      "decision": "ours",
+      "reworkEffect": "same",
+      "notes": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard."
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "sha:PLAN.md",
+      "ok": true,
+      "sha256": "26ba01e64c53b09e5fa21f5f55470fb26bbee47357d7e14dec19e3d48fc5232b",
+      "bytes": 9577
+    },
+    {
+      "name": "sha:anchor-matrix-draft.json",
+      "ok": true,
+      "sha256": "250ea63606119ae18b1fbe08a0ea92d44abf29b39ab64a4bb78ef2720625a6b3",
+      "bytes": 9972
+    },
+    {
+      "name": "sha:IMPL_PLAN.md",
+      "ok": true,
+      "sha256": "f43938f348c96429b0a1662664cc64f2cee255999db6edbafae9d6f47621a07f",
+      "bytes": 1642
+    },
+    {
+      "name": "sha:DOC_IMPL.md",
+      "ok": true,
+      "sha256": "efbf142bbf758a9ec3e664800e8247f1422e42e9ef43d2941c5de04e146c5896",
+      "bytes": 953
+    },
+    {
+      "name": "sha:merge-profile.json",
+      "ok": true,
+      "sha256": "d963926ef35edb0826b55feb9295fbe6c1eec74d828998fc285131a95957d999",
+      "bytes": 4766
+    },
+    {
+      "name": "sha:merge-matrix.json",
+      "ok": true,
+      "sha256": "38cd7fa99b02a3bef2f18f10ad499f4784430b4da47c45c25f9451ab5302d54c",
+      "bytes": 11010
+    },
+    {
+      "name": "sha:anchor-evidence.json",
+      "ok": true,
+      "sha256": "228773f9a9aba7168a383d308c30fe483a0e9660535377dafb1d5317b7035e81",
+      "bytes": 11490
+    },
+    {
+      "name": "sha:evidence/upstream-delta.txt",
+      "ok": true,
+      "sha256": "2dcf7aa830e93c7dc1dbe06173e5166e8aa3df6fe1c58343ec82f96009f3c145",
+      "bytes": 993
+    },
+    {
+      "name": "sha:evidence/merge-tree.txt",
+      "ok": true,
+      "sha256": "038057635a2a141164f8f19c3cceb5618b1289502b206ba3ea887e1a428a6972",
+      "bytes": 189
+    },
+    {
+      "name": "sha:evidence/main-upstream-overlap.diff",
+      "ok": true,
+      "sha256": "8ca6384b8980a0c6e62fdba249fc55e1215de3a9038895956e03496b7c4835ed",
+      "bytes": 25477
+    },
+    {
+      "name": "sha:evidence/anchor-audit.txt",
+      "ok": true,
+      "sha256": "e8d1aedfe3f381559ff3eaa5aabd3873e05a866bccab4f5c683cba787e03b8e8",
+      "bytes": 9096
+    },
+    {
+      "name": "sha:evidence/predicted-tree-audit.txt",
+      "ok": true,
+      "sha256": "9e8221d65782c971c76fce9381f6f2ff02a20a9969ad57428e10436a4499f6e8",
+      "bytes": 5768
+    },
+    {
+      "name": "sha:evidence/candidate-anchor-audit.txt",
+      "ok": true,
+      "sha256": "ee092319e0040ca9beedf1fefbe204659409dc8397e6320b9e3c7b7695aa8022",
+      "bytes": 5941
+    },
+    {
+      "name": "sha:PATCH.diff",
+      "ok": true,
+      "sha256": "4126c26b1b4ca775b118ee15cd234ac5664dfb2917df9361a32eb8c25eead760"
+    },
+    {
+      "name": "planSha",
+      "ok": true
+    },
+    {
+      "name": "matrixSha",
+      "ok": true
+    },
+    {
+      "name": "file-set",
+      "ok": true,
+      "missing": [],
+      "extra": []
+    },
+    {
+      "name": "json:anchor-evidence.json",
+      "ok": true,
+      "detail": "json-ok"
+    },
+    {
+      "name": "json:anchor-matrix-draft.json",
+      "ok": true,
+      "detail": "json-ok"
+    },
+    {
+      "name": "json:evidence-index.json",
+      "ok": true,
+      "detail": "json-ok"
+    },
+    {
+      "name": "json:merge-matrix.json",
+      "ok": true,
+      "detail": "json-ok"
+    },
+    {
+      "name": "json:merge-profile.json",
+      "ok": true,
+      "detail": "json-ok"
+    },
+    {
+      "name": "apply-check",
+      "ok": true,
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "name": "apply-reverse-check",
+      "ok": true,
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "name": "leakcheck",
+      "ok": true,
+      "rc": 0
+    },
+    {
+      "name": "git-status",
+      "ok": true,
+      "output": "?? docs/workflow/tasks/UPSTREAM-2AF30cca/"
+    }
+  ],
+  "fileCount": 15
+}

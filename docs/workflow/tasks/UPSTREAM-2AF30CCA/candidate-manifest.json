@@ -1,0 +1,20 @@
+{
+  "taskId": "UPSTREAM-2AF30CCA",
+  "ours": "996eb9195b1790f954dd48f50be27893cae93937",
+  "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+  "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
+  "candidateCodeRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+  "docsRef": "c8c939c05a4ef26de6daf55ec27c1677e97b916a",
+  "finalTip": "D2",
+  "commits": {
+    "C1": "ce67d696cef760f462518bc63623d27bd43b6523",
+    "C2": "d484ccdeb4193c82188ae745b13f36e37ed6257b",
+    "C3": "194b68c7c247a8fba8664d3d55ac196184a1c99f",
+    "C4": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500",
+    "C5": "9ec1982ff3a75e2b5698fefc83af77a8973b71c0",
+    "M": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+    "D1": "c8c939c05a4ef26de6daf55ec27c1677e97b916a"
+  },
+  "qwen35Unchanged": true,
+  "textualConflicts": 0
+}

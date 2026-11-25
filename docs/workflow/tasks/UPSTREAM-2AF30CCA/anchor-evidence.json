@@ -1,0 +1,352 @@
+{
+  "taskId": "UPSTREAM-2AF30CCA",
+  "status": "candidate-M-evidence",
+  "ours": "996eb9195b1790f954dd48f50be27893cae93937",
+  "upstream": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+  "mergeBase": "d46f5f268f8ed797e83a5c63a69bffbd7a581cf6",
+  "predictedTree": "d2d23a55d707d553ecc52e14c7fbe27d0748f993",
+  "candidateCreated": true,
+  "textualConflicts": [],
+  "qwen35DiffRc": 0,
+  "rows": [
+    {
+      "id": "release-version-bump",
+      "decision": "upstream",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "engine/CMakeLists.txt",
+        "line": 13,
+        "symbol": "project(strata VERSION 0.1.67"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "engine/CMakeLists.txt",
+        "line": 13,
+        "symbol": "project(strata VERSION 0.1.68"
+      },
+      "files": [
+        "docs/AI_REFERENCE.md",
+        "docs/CAPABILITIES.md",
+        "docs/data/release.json",
+        "engine/CMakeLists.txt",
+        "terminal/strata_cli/__init__.py",
+        "terminal/tests/terminal/test_tui2_023_versions.py",
+        "tools/packaging/README.md",
+        "tools/packaging/UPDATES.md",
+        "tools/release_manifest.py",
+        "tools/test_release_manifest.py"
+      ],
+      "reason": "Control-only hotfix version bump; app and engine package versions unchanged.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "engine/CMakeLists.txt",
+        "line": 13,
+        "symbol": "project(strata VERSION 0.1.68"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "ce67d696cef760f462518bc63623d27bd43b6523"
+    },
+    {
+      "id": "setup-install-folder",
+      "decision": "upstream",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "terminal/setup.py",
+        "line": 7555,
+        "symbol": "def write_config"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "terminal/setup.py",
+        "line": 7531,
+        "symbol": "def write_config"
+      },
+      "files": [
+        "terminal/setup.py",
+        "terminal/tools/test_setup_config.py"
+      ],
+      "reason": "Create the Terminal install folder before the first config/run script.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "terminal/setup.py",
+        "line": 7555,
+        "symbol": "def write_config"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "d484ccdeb4193c82188ae745b13f36e37ed6257b"
+    },
+    {
+      "id": "setup-hip-ram-slack",
+      "decision": "upstream",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "terminal/setup.py",
+        "line": 10561,
+        "symbol": "def inkling_expert_flags"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "terminal/setup.py",
+        "line": 10552,
+        "symbol": "def inkling_expert_flags"
+      },
+      "files": [
+        "terminal/setup.py",
+        "terminal/tests/terminal/test_inkling_fit_free.py"
+      ],
+      "reason": "HIP card+RAM plan without SSD gets bounded RAM slack; other backends unchanged.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "terminal/setup.py",
+        "line": 10572,
+        "symbol": "RAM_TIER_SLACK_GIB"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "194b68c7c247a8fba8664d3d55ac196184a1c99f"
+    },
+    {
+      "id": "hip-kv-window-choice",
+      "decision": "upstream",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "terminal/strata_control/inkling_fit.py",
+        "line": 204,
+        "symbol": "def non_expert_gb"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "terminal/strata_control/inkling_fit.py",
+        "line": 26,
+        "symbol": "HIP_KV_WINDOW_TOKENS"
+      },
+      "files": [
+        "terminal/setup.py",
+        "terminal/strata_control/inkling_fit.py",
+        "terminal/tests/terminal/test_inkling_fit_hip_window.py"
+      ],
+      "reason": "HIP plans a 32K K/V window and the selected K/V type; CUDA/SYCL/Metal behavior stays.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "terminal/strata_control/inkling_fit.py",
+        "line": 26,
+        "symbol": "HIP_KV_WINDOW_TOKENS"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500"
+    },
+    {
+      "id": "qwen36-catalog-preserve",
+      "decision": "ours",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "terminal/setup.py",
+        "line": 804,
+        "symbol": "IQ4_XS-KAT"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "terminal/setup.py",
+        "line": 790,
+        "symbol": "qwen36"
+      },
+      "files": [
+        "terminal/setup.py"
+      ],
+      "reason": "Fork KAT/Huihui IQ4_XS catalog entries are absent upstream and preserved in the predicted tree.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "terminal/setup.py",
+        "line": 804,
+        "symbol": "IQ4_XS-KAT"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500"
+    },
+    {
+      "id": "expert-build-preserve",
+      "decision": "ours",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "engine/CMakeLists.txt",
+        "line": 142,
+        "symbol": "STRATA_Q6K_EXPERTS"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "engine/CMakeLists.txt",
+        "line": 13,
+        "symbol": "project(strata VERSION 0.1.68"
+      },
+      "files": [
+        "engine/CMakeLists.txt"
+      ],
+      "reason": "Upstream delta changes only the version line; expert options and CTest stay ours.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "engine/CMakeLists.txt",
+        "line": 142,
+        "symbol": "STRATA_Q6K_EXPERTS"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "ce67d696cef760f462518bc63623d27bd43b6523"
+    },
+    {
+      "id": "fork-planner-base",
+      "decision": "ours",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "terminal/strata_control/inkling_fit.py",
+        "line": 33,
+        "symbol": "VRAM_SAFETY_GB"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "terminal/strata_control/inkling_fit.py",
+        "line": 35,
+        "symbol": "VRAM_SAFETY_GB"
+      },
+      "files": [
+        "terminal/strata_control/inkling_fit.py"
+      ],
+      "reason": "Fork CUDA/desktop/RAM planner constants remain; upstream HIP window is additive.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "terminal/strata_control/inkling_fit.py",
+        "line": 35,
+        "symbol": "VRAM_SAFETY_GB"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500"
+    },
+    {
+      "id": "packaging-fork-notes",
+      "decision": "ours",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "tools/packaging/README.md",
+        "line": 1,
+        "symbol": "Strata packaging"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "tools/packaging/README.md",
+        "line": 4,
+        "symbol": "Control 0.1.68"
+      },
+      "files": [
+        "tools/packaging/README.md"
+      ],
+      "reason": "Take the upstream version line, retain fork packaging documentation.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "tools/packaging/README.md",
+        "line": 4,
+        "symbol": "Control 0.1.68"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "ce67d696cef760f462518bc63623d27bd43b6523"
+    },
+    {
+      "id": "upstream-tests",
+      "decision": "upstream",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "terminal/tests/terminal/test_inkling_fit_free.py",
+        "line": 20,
+        "symbol": "test_vram_margin_is_taken_off_the_free_memory"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
+        "line": 30,
+        "symbol": "test_a_longer_context_plans_like_32k"
+      },
+      "files": [
+        "terminal/tests/terminal/test_inkling_fit_free.py",
+        "terminal/tests/terminal/test_inkling_fit_hip_window.py",
+        "terminal/tests/terminal/test_tui2_023_versions.py",
+        "terminal/tools/test_setup_config.py",
+        "tools/test_release_manifest.py"
+      ],
+      "reason": "Accept upstream regression coverage without deleting existing fork tests.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "terminal/tests/terminal/test_inkling_fit_hip_window.py",
+        "line": 30,
+        "symbol": "test_a_longer_context_plans_like_32k"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "9ec1982ff3a75e2b5698fefc83af77a8973b71c0"
+    },
+    {
+      "id": "qwen35-no-delta",
+      "decision": "ours",
+      "oursAnchor": {
+        "ref": "996eb9195b1790f954dd48f50be27893cae93937",
+        "path": "engine/src/qwen35/q36_engine.cu",
+        "line": 1,
+        "symbol": "q36_engine"
+      },
+      "upstreamAnchor": {
+        "ref": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+        "path": "engine/src/qwen35/q36_engine.cu",
+        "line": 1,
+        "symbol": "q36_engine"
+      },
+      "files": [
+        "engine/src/qwen35",
+        "engine/include/strata/qwen35"
+      ],
+      "reason": "Delta does not touch qwen35; predicted tree is identical to main and serves as a guard.",
+      "candidateAnchor": {
+        "ref": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1",
+        "path": "engine/src/qwen35/q36_engine.cu",
+        "line": 1,
+        "symbol": "q36_engine"
+      },
+      "evidence": [
+        "anchor-matrix-draft.json",
+        "evidence/candidate-anchor-audit.txt",
+        "evidence/predicted-tree-audit.txt"
+      ],
+      "commitRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+    }
+  ],
+  "candidateRef": "cc5f3e668ed66cba6cc862ab10e1b6ebc569c2b1"
+}

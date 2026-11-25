@@ -1,0 +1,72 @@
+=== version ===
+main:engine/CMakeLists.txt:13:project(strata VERSION 0.1.67 LANGUAGES CXX)
+upstream/main:docs/data/release.json:6: "terminal_version": "0.2.21.1",
+upstream/main:docs/data/release.json:7: "control_version": "0.1.68",
+upstream/main:docs/data/release.json:29:  "strata-control-0.1.68-linux-aarch64.tar.gz",
+upstream/main:docs/data/release.json:30:  "strata-control-0.1.68-linux-x86_64.tar.gz",
+upstream/main:docs/data/release.json:31:  "strata-control-0.1.68-macos-arm64.tar.gz",
+upstream/main:docs/data/release.json:32:  "strata-control-0.1.68-windows-x86_64.zip",
+upstream/main:engine/CMakeLists.txt:13:project(strata VERSION 0.1.68 LANGUAGES CXX)
+upstream/main:terminal/strata_cli/__init__.py:15:PRODUCT_VERSION = "0.2.21.1"
+upstream/main:tools/packaging/README.md:4:[docs/INSTALL.md](../../docs/INSTALL.md). It describes the current release (app and Terminal 0.2.21, Control 0.1.68, engines 0.1.67).
+=== setup fixes ===
+main:terminal/setup.py:7555:def write_config(path: Path, cfg: dict):
+main:terminal/setup.py:9257:def write_run_script(model, cfg_path, port, open_browser=True):
+main:terminal/setup.py:10561:def inkling_expert_flags(placed) -> list:
+upstream/main:terminal/setup.py:7531:def write_config(path: Path, cfg: dict):
+upstream/main:terminal/setup.py:9237:def write_run_script(model, cfg_path, port, open_browser=True):
+upstream/main:terminal/setup.py:10546:# caps 7.4% above its plan.  So the RAM cap of such a plan gets this much room: the larger of RAM_TIER_SLACK_GIB and RAM_TIER_SLACK_FRAC of the experts, bounded
+upstream/main:terminal/setup.py:10548:RAM_TIER_SLACK_GIB = 0.75
+upstream/main:terminal/setup.py:10549:RAM_TIER_SLACK_FRAC = 0.05
+upstream/main:terminal/setup.py:10552:def inkling_expert_flags(placed, ram_free_gib=None, backend=None) -> list:
+upstream/main:terminal/setup.py:10565:            # card + RAM, no SSD tier, no room: give the RAM cap room (see RAM_TIER_SLACK_GIB), never more than the free RAM allows
+upstream/main:terminal/setup.py:10567:            ram_slack = max(RAM_TIER_SLACK_GIB, RAM_TIER_SLACK_FRAC * total_gib)
+upstream/main:terminal/setup.py:10596:def inkling_plan_kv(a, backend) -> dict:
+upstream/main:terminal/setup.py:10834:    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, vision, parallel=par, **plan_extra, **inkling_plan_kv(a, plan_extra.get("backend")))
+upstream/main:terminal/setup.py:10926:    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, bool(vision and vision_path is not None), parallel=par, dspark=(drafting_mode != "off"), **{**plan_extra, "backend": ink_backend, **inkling_plan_kv(a, ink_backend)})
+=== qwen36 ours ===
+main:terminal/setup.py:794:    "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
+main:terminal/setup.py:797:               "hf": hf("unsloth/Qwen3.6-35B-A3B-MTP-GGUF"), "file": "Qwen3.6-35B-A3B-{q}.gguf", "tag": "qwen36-",
+main:terminal/setup.py:804:                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
+main:terminal/setup.py:807:                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
+main:terminal/setup.py:10988:    """--family qwen36: a family setup knows but the engine does not run yet (PREVIEW_FAMILIES).  Downloads the chosen
+main:terminal/setup.py:11029:        "development); nothing was configured. Run setup again without --family qwen36 to install a model it runs.")
+main:terminal/setup.py:11470:                    help="qwen = Qwen3.8-Flash-Next, swift = Swift 1.5, qwen36 = Qwen3.6-35B-A3B (pictures with --vision, "
+upstream/main:terminal/setup.py:790:    "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
+upstream/main:terminal/setup.py:793:               "hf": hf("unsloth/Qwen3.6-35B-A3B-MTP-GGUF"), "file": "Qwen3.6-35B-A3B-{q}.gguf", "tag": "qwen36-",
+upstream/main:terminal/setup.py:11000:    """--family qwen36: a family setup knows but the engine does not run yet (PREVIEW_FAMILIES).  Downloads the chosen
+upstream/main:terminal/setup.py:11041:        "development); nothing was configured. Run setup again without --family qwen36 to install a model it runs.")
+upstream/main:terminal/setup.py:11482:                    help="qwen = Qwen3.8-Flash-Next, swift = Swift 1.5, qwen36 = Qwen3.6-35B-A3B (pictures with --vision, "
+=== inkling planner ===
+main:terminal/strata_control/inkling_fit.py:23:VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
+main:terminal/strata_control/inkling_fit.py:33:VRAM_SAFETY_GB = 0.30            # taken off the card's free memory before anything is placed
+main:terminal/strata_control/inkling_fit.py:34:KV_CARD_HEADROOM_GB = 0.50       # CUDA: the K/V stays in the card only with this much to spare; with less, the program that takes the memory next (browser, video) ends the growth (#6905)
+main:terminal/strata_control/inkling_fit.py:36:FREE_RAM_MARGIN_GB = 1.50        # free RAM that stays free beside the experts held in RAM
+main:terminal/strata_control/inkling_fit.py:204:def non_expert_gb(ctx: int | None = None, parallel: int = 1, vision: bool = False, *,
+main:terminal/strata_control/inkling_fit.py:305:    vram_gb = max(0.0, v_gib * GIB_TO_GB - split_overhead - (VRAM_SAFETY_GB if v_gib > 0.0 else 0.0)
+main:terminal/strata_control/inkling_fit.py:330:                                           float(ram_free_gib) * GIB_TO_GB - FREE_RAM_MARGIN_GB - (VISION_GB if vision else 0.0)))
+main:terminal/strata_control/inkling_fit.py:338:    kv_headroom = KV_CARD_HEADROOM_GB if (backend_low == "cuda" and effective_offload == "auto" and glob_kv > 1.0) else 0.0
+upstream/main:terminal/strata_control/inkling_fit.py:23:VRAM_DRIVER_GB = 1.30            # CUDA context + runtime + the engine's working buffers beside the weights, measured: 1.54 GB of non-expert use on a 12 GiB card (was 1.60 with the margin inside; the margin is now VRAM_SAFETY_GB)
+upstream/main:terminal/strata_control/inkling_fit.py:26:HIP_KV_WINDOW_TOKENS = 32768     # HIP, discrete card: the K/V the plan keeps room for, per slot. The engine's pools start empty and grow on demand (VisitKvPool::grow_pool); when the
+upstream/main:terminal/strata_control/inkling_fit.py:35:VRAM_SAFETY_GB = 0.30            # taken off the card's free memory before anything is placed
+upstream/main:terminal/strata_control/inkling_fit.py:36:KV_CARD_HEADROOM_GB = 0.50       # CUDA: the K/V stays in the card only with this much to spare; with less, the program that takes the memory next (browser, video) ends the growth (#6905)
+upstream/main:terminal/strata_control/inkling_fit.py:38:FREE_RAM_MARGIN_GB = 1.50        # free RAM that stays free beside the experts held in RAM
+upstream/main:terminal/strata_control/inkling_fit.py:206:def non_expert_gb(ctx: int | None = None, parallel: int = 1, vision: bool = False, *,
+upstream/main:terminal/strata_control/inkling_fit.py:213:        kv_ctx = min(DEFAULT_CONTEXT if ctx is None else max(1024, int(ctx)), HIP_KV_WINDOW_TOKENS)
+upstream/main:terminal/strata_control/inkling_fit.py:310:    vram_gb = max(0.0, v_gib * GIB_TO_GB - split_overhead - (VRAM_SAFETY_GB if v_gib > 0.0 else 0.0)
+upstream/main:terminal/strata_control/inkling_fit.py:335:                                           float(ram_free_gib) * GIB_TO_GB - FREE_RAM_MARGIN_GB - (VISION_GB if vision else 0.0)))
+upstream/main:terminal/strata_control/inkling_fit.py:343:    kv_headroom = KV_CARD_HEADROOM_GB if (backend_low == "cuda" and effective_offload == "auto" and glob_kv > 1.0) else 0.0
+=== expert/build ours ===
+main:engine/CMakeLists.txt:141:# measured to leave every expert-cache slot count as it was (P100, R9700).  -DSTRATA_Q6K_EXPERTS=OFF drops it.
+main:engine/CMakeLists.txt:142:option(STRATA_Q6K_EXPERTS "Build the Q6_K gate/up grouped expert kernels (UD-Q6_K_XL, UD-Q5_K_XL)" ON)
+main:engine/CMakeLists.txt:143:if(STRATA_Q6K_EXPERTS)
+main:engine/CMakeLists.txt:144:  add_compile_definitions(STRATA_Q6K_EXPERTS=1)
+main:engine/CMakeLists.txt:178:option(STRATA_NATIVE_EXPERTS "Native (IQ) expert support through ggml-cpu" ON)
+main:engine/CMakeLists.txt:484:  add_executable(q36_expert_info_test tests/program/q36_expert_info_test.cpp)
+main:engine/CMakeLists.txt:485:  target_include_directories(q36_expert_info_test PRIVATE include)
+main:engine/CMakeLists.txt:486:  add_test(NAME q36_expert_info_test COMMAND q36_expert_info_test)
+main:engine/CMakeLists.txt:599:  # with the quant layer (STRATA_NATIVE_EXPERTS, defined further down): the table's geometry against strata::quant::type_info too
+main:engine/CMakeLists.txt:725:if(STRATA_NATIVE_EXPERTS)
+main:engine/CMakeLists.txt:817:      if(STRATA_Q6K_EXPERTS)
+main:engine/CMakeLists.txt:1036:  if(NOT STRATA_NATIVE_EXPERTS)
+main:engine/CMakeLists.txt:1037:    string(APPEND _strata_test_kinds " (native-expert tests not registered: STRATA_NATIVE_EXPERTS=OFF)")
