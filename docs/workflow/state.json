@@ -534,6 +534,35 @@
       },
       "createdAt": "2026-11-25T18:56:58+00:00",
       "updatedAt": "2026-11-25T18:56:58+00:00"
+    },
+    "Q35-MTP-LONG": {
+      "taskId": "Q35-MTP-LONG",
+      "gate": "G1",
+      "baseSha": "3f01707a2295aae5bdb5dbb83bd42be4d2e185e9",
+      "branch": "task/Q35-MTP-LONG",
+      "codeAuthor": "b8bd12b8-6374-404d-a27b-d1937edfbc11",
+      "artifacts": {
+        "TASK_IDEA": {
+          "path": "docs/workflow/tasks/Q35-MTP-LONG/TASK_IDEA.md",
+          "author": "A",
+          "sha256": "982a4f45ba0b7326fb25cad901c744c242949b9e7452343e6095db7315cb1861",
+          "status": null,
+          "recordedAt": "2026-11-25T18:57:40+00:00"
+        }
+      },
+      "metrics": {},
+      "review": {
+        "verdict": "pending",
+        "criteria": {}
+      },
+      "integration": {
+        "verdict": "pending"
+      },
+      "upstreamPr": {
+        "status": "not-run"
+      },
+      "createdAt": "2026-11-25T18:57:40+00:00",
+      "updatedAt": "2026-11-25T18:57:40+00:00"
     }
   }
 }
