@@ -79,6 +79,8 @@ A/H/N — отдельные сеансы в одном workspace. H работ�
 
 Qoder блокирует forwarding делегированной задачи, поэтому маршрут такой: A→H, H→A, A→N, N→A. Перед отправкой A проверяет target через `read_chat_session` и `wait_chat_sessions timeoutMs=0`, затем использует `callbackMode=supervise`.
 
+Callback завершения turn — только уведомление, не verdict и не приёмка. A обязан прочитать финальное сообщение H/N, проверить путь/SHA/статус, сохранить результат и отправить ACK в тот же постоянный сеанс. H/N перед завершением возвращают путь, SHA и статус; временные review-чаты запрещены.
+
 `qoder-settings.json` содержит конфигурацию hooks, активированную на cutover. Локальный `.qoder/settings.json` подключён к workflow guard; tracked template остаётся в docs.
 
 ## Canary CANARY-001

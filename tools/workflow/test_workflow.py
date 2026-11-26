@@ -258,6 +258,13 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(code, 1, data)
         self.assertIn("не соответствует", data["error"])
 
+    def test_hook_requires_supervised_handoff_and_ack(self) -> None:
+        hook = Path(__file__).with_name("workflow_hook.ps1").read_text(encoding="utf-8")
+        self.assertIn("callbackMode=supervise", hook)
+        self.assertIn("отправлять ACK", hook)
+        self.assertIn("путь+SHA+статус", hook)
+        self.assertIn("callback завершения не равен APPROVED", hook)
+
     def test_lock_and_tamper_blocked(self) -> None:
         lock = self.repo / "docs/workflow/locks/global.lock"
         lock.write_text("busy\n", encoding="utf-8")

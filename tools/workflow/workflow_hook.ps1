@@ -157,9 +157,9 @@ function Write-Context {
     $task = Get-TaskState $Repo $taskId
     Write-Output "WORKFLOW v3: роль=$role task=$taskId gate=$($task.gate)"
     switch ($role) {
-        'A' { Write-Output 'A: TASK_IDEA, idea diagram, прогоны, INTEGRATION_REPORT, commit/push/merge после гейтов.' }
-        'H' { Write-Output 'H: IMPL_PLAN, PATCH, DOC_IMPL, algorithm diagram в task-worktree; без commit/push/merge и GPU.' }
-        'N' { Write-Output 'N: read-only REVIEW_REPORT C1-C10; без edit/build/GPU.' }
+        'A' { Write-Output 'A: TASK_IDEA, idea diagram, прогоны, INTEGRATION_REPORT, commit/push/merge после гейтов. H/N задания только callbackMode=supervise; после callback читать финал, сохранять SHA и отправлять ACK.' }
+        'H' { Write-Output 'H: IMPL_PLAN, PATCH, DOC_IMPL, algorithm diagram в task-worktree; без commit/push/merge и GPU. Перед завершением вернуть A путь+SHA+статус; отправка результата не равна приёмке.' }
+        'N' { Write-Output 'N: read-only REVIEW_REPORT C1-C10; без edit/build/GPU. Вернуть A verdict+путь+SHA; callback завершения не равен APPROVED.' }
         default { Write-Output 'FOREIGN: только read-only.' }
     }
 }
