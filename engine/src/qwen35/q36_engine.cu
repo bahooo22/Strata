@@ -5349,6 +5349,11 @@ int strata::qwen35::run(int argc, char** argv) {
     const std::vector<int32_t> prompt = parse_ids(tokens.c_str()), forced = parse_ids(force.c_str());
     if (prompt.empty()) { std::fprintf(stderr, "strata-q36: --tokens, --serve or --bench-pp is required\n"); return 2; }
     if (!forced.empty()) n_gen = (int) forced.size() + 1;
+    if ((int64_t) prompt.size() + n_gen > ctx) {
+        std::fprintf(stderr, "strata-q36: --tokens prompt (%zu tokens) + --n (%d) exceeds the context (%d)\n",
+                     prompt.size(), n_gen, ctx);
+        return 2;
+    }
     FILE* ff = dump_full.empty() ? nullptr : std::fopen(dump_full.c_str(), "wb");
     std::vector<float> lg;
     std::vector<int32_t> gen;
