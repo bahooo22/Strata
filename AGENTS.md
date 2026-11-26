@@ -79,7 +79,7 @@ Source setup does not make an unsupported model or backend compatible. Strata's 
 
 ## Workflow v3
 
-Для изменений форка действует `docs/workflow/README.md`: отдельные сеансы A/H/N, запрет субагентов и self-approval, task-worktree, артефакты с SHA-256, fast 32k ≥3 и full 160k/200k отдельно. Merge разрешён только при progress на обоих full-окнах; no_change архивируется. Инструмент — `tools/workflow/workflow.py`, guard — `tools/workflow/workflow_hook.ps1`.
+Для изменений форка действует `docs/workflow/README.md`: отдельные сеансы A/H/N, запрет субагентов и self-approval, task-worktree, артефакты с SHA-256, A генерирует диаграмму идеи до G1, H генерирует диаграмму алгоритма до G3, fast 32k ≥3 и full 160k/200k отдельно. Merge разрешён только при progress на обоих full-окнах; no_change архивируется. Инструмент — `tools/workflow/workflow.py`, guard — `tools/workflow/workflow_hook.ps1`.
 
 ## Contributing a change or report
 

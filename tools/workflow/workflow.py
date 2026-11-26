@@ -5,6 +5,7 @@ import argparse
 import contextlib
 import datetime as dt
 import hashlib
+import html
 import json
 import os
 import re
@@ -20,9 +21,13 @@ CRITERIA = tuple(f"C{i}" for i in range(1, 11))
 WINDOWS = ("32k", "160k", "200k")
 ARTIFACT_AUTHORS = {
     "TASK_IDEA": "A",
+    "IDEA": "A",
+    "IDEA_DIAGRAM": "A",
     "IMPL_PLAN": "H",
     "PATCH": "H",
     "DOC_IMPL": "H",
+    "ALGORITHM": "H",
+    "ALGORITHM_DIAGRAM": "H",
     "FAST_RUN_REPORT": "A",
     "FULL_RUN_REPORT": "A",
     "REVIEW_REPORT": "N",
@@ -30,6 +35,12 @@ ARTIFACT_AUTHORS = {
     "UPSTREAM_PR_CHECK": "A",
     "DECISION_RECORD": "A",
 }
+DIAGRAM_KINDS = {
+    "idea": {"spec": "IDEA", "diagram": "IDEA_DIAGRAM", "author": "A"},
+    "algorithm": {"spec": "ALGORITHM", "diagram": "ALGORITHM_DIAGRAM", "author": "H"},
+}
+DIAGRAM_ARTIFACT_SUFFIXES = {"IDEA": ".json", "IDEA_DIAGRAM": ".mmd",
+                             "ALGORITHM": ".json", "ALGORITHM_DIAGRAM": ".mmd"}
 TRANSITIONS = {
     "G0": {"G1"},
     "G1": {"G2"},
@@ -153,9 +164,9 @@ def write_templates(repo: Path, task_id: str, base: str, branch: str) -> None:
     folder = repo / "docs/workflow/tasks" / task_id
     folder.mkdir(parents=True, exist_ok=True)
     templates = {
-        "TASK_IDEA.md": f"# TASK_IDEA {task_id}\n\n- goal:\n- idea_algorithm:\n- constraints:\n- expected_effect:\n- base_sha: `{base}`\n- branch: `{branch}`\n",
-        "IMPL_PLAN.md": "# IMPL_PLAN\n\n- implementation_algorithm:\n- code_parts:\n- delegation:\n- risks:\n",
-        "DOC_IMPL.md": "# DOC_IMPL\n\n- math:\n- code_map:\n- algorithm_argumentation:\n",
+        "TASK_IDEA.md": f"# TASK_IDEA {task_id}\n\n- goal:\n- idea_algorithm:\n- idea_diagram: idea-flow.mmd\n- constraints:\n- expected_effect:\n- base_sha: `{base}`\n- branch: `{branch}`\n",
+        "IMPL_PLAN.md": "# IMPL_PLAN\n\n- implementation_algorithm:\n- algorithm_spec: algorithm.json\n- algorithm_diagram: algorithm-flow.mmd\n- code_parts:\n- delegation:\n- risks:\n",
+        "DOC_IMPL.md": "# DOC_IMPL\n\n- math:\n- code_map:\n- algorithm_argumentation:\n- algorithm_diagram: algorithm-flow.mmd\n",
         "FAST_RUN_REPORT.md": "# FAST_RUN_REPORT\n\n- window: 32k\n- runs: >=3\n- hardware:\n- build_flags:\n- median:\n- spread:\n- sanity_threshold:\n- delta_vs_32k_baseline:\n",
         "FULL_RUN_REPORT.md": "# FULL_RUN_REPORT\n\n- 160k: result / baseline / decision\n- 200k: result / baseline / decision\n- comparison_rule: только одноимённые окна и профили\n",
         "REVIEW_REPORT.md": "# REVIEW_REPORT\n\n- C1..C10:\n- rejection_code:\n- verdict:\n",
@@ -166,6 +177,16 @@ def write_templates(repo: Path, task_id: str, base: str, branch: str) -> None:
     for name, text in templates.items():
         (folder / name).write_text(text, encoding="utf-8")
     (folder / "PATCH.diff").write_text("", encoding="utf-8")
+    for name, title in (("idea.json", "Идея задачи"), ("algorithm.json", "Алгоритм реализации")):
+        write_json(folder / name, {
+            "taskId": task_id,
+            "title": title,
+            "nodes": [
+                {"id": "start", "label": "Старт", "shape": "start"},
+                {"id": "finish", "label": "Завершение", "shape": "end"},
+            ],
+            "edges": [{"from": "start", "to": "finish"}],
+        })
     (folder / "metrics.template.json").write_text(json.dumps({
         "taskId": task_id,
         "metrics": {
@@ -207,6 +228,96 @@ def artifact(repo: Path, task: dict[str, Any], name: str) -> dict[str, Any]:
     return item
 
 
+DIAGRAM_NODE_ID = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+DIAGRAM_SHAPES = {"start", "end", "decision", "process"}
+
+
+def validate_diagram_spec(data: Any, task_id: str) -> dict[str, Any]:
+    if not isinstance(data, dict) or data.get("taskId") != task_id:
+        raise WorkflowError("diagram spec не соответствует task-id")
+    title = data.get("title")
+    if not isinstance(title, str) or not title.strip() or len(title) > 160:
+        raise WorkflowError("diagram spec требует непустой title до 160 символов")
+    nodes = data.get("nodes")
+    edges = data.get("edges")
+    if not isinstance(nodes, list) or not 2 <= len(nodes) <= 200:
+        raise WorkflowError("diagram spec требует от 2 до 200 nodes")
+    if not isinstance(edges, list) or not 1 <= len(edges) <= 500:
+        raise WorkflowError("diagram spec требует от 1 до 500 edges")
+    ids: set[str] = set()
+    for node in nodes:
+        if not isinstance(node, dict):
+            raise WorkflowError("diagram node должен быть объектом")
+        node_id = node.get("id")
+        label = node.get("label")
+        shape = node.get("shape", "process")
+        if not isinstance(node_id, str) or not DIAGRAM_NODE_ID.fullmatch(node_id):
+            raise WorkflowError("diagram node id должен быть безопасным идентификатором")
+        if node_id in ids:
+            raise WorkflowError(f"duplicate diagram node {node_id}")
+        if not isinstance(label, str) or not label.strip() or len(label) > 160:
+            raise WorkflowError(f"diagram node {node_id} требует label до 160 символов")
+        if shape not in DIAGRAM_SHAPES:
+            raise WorkflowError(f"diagram node {node_id} имеет неизвестный shape")
+        ids.add(node_id)
+    seen: set[tuple[str, str, str]] = set()
+    for edge in edges:
+        if not isinstance(edge, dict):
+            raise WorkflowError("diagram edge должен быть объектом")
+        source, target = edge.get("from"), edge.get("to")
+        label = edge.get("label", "")
+        if source not in ids or target not in ids:
+            raise WorkflowError("diagram edge ссылается на отсутствующий node")
+        if not isinstance(label, str) or len(label) > 80:
+            raise WorkflowError("diagram edge label должен быть строкой до 80 символов")
+        key = (source, target, label)
+        if key in seen:
+            raise WorkflowError("duplicate diagram edge")
+        seen.add(key)
+    return data
+
+
+def mermaid_text(value: str) -> str:
+    return html.escape(value, quote=True).replace("\r\n", "\n").replace("\n", "<br/>")
+
+
+def render_diagram(spec: dict[str, Any]) -> str:
+    lines = ["flowchart TD"]
+    for node in spec["nodes"]:
+        node_id, label, shape = node["id"], mermaid_text(node["label"]), node.get("shape", "process")
+        if shape in {"start", "end"}:
+            lines.append(f'  {node_id}(["{label}"])')
+        elif shape == "decision":
+            lines.append(f'  {node_id}{{"{label}"}}')
+        else:
+            lines.append(f'  {node_id}["{label}"]')
+    lines.append("")
+    for edge in spec["edges"]:
+        label = mermaid_text(edge.get("label", ""))
+        arrow = f' -- "{label}" --> ' if label else " --> "
+        lines.append(f"  {edge['from']}{arrow}{edge['to']}")
+    return "\n".join(lines) + "\n"
+
+
+def task_diagram_path(repo: Path, task_id: str, value: str) -> Path:
+    path = safe_repo_path(repo, value)
+    folder = (repo / "docs/workflow/tasks" / task_id).resolve()
+    if path.parent != folder:
+        raise WorkflowError("diagram spec/output должны лежать в каталоге задачи")
+    return path
+
+
+def validate_diagram(repo: Path, task: dict[str, Any], kind: str) -> None:
+    config = DIAGRAM_KINDS[kind]
+    spec_path = task_diagram_path(repo, task["taskId"], artifact(repo, task, config["spec"])["path"])
+    diagram_path = task_diagram_path(repo, task["taskId"], artifact(repo, task, config["diagram"])["path"])
+    if spec_path.suffix != DIAGRAM_ARTIFACT_SUFFIXES[config["spec"]] or diagram_path.suffix != DIAGRAM_ARTIFACT_SUFFIXES[config["diagram"]]:
+        raise WorkflowError("diagram spec должен быть .json, output — .mmd")
+    spec = validate_diagram_spec(read_json(spec_path), task["taskId"])
+    if diagram_path.read_text(encoding="utf-8") != render_diagram(spec):
+        raise WorkflowError(f"{config['diagram']} не соответствует {config['spec']}")
+
+
 def validate_fast_metrics(task: dict[str, Any]) -> None:
     fast = task.get("metrics", {}).get("32k", {})
     runs = fast.get("runs", [])
@@ -245,6 +356,10 @@ def validate_review(repo: Path, task: dict[str, Any]) -> None:
 def validate_task(repo: Path, task: dict[str, Any]) -> None:
     for name in task.get("artifacts", {}):
         artifact(repo, task, name)
+    if task.get("gate") in {"G1", "G2", "G3", "G4", "G5", "UPSTREAM_PR_CHECK", "MERGED"}:
+        validate_diagram(repo, task, "idea")
+    if task.get("gate") in {"G3", "G4", "G5", "UPSTREAM_PR_CHECK", "MERGED"}:
+        validate_diagram(repo, task, "algorithm")
     if task.get("gate") in {"G3", "G4", "G5", "UPSTREAM_PR_CHECK", "MERGED"}:
         branch = git(repo, "rev-parse", "--verify", f"{task['branch']}^{{commit}}")
         if git(repo, "merge-base", "--is-ancestor", task["baseSha"], branch) != "":
@@ -304,6 +419,10 @@ def cmd_record(args: argparse.Namespace) -> dict[str, Any]:
     if args.author != ARTIFACT_AUTHORS[args.name]:
         raise WorkflowError(f"{args.name} должен создать {ARTIFACT_AUTHORS[args.name]}")
     path = safe_repo_path(repo, args.path)
+    if args.name in DIAGRAM_ARTIFACT_SUFFIXES:
+        path = task_diagram_path(repo, task_id, args.path)
+        if path.suffix != DIAGRAM_ARTIFACT_SUFFIXES[args.name]:
+            raise WorkflowError("diagram spec должен быть .json, output — .mmd")
     if not path.is_file():
         raise WorkflowError(f"artifact не найден: {args.path}")
     with global_lock(repo):
@@ -320,6 +439,39 @@ def cmd_record(args: argparse.Namespace) -> dict[str, Any]:
         write_json(state_path(repo), state)
         append_event(repo, task_id, "artifact", args.author, name=args.name, path=args.path, status=args.status)
     return {"result": "ok", "artifact": args.name, "sha256": task["artifacts"][args.name]["sha256"]}
+
+
+def cmd_diagram(args: argparse.Namespace) -> dict[str, Any]:
+    repo = repo_root(Path(args.repo))
+    task_id = safe_task_id(args.task_id)
+    config = DIAGRAM_KINDS[args.kind]
+    if args.author != config["author"]:
+        raise WorkflowError(f"{args.kind} diagram должен создать {config['author']}")
+    spec_path = task_diagram_path(repo, task_id, args.spec)
+    output_path = task_diagram_path(repo, task_id, args.out)
+    if spec_path.suffix != ".json" or output_path.suffix != ".mmd":
+        raise WorkflowError("diagram spec должен быть .json, output — .mmd")
+    spec = validate_diagram_spec(read_json(spec_path), task_id)
+    rendered = render_diagram(spec)
+    with global_lock(repo):
+        state = load_state(repo)
+        task = get_task(state, task_id)
+        output_path.write_text(rendered, encoding="utf-8")
+        recorded = []
+        for name, path in ((config["spec"], spec_path), (config["diagram"], output_path)):
+            relative = path.relative_to(repo).as_posix()
+            task["artifacts"][name] = {
+                "path": relative,
+                "author": config["author"],
+                "sha256": sha256(path),
+                "status": "generated",
+                "recordedAt": utc_now(),
+            }
+            recorded.append(name)
+        task["updatedAt"] = utc_now()
+        write_json(state_path(repo), state)
+        append_event(repo, task_id, "diagram", config["author"], kind=args.kind, spec=args.spec, output=args.out, artifacts=recorded)
+    return {"result": "ok", "kind": args.kind, "artifacts": recorded, "sha256": task["artifacts"][config["diagram"]]["sha256"]}
 
 
 def cmd_metrics(args: argparse.Namespace) -> dict[str, Any]:
@@ -387,9 +539,9 @@ def cmd_transition(args: argparse.Namespace) -> dict[str, Any]:
         if target not in TRANSITIONS.get(current, set()):
             raise WorkflowError(f"переход {current} -> {target} запрещён")
         required = {
-            "G1": ("TASK_IDEA",),
+            "G1": ("TASK_IDEA", "IDEA", "IDEA_DIAGRAM"),
             "G2": ("IMPL_PLAN",),
-            "G3": ("PATCH", "DOC_IMPL"),
+            "G3": ("PATCH", "DOC_IMPL", "ALGORITHM", "ALGORITHM_DIAGRAM"),
             "G4": ("FAST_RUN_REPORT",),
             "G5": ("REVIEW_REPORT",),
             "UPSTREAM_PR_CHECK": ("FULL_RUN_REPORT", "INTEGRATION_REPORT"),
@@ -399,6 +551,10 @@ def cmd_transition(args: argparse.Namespace) -> dict[str, Any]:
         }[target]
         for name in required:
             artifact(repo, task, name)
+        if target == "G1":
+            validate_diagram(repo, task, "idea")
+        if target == "G3":
+            validate_diagram(repo, task, "algorithm")
         if target == "G4":
             validate_fast_metrics(task)
         if target == "G5":
@@ -463,6 +619,14 @@ def build_parser() -> argparse.ArgumentParser:
     record.add_argument("--author", required=True, choices=ROLES)
     record.add_argument("--status")
     record.set_defaults(func=cmd_record)
+    diagram = sub.add_parser("diagram")
+    diagram.add_argument("--repo", type=Path, default=Path("."))
+    diagram.add_argument("--task-id", required=True)
+    diagram.add_argument("--kind", required=True, choices=sorted(DIAGRAM_KINDS))
+    diagram.add_argument("--spec", required=True)
+    diagram.add_argument("--out", required=True)
+    diagram.add_argument("--author", required=True, choices=ROLES)
+    diagram.set_defaults(func=cmd_diagram)
     metrics = sub.add_parser("metrics")
     metrics.add_argument("--repo", type=Path, default=Path("."))
     metrics.add_argument("--task-id", required=True)

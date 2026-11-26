@@ -4,9 +4,9 @@
 
 ## Роли
 
-- A — главная/архитектор/интегратор: TASK_IDEA, прогоны, коммиты, push, merge и очистка.
-- H — helper: IMPL_PLAN, PATCH и DOC_IMPL в отдельной task-ветке.
-- N — аналитик: read-only REVIEW_REPORT по C1–C10.
+- A — главная/архитектор/интегратор: TASK_IDEA, диаграмма идеи, прогоны, коммиты, push, merge и очистка.
+- H — helper: IMPL_PLAN, PATCH, DOC_IMPL и диаграмма алгоритма кода в отдельной task-ветке.
+- N — аналитик: read-only REVIEW_REPORT по C1–C10, включая соответствие диаграмм спецификациям.
 
 Текущие session id хранятся в `participants.json`. Cutover выполнен: guard использует новый реестр A/H/N, полномочия старого reviewer отозваны.
 
@@ -16,22 +16,24 @@
 python tools/workflow/workflow.py init --task-id TASK-001 --base-sha HEAD --branch task/TASK-001
 python tools/workflow/workflow.py status --task-id TASK-001
 python tools/workflow/workflow.py record --task-id TASK-001 --name TASK_IDEA --path docs/workflow/tasks/TASK-001/TASK_IDEA.md --author A
+python tools/workflow/workflow.py diagram --task-id TASK-001 --kind idea --spec docs/workflow/tasks/TASK-001/idea.json --out docs/workflow/tasks/TASK-001/idea-flow.mmd --author A
+python tools/workflow/workflow.py diagram --task-id TASK-001 --kind algorithm --spec docs/workflow/tasks/TASK-001/algorithm.json --out docs/workflow/tasks/TASK-001/algorithm-flow.mmd --author H
 python tools/workflow/workflow.py metrics --task-id TASK-001 --file docs/workflow/tasks/TASK-001/metrics.json
 python tools/workflow/workflow.py review --task-id TASK-001 --verdict CODE_APPROVED --report docs/workflow/tasks/TASK-001/REVIEW_REPORT.md
 python tools/workflow/workflow.py transition --task-id TASK-001 --to G1
 python tools/workflow/workflow.py validate --task-id TASK-001
 ```
 
-`init` создаёт полный набор MD-шаблонов и `metrics.template.json`. Артефакты регистрируются с SHA-256; изменение файла после регистрации блокирует validate.
+`init` создаёт полный набор MD-шаблонов, `idea.json`, `algorithm.json` и `metrics.template.json`. Артефакты регистрируются с SHA-256; изменение файла после регистрации блокирует validate.
 
 ## Гейты
 
 | Gate | Обязательно |
 |---|---|
 | G0 | baseline и task созданы |
-| G1 | TASK_IDEA от A |
+| G1 | TASK_IDEA, IDEA и IDEA_DIAGRAM от A |
 | G2 | IMPL_PLAN от H |
-| G3 | PATCH и DOC_IMPL от H |
+| G3 | PATCH, DOC_IMPL, ALGORITHM и ALGORITHM_DIAGRAM от H |
 | G4 | fast 32k ≥3 и FAST_RUN_REPORT |
 | G5 | REVIEW_REPORT от N, C1–C10 true, CODE_APPROVED |
 | UPSTREAM_PR_CHECK | full 160k/200k, progress на обоих, INTEGRATION_REPORT approved |
@@ -40,6 +42,28 @@ python tools/workflow/workflow.py validate --task-id TASK-001
 | CLEANUP | локальные ветки/worktree удалены |
 
 Пропуск gate, self-approval, неверный author, отсутствующий artifact, чужой baseline window/profile и одновременная запись блокируются.
+
+## Диаграммы
+
+A описывает абстрактную идею в `idea.json` и генерирует `idea-flow.mmd` до G1. H описывает алгоритм реализации в `algorithm.json` и генерирует `algorithm-flow.mmd` до G3. Обе спецификации используют один формат:
+
+```json
+{
+  "taskId": "TASK-001",
+  "title": "Короткое название",
+  "nodes": [
+    {"id": "start", "label": "Старт", "shape": "start"},
+    {"id": "check", "label": "Условие выполнено?", "shape": "decision"},
+    {"id": "finish", "label": "Завершение", "shape": "end"}
+  ],
+  "edges": [
+    {"from": "start", "to": "check"},
+    {"from": "check", "to": "finish", "label": "да"}
+  ]
+}
+```
+
+`shape`: `start`, `end`, `decision` или `process`. Команда `diagram` проверяет уникальность узлов, ссылки рёбер, лимиты и роль автора, затем детерминированно записывает Mermaid `flowchart TD` и регистрирует оба артефакта с SHA-256. `validate` заново строит ожидаемый текст и блокирует ручную правку диаграммы в обход спецификации. Генерация и повторная регистрация через `record` разрешены только для файлов в каталоге текущей задачи с расширениями `.json` и `.mmd`. Внешний Mermaid-рендерер не требуется.
 
 ## Метрики
 

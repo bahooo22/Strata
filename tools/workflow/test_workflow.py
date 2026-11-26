@@ -63,6 +63,29 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(code, 0, data)
         return str(path.relative_to(self.repo))
 
+    def diagram(self, kind: str, author: str) -> str:
+        spec_name = "idea.json" if kind == "idea" else "algorithm.json"
+        output_name = "idea-flow.mmd" if kind == "idea" else "algorithm-flow.mmd"
+        spec = self.repo / f"docs/workflow/tasks/T1/{spec_name}"
+        spec.write_text(json.dumps({
+            "taskId": "T1",
+            "title": "Идея" if kind == "idea" else "Алгоритм",
+            "nodes": [
+                {"id": "start", "label": "Старт", "shape": "start"},
+                {"id": "route", "label": "Выбор", "shape": "decision"},
+                {"id": "finish", "label": "Завершение", "shape": "end"},
+            ],
+            "edges": [
+                {"from": "start", "to": "route"},
+                {"from": "route", "to": "finish", "label": "да"},
+            ],
+        }, ensure_ascii=False), encoding="utf-8")
+        code, data = run(self.repo, "diagram", "--task-id", "T1", "--kind", kind,
+                         "--spec", str(spec.relative_to(self.repo)),
+                         "--out", f"docs/workflow/tasks/T1/{output_name}", "--author", author)
+        self.assertEqual(code, 0, data)
+        return f"docs/workflow/tasks/T1/{output_name}"
+
     def metrics(self, decision: str = "progress") -> None:
         path = self.repo / "docs/workflow/tasks/T1/metrics.json"
         path.write_text(json.dumps({
@@ -80,6 +103,7 @@ class WorkflowTests(unittest.TestCase):
         code, data = run(self.repo, "init", "--task-id", "T1", "--base-sha", self.base, "--branch", "task/T1")
         self.assertEqual(code, 0, data)
         self.artifact("TASK_IDEA", "A")
+        self.diagram("idea", "A")
         code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "G1")
         self.assertEqual(code, 0, data)
         self.artifact("IMPL_PLAN", "H")
@@ -87,6 +111,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(code, 0, data)
         self.artifact("PATCH", "H")
         self.artifact("DOC_IMPL", "H")
+        self.diagram("algorithm", "H")
         code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "G3")
         self.assertEqual(code, 0, data)
         self.metrics(decision)
@@ -153,6 +178,85 @@ class WorkflowTests(unittest.TestCase):
         code, data = run(self.repo, "metrics", "--task-id", "T1", "--file", str(path))
         self.assertEqual(code, 1, data)
         self.assertIn("baseline", data["error"])
+
+    def test_missing_idea_diagram_blocks_g1(self) -> None:
+        code, data = run(self.repo, "init", "--task-id", "T1", "--base-sha", self.base, "--branch", "task/T1")
+        self.assertEqual(code, 0, data)
+        self.artifact("TASK_IDEA", "A")
+        code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "G1")
+        self.assertEqual(code, 1, data)
+        self.assertIn("IDEA", data["error"])
+
+    def test_missing_algorithm_diagram_blocks_g3(self) -> None:
+        code, data = run(self.repo, "init", "--task-id", "T1", "--base-sha", self.base, "--branch", "task/T1")
+        self.assertEqual(code, 0, data)
+        self.artifact("TASK_IDEA", "A")
+        self.diagram("idea", "A")
+        code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "G1")
+        self.assertEqual(code, 0, data)
+        self.artifact("IMPL_PLAN", "H")
+        code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "G2")
+        self.assertEqual(code, 0, data)
+        self.artifact("PATCH", "H")
+        self.artifact("DOC_IMPL", "H")
+        code, data = run(self.repo, "transition", "--task-id", "T1", "--to", "G3")
+        self.assertEqual(code, 1, data)
+        self.assertIn("ALGORITHM", data["error"])
+
+    def test_diagram_role_and_spec_validation(self) -> None:
+        code, data = run(self.repo, "init", "--task-id", "T1", "--base-sha", self.base, "--branch", "task/T1")
+        self.assertEqual(code, 0, data)
+        code, data = run(self.repo, "diagram", "--task-id", "T1", "--kind", "idea",
+                         "--spec", "docs/workflow/tasks/T1/idea.json",
+                         "--out", "docs/workflow/tasks/T1/idea-flow.mmd", "--author", "H")
+        self.assertEqual(code, 1, data)
+        self.assertIn("должен создать A", data["error"])
+        spec = self.repo / "docs/workflow/tasks/T1/idea.json"
+        spec.write_text(json.dumps({
+            "taskId": "T1", "title": "Битая идея",
+            "nodes": [{"id": "same", "label": "A"}, {"id": "same", "label": "B"}],
+            "edges": [{"from": "same", "to": "same"}],
+        }), encoding="utf-8")
+        code, data = run(self.repo, "diagram", "--task-id", "T1", "--kind", "idea",
+                         "--spec", "docs/workflow/tasks/T1/idea.json",
+                         "--out", "docs/workflow/tasks/T1/idea-flow.mmd", "--author", "A")
+        self.assertEqual(code, 1, data)
+        self.assertIn("duplicate", data["error"])
+
+    def test_diagram_record_requires_task_local_path(self) -> None:
+        code, data = run(self.repo, "init", "--task-id", "T1", "--base-sha", self.base, "--branch", "task/T1")
+        self.assertEqual(code, 0, data)
+        foreign = self.repo / "docs/workflow/foreign.json"
+        foreign.write_text("{}", encoding="utf-8")
+        code, data = run(self.repo, "record", "--task-id", "T1", "--name", "IDEA",
+                         "--path", "docs/workflow/foreign.json", "--author", "A")
+        self.assertEqual(code, 1, data)
+        self.assertIn("каталоге задачи", data["error"])
+        wrong_suffix = self.repo / "docs/workflow/tasks/T1/idea.txt"
+        wrong_suffix.write_text("{}", encoding="utf-8")
+        code, data = run(self.repo, "record", "--task-id", "T1", "--name", "IDEA",
+                         "--path", "docs/workflow/tasks/T1/idea.txt", "--author", "A")
+        self.assertEqual(code, 1, data)
+        self.assertIn(".json", data["error"])
+
+    def test_diagram_tamper_and_spec_mismatch_blocked(self) -> None:
+        self.prepare()
+        diagram = self.repo / "docs/workflow/tasks/T1/algorithm-flow.mmd"
+        diagram.write_text("flowchart TD\n  wrong[\"Changed\"]\n", encoding="utf-8")
+        code, data = run(self.repo, "validate", "--task-id", "T1")
+        self.assertEqual(code, 1, data)
+        self.assertIn("ALGORITHM_DIAGRAM", data["error"])
+        self.diagram("algorithm", "H")
+        spec = self.repo / "docs/workflow/tasks/T1/algorithm.json"
+        data = json.loads(spec.read_text(encoding="utf-8"))
+        data["nodes"][1]["label"] = "Другой выбор"
+        spec.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        code, result = run(self.repo, "record", "--task-id", "T1", "--name", "ALGORITHM",
+                           "--path", "docs/workflow/tasks/T1/algorithm.json", "--author", "H")
+        self.assertEqual(code, 0, result)
+        code, data = run(self.repo, "validate", "--task-id", "T1")
+        self.assertEqual(code, 1, data)
+        self.assertIn("не соответствует", data["error"])
 
     def test_lock_and_tamper_blocked(self) -> None:
         lock = self.repo / "docs/workflow/locks/global.lock"
