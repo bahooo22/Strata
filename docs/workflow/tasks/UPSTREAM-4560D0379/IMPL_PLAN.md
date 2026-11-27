@@ -9,7 +9,7 @@
 
 ## Принцип
 
-Каждый наш патч и каждый upstream-патч в пересечённом файле получает отдельную matrix-строку. `ours` сохраняет fork-реализацию, `upstream` добавляет или заменяет независимую upstream-часть. `hybrid`, `delta`, `defer` и `drop` не заявляются: непроведённые combo/runtime evidence не выдаются за passed. Candidate остаётся `pending:sync/upstream-0.2.23`.
+Каждый наш патч и каждый upstream-патч в пересечённом файле получает отдельную matrix-строку. `ours` сохраняет fork-реализацию, `upstream` добавляет или заменяет независимую upstream-часть. `hybrid`, `delta`, `defer` и `drop` не заявляются: непроведённые combo/runtime evidence не выдаются за passed. Candidate остаётся `2195f9b0f412d7e1f5447dad82a657e4db6904cc`.
 
 ## Этапы candidate sync
 
@@ -45,7 +45,7 @@
 - `anchor-evidence.json` фиксирует ours/upstream file:line, статус и команду для candidateRef.
 - `evidence/anchors/*.txt` содержит сырой вывод `git grep`.
 - `evidence/commit-coverage.json` отображает все 65 content-коммитов ours на matrix rows.
-- Каждая строка имеет `commitRef=pending:<id>` до создания candidate. Перед приёмкой pending недопустим.
+- Каждая строка имеет реальный `commitRef`; acceptance остаётся pending до candidate build/runtime/N review.
 
 ## Проверки A после N review
 

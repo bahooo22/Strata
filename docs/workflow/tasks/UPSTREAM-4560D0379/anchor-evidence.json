@@ -1,27 +1,30 @@
 {
-  "candidateRef": "pending:sync/upstream-0.2.23",
-  "draftOnly": true,
+  "candidateRef": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+  "draftOnly": false,
   "rows": [
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "## Workflow v3",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "## Workflow v3",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/agents-workflow.txt",
         "location": {
           "line": 80,
           "path": "AGENTS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "## Workflow v3"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "agents-workflow",
@@ -65,25 +68,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "Version 0.2.23",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "Version 0.2.23",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/agents-version.txt",
         "location": {
           "line": 3,
           "path": "AGENTS.md",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "Version 0.2.23"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "agents-version",
@@ -127,25 +133,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "## Fork measurement charts",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "## Fork measurement charts",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/readme-fork-notes.txt",
         "location": {
-          "line": 247,
+          "line": 256,
           "path": "README.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "## Fork measurement charts"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "readme-fork-notes",
@@ -189,25 +198,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "Ornith-1.5-35B-A3B",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "Ornith-1.5-35B-A3B",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/readme-upstream-catalog.txt",
         "location": {
-          "line": 71,
+          "line": 89,
           "path": "README.md",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "Ornith-1.5-35B-A3B"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "readme-upstream-catalog",
@@ -251,25 +263,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_FDEC",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_FDEC",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/settings-fork-knobs.txt",
         "location": {
-          "line": 281,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 48,
+          "path": "docs/reports/2026-11-23-fdec-q4.md",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_FDEC"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "settings-fork-knobs",
@@ -313,25 +328,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_PF_SYNC_DEBUG",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_PF_SYNC_DEBUG",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/settings-upstream-register.txt",
         "location": {
-          "line": 76,
-          "path": "engine/src/prefill/moe_fused_iq.cu",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "line": 10,
+          "path": "docs/workflow/tasks/UPSTREAM-4560D0379/DOC_IMPL.md",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_PF_SYNC_DEBUG"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "settings-upstream-register",
@@ -375,25 +393,26 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "q2_K/iq4_xs",
         "command": [
           "git",
-          "grep",
-          "-n",
-          "-F",
-          "q2_K/iq4_xs",
-          "pending:sync/upstream-0.2.23",
-          "--"
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+          "--",
+          "q2_K/iq4_xs"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/cmake-expert-parity.txt",
         "location": {
-          "line": 1346,
-          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 841,
+          "path": "engine/CMakeLists.txt",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "q2_K/iq4_xs"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "cmake-expert-parity",
@@ -437,25 +456,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "project(strata VERSION 0.1.70",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "project(strata VERSION 0.1.70",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/cmake-upstream-build.txt",
         "location": {
           "line": 13,
           "path": "engine/CMakeLists.txt",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "project(strata VERSION 0.1.70"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "cmake-upstream-build",
@@ -499,25 +521,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_PF_FUSED_Q4NL",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_PF_FUSED_Q4NL",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/fused-format-support.txt",
         "location": {
-          "line": 217,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 2715,
+          "path": "engine/src/prefill/moe_fused_iq.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_PF_FUSED_Q4NL"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "fused-format-support",
@@ -561,25 +586,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_PF_SYNC_DEBUG",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_PF_SYNC_DEBUG",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/fused-sync-debug.txt",
         "location": {
           "line": 76,
           "path": "engine/src/prefill/moe_fused_iq.cu",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_PF_SYNC_DEBUG"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "fused-sync-debug",
@@ -623,25 +651,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "IQ4_XS-KAT",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "IQ4_XS-KAT",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/setup-kat-huihui.txt",
         "location": {
-          "line": 54,
-          "path": "docs/reports/expert-types-2026-11-24.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 815,
+          "path": "terminal/setup.py",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "IQ4_XS-KAT"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "setup-kat-huihui",
@@ -685,25 +716,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "def run_tag",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "def run_tag",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/setup-upstream-features.txt",
         "location": {
-          "line": 7841,
+          "line": 7865,
           "path": "terminal/setup.py",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "def run_tag"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "setup-upstream-features",
@@ -747,25 +781,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "DFLASH2_GB",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "DFLASH2_GB",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/inkling-upstream-lineup.txt",
         "location": {
           "line": 46,
           "path": "terminal/strata_control/inkling_fit.py",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "DFLASH2_GB"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "inkling-upstream-lineup",
@@ -809,25 +846,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "self.setup_module().own_size(d, model)",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "self.setup_module().own_size(d, model)",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/mcp-own-size.txt",
         "location": {
-          "line": 754,
+          "line": 771,
           "path": "terminal/tools/strata_mcp.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "self.setup_module().own_size(d, model)"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "mcp-own-size",
@@ -871,25 +911,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "def _refresh_hardware_later",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "def _refresh_hardware_later",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/mcp-upstream-features.txt",
         "location": {
           "line": 1157,
           "path": "terminal/tools/strata_mcp.py",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "def _refresh_hardware_later"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "mcp-upstream-features",
@@ -933,25 +976,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "This fork keeps only the kit workflows",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "This fork keeps only the kit workflows",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/packaging-fork-notes.txt",
         "location": {
-          "line": 1647,
-          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 137,
+          "path": "tools/packaging/README.md",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "This fork keeps only the kit workflows"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "packaging-fork-notes",
@@ -995,25 +1041,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "current release (app and Terminal 0.2.23",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "current release (app and Terminal 0.2.23",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/packaging-upstream-version.txt",
         "location": {
           "line": 4,
           "path": "tools/packaging/README.md",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "current release (app and Terminal 0.2.23"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "packaging-upstream-version",
@@ -1057,25 +1106,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "q36_engine",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "q36_engine",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/qwen35-no-delta.txt",
         "location": {
-          "line": 7,
-          "path": "docs/architecture/qwen35-core/architecture-understanding.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 3,
+          "path": "engine/include/strata/qwen35/engine.hpp",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "q36_engine"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "qwen35-no-delta",
@@ -1119,25 +1171,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_FA_TILE",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_FA_TILE",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-fa-v2.txt",
         "location": {
-          "line": 280,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1737,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_FA_TILE"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-fa-v2",
@@ -1181,25 +1236,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_FDEC",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_FDEC",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-fdec.txt",
         "location": {
-          "line": 281,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1739,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_FDEC"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-fdec",
@@ -1243,25 +1301,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_EXPERT_CACHE_MB",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_EXPERT_CACHE_MB",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-expert-cache.txt",
         "location": {
-          "line": 88,
-          "path": "docs/QUICKSTART.ru.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1703,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_EXPERT_CACHE_MB"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-expert-cache",
@@ -1305,25 +1366,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_P4",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_P4",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-p4.txt",
         "location": {
-          "line": 284,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 3086,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_P4"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-p4",
@@ -1367,25 +1431,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_STAGING_ONE",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_STAGING_ONE",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-memory-staging.txt",
         "location": {
-          "line": 292,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 3324,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_STAGING_ONE"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-memory-staging",
@@ -1429,25 +1496,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_SUPER_CHUNK",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_SUPER_CHUNK",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-super-chunk.txt",
         "location": {
-          "line": 293,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 2077,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_SUPER_CHUNK"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-super-chunk",
@@ -1491,25 +1561,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_ATT_MB",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_Q36_ATT_MB",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-knobs.txt",
         "location": {
-          "line": 25,
-          "path": "LOCAL.en.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1795,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_ATT_MB"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "q36-knobs",
@@ -1553,25 +1626,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_DOWN_SUB8",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "STRATA_DOWN_SUB8",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/down-sub8.txt",
         "location": {
-          "line": 387,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 6214,
+          "path": "engine/src/kernels/cuda/iq_kernels.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_DOWN_SUB8"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
       "id": "down-sub8",
@@ -1615,25 +1691,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "native_expert_i8_set_mmq_free",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "native_expert_i8_set_mmq_free",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/int8-prompt-experts.txt",
         "location": {
-          "line": 108,
-          "path": "engine/include/strata/kernels/iq_kernels.hpp",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 2147,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "native_expert_i8_set_mmq_free"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "int8-prompt-experts",
@@ -1677,25 +1756,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "a.kq[l] && a.pos > 0",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "a.kq[l] && a.pos > 0",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/copy-session-quantized-kv.txt",
         "location": {
           "line": 3919,
           "path": "engine/src/qwen35/q36_engine.cu",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "a.kq[l] && a.pos > 0"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "copy-session-quantized-kv",
@@ -1739,25 +1821,28 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "exceeds the context",
         "command": [
           "git",
           "grep",
           "-n",
           "-F",
+          "-m",
+          "1",
           "exceeds the context",
-          "pending:sync/upstream-0.2.23",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "--"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/qwen35-cli-context-guard.txt",
         "location": {
-          "line": 161,
-          "path": "app/host/server/agent/context-budget.mjs",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 4829,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "exceeds the context"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "qwen35-cli-context-guard",
@@ -1801,25 +1886,26 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "terminal/tools/check_qwen36_200k_launch.py",
         "command": [
           "git",
-          "grep",
-          "-n",
-          "-F",
-          "terminal/tools/check_qwen36_200k_launch.py",
-          "pending:sync/upstream-0.2.23",
-          "--"
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+          "--",
+          "terminal/tools/check_qwen36_200k_launch.py"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/qwen36-200k-launch.txt",
         "location": {
           "line": 1,
           "path": "terminal/tools/check_qwen36_200k_launch.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "terminal/tools/check_qwen36_200k_launch.py"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "qwen36-200k-launch",
@@ -1863,25 +1949,26 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "tools/workflow/workflow.py",
         "command": [
           "git",
-          "grep",
-          "-n",
-          "-F",
-          "tools/workflow/workflow.py",
-          "pending:sync/upstream-0.2.23",
-          "--"
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+          "--",
+          "tools/workflow/workflow.py"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/workflow-tooling.txt",
         "location": {
           "line": 1,
           "path": "tools/workflow/workflow.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "tools/workflow/workflow.py"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "workflow-tooling",
@@ -1925,25 +2012,26 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "tools/upstream_merge/upstream_merge.py",
         "command": [
           "git",
-          "grep",
-          "-n",
-          "-F",
-          "tools/upstream_merge/upstream_merge.py",
-          "pending:sync/upstream-0.2.23",
-          "--"
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+          "--",
+          "tools/upstream_merge/upstream_merge.py"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/upstream-merge-tooling.txt",
         "location": {
           "line": 1,
           "path": "tools/upstream_merge/upstream_merge.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "tools/upstream_merge/upstream_merge.py"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "upstream-merge-tooling",
@@ -1987,25 +2075,26 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": ".github/workflows/kit-build.yml",
         "command": [
           "git",
-          "grep",
-          "-n",
-          "-F",
-          ".github/workflows/kit-build.yml",
-          "pending:sync/upstream-0.2.23",
-          "--"
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+          "--",
+          ".github/workflows/kit-build.yml"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/packaging-kit.txt",
         "location": {
           "line": 1,
           "path": ".github/workflows/kit-build.yml",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": ".github/workflows/kit-build.yml"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "packaging-kit",
@@ -2049,25 +2138,26 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "docs/research/full-measurement-report.md",
         "command": [
           "git",
-          "grep",
-          "-n",
-          "-F",
-          "docs/research/full-measurement-report.md",
-          "pending:sync/upstream-0.2.23",
-          "--"
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+          "--",
+          "docs/research/full-measurement-report.md"
         ],
-        "draftOnly": true,
+        "evidence": "evidence/anchors/fork-docs-evidence.txt",
         "location": {
           "line": 1,
           "path": "docs/research/full-measurement-report.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "docs/research/full-measurement-report.md"
         },
-        "note": "Candidate code не создавался; статус является плановым.",
+        "note": "Candidate anchor подтверждён read-only.",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
       "id": "fork-docs-evidence",

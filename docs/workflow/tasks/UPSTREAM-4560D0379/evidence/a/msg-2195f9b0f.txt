@@ -1,0 +1,43 @@
+RU: fix(terminal): сохранить fork qwen36 pins и context fit
+
+Что изменено?
+- `terminal/strata_control/own_path_fit.py` (+2/-1): KAT/Huihui IQ4_XS получают тот же 4-bit staging class, что UD-Q4_K_XL; `context_fit` теперь доступен для всех пяти qwen36 sizes.
+- `terminal/tools/test_setup_model_pins.py` (+5/-1): OWN_PATH_FAMILIES проверяет опубликованный файл через `own_file` и `fam["sha256"]`, а не строит неверный Unsloth URL для KAT/Huihui.
+- `terminal/tools/test_strata_mcp.py` (+1/-1): ожидаемый список qwen36 включает пять fork/upstream sizes, а не только три upstream Unsloth.
+- Итого: 3 файла, +8/-3.
+
+Зачем?
+Upstream tests предполагают только три Unsloth qwen36 sizes и `file_pin` для own-path моделей. Fork добавляет KAT/Huihui из отдельных Hub repos; baseline main имел те же три failures. Merge сделал расхождение видимым, поэтому runtime-код pins сохранён, а tests и context estimate приведены к реальному fork contract.
+
+Проверки?
+- Targeted unittest: `Ran 86 tests`, `OK (skipped=2)`.
+- Baseline main до исправления: те же три failures; это не регрессия merge.
+- `git diff --cached --check`: PASS.
+- GPU/runtime ресурсы не запускались.
+
+Ограничения?
+- Staging figure KAT/Huihui использует 4-bit класс UD-Q4_K_XL как оценку той же геометрии; отдельный resource замер остаётся в candidate acceptance.
+- Merge/push в main не выполняются.
+
+---
+
+EN: fix(terminal): preserve fork qwen36 pins and context fit
+
+What changed?
+- `terminal/strata_control/own_path_fit.py` (+2/-1): KAT/Huihui IQ4_XS use the same 4-bit staging class as UD-Q4_K_XL; `context_fit` is now available for all five qwen36 sizes.
+- `terminal/tools/test_setup_model_pins.py` (+5/-1): OWN_PATH_FAMILIES validates the published file through `own_file` and `fam["sha256"]` instead of constructing an invalid Unsloth URL for KAT/Huihui.
+- `terminal/tools/test_strata_mcp.py` (+1/-1): expects five fork/upstream qwen36 sizes instead of only three upstream Unsloth sizes.
+- Total: 3 files, +8/-3.
+
+Why?
+Upstream tests assume only three Unsloth qwen36 sizes and `file_pin` for own-path models. The fork adds KAT/Huihui from separate Hub repos; baseline main had the same three failures. The merge exposed the mismatch, so runtime pins are preserved while tests and context estimates now match the real fork contract.
+
+Verified
+- Targeted unittest: `Ran 86 tests`, `OK (skipped=2)`.
+- Baseline main before the fix: the same three failures; this is not a merge regression.
+- `git diff --cached --check`: PASS.
+- GPU/runtime resources were not run.
+
+Limitations
+- KAT/Huihui staging uses the UD-Q4_K_XL 4-bit class as a same-geometry estimate; a separate resource measurement remains part of candidate acceptance.
+- Merge/push to main were not performed.

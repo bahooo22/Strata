@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=agents-version
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git grep -n -F -m 1 Version 0.2.21 34bd46b86641d4fe34b3ab523e31b816718347e1 --
 34bd46b86641d4fe34b3ab523e31b816718347e1:AGENTS.md:3:Version 0.2.21, engine 0.1.67. The public model families are
 upstream command: git grep -n -F -m 1 Version 0.2.23 4560d03793482ef367294cfbd86a4df8d5679e72 --
 4560d03793482ef367294cfbd86a4df8d5679e72:AGENTS.md:3:Version 0.2.23, engine 0.1.70. The public model families are
-candidate-draft: pending; no candidate code was created
+candidate command: git grep -n -F -m 1 Version 0.2.23 2195f9b0f412d7e1f5447dad82a657e4db6904cc --
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:AGENTS.md:3

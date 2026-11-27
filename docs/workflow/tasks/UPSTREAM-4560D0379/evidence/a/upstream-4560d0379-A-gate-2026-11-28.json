@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "verdict": "READY_FOR_N",
+  "package": "upstream-4560d0379-H-package",
+  "evidenceIndex": {
+    "records": 80,
+    "shaSizeMismatches": 0,
+    "missing": 0,
+    "extra": 0
+  },
+  "leakcheck": {
+    "ok": true,
+    "files": 79,
+    "intentionalEmptyExcluded": "evidence/qwen35-upstream-delta.txt"
+  },
+  "schema": "PASS",
+  "matrix": {
+    "readyForPlan": true,
+    "rows": 34
+  },
+  "patch": {
+    "applyCheck": "PASS",
+    "files": 7,
+    "additions": 141,
+    "deletions": 18
+  },
+  "conflictMarkers": 0,
+  "qwen35UpstreamDelta": [],
+  "notRun": [
+    "commits",
+    "merge",
+    "push",
+    "tests",
+    "build",
+    "GPU",
+    "semantic merge-gate",
+    "runtime acceptance"
+  ]
+}

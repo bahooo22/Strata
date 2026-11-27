@@ -1,0 +1,13 @@
+{
+  "runtimeBuildHead": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+  "baseMain": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+  "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72",
+  "exe": "F:\\tmp\\upstream-0.2.23-build\\strata-q36.exe",
+  "exeBytes": 106964480,
+  "exeSha256": "0da6657819dd13939982eb520cf68c0fb2f70a592c480c6853ba9e4ddf1d22b4",
+  "configureRc": 0,
+  "buildRc": 0,
+  "buildSeconds": 1196,
+  "markers": "29/29",
+  "buildLogSha256": "f27aca7d925fbe9a6822301d21178d7184176640f555d5b20ab6a06258a757cf"
+}

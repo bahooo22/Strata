@@ -1,6 +1,20 @@
 {
-  "contentCommits": 65,
+  "contentCommits": 66,
   "rows": [
+    {
+      "commit": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+      "files": [
+        "terminal/strata_control/own_path_fit.py",
+        "terminal/tools/test_setup_model_pins.py",
+        "terminal/tools/test_strata_mcp.py"
+      ],
+      "primaryRow": "setup-kat-huihui",
+      "relatedRows": [
+        "setup-kat-huihui",
+        "mcp-own-size"
+      ],
+      "subject": "RU: fix(terminal): сохранить fork qwen36 pins и context fit"
+    },
     {
       "commit": "34bd46b86641d4fe34b3ab523e31b816718347e1",
       "files": [

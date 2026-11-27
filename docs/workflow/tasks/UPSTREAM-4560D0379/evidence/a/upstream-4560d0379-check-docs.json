@@ -1,0 +1,16 @@
+[
+ {
+  "step": "docs",
+  "status": "failed",
+  "passed": 5,
+  "failed": 1,
+  "skipped": 0,
+  "seconds": 3.1,
+  "reason": "$ C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe E:\\tmp\\cand-upstream-4560d0379\\tools\\settings_register.py --check |  | $ C:\\Projects\\Strata-3060Ti\\engine\\terminal\\.venv\\Scripts\\python.exe E:\\tmp\\cand-upstream-4560d0379\\tools\\check_vendored.py | check_vendored: ok - engine/third_",
+  "failures": [
+   "links (exit 1)"
+  ],
+  "skips": {},
+  "log": "E:\\tmp\\upstream-check-docs-42a0bc266\\docs.log"
+ }
+]

@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=mcp-own-size
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git grep -n -F -m 1 self.setup_module().own_size(d, model) 34bd46b86641d4fe34b3ab523e31b816718347e1 --
 34bd46b86641d4fe34b3ab523e31b816718347e1:terminal/tools/strata_mcp.py:754:        size_gb = self.setup_module().own_size(d, model) / 1e9
 upstream command: git grep -n -F -m 1 def own_size 4560d03793482ef367294cfbd86a4df8d5679e72 --
 4560d03793482ef367294cfbd86a4df8d5679e72:terminal/tools/strata_mcp.py:669:    def own_size_names(self) -> list:
-candidate-draft: pending; no candidate code was created
+candidate command: git grep -n -F -m 1 self.setup_module().own_size(d, model) 2195f9b0f412d7e1f5447dad82a657e4db6904cc --
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/tools/strata_mcp.py:771

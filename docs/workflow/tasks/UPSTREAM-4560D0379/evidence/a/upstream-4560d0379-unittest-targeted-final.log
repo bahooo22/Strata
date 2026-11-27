@@ -1,0 +1,9 @@
+C:\Program Files\Python314\Lib\tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+C:\Program Files\Python314\Lib\unittest\case.py:615: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='utf-8'>
+  result = method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+----------------------------------------------------------------------
+Ran 86 tests in 38.041s
+
+OK (skipped=2)

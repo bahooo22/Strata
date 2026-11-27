@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "candidateRef": "42a0bc266c5e940436042bdf8680f5ae89224b73",
+  "branch": "sync/upstream-0.2.23",
+  "worktree": "E:/tmp/cand-upstream-4560d0379",
+  "parents": [
+    "34bd46b86641d4fe34b3ab523e31b816718347e1",
+    "4560d03793482ef367294cfbd86a4df8d5679e72"
+  ],
+  "status": [],
+  "files": 480,
+  "additions": 158237,
+  "deletions": 7521,
+  "binary": 4,
+  "msgArtifact": "msg-42a0bc266.txt",
+  "msgSha256": "a81578d75ccd3932f1f73e4cc08de6ae54483a6e6a202f51782c3350d345a9c0",
+  "guards": {
+    "qwen35Diff": [],
+    "reversePatchCheck": "PASS",
+    "oursOnlyMarkers": "29/29",
+    "settingsRegister": {
+      "count": 1445,
+      "oursOnlyPreserved": 18,
+      "upstreamOnlyPreserved": 153,
+      "check": "PASS"
+    },
+    "scopedWhitespace": "PASS"
+  },
+  "notRun": [
+    "candidate metadata closure",
+    "build",
+    "tests",
+    "GPU",
+    "runtime acceptance",
+    "semantic merge-gate",
+    "main merge",
+    "push"
+  ]
+}

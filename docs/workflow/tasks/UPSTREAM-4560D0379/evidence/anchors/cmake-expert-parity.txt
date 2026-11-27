@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=cmake-expert-parity
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git grep -n -F -m 1 q2_K/iq4_xs 34bd46b86641d4fe34b3ab523e31b816718347e1 --
 34bd46b86641d4fe34b3ab523e31b816718347e1:docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff:1346:+-      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
 upstream command: git grep -n -F -m 1 STRATA_NATIVE_EXPERTS 4560d03793482ef367294cfbd86a4df8d5679e72 --
 4560d03793482ef367294cfbd86a4df8d5679e72:docs/ORCA_Q4_K_S.md:14:cmake -S . -B build -G Ninja -DSTRATA_ENABLE_CUDA=ON -DSTRATA_NATIVE_EXPERTS=ON -DSTRATA_ORCA_Q4KS_MMQ=ON -DCMAKE_CUDA_ARCHITECTURES=89 -DCMAKE_CUDA_RUNTIME_LIBRARY=Shared -DCMAKE_BUILD_TYPE=Release
-candidate-draft: pending; no candidate code was created
+candidate command: git ls-tree -z --full-tree 2195f9b0f412d7e1f5447dad82a657e4db6904cc -- q2_K/iq4_xs
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/CMakeLists.txt:841

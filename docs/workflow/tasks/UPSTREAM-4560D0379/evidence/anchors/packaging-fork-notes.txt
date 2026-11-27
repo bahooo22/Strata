@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=packaging-fork-notes
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git grep -n -F -m 1 This fork keeps only the kit workflows 34bd46b86641d4fe34b3ab523e31b816718347e1 --
 34bd46b86641d4fe34b3ab523e31b816718347e1:docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff:1647:+-- This fork keeps only the kit workflows ([.github/workflows](../../.github/workflows)): `kit-build.yml` compiles the CUDA servers on demand
 upstream command: git grep -n -F -m 1 # Strata packaging 4560d03793482ef367294cfbd86a4df8d5679e72 --
 4560d03793482ef367294cfbd86a4df8d5679e72:tools/packaging/README.md:1:# Strata packaging: targets, recipes and locks
-candidate-draft: pending; no candidate code was created
+candidate command: git grep -n -F -m 1 This fork keeps only the kit workflows 2195f9b0f412d7e1f5447dad82a657e4db6904cc --
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:tools/packaging/README.md:137

@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=q36-fa-v2
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git grep -n -F -m 1 STRATA_Q36_FA_TILE 34bd46b86641d4fe34b3ab523e31b816718347e1 --
 34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:280:| `STRATA_Q36_FA_TILE` | text | NVIDIA and AMD | [fa-attention.md](research/fa-attention.md), [fa-attention.ru.md](research/fa-attention.ru.md) |
 upstream command: git grep -n -F -m 1 q36_engine 4560d03793482ef367294cfbd86a4df8d5679e72 --
 4560d03793482ef367294cfbd86a4df8d5679e72:docs/bench-results/2026-11-20-q36-kv-precision/README.md:43:(`engine/src/qwen35/q36_engine.cu`, binary md5 `2c5a884a821286b5bcf9b74fae458f32`). Each rep sends a fresh nonce
-candidate-draft: pending; no candidate code was created
+candidate command: git grep -n -F -m 1 STRATA_Q36_FA_TILE 2195f9b0f412d7e1f5447dad82a657e4db6904cc --
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:1737

@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=packaging-kit
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git ls-tree -z --full-tree 34bd46b86641d4fe34b3ab523e31b816718347e1 -- .github/workflows/kit-build.yml
 100644 blob 9720ed08778d2923ddace8dda45d8ace7d283493	.github/workflows/kit-build.yml
 upstream command: git ls-tree -z --full-tree 4560d03793482ef367294cfbd86a4df8d5679e72 -- .github/workflows
 040000 tree 49719b3b476d5a4e721b1f8e6cde244bcd6a4b4a	.github/workflows
-candidate-draft: pending; no candidate code was created
+candidate command: git ls-tree -z --full-tree 2195f9b0f412d7e1f5447dad82a657e4db6904cc -- .github/workflows/kit-build.yml
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:.github/workflows/kit-build.yml:1

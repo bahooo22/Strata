@@ -3,24 +3,25 @@
     "oursOnly": 281,
     "upstreamOnly": 296
   },
-  "candidateRef": "pending:sync/upstream-0.2.23",
+  "candidateRef": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
   "mergeBase": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
   "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+  "readyForPlan": true,
   "rows": [
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "## Workflow v3",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/agents-workflow.txt",
         "location": {
           "line": 80,
           "path": "AGENTS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "## Workflow v3"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:agents-workflow",
+      "commitRef": "4356a467780900923cbf83d92675790e7fbeb32a",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/agents-workflow.txt"
@@ -45,19 +46,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "Version 0.2.23",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/agents-version.txt",
         "location": {
           "line": 3,
           "path": "AGENTS.md",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "Version 0.2.23"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:agents-version",
+      "commitRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/agents-version.txt"
@@ -82,19 +83,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "## Fork measurement charts",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/readme-fork-notes.txt",
         "location": {
-          "line": 247,
+          "line": 256,
           "path": "README.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "## Fork measurement charts"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:readme-fork-notes",
+      "commitRef": "b715b778995776a9a51831903086352bed65dee0",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/readme-fork-notes.txt"
@@ -119,19 +120,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "Ornith-1.5-35B-A3B",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/readme-upstream-catalog.txt",
         "location": {
-          "line": 71,
+          "line": 89,
           "path": "README.md",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "Ornith-1.5-35B-A3B"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:readme-upstream-catalog",
+      "commitRef": "484a0204893c9d91359744d6b74365ad6a798c4f",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/readme-upstream-catalog.txt"
@@ -156,19 +157,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_FDEC",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/settings-fork-knobs.txt",
         "location": {
-          "line": 281,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 48,
+          "path": "docs/reports/2026-11-23-fdec-q4.md",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_FDEC"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:settings-fork-knobs",
+      "commitRef": "1843ebcc4f29f6b545250071c9ad39e1fb0aebfe",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/settings-fork-knobs.txt"
@@ -193,19 +194,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_PF_SYNC_DEBUG",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/settings-upstream-register.txt",
         "location": {
-          "line": 76,
-          "path": "engine/src/prefill/moe_fused_iq.cu",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "line": 10,
+          "path": "docs/workflow/tasks/UPSTREAM-4560D0379/DOC_IMPL.md",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_PF_SYNC_DEBUG"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:settings-upstream-register",
+      "commitRef": "6d6e9064efdc442bf8d12565b61dd06ab64f8085",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/settings-upstream-register.txt"
@@ -230,19 +231,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "q2_K/iq4_xs",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/cmake-expert-parity.txt",
         "location": {
-          "line": 1346,
-          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 841,
+          "path": "engine/CMakeLists.txt",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "q2_K/iq4_xs"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:cmake-expert-parity",
+      "commitRef": "a8ebf5d598583e8a1001d39232e957e14157a2a5",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/cmake-expert-parity.txt"
@@ -267,19 +268,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "project(strata VERSION 0.1.70",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/cmake-upstream-build.txt",
         "location": {
           "line": 13,
           "path": "engine/CMakeLists.txt",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "project(strata VERSION 0.1.70"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:cmake-upstream-build",
+      "commitRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/cmake-upstream-build.txt"
@@ -304,19 +305,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_PF_FUSED_Q4NL",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/fused-format-support.txt",
         "location": {
-          "line": 217,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 2715,
+          "path": "engine/src/prefill/moe_fused_iq.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_PF_FUSED_Q4NL"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:fused-format-support",
+      "commitRef": "08fff0bb555ed75606dbdade36402c0052b99a5d",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/fused-format-support.txt"
@@ -341,19 +342,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_PF_SYNC_DEBUG",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/fused-sync-debug.txt",
         "location": {
           "line": 76,
           "path": "engine/src/prefill/moe_fused_iq.cu",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_PF_SYNC_DEBUG"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:fused-sync-debug",
+      "commitRef": "fd5fc4aa76ecfda8491f7897be0797ac9da0069f",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/fused-sync-debug.txt"
@@ -378,19 +379,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "IQ4_XS-KAT",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/setup-kat-huihui.txt",
         "location": {
-          "line": 54,
-          "path": "docs/reports/expert-types-2026-11-24.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 815,
+          "path": "terminal/setup.py",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "IQ4_XS-KAT"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:setup-kat-huihui",
+      "commitRef": "58569c234cf5afbd54e300df7d89813d1c08d75a",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/setup-kat-huihui.txt"
@@ -415,19 +416,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "def run_tag",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/setup-upstream-features.txt",
         "location": {
-          "line": 7841,
+          "line": 7865,
           "path": "terminal/setup.py",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "def run_tag"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:setup-upstream-features",
+      "commitRef": "e28d9222fa326cdd09322cfcb3d2e0e5d04331c1",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/setup-upstream-features.txt"
@@ -452,19 +453,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "DFLASH2_GB",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/inkling-upstream-lineup.txt",
         "location": {
           "line": 46,
           "path": "terminal/strata_control/inkling_fit.py",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "DFLASH2_GB"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:inkling-upstream-lineup",
+      "commitRef": "4adbc88135bba02005b2c3f60ef02bc0b86e2550",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/inkling-upstream-lineup.txt"
@@ -489,19 +490,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "self.setup_module().own_size(d, model)",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/mcp-own-size.txt",
         "location": {
-          "line": 754,
+          "line": 771,
           "path": "terminal/tools/strata_mcp.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "self.setup_module().own_size(d, model)"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:mcp-own-size",
+      "commitRef": "ba9ae196e15cdbc9235b7db95d174ddfe6a248a8",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/mcp-own-size.txt"
@@ -526,19 +527,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "def _refresh_hardware_later",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/mcp-upstream-features.txt",
         "location": {
           "line": 1157,
           "path": "terminal/tools/strata_mcp.py",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "def _refresh_hardware_later"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:mcp-upstream-features",
+      "commitRef": "82623cd60c04087e72a4c9020c8d69f9bd27933d",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/mcp-upstream-features.txt"
@@ -563,19 +564,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "This fork keeps only the kit workflows",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/packaging-fork-notes.txt",
         "location": {
-          "line": 1647,
-          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 137,
+          "path": "tools/packaging/README.md",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "This fork keeps only the kit workflows"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:packaging-fork-notes",
+      "commitRef": "c8f9562ed3df5b34368b509290f264e04c46ab8f",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/packaging-fork-notes.txt"
@@ -600,19 +601,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "current release (app and Terminal 0.2.23",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/packaging-upstream-version.txt",
         "location": {
           "line": 4,
           "path": "tools/packaging/README.md",
-          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "current release (app and Terminal 0.2.23"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:packaging-upstream-version",
+      "commitRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
       "decision": "upstream",
       "evidence": [
         "evidence/anchors/packaging-upstream-version.txt"
@@ -637,19 +638,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "q36_engine",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/qwen35-no-delta.txt",
         "location": {
-          "line": 7,
-          "path": "docs/architecture/qwen35-core/architecture-understanding.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 3,
+          "path": "engine/include/strata/qwen35/engine.hpp",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "q36_engine"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:qwen35-no-delta",
+      "commitRef": "e799f0d933fcd9dd2039ad03c00ffdd516edfbb1",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/qwen35-no-delta.txt"
@@ -675,19 +676,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_FA_TILE",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-fa-v2.txt",
         "location": {
-          "line": 280,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1737,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_FA_TILE"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-fa-v2",
+      "commitRef": "30d71e3162ece3a900d27ebb01cb01f8c0d6502c",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-fa-v2.txt"
@@ -713,19 +714,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_FDEC",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-fdec.txt",
         "location": {
-          "line": 281,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1739,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_FDEC"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-fdec",
+      "commitRef": "8e2f2af948f2949bff97b0788a5ac050b3b3d53f",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-fdec.txt"
@@ -750,19 +751,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_EXPERT_CACHE_MB",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-expert-cache.txt",
         "location": {
-          "line": 88,
-          "path": "docs/QUICKSTART.ru.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1703,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_EXPERT_CACHE_MB"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-expert-cache",
+      "commitRef": "0678f6ff6d4498941ba81ce38ca3854fc85da9a0",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-expert-cache.txt"
@@ -787,19 +788,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_P4",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-p4.txt",
         "location": {
-          "line": 284,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 3086,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_P4"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-p4",
+      "commitRef": "9a1700f22154ed5fe336b0b3607cd7aa020a32a5",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-p4.txt"
@@ -824,19 +825,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_STAGING_ONE",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-memory-staging.txt",
         "location": {
-          "line": 292,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 3324,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_STAGING_ONE"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-memory-staging",
+      "commitRef": "11ff82f935316b006c620cf4525b0c8854833565",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-memory-staging.txt"
@@ -862,19 +863,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_SUPER_CHUNK",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-super-chunk.txt",
         "location": {
-          "line": 293,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 2077,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_SUPER_CHUNK"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-super-chunk",
+      "commitRef": "36dddeb10477c348adaa097279162176ebd8c243",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-super-chunk.txt"
@@ -899,19 +900,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_Q36_ATT_MB",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/q36-knobs.txt",
         "location": {
-          "line": 25,
-          "path": "LOCAL.en.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 1795,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_Q36_ATT_MB"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:q36-knobs",
+      "commitRef": "d53ebc8fb3841458527b48f197d895476ca81064",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/q36-knobs.txt"
@@ -936,19 +937,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "STRATA_DOWN_SUB8",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/down-sub8.txt",
         "location": {
-          "line": 387,
-          "path": "docs/SETTINGS.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 6214,
+          "path": "engine/src/kernels/cuda/iq_kernels.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "STRATA_DOWN_SUB8"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "adapted"
       },
-      "commitRefPlan": "pending:down-sub8",
+      "commitRef": "da404b74a559d830a23bca69412b4fa8255a7816",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/down-sub8.txt"
@@ -975,19 +976,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "native_expert_i8_set_mmq_free",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/int8-prompt-experts.txt",
         "location": {
-          "line": 108,
-          "path": "engine/include/strata/kernels/iq_kernels.hpp",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 2147,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "native_expert_i8_set_mmq_free"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:int8-prompt-experts",
+      "commitRef": "cc820825d96af7a1e6d0361c9ff059f7dc12826a",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/int8-prompt-experts.txt"
@@ -1013,19 +1014,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "a.kq[l] && a.pos > 0",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/copy-session-quantized-kv.txt",
         "location": {
           "line": 3919,
           "path": "engine/src/qwen35/q36_engine.cu",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "a.kq[l] && a.pos > 0"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:copy-session-quantized-kv",
+      "commitRef": "b24caaaf4a9876624356fc5588c679fbe23142d5",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/copy-session-quantized-kv.txt"
@@ -1050,19 +1051,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "exceeds the context",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/qwen35-cli-context-guard.txt",
         "location": {
-          "line": 161,
-          "path": "app/host/server/agent/context-budget.mjs",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "line": 4829,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "exceeds the context"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:qwen35-cli-context-guard",
+      "commitRef": "e799f0d933fcd9dd2039ad03c00ffdd516edfbb1",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/qwen35-cli-context-guard.txt"
@@ -1087,19 +1088,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "terminal/tools/check_qwen36_200k_launch.py",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/qwen36-200k-launch.txt",
         "location": {
           "line": 1,
           "path": "terminal/tools/check_qwen36_200k_launch.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "terminal/tools/check_qwen36_200k_launch.py"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:qwen36-200k-launch",
+      "commitRef": "153f6a1cdfa998860374bfdd9447828c9aca28a0",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/qwen36-200k-launch.txt"
@@ -1126,19 +1127,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "tools/workflow/workflow.py",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/workflow-tooling.txt",
         "location": {
           "line": 1,
           "path": "tools/workflow/workflow.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "tools/workflow/workflow.py"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:workflow-tooling",
+      "commitRef": "34bd46b86641d4fe34b3ab523e31b816718347e1",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/workflow-tooling.txt"
@@ -1164,19 +1165,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "tools/upstream_merge/upstream_merge.py",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/upstream-merge-tooling.txt",
         "location": {
           "line": 1,
           "path": "tools/upstream_merge/upstream_merge.py",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "tools/upstream_merge/upstream_merge.py"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:upstream-merge-tooling",
+      "commitRef": "f976c71c2d81faed0853c6c2bba63d86c8b96e24",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/upstream-merge-tooling.txt"
@@ -1201,19 +1202,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": ".github/workflows/kit-build.yml",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/packaging-kit.txt",
         "location": {
           "line": 1,
           "path": ".github/workflows/kit-build.yml",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": ".github/workflows/kit-build.yml"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:packaging-kit",
+      "commitRef": "7da004a97f94dca6d2b7c26cc410dbc3de4b6787",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/packaging-kit.txt"
@@ -1240,19 +1241,19 @@
       }
     },
     {
-      "candidateDraft": {
+      "candidate": {
         "anchor": "docs/research/full-measurement-report.md",
-        "draftOnly": true,
+        "evidence": "evidence/anchors/fork-docs-evidence.txt",
         "location": {
           "line": 1,
           "path": "docs/research/full-measurement-report.md",
-          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
           "symbol": "docs/research/full-measurement-report.md"
         },
-        "ref": "pending:sync/upstream-0.2.23",
+        "ref": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "status": "preserved"
       },
-      "commitRefPlan": "pending:fork-docs-evidence",
+      "commitRef": "60cac8270213a59c54a69aea2eeae7b7053694d4",
       "decision": "ours",
       "evidence": [
         "evidence/anchors/fork-docs-evidence.txt"
@@ -1281,7 +1282,7 @@
       }
     }
   ],
-  "status": "draft-ready-for-n",
+  "status": "candidate-metadata-closed",
   "taskId": "UPSTREAM-4560D0379",
   "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72"
 }

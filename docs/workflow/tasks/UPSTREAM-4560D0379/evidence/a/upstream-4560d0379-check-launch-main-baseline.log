@@ -1,0 +1,5 @@
+[NOTE] strata-qwen36-iq4_xs-kat.json: generic strata.exe оставлен намеренно
+[NOTE] strata-qwen36-iq4_xs-huihui.json: generic strata.exe оставлен намеренно
+[FAIL] strata-qwen36-iq4_xs-kat.json: tokenizer отсутствует: C:\Strata\swift-qwen38-data\packs\qwen36-iq4_xs-kat\tokenizer
+[FAIL] strata-qwen36-iq4_xs-huihui.json: tokenizer отсутствует: C:\Strata\swift-qwen38-data\packs\qwen36-iq4_xs-huihui\tokenizer
+[FAIL] статическая проверка qwen36 200k launch

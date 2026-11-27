@@ -2,9 +2,10 @@ taskId=UPSTREAM-4560D0379
 id=workflow-tooling
 oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
 upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
-candidateRef=pending:sync/upstream-0.2.23
+candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc
 ours command: git ls-tree -z --full-tree 34bd46b86641d4fe34b3ab523e31b816718347e1 -- tools/workflow/workflow.py
 100644 blob 8806b6c1ba5d0b7448826c9f5988f6ca57767c82	tools/workflow/workflow.py
 upstream command: git ls-tree -z --full-tree 4560d03793482ef367294cfbd86a4df8d5679e72 -- docs
 040000 tree cfcdf8ba711fb0cca19d7e0a2197996f03e6eba2	docs
-candidate-draft: pending; no candidate code was created
+candidate command: git ls-tree -z --full-tree 2195f9b0f412d7e1f5447dad82a657e4db6904cc -- tools/workflow/workflow.py
+candidate: 2195f9b0f412d7e1f5447dad82a657e4db6904cc:tools/workflow/workflow.py:1

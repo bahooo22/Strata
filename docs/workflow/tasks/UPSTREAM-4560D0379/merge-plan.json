@@ -1,7 +1,7 @@
 {
   "acceptance": {
     "gateResult": "not-run",
-    "notes": "Пакет готов для N review; candidate, commits, tests/build/GPU и merge не выполнялись.",
+    "notes": "Metadata продвинута до 2195f9b0f412d7e1f5447dad82a657e4db6904cc; candidate build/tests/GPU/runtime и semantic merge-gate not-run. Acceptance pending.",
     "status": "pending"
   },
   "architectureReview": {
@@ -57,7 +57,7 @@
     "status": "pending",
     "verdict": "pending"
   },
-  "candidateRef": "pending:sync/upstream-0.2.23",
+  "candidateRef": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
   "checks": [
     {
       "command": [
@@ -65,7 +65,7 @@
         "diff",
         "--exit-code",
         "34bd46b86641d4fe34b3ab523e31b816718347e1",
-        "pending:sync/upstream-0.2.23",
+        "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
         "--",
         "engine/src/qwen35",
         "engine/include/strata/qwen35"
@@ -79,7 +79,7 @@
         "git",
         "diff",
         "--check",
-        "34bd46b86641d4fe34b3ab523e31b816718347e1...pending:sync/upstream-0.2.23"
+        "34bd46b86641d4fe34b3ab523e31b816718347e1...2195f9b0f412d7e1f5447dad82a657e4db6904cc"
       ],
       "cwd": ".",
       "description": "Пробелы и conflict markers в candidate diff.",
@@ -238,7 +238,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -250,10 +250,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:agents-workflow",
+      "commitRef": "4356a467780900923cbf83d92675790e7fbeb32a",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -355,10 +355,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: ## Workflow v3",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:AGENTS.md:80",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/agents-workflow.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Upstream меняет только версии; fork workflow-раздел сохраняется.",
         "ours": "oursRef → AGENTS.md",
@@ -402,7 +404,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -414,10 +416,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:agents-version",
+      "commitRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -519,10 +521,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: Version 0.2.23",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:AGENTS.md:3",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/agents-version.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Берём upstream version line 0.2.23 / engine 0.1.70; workflow-раздел остаётся отдельной ours-строкой.",
         "ours": "oursRef → AGENTS.md",
@@ -566,7 +570,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -578,10 +582,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:readme-fork-notes",
+      "commitRef": "b715b778995776a9a51831903086352bed65dee0",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -683,10 +687,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: ## Fork measurement charts",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:README.md:256",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/readme-fork-notes.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Upstream не заменяет fork-заметки, research-ссылки и диаграммы измерений.",
         "ours": "oursRef → README.md",
@@ -730,7 +736,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -742,10 +748,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:readme-upstream-catalog",
+      "commitRef": "484a0204893c9d91359744d6b74365ad6a798c4f",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -847,10 +853,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: Ornith-1.5-35B-A3B",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:README.md:89",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/readme-upstream-catalog.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Добавляем Ornith/Inkling 0.2.23 и release 0.2.23, не удаляя fork-блоки.",
         "ours": "oursRef → README.md",
@@ -894,7 +902,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -906,10 +914,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:settings-fork-knobs",
+      "commitRef": "1843ebcc4f29f6b545250071c9ad39e1fb0aebfe",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -1011,10 +1019,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_FDEC",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:docs/reports/2026-11-23-fdec-q4.md:48",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/settings-fork-knobs.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: FDEC/DOWN_SUB8 и связанные fork-настройки отсутствуют в upstream delta.",
         "ours": "oursRef → docs/SETTINGS.md",
@@ -1058,7 +1068,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -1070,10 +1080,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:settings-upstream-register",
+      "commitRef": "6d6e9064efdc442bf8d12565b61dd06ab64f8085",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -1175,10 +1185,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_PF_SYNC_DEBUG",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:docs/workflow/tasks/UPSTREAM-4560D0379/DOC_IMPL.md:10",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/settings-upstream-register.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Берём upstream settings additions; итоговый register/docs перегенерировать после объединения.",
         "ours": "oursRef → docs/SETTINGS.md",
@@ -1222,7 +1234,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -1234,10 +1246,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:cmake-expert-parity",
+      "commitRef": "a8ebf5d598583e8a1001d39232e957e14157a2a5",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -1355,10 +1367,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: q2_K/iq4_xs",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/CMakeLists.txt:841",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/cmake-expert-parity.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить Q4KQ_PARITY_EMBD=2048/Q4KQ_PARITY_FF=512.",
         "ours": "oursRef → engine/CMakeLists.txt",
@@ -1402,7 +1416,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -1414,10 +1428,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:cmake-upstream-build",
+      "commitRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -1535,10 +1549,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: project(strata VERSION 0.1.70",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/CMakeLists.txt:13",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/cmake-upstream-build.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Не удалять STRATA_Q6K_EXPERTS/STRATA_NATIVE_EXPERTS и fork CTest.",
         "ours": "oursRef → engine/CMakeLists.txt",
@@ -1582,7 +1598,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -1594,10 +1610,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:fused-format-support",
+      "commitRef": "08fff0bb555ed75606dbdade36402c0052b99a5d",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -1715,10 +1731,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_PF_FUSED_Q4NL",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/prefill/moe_fused_iq.cu:2715",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/fused-format-support.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить opt-in default и fallback на MMQ/upstream.",
         "ours": "oursRef → engine/src/prefill/moe_fused_iq.cu",
@@ -1762,7 +1780,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -1774,10 +1792,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:fused-sync-debug",
+      "commitRef": "fd5fc4aa76ecfda8491f7897be0797ac9da0069f",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -1895,10 +1913,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_PF_SYNC_DEBUG",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/prefill/moe_fused_iq.cu:76",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/fused-sync-debug.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: dbg_sync должен покрывать и сохранённые IQ4_XS/IQ4_NL launches.",
         "ours": "oursRef → engine/src/prefill/moe_fused_iq.cu",
@@ -1942,7 +1962,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -1954,10 +1974,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:setup-kat-huihui",
+      "commitRef": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -2075,10 +2095,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: IQ4_XS-KAT",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/setup.py:815",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/setup-kat-huihui.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: install_own_path обязан использовать own_file/own_size/own_hf и после upstream custom-build правок.",
         "ours": "oursRef → terminal/setup.py",
@@ -2122,7 +2144,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -2134,10 +2156,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:setup-upstream-features",
+      "commitRef": "e28d9222fa326cdd09322cfcb3d2e0e5d04331c1",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -2255,10 +2277,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: def run_tag",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/setup.py:7865",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/setup-upstream-features.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить mmproj_hf, own_size/own_file/own_hf и KAT/Huihui pins.",
         "ours": "oursRef → terminal/setup.py",
@@ -2302,7 +2326,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -2314,10 +2338,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:inkling-upstream-lineup",
+      "commitRef": "4adbc88135bba02005b2c3f60ef02bc0b86e2550",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -2435,10 +2459,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: DFLASH2_GB",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/strata_control/inkling_fit.py:46",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/inkling-upstream-lineup.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Наш единственный diff — удаление финальной пустой строки; семантической ours-реализации нет. Берём upstream lineup/DFlash2.",
         "ours": "oursRef → terminal/strata_control/inkling_fit.py",
@@ -2482,7 +2508,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -2494,10 +2520,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:mcp-own-size",
+      "commitRef": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -2615,10 +2641,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: self.setup_module().own_size(d, model)",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/tools/strata_mcp.py:771",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/mcp-own-size.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: setup.own_size должен оставаться единственным источником pinned size.",
         "ours": "oursRef → terminal/tools/strata_mcp.py",
@@ -2662,7 +2690,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -2674,10 +2702,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:mcp-upstream-features",
+      "commitRef": "82623cd60c04087e72a4c9020c8d69f9bd27933d",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -2795,10 +2823,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: def _refresh_hardware_later",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/tools/strata_mcp.py:1157",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/mcp-upstream-features.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Не потерять own_size call и KAT/Huihui model table.",
         "ours": "oursRef → terminal/tools/strata_mcp.py",
@@ -2842,7 +2872,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -2854,10 +2884,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:packaging-fork-notes",
+      "commitRef": "c8f9562ed3df5b34368b509290f264e04c46ab8f",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -2959,10 +2989,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: This fork keeps only the kit workflows",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:tools/packaging/README.md:137",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/packaging-fork-notes.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Upstream меняет только version line; fork CI/gap notes сохраняются.",
         "ours": "oursRef → tools/packaging/README.md",
@@ -3006,7 +3038,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -3018,10 +3050,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:packaging-upstream-version",
+      "commitRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -3123,10 +3155,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: current release (app and Terminal 0.2.23",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:tools/packaging/README.md:4",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/packaging-upstream-version.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Обновляем version line до 0.2.23 / Control 0.1.70 / engines 0.1.70.",
         "ours": "oursRef → tools/packaging/README.md",
@@ -3170,7 +3204,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -3182,10 +3216,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:qwen35-no-delta",
+      "commitRef": "e799f0d933fcd9dd2039ad03c00ffdd516edfbb1",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -3303,10 +3337,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: q36_engine",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/include/strata/qwen35/engine.hpp:3",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/qwen35-no-delta.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: git diff --exit-code OURS CANDIDATE -- engine/src/qwen35 engine/include/strata/qwen35",
         "ours": "oursRef → engine/src/qwen35, engine/include/strata/qwen35",
@@ -3350,7 +3386,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -3362,10 +3398,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-fa-v2",
+      "commitRef": "30d71e3162ece3a900d27ebb01cb01f8c0d6502c",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -3483,10 +3519,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_FA_TILE",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:1737",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-fa-v2.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить numeric tolerance, fallback и default flags.",
         "ours": "oursRef → engine/src/qwen35/q36_fa.cuh, engine/src/qwen35/q36_engine.cu",
@@ -3530,7 +3568,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -3542,10 +3580,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-fdec",
+      "commitRef": "8e2f2af948f2949bff97b0788a5ac050b3b3d53f",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -3663,10 +3701,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_FDEC",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:1739",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-fdec.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить STAGING_ONE и fallback при неподдерживаемом KV.",
         "ours": "oursRef → engine/src/qwen35",
@@ -3710,7 +3750,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -3722,10 +3762,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-expert-cache",
+      "commitRef": "0678f6ff6d4498941ba81ce38ca3854fc85da9a0",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -3843,10 +3883,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_EXPERT_CACHE_MB",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:1703",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-expert-cache.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить pinned/pageable fallback и ownership буферов.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu",
@@ -3890,7 +3932,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -3902,10 +3944,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-p4",
+      "commitRef": "9a1700f22154ed5fe336b0b3607cd7aa020a32a5",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -4023,10 +4065,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_P4",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:3086",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-p4.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить native_supported gate и fallback.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu",
@@ -4070,7 +4114,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -4082,10 +4126,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-memory-staging",
+      "commitRef": "11ff82f935316b006c620cf4525b0c8854833565",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -4203,10 +4247,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_STAGING_ONE",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:3324",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-memory-staging.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить 200k/q8 resource contract и pageable fallback.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu, engine/src/qwen35/q36_metadata_test.cpp",
@@ -4250,7 +4296,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -4262,10 +4308,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-super-chunk",
+      "commitRef": "36dddeb10477c348adaa097279162176ebd8c243",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -4383,10 +4429,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_SUPER_CHUNK",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:2077",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-super-chunk.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить natural boundaries и default N=1.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu",
@@ -4430,7 +4478,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -4442,10 +4490,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:q36-knobs",
+      "commitRef": "d53ebc8fb3841458527b48f197d895476ca81064",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -4563,10 +4611,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_Q36_ATT_MB",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:1795",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/q36-knobs.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Defaults/public CLI не меняются.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu",
@@ -4610,7 +4660,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -4622,10 +4672,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "adapted",
-      "commitRef": "pending:down-sub8",
+      "commitRef": "da404b74a559d830a23bca69412b4fa8255a7816",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -4743,10 +4793,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: STRATA_DOWN_SUB8",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/kernels/cuda/iq_kernels.cu:6214",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/down-sub8.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить default и regenerated settings evidence.",
         "ours": "oursRef → engine/src/kernels, docs/SETTINGS.md, terminal/data/settings-register.json",
@@ -4790,7 +4842,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -4802,10 +4854,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:int8-prompt-experts",
+      "commitRef": "cc820825d96af7a1e6d0361c9ff059f7dc12826a",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -4923,10 +4975,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: native_expert_i8_set_mmq_free",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:2147",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/int8-prompt-experts.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить format gates 10/11/18/21/23 и numeric parity.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu, engine/src/kernels/cuda/i8_expert.cuh",
@@ -4970,7 +5024,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -4982,10 +5036,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:copy-session-quantized-kv",
+      "commitRef": "b24caaaf4a9876624356fc5588c679fbe23142d5",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -5103,10 +5157,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: a.kq[l] && a.pos > 0",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:3919",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/copy-session-quantized-kv.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить layout/pos semantics и MTP slots.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu",
@@ -5150,7 +5206,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -5162,10 +5218,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:qwen35-cli-context-guard",
+      "commitRef": "e799f0d933fcd9dd2039ad03c00ffdd516edfbb1",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -5283,10 +5339,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: exceeds the context",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:engine/src/qwen35/q36_engine.cu:4829",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/qwen35-cli-context-guard.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить rc=2 и отсутствие частичного decode.",
         "ours": "oursRef → engine/src/qwen35/q36_engine.cu",
@@ -5330,7 +5388,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -5342,10 +5400,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:qwen36-200k-launch",
+      "commitRef": "153f6a1cdfa998860374bfdd9447828c9aca28a0",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -5463,10 +5521,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: terminal/tools/check_qwen36_200k_launch.py",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:terminal/tools/check_qwen36_200k_launch.py:1",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/qwen36-200k-launch.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Сохранить generic strata.exe note и args_written parity.",
         "ours": "oursRef → terminal/run-qwen36-iq4_xs-kat.bat, terminal/run-qwen36-iq4_xs-huihui.bat, terminal/tools/check_qwen36_200k_launch.py",
@@ -5510,7 +5570,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -5522,10 +5582,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:workflow-tooling",
+      "commitRef": "34bd46b86641d4fe34b3ab523e31b816718347e1",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -5627,10 +5687,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: tools/workflow/workflow.py",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:tools/workflow/workflow.py:1",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/workflow-tooling.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Defaults/workflow states не меняются.",
         "ours": "oursRef → tools/workflow, docs/workflow",
@@ -5674,7 +5736,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -5686,10 +5748,10 @@
           "--"
         ],
         "method": "symbol-search",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:upstream-merge-tooling",
+      "commitRef": "f976c71c2d81faed0853c6c2bba63d86c8b96e24",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -5807,10 +5869,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: tools/upstream_merge/upstream_merge.py",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:tools/upstream_merge/upstream_merge.py:1",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/upstream-merge-tooling.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Не создавать новый merge framework; использовать текущий schema/tool.",
         "ours": "oursRef → tools/upstream_merge",
@@ -5854,7 +5918,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -5866,10 +5930,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:packaging-kit",
+      "commitRef": "7da004a97f94dca6d2b7c26cc410dbc3de4b6787",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -5971,10 +6035,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: .github/workflows/kit-build.yml",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:.github/workflows/kit-build.yml:1",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/packaging-kit.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Workflow dispatch/pull-only policy сохраняется.",
         "ours": "oursRef → .github/workflows/kit-build.yml, .github/workflows/kit-release.yml, tools/packaging/kit",
@@ -6018,7 +6084,7 @@
         "checkedRefs": [
           "34bd46b86641d4fe34b3ab523e31b816718347e1",
           "4560d03793482ef367294cfbd86a4df8d5679e72",
-          "pending:sync/upstream-0.2.23"
+          "2195f9b0f412d7e1f5447dad82a657e4db6904cc"
         ],
         "command": [
           "git",
@@ -6030,10 +6096,10 @@
           "--"
         ],
         "method": "source-review",
-        "notes": "Candidate-draft проверка выполняется после создания candidateRef; сейчас зафиксированы только ours/upstream."
+        "notes": "Candidate anchor подтверждён read-only на реальном candidateRef; runtime route не заявляется."
       },
       "anchorStatus": "preserved",
-      "commitRef": "pending:fork-docs-evidence",
+      "commitRef": "60cac8270213a59c54a69aea2eeae7b7053694d4",
       "compatibility": {
         "assessment": "compatible-with-conditions",
         "candidate": [],
@@ -6135,10 +6201,12 @@
       },
       "reworkEffect": "same",
       "route": {
-        "candidate": "pending: docs/research/full-measurement-report.md",
+        "candidate": "2195f9b0f412d7e1f5447dad82a657e4db6904cc:docs/research/full-measurement-report.md:1",
         "defaultFlags": "Defaults/public API не меняются без отдельного обоснования.",
         "dispatch": "Отдельная matrix-строка; совместный файл не означает замену другой строки.",
-        "evidence": [],
+        "evidence": [
+          "evidence/anchors/fork-docs-evidence.txt"
+        ],
         "fallback": "Сохранить штатный ours/upstream fallback; candidate evidence not-run.",
         "gate": "Условия: Upstream delta не заменяет fork measurement corpus и provenance docs.",
         "ours": "oursRef → docs/research, docs/reports, docs/profile-q36.md, LOCAL.ru.md, LOCAL.en.md",
@@ -6152,7 +6220,7 @@
     }
   ],
   "oursRef": "34bd46b86641d4fe34b3ab523e31b816718347e1",
-  "rationale": "Draft сохраняет принятые fork-патчи отдельными ours-строками и добавляет upstream-патчи отдельными upstream-строками. Hybrid/delta/defer/drop не заявляются; candidateRef и все runtime/build evidence pending.",
+  "rationale": "Draft сохраняет принятые fork-патчи отдельными ours-строками и добавляет upstream-патчи отдельными upstream-строками. Candidate metadata продвинута до 2195f9b0f412d7e1f5447dad82a657e4db6904cc; build/runtime evidence и acceptance остаются pending/not-run.",
   "thresholds": {
     "maxChangedFiles": 450,
     "maxChangedLines": 130000,

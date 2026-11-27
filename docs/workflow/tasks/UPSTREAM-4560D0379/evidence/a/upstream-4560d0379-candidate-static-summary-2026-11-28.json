@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "candidateRef": "2195f9b0f412d7e1f5447dad82a657e4db6904cc",
+  "checks": {
+    "settingsRegister": "PASS",
+    "qwen35Parity": "PASS",
+    "reversePatchCheck": "PASS",
+    "oursOnlyMarkers": "29/29",
+    "scopedWhitespace": "PASS",
+    "targetedUnittest": {
+      "status": "PASS",
+      "ran": 86,
+      "skipped": 2,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "baselineBlockers": {
+    "launchChecker": "main и candidate одинаково падают из-за отсутствующих C:\\Strata\\swift-qwen38-data\\packs\\...\\tokenizer",
+    "docsLinks": "main и candidate одинаково падают на packaging/kit/README.en.md и .github/workflows/docker-images.yml",
+    "toolsCheckStrict": "cmake/pytest/torch/Node отсутствуют в текущем окружении; docs failure совпадает с main"
+  },
+  "build": {
+    "firstAttempt": "b9ork8gjz rejected rc=2: stale default PinCache missing",
+    "taskId": "b18taaofd",
+    "status": "running",
+    "buildDir": "F:/tmp/upstream-0.2.23-build",
+    "pinCache": "F:/tmp/q35-route-selector-build/CMakeCache.txt"
+  },
+  "notRun": [
+    "CUDA build completion",
+    "C++ tests",
+    "GPU runtime",
+    "semantic merge-gate",
+    "main merge",
+    "push"
+  ]
+}

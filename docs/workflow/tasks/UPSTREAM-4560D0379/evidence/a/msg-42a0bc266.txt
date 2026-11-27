@@ -1,0 +1,51 @@
+RU: merge upstream v0.2.23 в sync candidate
+
+Что изменено?
+- Ветка `sync/upstream-0.2.23` получает upstream `4560d03793482ef367294cfbd86a4df8d5679e72` через merge commit с родителями `34bd46b86641d4fe34b3ab523e31b816718347e1` и upstream.
+- Итого candidate diff к main: 480 файлов, +158237/-7521, 4 binary-like записи.
+- Разрешены 10 пересечений по утверждённой H/N матрице: Workflow v3, fork README/charts, expert parity pairs, IQ4_XS/IQ4_NL fused support, KAT/Huihui pins, `own_file/own_size/own_hf`, MCP own-size, packaging fork notes сохранены; upstream version/catalog/CMake/setup/MCP/Inkling/packaging изменения приняты.
+- `terminal/data/settings-register.json` и `docs/SETTINGS.md` перегенерированы одним штатным проходом: 1445 settings, все 18 ours-only и 153 upstream-only записей сохранены.
+- `docs/workflow/tasks/UPSTREAM-4560D0379/` добавляет H package: 34 matrix rows, 68 anchors, coverage 65 content-коммитов, patch/apply evidence и raw overlap diffs.
+- Qwen35/qwen35 include остаются побитово равны ours; upstream qwen35 delta пуст.
+
+Зачем?
+Upstream v0.2.23 добавляет 296 commits и 399 файлов (+108085/-6137), но не заменяет наши qwen35/CLI/workflow патчи. Отдельный sync candidate позволяет проверить совместимость и реальные конфликты, не двигая main.
+
+Проверки?
+- N package verdict: `APPROVED_UPSTREAM_4560D0379_PACKAGE`, отчёт SHA-256 `bfbe2871ef9fdcc31c459534fe1085bcafb3d2b0ec86094794070a725de5dd94`.
+- A package gate: evidence index 80/80, canonical leakcheck, JSON Schema, matrix 34 строки `readyForPlan=true`, patch apply-check 7 файлов +141/-18.
+- Candidate guards: qwen35 diff пуст; обратный patch-check PASS; все 29 ours-only `STRATA_*` markers найдены; settings `--check` PASS.
+- Scoped `diff --check` с `cr-at-eol`: PASS; `PATCH.diff` и raw overlap diffs исключены как byte-preserving evidence.
+- Незавершённых merge conflicts нет.
+
+Ограничения?
+- Candidate build/tests/GPU/runtime acceptance и semantic merge-gate ещё не запускались.
+- `merge-plan.json` пока содержит pending candidateRef/commitRef и требует metadata closure после этого merge commit.
+- Main не переводился; merge/push в main запрещены до зелёного candidate gate, N review и отдельного разрешения.
+
+---
+
+EN: merge upstream v0.2.23 into sync candidate
+
+What changed?
+- Branch `sync/upstream-0.2.23` receives upstream `4560d03793482ef367294cfbd86a4df8d5679e72` through a merge commit with parents `34bd46b86641d4fe34b3ab523e31b816718347e1` and upstream.
+- Total candidate diff against main: 480 files, +158237/-7521, 4 binary-like records.
+- Resolves 10 overlaps using the approved H/N matrix: preserves Workflow v3, fork README/charts, expert parity pairs, IQ4_XS/IQ4_NL fused support, KAT/Huihui pins, `own_file/own_size/own_hf`, MCP own-size, and packaging fork notes; accepts upstream version/catalog/CMake/setup/MCP/Inkling/packaging changes.
+- Regenerates `terminal/data/settings-register.json` and `docs/SETTINGS.md` in one standard pass: 1445 settings, with all 18 ours-only and 153 upstream-only entries preserved.
+- Adds `docs/workflow/tasks/UPSTREAM-4560D0379/` with the H package: 34 matrix rows, 68 anchors, coverage of 65 content commits, patch/apply evidence, and raw overlap diffs.
+- Qwen35/qwen35 includes remain byte-identical to ours; upstream qwen35 delta is empty.
+
+Why?
+Upstream v0.2.23 adds 296 commits and 399 files (+108085/-6137), but does not replace our qwen35/CLI/workflow patches. A separate sync candidate allows compatibility and real conflicts to be tested without moving main.
+
+Verified
+- N package verdict: `APPROVED_UPSTREAM_4560D0379_PACKAGE`, report SHA-256 `bfbe2871ef9fdcc31c459534fe1085bcafb3d2b0ec86094794070a725de5dd94`.
+- A package gate: evidence index 80/80, canonical leakcheck, JSON Schema, 34-row matrix `readyForPlan=true`, patch apply-check 7 files +141/-18.
+- Candidate guards: empty qwen35 diff; reverse patch-check PASS; all 29 ours-only `STRATA_*` markers found; settings `--check` PASS.
+- Scoped `diff --check` with `cr-at-eol`: PASS; `PATCH.diff` and raw overlap diffs are excluded as byte-preserving evidence.
+- No unresolved merge conflicts.
+
+Limitations
+- Candidate build/tests/GPU/runtime acceptance and semantic merge-gate have not run yet.
+- `merge-plan.json` still has pending candidateRef/commitRef and needs metadata closure after this merge commit.
+- Main was not moved; merge/push to main remain forbidden until a green candidate gate, N review, and separate approval.
