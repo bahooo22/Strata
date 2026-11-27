@@ -1,0 +1,370 @@
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -77,6 +77,10 @@
+ - Keep the docs' style: plain words, short sentences, written for non-technical users first. Give measured numbers
+   with what they were measured on. Make no claim without a measurement.
+ 
++## Workflow v3
++
++Для изменений форка действует `docs/workflow/README.md`: отдельные сеансы A/H/N, запрет субагентов и self-approval, task-worktree, артефакты с SHA-256, A генерирует диаграмму идеи до G1, H генерирует диаграмму алгоритма до G3, fast 32k ≥3 и full 160k/200k отдельно. Merge разрешён только при progress на обоих full-окнах; no_change архивируется. Инструмент — `tools/workflow/workflow.py`, guard — `tools/workflow/workflow_hook.ps1`.
++
+ ## Contributing a change or report
+ 
+ The rules are in **[CONTRIBUTING.md](.github/CONTRIBUTING.md)**. Read it before you open an issue or a pull request, and
+--- a/README.md
++++ b/README.md
+@@ -4,6 +4,24 @@
+     <img src="app/host/public/brand/strata-lockup-light.svg" alt="Strata" width="340">
+   </picture>
+ </p>
++
++> **Локальные заметки этого форка:** ветка `q8-kv`, коммиты, сборка с `STRATA_GGML_DIR`,
++> KV-типы и MTP — [`LOCAL.ru.md`](LOCAL.ru.md). По-английски — [`LOCAL.en.md`](LOCAL.en.md).
++>
++> **Fork notes:** commits, the `STRATA_GGML_DIR` build, KV types and MTP — [`LOCAL.en.md`](LOCAL.en.md)
++> (in Russian — [`LOCAL.ru.md`](LOCAL.ru.md)).
++>
++> **Сводные отчёты 11.11 по всем замерам стенда** (оба форка, пять окон, до и после; каждая цифра
++> сгенерирована и несёт якорь на первичник): [общий](docs/research/full-measurement-report.ru.md),
++> [по Страте](docs/research/strata-fork-report.ru.md),
++> [по llama.cpp](docs/research/llama-fork-report.ru.md); сырые свипы — файлами
++> `docs/research/sweeps-appendix-*.ru.md`.
++>
++> **Consolidated 2026-11-11 reports for this bench** (both forks, five windows, before/after; every
++> number is generated and carries an anchor into the primary logs):
++> [summary](docs/research/full-measurement-report.md), [Strata](docs/research/strata-fork-report.md),
++> [llama.cpp](docs/research/llama-fork-report.md); raw sweeps are in
++> `docs/research/sweeps-appendix-*.md`.
+ 
+ <h3 align="center">Run powerful AI on your own computer.</h3>
+ <p align="center">Chat, code and work with images, locally.</p>
+@@ -235,3 +253,50 @@
+ 
+ **Sponsorships, hardware partnerships or collaborations:** [niko.veit@outlook.com](mailto:niko.veit@outlook.com).
+ 
++## Fork measurement charts
++
++Five charts built from our own measurements. Each chart names the raw files its numbers came from in
++its own footer:
++
++![Optimization steps at 96k](docs/assets/progress-96k.svg)
++
++![Prefill before and after the VRAM fix](docs/assets/windows-vram.svg)
++
++The first shows what each optimization step (super-chunk, flash attention, upload stream) gave at
++96k; the second shows the prefill collapse on an 8 GB card and its removal across the 64k–160k
++windows at `--n-cpu-moe 33`. Every number is traceable to a raw measurement file, which each chart
++footer names; the two optimization steps in the first chart are written up in
++[`docs/research/super-chunk.md`](docs/research/super-chunk.md) and
++[`docs/research/fa-attention.md`](docs/research/fa-attention.md).
++
++![One model, two quants](docs/assets/quant-compare.svg)
++
++![Prefill by model and window](docs/assets/models-windows.svg)
++
++The third chart compares quants on one model (IQ4_XS/Q4_K_M against Q5_K_S at 96k and 128k); the
++fourth places every measured model on the same 64k-160k windows, with gaps left as gaps.
++
++![Strata kernel progress: two baselines, then the working grid](docs/assets/kernel-progress.svg)
++
++The fifth chart is the kernel-progress overview: the fork point `146df3c4` (stock, whose KV stays
++fp32 and therefore stops at 32k with 123.1 pp) and our own 2026-11-01 start (170.5 pp at 64k) as the
++two baselines, then super-chunk N=4, then the working kernel with flash attention across
++64k/80k/96k/128k/160k (1504.0 down to 959.9 pp), with the llama fork as the control line. The
++written-up version, with the table every point came from, is
++[`docs/research/kernel-progress.md`](docs/research/kernel-progress.md).
++
++## Portable kit: both engines, no build step
++
++Both engines of this fork, built for `sm_86`, `sm_89` and `sm_120` and bundled with the CUDA runtime
++they need, are published as an asset of a release:
++[the release page](https://github.com/bahooo22/Strata/releases/tag/kit-2026-11-13) and the direct
++download [gpu-infer-kit-2026-11-13.zip](https://github.com/bahooo22/Strata/releases/download/kit-2026-11-13/gpu-infer-kit-2026-11-13.zip).
++Unpack it, double-click `START.bat`, point it at a `.gguf` file: the kit reads the hardware, compares
++it with our bench, computes the largest window and starts the server. The archive carries no models
++and writes nothing outside its own folder.
++
++Both links were measured on 2026-11-13 with an anonymous request and no token: the release answers
++200 with `draft=false` and `prerelease=false`, and the download returns 852 018 219 bytes starting
++with the zip header `504b0304`. How the kit is built and checked in GitHub Actions, and every
++measurement behind it, is written up in
++[`packaging/kit/README.en.md`](packaging/kit/README.en.md).
+--- a/engine/CMakeLists.txt
++++ b/engine/CMakeLists.txt
+@@ -838,6 +838,24 @@
+         add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
+         set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120)
+       endforeach()
++      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
++      # is_iq() promised type 10 while dq_dispatch had no case for it, so the dequantizer left the destination
++      # unwritten and the launch still reported success; these pairs pin the dequantizer against ggml's to_float.
++      # Q2_K's 256-weight superblock needs whole blocks: the UD-IQ3_S geometry H=2048 FF=512, not the default
++      # Flash-Next 2560/640 (FF=640 is not a multiple of 256, the pair is refused as "not whole blocks").
++      foreach(_pair q2_K/q4_K q2_K/iq4_xs)
++        string(REPLACE "/" "_" _name "${_pair}")
++        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120
++                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
++      endforeach()
++      # Full routed Q2_K/Q3_K/IQ3 pairs at the whole-block 2048 x 512 geometry.
++      foreach(_pair q3_K/q3_K q2_K/q2_K iq3_xxs/q2_K iq3_s/q2_K)
++        string(REPLACE "/" "_" _name "${_pair}")
++        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 180
++                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
++      endforeach()
+       add_test(NAME native_expert_parity_q5_1_min COMMAND native_expert_parity --q5_1-min)
+       # Unsloth v3.1 Qwen3.8-Flash-Next sets (UD-IQ1_M .. UD-IQ4_XS, round 0214): every gate/up x down pair their layers use,
+       # at the real shapes (hidden 2560, FF 640): gate/up IQ2_XXS IQ2_XS IQ2_S IQ3_XXS IQ4_XS (+ IQ1_M, the GSQ-RCO packs'),
+--- a/engine/src/prefill/moe_fused_iq.cu
++++ b/engine/src/prefill/moe_fused_iq.cu
+@@ -1015,7 +1015,7 @@
+                                  : blob + geo.down_off + (size_t) (rbase + ur) * geo.d_row;
+         // gate/up in Q2_0 (64-value blocks): a block per stage, as the down rows read theirs; in Q8_0 (32-value blocks, CUDA
+         // STRATA_PF_FUSED_Q8GU=1): two blocks a stage, as the Q8_0 down rows read theirs
+-        constexpr bool GU256 = (GU || ((WT == T_Q4_K || WT == T_Q5_K || WT == T_Q6_K) && D_ROWS_K % 256 == 0)) && WT != T_Q2_0 && WT != T_Q8_0 && WT != T_NVFP4 && !is_tq(WT);   // (a K-quant DOWN walks its 256-value super-blocks too, when n_ff is a multiple of 256: Qwen3.6's 512)
++        constexpr bool GU256 = (GU || ((WT == T_Q4_K || WT == T_Q5_K || WT == T_Q6_K || WT == T_IQ4_XS) && D_ROWS_K % 256 == 0)) && WT != T_Q2_0 && WT != T_Q8_0 && WT != T_NVFP4 && !is_tq(WT);   // (a K-quant DOWN walks its 256-value super-blocks too, when n_ff is a multiple of 256: Qwen3.6's 512)
+         constexpr bool B128 = is_tq(WT);   // (CUDA, STRATA_PF_FUSED_TQ=1) 128-value blocks, gate/up and down: a block per two stages, sub-blocks 0-3
+         auto unit = [&](int s) -> const uint8_t* {                  // the block of stage s's sub-block
+             if (B128) return wrow + (s >> 1) * BS;
+@@ -1479,7 +1479,7 @@
+     constexpr int ACT_LD = NS * AB;
+     constexpr int BS = block_bytes(WT);
+     constexpr int WT_BYTES = WR * WLDH, ACT_STAGE = TR * AB;
+-    constexpr bool GU256 = GU && WT != T_Q2_0;
++    constexpr bool GU256 = GU ? WT != T_Q2_0 : (WT == T_IQ4_XS && D_ROWS_K % 256 == 0);
+     extern __shared__ __align__(16) uint8_t smem[];
+     uint8_t* wt = smem;                                         // [SLOTS][WR][WLDH] F16 weights
+     uint8_t* stages = smem + WS_SLOTS * WS_KS * WT_BYTES;       // [SLOTS * KS][TR][AB] activations
+@@ -2711,7 +2711,9 @@
+     bool q8d = false;   // sm_80+ with STRATA_PF_FUSED_Q8D=1: the same Q8_0 down kernels behind an i-quant gate/up (opt-in, phase 4; their occupancy is occ_kq8)
+     bool q8gu = false;  // sm_80+ with STRATA_PF_FUSED_Q8GU=1: the Q8_0 gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
+     int occ_q8gu = 1;   // the Q8_0 gate/up kernels' blocks per multiprocessor (the down keeps occ_kq8)
+-    bool q6k = false;   // sm_80+ with STRATA_PF_FUSED_Q6K=1: the Q6_K gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
++    bool q6k = false;  // sm_80+ with STRATA_PF_FUSED_Q6K=1: the Q6_K gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
++    bool q4nlgu = false;   // 0216-accel P3: STRATA_PF_FUSED_Q4NL=1 - an IQ4_NL gate/up (the HauhauCS pack)
++    int occ_q4nlgu = 1;
+     int occ_q6k = 1;    // the Q6_K gate/up kernels' blocks per multiprocessor (the down keeps occ_kq8)
+     bool tq = false;    // the trellis kernels (TQK6 / TQ2_T gate/up, TQK7 / TQ2_T down) are set up: by default on sm_86 with 80+ SMs, STRATA_PF_FUSED_TQ=1 on any sm_80+ (fused_tq_default.hpp)
+     int occ_tq_gu = 1, occ_tq_d = 1;   // their blocks per multiprocessor (their own)
+@@ -2966,6 +2968,11 @@
+                 d.occ_q6k = o9;
+                 d.occ_kq8 = o10;
+             }
++            static const bool q4nlgu = [] {   // 0216-accel P3
++                const char* v = std::getenv("STRATA_PF_FUSED_Q4NL");
++                return v != nullptr && v[0] == '1';
++            }();
++            if (int o11 = 1 << 20; q4nlgu && setup_ww<T_IQ4_NL, true, 2>(o11)) { d.q4nlgu = true; d.occ_q4nlgu = o11; }
+         }
+         d.occ = d.ok ? occ : 1;
+         cudaGetLastError();
+@@ -2973,7 +2980,7 @@
+     }
+     d.ok = setup_one<T_IQ2_XXS, true>(occ) && setup_one<T_IQ2_XS, true>(occ) && setup_one<T_IQ2_S, true>(occ) &&
+            setup_one<T_IQ3_XXS, true>(occ) && setup_one<T_IQ3_S, true>(occ) && setup_one<T_IQ4_XS, true>(occ) &&
+-           setup_one<T_Q2_0, false>(occ) && setup_one<T_IQ4_NL, false>(occ);   // (Q2_0 gate/up: the Turing opt-in's, or below)
++           setup_one<T_Q2_0, false>(occ) && setup_one<T_IQ4_NL, false>(occ) && setup_one<T_IQ4_XS, false>(occ);   // (Q2_0 gate/up: the Turing opt-in's, or below)
+     // STRATA_PF_FUSED_Q2N=1: the native Q2_0 pack's Q2_0 gate/up on these kernels here too (what #2145 took with
+     // STRATA_PF_FUSED=1 on every CUDA card until b6443f3a kept it to Turing).  Its own variable, so STRATA_PF_FUSED=1 keeps
+     // its bits: unset, the kernel is not set up and the Q2_0 layers keep MMQ.  A failed setup leaves occ as it was.
+@@ -3040,7 +3047,7 @@
+         int o2 = 1 << 20;
+         const bool ok2 = setup_nt<T_IQ2_XXS, true>(o2) && setup_nt<T_IQ2_XS, true>(o2) && setup_nt<T_IQ2_S, true>(o2) &&
+                          setup_nt<T_IQ3_XXS, true>(o2) && setup_nt<T_IQ3_S, true>(o2) && setup_nt<T_IQ4_XS, true>(o2) &&
+-                         setup_nt<T_Q2_0, false>(o2) && setup_nt<T_IQ4_NL, false>(o2) &&
++                         setup_nt<T_Q2_0, false>(o2) && setup_nt<T_IQ4_NL, false>(o2) && setup_nt<T_IQ4_XS, false>(o2) &&
+                          (!d.q2n || setup_nt<T_Q2_0, true>(o2));   // (the Q2_0 gate/up of STRATA_PF_FUSED_Q2N=1 too)
+         d.occ_nt = ok2 ? o2 : 0;
+         if (!ok2) std::fprintf(stderr, "prefill fused experts (native): STRATA_PF_FUSED_NT=256 is not available here\n");
+@@ -3048,7 +3055,7 @@
+     if (d.ok && ws_requested()) {
+         d.ws = setup_ws<T_IQ2_XXS, true>() && setup_ws<T_IQ2_XS, true>() && setup_ws<T_IQ2_S, true>() &&
+                setup_ws<T_IQ3_XXS, true>() && setup_ws<T_IQ3_S, true>() && setup_ws<T_IQ4_XS, true>() &&
+-               setup_ws<T_Q2_0, false>() && setup_ws<T_IQ4_NL, false>() &&
++               setup_ws<T_Q2_0, false>() && setup_ws<T_IQ4_NL, false>() && setup_ws<T_IQ4_XS, false>() &&
+                (!d.q2n || setup_ws<T_Q2_0, true>());   // (the Q2_0 gate/up of STRATA_PF_FUSED_Q2N=1 too)
+         if (!d.ws) std::fprintf(stderr, "prefill fused experts (native): STRATA_PF_FUSED_WS=1 is not available here\n");
+     }
+@@ -3092,6 +3099,7 @@
+ #endif
+ bool gu_covered(int t) {
+     return t == T_IQ2_XXS || t == T_IQ2_XS || t == T_IQ2_S || t == T_IQ3_XXS || t == T_IQ3_S || t == T_IQ4_XS
++           || (t == T_IQ4_NL && dev_info().q4nlgu)
+ #if !defined(__HIPCC__)
+            || (t == T_Q2_0 && (dev_info().t75 || dev_info().q2n))   // Q2_0 gate/up: the Turing opt-in, or STRATA_PF_FUSED_Q2N=1 on sm_80+
+            || ((t == T_Q4_K || t == T_Q5_K) && dev_info().kq)       // STRATA_PF_FUSED_KQ=1 and its kernels set up
+@@ -3111,7 +3119,7 @@
+         ;
+ }
+ bool d_covered(int t) {
+-    return t == T_Q2_0 || t == T_IQ4_NL
++    return t == T_Q2_0 || t == T_IQ4_NL || t == T_IQ4_XS
+ #if defined(__HIPCC__)
+            || ((t == T_Q5_1 || t == T_Q8_0) && kq_on())
+ #endif
+@@ -3878,6 +3886,7 @@
+         else if (g.d_type == T_Q5_0) STRATA_NW_D(T_Q5_0);
+         else if (g.d_type == T_Q5_1) STRATA_NW_D(T_Q5_1);
+         else if (g.d_type == T_Q8_0) STRATA_NW_D(T_Q8_0);
++        else if (g.d_type == T_IQ4_XS) STRATA_NW_D(T_IQ4_XS);
+         else STRATA_NW_D(T_IQ4_NL);
+ #undef STRATA_NW_D
+ #undef STRATA_F16_LAUNCH
+@@ -3982,6 +3991,7 @@
+         else launch<T_TQ2_T, false>(ww, gt, b, g, tb, ha, src, nullptr, dm, s);
+     }
+ #endif
++    else if (g.d_type == T_IQ4_XS) launch<T_IQ4_XS, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);
+     else launch<T_IQ4_NL, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);
+     dbg_sync(s, "gate/up + down", b, g.gu_type, g.d_type, n, n_expert, ww, g_d);
+     ck(cudaGetLastError(), "experts_native");
+--- a/terminal/setup.py
++++ b/terminal/setup.py
+@@ -115,6 +115,8 @@
+ # download (download()), unless a tester sets STRATA_ALLOW_UNPINNED=1.
+ HF_REVISIONS = {
+     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",        # 2026-09-29
++    "mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF": "f4855f5360049541536f36b26fbc95663591ab21",
++    "mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF": "0e6e2a22728d3617f655899b191a9e81f11b8974",
+     "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d",   # 2026-10-07 (adds IQ3_S)
+     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF": "bba88856f8c3c0c9e40e45f82d05e228b814ac43",  # 2026-10-19 (the new expert-pruned shard 1)
+     "unsloth/Qwen3.8-Flash-Next-GGUF": "38bb39ee97821de2c9009abb7e93950eec396e66",                   # 2026-09-30
+@@ -786,6 +788,8 @@
+     "Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf": (32611711264, "35fce994cd36104a7dc1bd8a4bdf13778145664c00fdef6773aebc9246e5019c"),
+     "Qwen3.6-35B-A3B-Q8_0.gguf": (37801097504, "c1283d8b80c3e38b2735ddbc9766d3b3126f44d6c484be419d4e101d09a76131"),
+     "mmproj-F16.gguf": (899283584, "71f3cbc1f7cc0f30d09d41cfa924c0060827ebc33bf15ace7e86661e856f0160"),
++    "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf": (19179522752, "3db4507e8c2336e5444dbdb56da7fed45a7597f10c0f53299b998d1f5bba280a"),
++    "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf": (18728779424, "6c5bb2431bdbe1a68dc09c33ae18cd1d3ff4e3932e5fe5c3b360eb61ab16e8ab"),
+ }
+ # Ornith-1.5-35B-A3B, Ornith AI's GGUFs with the MTP block: the same architecture (qwen35moe), tensor layout, tokenizer and MTP block as
+ # Qwen3.6-35B-A3B, so the engine path, the flags and the tuning rules above are used as they are (strata_control/ornith_types.py).  The BF16
+@@ -808,6 +812,12 @@
+                # so the file's size plus room for the OS and the rest (measured: UD-Q4_K_XL on a 46 GB PC with a 12 GB
+                # card, 18.75 GiB of experts pinned)
+                "models": {"UD-Q4_K_XL": {"about": "4-bit (Unsloth Dynamic), the smallest", "ram_gb": 32},
++                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
++                                         "file": "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
++                                         "hf": hf("mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF")},
++                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
++                                            "file": "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf",
++                                            "hf": hf("mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF")},
+                           "UD-Q6_K_XL": {"about": "6-bit (Unsloth Dynamic), closer to the full model", "ram_gb": 44},
+                           "Q8_0": {"about": "8-bit, the closest to the full model", "ram_gb": 52}},
+                "sha256": QWEN36_FILES,
+@@ -841,6 +851,20 @@
+                "mtp": 2,                     # drafts per step: the same MTP block as qwen36
+                "vision": True, "state_gb": 0.07}
+ }
++def own_file(fam: dict, model: str) -> str:
++    """The model's published file name: the family's pattern, or the model's own (KAT/Huihui live in their own Hub repos)."""
++    return fam["models"].get(model, {}).get("file", fam["file"]).format(q=model)
++
++
++def own_size(fam: dict, model: str) -> int:
++    return fam["sha256"][own_file(fam, model)][0]
++
++
++def own_hf(fam: dict, model: str) -> str:
++    """The Hub folder the file is fetched from: the family's, or the model's own."""
++    return fam["models"].get(model, {}).get("hf", fam["hf"]).format(q=model)
++
++
+ PREVIEW_FAMILIES = OWN_PATH_FAMILIES             # the earlier name (tools and tests that import it)
+ 
+ # Tencent Hy4-Flash (220B-A12B), Strata's own `.strata` v1.0 builds: a family with its own engine program (strata-hy4, a component like a model shape's engine), its own files
+@@ -9925,7 +9949,7 @@
+ def own_path_size(fam: dict, ram: float) -> str:
+     """The recommended size: the largest file whose RAM need this PC has (the smallest when none fits)."""
+     fits = [m for m, d in fam["models"].items() if ram >= d["ram_gb"]]
+-    return max(fits, key=lambda m: fam["sha256"][fam["file"].format(q=m)][0]) if fits else next(iter(fam["models"]))
++    return max(fits, key=lambda m: own_size(fam, m)) if fits else next(iter(fam["models"]))
+ 
+ 
+ def own_path_vision(a, fam: dict, gpu: dict, hip: bool) -> str:
+@@ -9975,7 +9999,7 @@
+ def own_path_parallel_fits_all(fam: dict, model: str, vram_gb: float, ctx: int, n: int) -> bool:
+     """True where every routed expert still sits in VRAM beside n slots' sessions (one more session than the slots: the
+     solo path's own)."""
+-    size = fam["sha256"][fam["file"].format(q=model)][0] / 1e9
++    size = own_size(fam, model) / 1e9
+     base = size * 0.93 + 4.5       # the routed experts + the dense weights and buffers (the file's 7% beyond them)
+     return base + (n + 1) * own_path_parallel_slot_gb(fam, ctx) <= vram_gb
+ 
+@@ -10068,7 +10092,7 @@
+     say()
+     for i, m in enumerate(names, 1):
+         d = fam["models"][m]
+-        size = fam["sha256"][fam["file"].format(q=m)][0]
++        size = own_size(fam, m)
+         from strata_control import fit_label
+         fit = f"   <- {fit_label.label(size / 1e9, ram, low_ram_vram(gpu))}"        # the file against the RAM and the card's memory together
+         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
+@@ -10125,13 +10149,13 @@
+     if a.kv and kv is None:
+         warn(f"--kv {a.kv} is a Flash-Next memory format: {fam['title']} takes fp32, fp16, fp8 or fp4 - kept at its default (fp32)")
+     folder = Path(a.gguf_dir) if a.gguf_dir else Path(a.models_dir) / tag
+-    published = fam["file"].format(q=model)           # the published file's name: its pinned size and SHA-256
++    published = own_file(fam, model)                  # the published file's name: its pinned size and SHA-256
+     gguf = folder / published
+     if _OWN_FIRST is not None and _OWN_FIRST.parent == folder and _OWN_FIRST.is_file():
+         gguf = _OWN_FIRST                              # a custom build: the file the person picked, though the published one may be in the same folder
+     elif a.gguf_dir and not gguf.exists():
+         gguf = own_path_gguf_in(folder) or gguf        # #5869: the person's own file under another name (the importer checked its types)
+-    size = fam["sha256"][published][0]
++    size = own_size(fam, model)
+     part = gguf.with_name(gguf.name + ".part")
+     def have(p: Path) -> bool:                         # --gguf-dir: the person's own file has no finish mark; verify_sha256 checks and writes it
+         return p.exists() and (done(p) or bool(a.gguf_dir))
+@@ -10170,7 +10194,7 @@
+     else:
+         if a.gguf_dir:
+             fail(f"{gguf} is missing", f"put {gguf.name} in {folder}, or drop --gguf-dir to download it")
+-        download(fam["hf"] + gguf.name, gguf)
++        download(own_hf(fam, model) + gguf.name, gguf)
+     verify_sha256(gguf, *fam["sha256"][published], own=bool(a.gguf_dir))
+     ok(f"model file: {gguf}")
+     if vision != "none" and fam.get("mmproj"):         # the image encoder: Unsloth's mmproj, pinned, size + SHA-256 checked
+@@ -11300,14 +11324,14 @@
+     ram = ram_gb()
+     for i, m in enumerate(names, 1):
+         d = fam["models"][m]
+-        size = fam["sha256"][fam["file"].format(q=m)][0]
++        size = own_size(fam, m)
+         fit = "" if ram >= d["ram_gb"] else f"   <- needs {d['ram_gb']} GB RAM, you have {ram:.0f}"
+         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
+     if a.check:
+         return 0
+     model = a.model or names[int(ask("Which size?", [str(i) for i in range(1, len(names) + 1)], "1", a.yes)) - 1]
+     say(f"  Its license: {fam['license']}")
+-    want = [fam["file"].format(q=model)]
++    want = [own_file(fam, model)]
+     if a.vision in ("yes", "gpu", "cpu"):
+         want.append(fam["mmproj"])
+     folder = Path(a.models_dir) / (fam["tag"] + model)
+--- a/terminal/tools/strata_mcp.py
++++ b/terminal/tools/strata_mcp.py
+@@ -768,7 +768,7 @@
+             return self.inkling_size(family, model)
+         if not d or model not in d["models"]:
+             return None
+-        size_gb = d["sha256"][d["file"].format(q=model)][0] / 1e9
++        size_gb = self.setup_module().own_size(d, model) / 1e9
+         return {"about": d["models"][model]["about"], "download_gb": round(size_gb, 1), "ram_gb": d["models"][model]["ram_gb"],
+                 # the routed experts are ~93% of the file (setup.own_path_parallel_fits_all); the dense part and buffers ~1 GB more
+                 "arena_gb": round(size_gb * 0.93, 1), "vision": bool(d.get("vision", True)),
+--- a/tools/packaging/README.md
++++ b/tools/packaging/README.md
+@@ -134,8 +134,10 @@
+ 
+ ## Release checks and gaps
+ 
+-- CI covers scripts, Terminal checks, Metal builds and Docker images ([.github/workflows](../../.github/workflows)). It does not replace native desktop
+-  packaging, signing or real-GPU acceptance on every target. Some recipes still run by hand.
++- This fork keeps only the kit workflows ([.github/workflows](../../.github/workflows)): `kit-build.yml` compiles the CUDA servers on demand
++  (`workflow_dispatch` only since 13.11, measured on the branch) and `kit-release.yml` packs the portable kit on a published release or on demand.
++  The upstream workflows for scripts, Terminal checks, Metal builds and Docker images were removed here, so those checks run in the upstream
++  repository. CI does not replace native desktop packaging, signing or real-GPU acceptance on every target; some recipes still run by hand.
+ - Signing needs the owner's credentials, which are never in this tree. The feed and every engine package are signed with the feed key
+   (`feed_tool.py`); the app installers with the Tauri updater key ([UPDATES.md](UPDATES.md)). The Mac app and Terminal archive are signed and
+   notarised on a Mac that holds the Developer ID certificate. No Windows code-signing certificate is configured, so Windows may warn about the installer.

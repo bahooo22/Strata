@@ -1,0 +1,73 @@
+{
+  "taskId": "UPSTREAM-4560D0379",
+  "ok": true,
+  "checks": {
+    "jsonParse": {
+      "ok": true,
+      "files": 10
+    },
+    "schema": {
+      "ok": true,
+      "rows": 34
+    },
+    "matrix": {
+      "ok": true,
+      "rows": 34
+    },
+    "qwen35Delta": {
+      "ok": true,
+      "paths": []
+    },
+    "patchApplyCheck": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "requiredFiles": {
+      "ok": true,
+      "files": [
+        "IMPL_PLAN.md",
+        "DOC_IMPL.md",
+        "merge-profile.json",
+        "merge-plan.json",
+        "merge-matrix.json",
+        "anchor-evidence.json",
+        "PATCH.diff",
+        "H-report.md",
+        "evidence/commit-coverage.json"
+      ]
+    },
+    "cjkScan": {
+      "ok": true,
+      "files": []
+    },
+    "conflictMarkers": {
+      "ok": true,
+      "locations": []
+    },
+    "trailingWhitespace": {
+      "ok": true,
+      "locations": [],
+      "count": 0
+    },
+    "commitCoverage": {
+      "ok": true,
+      "contentCommits": 65
+    },
+    "anchorArtifacts": {
+      "ok": true,
+      "missing": []
+    }
+  },
+  "notRun": [
+    "commits",
+    "merge",
+    "push",
+    "tests",
+    "build",
+    "GPU",
+    "merge-gate --run-checks",
+    "canonical leakcheck"
+  ]
+}

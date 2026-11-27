@@ -1,0 +1,140 @@
+COMMIT 4560d03793482ef367294cfbd86a4df8d5679e72 release prep 0.2.23: app and Terminal 0.2.23, Control and strata-inkling 0.1.70, release data and generated pages
+
+AGENTS.md
+README.md
+engine/CMakeLists.txt
+tools/packaging/README.md
+COMMIT 25b4677591bccf023620bbb4ab84941df9ca3fc7 control, tui: fixes from the full suite run
+
+terminal/setup.py
+COMMIT e28d9222fa326cdd09322cfcb3d2e0e5d04331c1 control: custom builds, a person's own .gguf / .strata files of a model the engines run, used in place under their own name
+
+terminal/setup.py
+terminal/tools/strata_mcp.py
+COMMIT c159570f64ceb205f920cf370043fafb31fac87f prefill(hip): the STRATA_PF_SYNC_DEBUG memory-kind query in moe_fused_iq.cu compiles on HIP
+
+engine/src/prefill/moe_fused_iq.cu
+COMMIT a9f70cb0daff0dd96fa51b03440287ea7d47b6ed settings register regenerated after the f-owner-mi merge (the 15 Metal / SYCL names, STRATA_INK_DFLASH2_SF4 and the moved line numbers)
+
+terminal/data/settings-register.json
+COMMIT 7f8f7ec0c83078720829c6b50c653c32e5a4de70 merge f-owner-mi (OWNER-MI-TAKE: Apple M5 Max Metal and Intel Arc SYCL work of the owner, default-off speed paths, SYCL default-path fixes, DFlash 2 mix loader) into the 0.2.23 integration
+COMMIT 1a6102be51ae17884595c4d88fdd44a79a04f1cc settings register: STRATA_INK_DFLASH2_SF4 (HIP, research)
+
+terminal/data/settings-register.json
+COMMIT 7b097977174bb5e20fce44c36c7ef6b5c4fdd37c review fixes: settings register, Level Zero V2 only without oneMKL, B70 CI fetches the shipped DFlash 2 file
+
+docs/SETTINGS.md
+terminal/data/settings-register.json
+COMMIT b0b4a16a2512d27c92f0997df1379e14336446c2 docs: the DFlash 2 notice describes the shipped file (our converted 551,600,700-byte mix of the Inco AI / z-lab weights, with the statement of changes) and says it does not change Strata's MIT licence; the setup hint states the size from the pin
+
+terminal/setup.py
+COMMIT f3796e96ba19746bd8d994a5229674f9aaa1eade feat(control): the DFlash 2 sidecar is our 551 MB mix on Hugging Face (strata-engine/Inkling-2-Mini-DFlash2), pinned by commit
+
+terminal/strata_control/inkling_fit.py
+COMMIT 55371e9fe26d47df88d02de649ed6017d6922c78 docs: DETAILS.md says the Turing (sm_75) kernel series is on by default since 0.2.23 and STRATA_SM75_PERF=0 turns it off (from 6306a81c5; #7041, #7076); register regenerated for the moved line numbers
+
+terminal/data/settings-register.json
+COMMIT e5ca77d7a84ee0121d5dd95257bda68c9ad1559a settings register: the three RDNA2 / HIP K/V names after AMD-RDNA32's last commit (RDNA2_MOE opt-in, RDNA2_GEMM rollback, KV_FP8_SMALL opt-in); SETTINGS.md regenerated
+
+docs/SETTINGS.md
+terminal/data/settings-register.json
+COMMIT c59abf40254497008ca240da7a57e638436c7bb8 merge f-owner-hip (OWNER-HIP: R9700 FP8 prompt path, Strix Halo opt-in, AMD-RDNA32 DFlash 2 HIP port and IQ decode) into the 0.2.23 integration; conflicts: ink_backend.h, ink_serve.h (the prompt checkpoint position is rq.ckpt_at of #7241 with the async prompt checkpoint of the HIP backend), settings register (union + regeneration)
+COMMIT ee11839d69472b6d7fe5487e97f0fb6768183ffe settings register: STRATA_INK_R9700_FP8_DECODE / _FP8_TAIL / _FP8_TAPS and STRATA_INK_STRIXHALO_SF4_TAPS (opt-in)
+
+terminal/data/settings-register.json
+COMMIT d21329299798ac8bb0f28aea55df0bf423583427 [Control, app] Ornith-1.5-35B-A3B in the catalog as family ornith (#7134)
+
+README.md
+terminal/setup.py
+COMMIT 017b6b86519e588d8aa8e809ba4d57bda03ba740 engine(cuda): the Turing (sm_75) kernel series is on by default; STRATA_SM75_PERF=0 turns it off (#7041, #7076)
+
+engine/CMakeLists.txt
+COMMIT 7347f043ac17a1df34d6e4dda78d151fc6d3872f Revert "[Control, app] Ornith-1.5-35B-A3B in the catalog as family ornith (#7134)"
+
+README.md
+terminal/setup.py
+COMMIT 6d6e9064efdc442bf8d12565b61dd06ab64f8085 settings register regenerated after the late merges (STRATA_PF_SYNC_DEBUG, STRATA_INK_DFLASH2_F32 / _SCREEN, the picture reader names); table test: the 5090 row holds TC_ATTN
+
+terminal/data/settings-register.json
+COMMIT 402cd017e4925e9cb14be6c71c5a3938ebb620d9 engine: the ONE drafter on/off rule: residency first at load, plain steps by context on hybrid cards
+
+engine/CMakeLists.txt
+terminal/data/settings-register.json
+COMMIT 56829a8b5cd7a406b54d6b17172bd55d703760b4 feat(inkling): pictures follow the Qwen rule in Control and serve (CPU reader under 24 GB, the card's from 24 GB, Mac GPU, Intel CPU unless asked)
+
+terminal/setup.py
+COMMIT 5bafbe3bcdb1409b4852a29c605c84ef8a83f2aa engine(cpu): the 4-row dot kernels are the default from two tokens per expert call, off for one token (#7075, #6552)
+
+docs/SETTINGS.md
+terminal/data/settings-register.json
+COMMIT fd5fc4aa76ecfda8491f7897be0797ac9da0069f engine: STRATA_PF_SYNC_DEBUG=1 names the fused expert launch that faults (#7115)
+
+engine/src/prefill/moe_fused_iq.cu
+COMMIT 885941f4958f87b3d932ef9cbb829abfc5e3176c sm120: the 5090 exact set is empty: exact must not change the drafting policy against off (DFlash 2 verify batches differ otherwise)
+
+terminal/data/settings-register.json
+COMMIT 484a0204893c9d91359744d6b74365ad6a798c4f [Control, app] Ornith-1.5-35B-A3B in the catalog as family ornith (#7134)
+
+README.md
+terminal/setup.py
+COMMIT 82623cd60c04087e72a4c9020c8d69f9bd27933d fix(control): `strata launch` no longer freezes on a key press while the hardware is read again (#7183)
+
+terminal/setup.py
+terminal/tools/strata_mcp.py
+COMMIT d55de4e5f3edfe5a85f4e837829e5ec478b8a1b6 settings register: the 42 new STRATA_INK_R9700_*, STRATA_INK_STRIXHALO_* and STRATA_HALO_SF4_TRUNK names (opt-in, owner-hip); regenerated with tools/settings_register.py
+
+terminal/data/settings-register.json
+COMMIT 29575b82504ffdd60df3f530dda1eb013a6914d1 turbo: one line when --turbo has no effect on the RTX 50 fast path; the settings register gets the 40 names the merged lanes added
+
+terminal/data/settings-register.json
+COMMIT b63c902ccd6a1aa0207a5fe204fa720add0496c2 merge f-lineup + f-dflash2-q-ctl (the 0.2.23 Inkling lineup, DFlash 2 sidecar fetch and pins) into f-0223-int
+COMMIT 4adbc88135bba02005b2c3f60ef02bc0b86e2550 feat(control): the Inkling-2-Mini lineup of 0.2.23: Strata packs, GSQ-RCO IQ3_S, Unsloth UD-Q4_K_XL, DFlash 2 the only drafter
+
+README.md
+terminal/setup.py
+terminal/strata_control/inkling_fit.py
+terminal/tools/strata_mcp.py
+COMMIT b78860cbd3a3b874ff39ff6d7d0219df09f6a456 fix(inkling2-cuda): the 5060 Ti exact set is L2PF only (C64_SPEC's memory plan needs COMPACT: 64 slots died without it)
+
+terminal/data/settings-register.json
+COMMIT 18791e70f5284106a2634610dac5c732636466a2 feat(control): fetch the DFlash 2 sidecar beside an Inkling .strata model (new install and update), verified, DSpark when it is missing
+
+terminal/setup.py
+COMMIT 3b10f2a05b85fb8521b8adacb95499050077ed72 wip: settings register entries for the master switches
+
+terminal/data/settings-register.json
+COMMIT 8065654e86b27a2eb57c7c884332b1c0a4d6df65 docs+register: the RTX 50 switch set (docs/INKLING_SM120.md); the 25 new STRATA_INK_* names in the settings register
+
+terminal/data/settings-register.json
+COMMIT 22f73e018a0c6582f8d50abf91ba981753013b19 merge(inkling2-cuda): RTX 5060 Ti engine into the shared sm_120 base; one switch set, one card table, one hook, one MoE dispatch
+
+engine/CMakeLists.txt
+COMMIT dc01b0371c42e5e1428ac64cd5bc1a045740c429 Merge f-0222-eng at a5bfe0369: #7089 default back to 100%, symbols cmake fixes
+COMMIT 2aed34d4e6ea2beb775b91feb2603f5254798a76 fix(engine): the layer split's lend reservation stays whole by default; STRATA_SPLIT_LEND_RESERVE=0 / a percent is the opt-in (#7089, owner decision)
+
+terminal/data/settings-register.json
+COMMIT bbbf28a901b1ec9a18f0e68bcc006655d412a0d2 release prep 0.2.22: app and Terminal 0.2.22, Control and engines 0.1.69
+
+AGENTS.md
+README.md
+tools/packaging/README.md
+COMMIT 3edc75829872b8547b70a1bddc067a8e92832734 Merge f-0222-eng at 45e909ffa: engine fixes and 0.1.69 for 0.2.22
+COMMIT 98c187512bd65a6562ccf774f8d972f9bea596ed Engine 0.1.69: version bump of the engine sources that are rebuilt (Qwen engine, all backends; Inkling CUDA)
+
+engine/CMakeLists.txt
+COMMIT 4fd373cfea1f6ea7acfa4d640cab2fe21ef0aa1f build(release): every engine package keeps a symbol file (PDB, .debug, dSYM), outside the package and the release assets
+
+engine/CMakeLists.txt
+COMMIT 7ab0d923c275c15002ff82e02336220a2e97d824 fix(engine): the layer split's lend reservation takes half of its RAM on a fast drive, so decode gets its 9% back (#7089)
+
+terminal/data/settings-register.json
+COMMIT 5a7b03643f08420b70d2bf9f7ed388ca7657090c fix(setup): a failed install of a model shape's engine (Inkling's strata-inkling) says why, instead of "See the line above" with nothing above it (#7119)
+
+terminal/setup.py
+COMMIT 289fa51dea00a1c6435262ae5e17dba854add1f9 fix(setup): Auto is the MTP on the canonical Q2_0 pack of an AVX-512 CPU, so a fresh CUDA, HIP or SYCL start no longer ends at "it needs a native pack" (#7090)
+
+terminal/setup.py
+COMMIT 8111e580d326981183ae3ba81db016a68fb51ce1 Control 0.1.68.1 / Terminal 0.2.21.2: version bump for the second Control-only update (app stays 0.2.21, engine packages stay 0.1.67)
+
+engine/CMakeLists.txt
+tools/packaging/README.md

@@ -1,0 +1,45 @@
+diff --git a/engine/CMakeLists.txt b/engine/CMakeLists.txt
+index e98dbef31..f39962f07 100644
+--- a/engine/CMakeLists.txt
++++ b/engine/CMakeLists.txt
+@@ -810,10 +810,11 @@ if(STRATA_NATIVE_EXPERTS)
+       # lower-precision format on both roles pushes the GPU path over this test's 3% threshold (quantization
+       # noise, not a kernel bug -- see the PR).
+       # q4_0/q4_0 and q4_0/q4_1: a plain llama-quantize Q4_0 file (bartowski's Qwen3.8-Flash-Next-Q4_0: gate/up Q4_0,
+       # down Q4_0 on 42 layers and Q4_1 on 6)
+       # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
++      # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
+       set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1)
+       if(STRATA_Q6K_EXPERTS)
+         list(APPEND _strata_parity_pairs q6_K/q8_0)
+       else()   # a pair without GPU kernels (Q6_K gate/up) is refused by native_expert_supported, not run
+         add_test(NAME native_expert_parity_refuses_q6_K COMMAND native_expert_parity --synthetic q6_K/q8_0)
+@@ -822,10 +823,28 @@ if(STRATA_NATIVE_EXPERTS)
+       foreach(_pair ${_strata_parity_pairs})
+         string(REPLACE "/" "_" _name "${_pair}")
+         add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
+         set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120)
+       endforeach()
++      # q2_K/q4_K and q2_K/iq4_xs: Unsloth's UD-IQ3_S mixes one Q2_K gate/up layer with Q4_K/Q6_K/IQ4_XS down.
++      # is_iq() promised type 10 while dq_dispatch had no case for it, so the dequantizer left the destination
++      # unwritten and the launch still reported success; these pairs pin the dequantizer against ggml's to_float.
++      # Q2_K's 256-weight superblock needs whole blocks: the UD-IQ3_S geometry H=2048 FF=512, not the default
++      # Flash-Next 2560/640 (FF=640 is not a multiple of 256, the pair is refused as "not whole blocks").
++      foreach(_pair q2_K/q4_K q2_K/iq4_xs)
++        string(REPLACE "/" "_" _name "${_pair}")
++        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 120
++                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
++      endforeach()
++      # Full routed Q2_K/Q3_K/IQ3 pairs at the whole-block 2048 x 512 geometry.
++      foreach(_pair q3_K/q3_K q2_K/q2_K iq3_xxs/q2_K iq3_s/q2_K)
++        string(REPLACE "/" "_" _name "${_pair}")
++        add_test(NAME native_expert_parity_${_name} COMMAND native_expert_parity --synthetic ${_pair})
++        set_tests_properties(native_expert_parity_${_name} PROPERTIES TIMEOUT 180
++                             ENVIRONMENT "Q4KQ_PARITY_EMBD=2048;Q4KQ_PARITY_FF=512")
++      endforeach()
+       add_test(NAME native_expert_parity_q5_1_min COMMAND native_expert_parity --q5_1-min)
+       # Unsloth v3.1 Qwen3.8-Flash-Next sets (UD-IQ1_M .. UD-IQ4_XS, round 0214): every gate/up x down pair their layers use,
+       # at the real shapes (hidden 2560, FF 640): gate/up IQ2_XXS IQ2_XS IQ2_S IQ3_XXS IQ4_XS (+ IQ1_M, the GSQ-RCO packs'),
+       # down Q2_0 IQ4_NL Q5_0 Q8_0.  Q5_0 down (UD-IQ4_XS 33 layers, UD-Q3_K_XL 20) had no test on this model before.
+       foreach(_gu iq1_m iq2_xxs iq2_xs iq2_s iq3_xxs iq4_xs)

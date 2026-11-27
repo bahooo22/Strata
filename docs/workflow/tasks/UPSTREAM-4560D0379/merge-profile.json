@@ -1,0 +1,514 @@
+{
+  "patches": [
+    {
+      "decision": "ours",
+      "id": "agents-workflow",
+      "notes": "Workflow v3 в AGENTS",
+      "oursAnchor": "## Workflow v3",
+      "reason": "Upstream меняет только версии; fork workflow-раздел сохраняется.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/agents-workflow.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "AGENTS.md",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "agents-version",
+      "notes": "Версии AGENTS",
+      "oursAnchor": "Version 0.2.21",
+      "reason": "Берём upstream version line 0.2.23 / engine 0.1.70; workflow-раздел остаётся отдельной ours-строкой.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/agents-version.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "Version 0.2.23",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "readme-fork-notes",
+      "notes": "Fork notes и charts",
+      "oursAnchor": "## Fork measurement charts",
+      "reason": "Upstream не заменяет fork-заметки, research-ссылки и диаграммы измерений.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/readme-fork-notes.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "README.md",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "readme-upstream-catalog",
+      "notes": "Upstream catalog и release",
+      "oursAnchor": "Model guide and compatibility",
+      "reason": "Добавляем Ornith/Inkling 0.2.23 и release 0.2.23, не удаляя fork-блоки.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/readme-upstream-catalog.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "Ornith-1.5-35B-A3B",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "settings-fork-knobs",
+      "notes": "Fork knobs в SETTINGS",
+      "oursAnchor": "STRATA_Q36_FDEC",
+      "reason": "FDEC/DOWN_SUB8 и связанные fork-настройки отсутствуют в upstream delta.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/settings-fork-knobs.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "STRATA_PF_SYNC_DEBUG",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "settings-upstream-register",
+      "notes": "Upstream settings additions",
+      "oursAnchor": "STRATA_ACT_DUMP",
+      "reason": "Берём upstream settings additions; итоговый register/docs перегенерировать после объединения.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/settings-upstream-register.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "STRATA_PF_SYNC_DEBUG",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "cmake-expert-parity",
+      "notes": "Fork expert parity tests",
+      "oursAnchor": "q2_K/iq4_xs",
+      "reason": "Upstream не содержит наших parity pairs 10/11/18/21 и whole-block geometry.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/cmake-expert-parity.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "STRATA_NATIVE_EXPERTS",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "cmake-upstream-build",
+      "notes": "Upstream build/release infrastructure",
+      "oursAnchor": "project(strata VERSION 0.1.68",
+      "reason": "Берём version 0.1.70, symbols, sm120/draft-rule tests и dot-x4 policy; fork parity tests сохраняются отдельно.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/cmake-upstream-build.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "project(strata VERSION 0.1.70",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "fused-format-support",
+      "notes": "Fused IQ4_XS/IQ4_NL support",
+      "oursAnchor": "STRATA_PF_FUSED_Q4NL",
+      "reason": "Upstream добавляет диагностику, но не нашу поддержку IQ4_XS down и IQ4_NL gate/up.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/fused-format-support.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "experts_native",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "fused-sync-debug",
+      "notes": "Upstream fused launch diagnostics",
+      "oursAnchor": "void ck(cudaError_t",
+      "reason": "Берём default-off dbg_sync; он оборачивает launches и не меняет bits при выключенном флаге.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/fused-sync-debug.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "STRATA_PF_SYNC_DEBUG",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "setup-kat-huihui",
+      "notes": "KAT/Huihui own-path models",
+      "oursAnchor": "IQ4_XS-KAT",
+      "reason": "Upstream добавляет Ornith/custom builds, но не KAT/Huihui pins и per-model own_file/own_hf.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/setup-kat-huihui.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "def install_own_path",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "setup-upstream-features",
+      "notes": "Upstream setup features",
+      "oursAnchor": "def install_own_path",
+      "reason": "Берём Ornith, custom-label, hardware refresh, DFlash2 и setup error hint; KAT/Huihui остаются отдельной ours-строкой.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/setup-upstream-features.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "def run_tag",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "upstream",
+      "id": "inkling-upstream-lineup",
+      "notes": "Upstream Inkling 0.2.23 lineup",
+      "oursAnchor": "def launch_parallel",
+      "reason": "Наш единственный diff — удаление финальной пустой строки; семантической ours-реализации нет. Берём upstream lineup/DFlash2.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/inkling-upstream-lineup.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "DFLASH2_GB",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "mcp-own-size",
+      "notes": "MCP own-size для KAT/Huihui",
+      "oursAnchor": "self.setup_module().own_size(d, model)",
+      "reason": "Upstream не заменяет наш per-model own_size lookup.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/mcp-own-size.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "def own_size",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "mcp-upstream-features",
+      "notes": "Upstream MCP features",
+      "oursAnchor": "def hardware",
+      "reason": "Берём stale-ok hardware refresh, custom models, Inkling legacy/update metadata; наша own-size строка сохраняется.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/mcp-upstream-features.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "def _refresh_hardware_later",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "packaging-fork-notes",
+      "notes": "Fork packaging CI notes",
+      "oursAnchor": "This fork keeps only the kit workflows",
+      "reason": "Upstream меняет только version line; fork CI/gap notes сохраняются.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/packaging-fork-notes.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "# Strata packaging",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "upstream",
+      "id": "packaging-upstream-version",
+      "notes": "Upstream packaging version",
+      "oursAnchor": "current release (app and Terminal 0.2.21",
+      "reason": "Обновляем version line до 0.2.23 / Control 0.1.70 / engines 0.1.70.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/packaging-upstream-version.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "current release (app and Terminal 0.2.23",
+      "upstreamStatus": "full"
+    },
+    {
+      "decision": "ours",
+      "id": "qwen35-no-delta",
+      "notes": "qwen35 upstream no-delta guard",
+      "oursAnchor": "q36_engine",
+      "reason": "Upstream delta не меняет qwen35; candidate обязан быть побитово равен ours по этим путям.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/qwen35-no-delta.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-fa-v2",
+      "notes": "Q36 FA v2/tile/prof",
+      "oursAnchor": "STRATA_Q36_FA_TILE",
+      "reason": "Upstream не содержит fork FA tile/map/check/prof контракта.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-fa-v2.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-fdec",
+      "notes": "Q36 FDEC",
+      "oursAnchor": "STRATA_Q36_FDEC",
+      "reason": "Upstream не содержит fork FDEC decode route.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-fdec.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-expert-cache",
+      "notes": "Q36 expert cache/rebalance",
+      "oursAnchor": "STRATA_Q36_EXPERT_CACHE_MB",
+      "reason": "Upstream не содержит fork LRU host expert cache и rebalance cadence.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-expert-cache.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-p4",
+      "notes": "Q36 P4 fused prompt experts",
+      "oursAnchor": "STRATA_Q36_P4",
+      "reason": "Upstream не содержит fork P4 fused prompt route.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-p4.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-memory-staging",
+      "notes": "Q36 memory/staging controls",
+      "oursAnchor": "STRATA_Q36_STAGING_ONE",
+      "reason": "Upstream не содержит fork staging-one и memory controls.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-memory-staging.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-super-chunk",
+      "notes": "Q36 super-chunk",
+      "oursAnchor": "STRATA_Q36_SUPER_CHUNK",
+      "reason": "Upstream не содержит fork layer-major super-chunk route.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-super-chunk.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "q36-knobs",
+      "notes": "Q36 knobs/profile/rebalance",
+      "oursAnchor": "STRATA_Q36_ATT_MB",
+      "reason": "Upstream не содержит fork attention/profile/swap knobs.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/q36-knobs.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "down-sub8",
+      "notes": "DOWN_SUB8 opt-out",
+      "oursAnchor": "STRATA_DOWN_SUB8",
+      "reason": "Upstream не содержит fork opt-out для 32-lane down reduction.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/down-sub8.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "native_expert",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "int8-prompt-experts",
+      "notes": "Int8 prompt experts/no-MMQ",
+      "oursAnchor": "native_expert_i8_set_mmq_free",
+      "reason": "Upstream не содержит fork no-MMQ int8 prompt route.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/int8-prompt-experts.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "copy-session-quantized-kv",
+      "notes": "Quantized KV copy_session",
+      "oursAnchor": "a.kq[l] && a.pos > 0",
+      "reason": "Upstream delta не содержит fork copy_session для квантованного KV.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/copy-session-quantized-kv.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "copy_session",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "qwen35-cli-context-guard",
+      "notes": "Qwen35 CLI context guard",
+      "oursAnchor": "exceeds the context",
+      "reason": "Upstream delta не содержит fork overflow guard.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/qwen35-cli-context-guard.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "q36_engine",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "qwen36-200k-launch",
+      "notes": "Qwen36 200k launch profiles",
+      "oursAnchor": "terminal/tools/check_qwen36_200k_launch.py",
+      "reason": "Upstream не заменяет fork launch profiles и static checker.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/qwen36-200k-launch.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "terminal/serve/server.py",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "workflow-tooling",
+      "notes": "Workflow v3 tooling",
+      "oursAnchor": "tools/workflow/workflow.py",
+      "reason": "Upstream не содержит fork A/H/N workflow tooling.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/workflow-tooling.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "docs",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "upstream-merge-tooling",
+      "notes": "Evidence-gated upstream merge tooling",
+      "oursAnchor": "tools/upstream_merge/upstream_merge.py",
+      "reason": "Upstream не содержит fork merge profile/matrix/gate framework.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/upstream-merge-tooling.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "tools",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "packaging-kit",
+      "notes": "Portable kit workflows",
+      "oursAnchor": ".github/workflows/kit-build.yml",
+      "reason": "Upstream workflows не заменяют fork portable kit pipelines.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/packaging-kit.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": ".github/workflows",
+      "upstreamStatus": "partial"
+    },
+    {
+      "decision": "ours",
+      "id": "fork-docs-evidence",
+      "notes": "Fork research/evidence docs",
+      "oursAnchor": "docs/research/full-measurement-report.md",
+      "reason": "Upstream delta не заменяет fork measurement corpus и provenance docs.",
+      "reworkEffect": "same",
+      "statusEvidence": [
+        "anchor-evidence.json",
+        "evidence/anchors/fork-docs-evidence.txt"
+      ],
+      "statusReviewed": true,
+      "upstreamAnchor": "docs",
+      "upstreamStatus": "partial"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=qwen35-no-delta
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git grep -n -F -m 1 q36_engine 34bd46b86641d4fe34b3ab523e31b816718347e1 --
+34bd46b86641d4fe34b3ab523e31b816718347e1:docs/architecture/qwen35-core/architecture-understanding.md:7:Ядро qwen35 принимает GGUF qwen35moe, загружает геометрию и веса, управляет recurrent/KV состоянием сессий, выполняет prefill/decode/MTP и отдаёт токены через `serve` протокол. Вход — `q36_main.cpp:5` → `strata::qwen35::run`; orchestration — `Engine` и `Serve` в `q36_engine.cu`.
+upstream command: git grep -n -F -m 1 q36_engine 4560d03793482ef367294cfbd86a4df8d5679e72 --
+4560d03793482ef367294cfbd86a4df8d5679e72:docs/bench-results/2026-11-20-q36-kv-precision/README.md:43:(`engine/src/qwen35/q36_engine.cu`, binary md5 `2c5a884a821286b5bcf9b74fae458f32`). Each rep sends a fresh nonce
+candidate-draft: pending; no candidate code was created

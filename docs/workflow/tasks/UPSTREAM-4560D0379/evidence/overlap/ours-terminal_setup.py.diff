@@ -1,0 +1,158 @@
+diff --git a/terminal/setup.py b/terminal/setup.py
+index 9ec834e6b..8ca3eb816 100644
+--- a/terminal/setup.py
++++ b/terminal/setup.py
+@@ -113,10 +113,12 @@ WIN = os.name == "nt"
+ # https://huggingface.co/api/models/<repo> when this was pinned), so a checkout installs the same files on any
+ # day.  Every file has a fixed size and SHA-256 too (REPO_PINS); a revision the repository no longer has stops the
+ # download (download()), unless a tester sets STRATA_ALLOW_UNPINNED=1.
+ HF_REVISIONS = {
+     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",        # 2026-09-29
++    "mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF": "f4855f5360049541536f36b26fbc95663591ab21",   # 2026-11-23
++    "mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF": "0e6e2a22728d3617f655899b191a9e81f11b8974",  # 2026-11-23
+     "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF": "99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d",   # 2026-10-07 (adds IQ3_S)
+     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF": "bba88856f8c3c0c9e40e45f82d05e228b814ac43",  # 2026-10-19 (the new expert-pruned shard 1)
+     "unsloth/Qwen3.8-Flash-Next-GGUF": "38bb39ee97821de2c9009abb7e93950eec396e66",                   # 2026-09-30
+     "unsloth/Qwen3.6-35B-A3B-MTP-GGUF": "5bc3e238d916f48a861bac2f8a1990a0e9b7e98d",                  # 2026-10-12
+     "agentionai/Qwen3.8-Flash-Next-Gyro-GGUF": "1ada08422e404aca51ab9df665f089f34c419c6b",           # 2026-10-13
+@@ -783,10 +785,12 @@ MMPROJ = "mmproj-Qwen3.8-Flash-Next-BF16.gguf"
+ QWEN36_FILES = {
+     "Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf": (22853663008, "55983c5a75a1ab969824077b3bb3de4146e82a9234072b48ad4e8f92ad3fe9f1"),
+     "Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf": (32611711264, "35fce994cd36104a7dc1bd8a4bdf13778145664c00fdef6773aebc9246e5019c"),
+     "Qwen3.6-35B-A3B-Q8_0.gguf": (37801097504, "c1283d8b80c3e38b2735ddbc9766d3b3126f44d6c484be419d4e101d09a76131"),
+     "mmproj-F16.gguf": (899283584, "71f3cbc1f7cc0f30d09d41cfa924c0060827ebc33bf15ace7e86661e856f0160"),
++    "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf": (19179522752, "3db4507e8c2336e5444dbdb56da7fed45a7597f10c0f53299b998d1f5bba280a"),
++    "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf": (18728779424, "6c5bb2431bdbe1a68dc09c33ae18cd1d3ff4e3932e5fe5c3b360eb61ab16e8ab"),
+ }
+ OWN_PATH_FAMILIES = {
+     "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
+                "about": "35B mixture of experts with 3B active (256 experts, top-8): a smaller cousin of "
+                         "Qwen3.8-Flash-Next with the same tokenizer",
+@@ -795,10 +799,16 @@ OWN_PATH_FAMILIES = {
+                "name": "qwen3.6-35b-a3b", "license": "Apache 2.0: https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
+                # RAM: the engine keeps a copy of every expert in RAM when they do not all fit in VRAM (the hybrid mode),
+                # so the file's size plus room for the OS and the rest (measured: UD-Q4_K_XL on a 46 GB PC with a 12 GB
+                # card, 18.75 GiB of experts pinned)
+                "models": {"UD-Q4_K_XL": {"about": "4-bit (Unsloth Dynamic), the smallest", "ram_gb": 32},
++                          "IQ4_XS-KAT": {"about": "4-bit KAT-Coder (code-tuned, abliterated)", "ram_gb": 30,
++                                         "file": "KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf",
++                                         "hf": hf("mradermacher/KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED-i1-GGUF")},
++                          "IQ4_XS-Huihui": {"about": "4-bit Huihui (Claude-Opus abliterated)", "ram_gb": 30,
++                                            "file": "Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated.i1-IQ4_XS.gguf",
++                                            "hf": hf("mradermacher/Huihui-Qwen3.6-35B-A3B-Claude-4.7-Opus-abliterated-i1-GGUF")},
+                           "UD-Q6_K_XL": {"about": "6-bit (Unsloth Dynamic), closer to the full model", "ram_gb": 44},
+                           "Q8_0": {"about": "8-bit, the closest to the full model", "ram_gb": 52}},
+                "sha256": QWEN36_FILES,
+                # the engine's KV cache per context token: 10 attention layers + the MTP block, 2 KV heads x 256, K and
+                # V in fp32 (strata-q36)
+@@ -807,10 +817,24 @@ OWN_PATH_FAMILIES = {
+                # pictures: Unsloth's mmproj (the same projector family as Flash-Next's: qwen3vl_merger) through
+                # strata-vision; a parallel slot's session: its KV cache (kv_bytes_per_token) and the recurrent state of
+                # the 30 GDN layers (state_gb)
+                "vision": True, "state_gb": 0.07}
+ }
++def own_file(fam: dict, model: str) -> str:
++    """The model's published file name: the family's pattern, or the model's own (KAT/Huihui live in their own Hub repos)."""
++    return fam["models"].get(model, {}).get("file", fam["file"]).format(q=model)
++
++
++def own_size(fam: dict, model: str) -> int:
++    return fam["sha256"][own_file(fam, model)][0]
++
++
++def own_hf(fam: dict, model: str) -> str:
++    """The Hub folder the file is fetched from: the family's, or the model's own."""
++    return fam["models"].get(model, {}).get("hf", fam["hf"]).format(q=model)
++
++
+ PREVIEW_FAMILIES = OWN_PATH_FAMILIES             # the earlier name (tools and tests that import it)
+ 
+ # Tencent Hy4-Flash (220B-A12B), Strata's own `.strata` v1.0 builds: a family with its own engine program (strata-hy4, a component like a model shape's engine), its own files
+ # (one build + the Engram shard every build shares + an optional Vision shard) and its own installer, install_hy4_flash.  Not in OWN_PATH_FAMILIES: that table's installer is
+ # the single-GGUF one (mmproj, MTP, GGUF tokenizer) and its membership is pinned by tests.  The files, sizes and rules are strata_control/hy4_family.py and hy4_fit.py.
+@@ -9715,11 +9739,11 @@ def own_path_context_warning(fam: dict, model: str, vram_gb: float, ctx: int) ->
+ 
+ 
+ def own_path_size(fam: dict, ram: float) -> str:
+     """The recommended size: the largest file whose RAM need this PC has (the smallest when none fits)."""
+     fits = [m for m, d in fam["models"].items() if ram >= d["ram_gb"]]
+-    return max(fits, key=lambda m: fam["sha256"][fam["file"].format(q=m)][0]) if fits else next(iter(fam["models"]))
++    return max(fits, key=lambda m: own_size(fam, m)) if fits else next(iter(fam["models"]))
+ 
+ 
+ def own_path_vision(a, fam: dict, gpu: dict, hip: bool) -> str:
+     """The image encoder for an own-path family (Qwen3.6-35B-A3B): "gpu", "cpu" or "none".  Pictures are on by default (owner rule
+     2026-10-18) and the reader follows strata_control/vision_reader.py's one rule on every make of card: the CPU encoder under 24 GB of
+@@ -9765,11 +9789,11 @@ PARALLEL_SMALL_SHARE = 0.35     # a card that does not hold every expert: the sl
+ 
+ 
+ def own_path_parallel_fits_all(fam: dict, model: str, vram_gb: float, ctx: int, n: int) -> bool:
+     """True where every routed expert still sits in VRAM beside n slots' sessions (one more session than the slots: the
+     solo path's own)."""
+-    size = fam["sha256"][fam["file"].format(q=model)][0] / 1e9
++    size = own_size(fam, model) / 1e9
+     base = size * 0.93 + 4.5       # the routed experts + the dense weights and buffers (the file's 7% beyond them)
+     return base + (n + 1) * own_path_parallel_slot_gb(fam, ctx) <= vram_gb
+ 
+ 
+ def own_path_parallel_recommend(fam: dict, model: str, vram_gb: float, ctx: int) -> int:
+@@ -9858,11 +9882,11 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
+     if a.model and a.model not in names:
+         fail(f"{fam['title']} has no {a.model} model file", "choose one of: " + ", ".join(names))
+     say()
+     for i, m in enumerate(names, 1):
+         d = fam["models"][m]
+-        size = fam["sha256"][fam["file"].format(q=m)][0]
++        size = own_size(fam, m)
+         from strata_control import fit_label
+         fit = f"   <- {fit_label.label(size / 1e9, ram, low_ram_vram(gpu))}"        # the file against the RAM and the card's memory together
+         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
+     rec = own_path_size(fam, ram)
+     if not a.model:
+@@ -9915,11 +9939,11 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
+              "does not use them")
+     kv = a.kv if a.kv in ("fp32", "fp16", "fp8", "fp4") else None   # q36's own --kv widths; Flash-Next's int8/q4_0/k8v4 do not apply here
+     if a.kv and kv is None:
+         warn(f"--kv {a.kv} is a Flash-Next memory format: {fam['title']} takes fp32, fp16, fp8 or fp4 - kept at its default (fp32)")
+     folder = Path(a.gguf_dir) if a.gguf_dir else Path(a.models_dir) / tag
+-    published = fam["file"].format(q=model)           # the published file's name: its pinned size and SHA-256
++    published = own_file(fam, model)                  # the published file's name: its pinned size and SHA-256
+     gguf = folder / published
+     if a.gguf_dir and not gguf.exists():
+         gguf = own_path_gguf_in(folder) or gguf        # #5869: the person's own file under another name (the importer checked its types)
+     size = fam["sha256"][published][0]
+     part = gguf.with_name(gguf.name + ".part")
+@@ -9958,11 +9982,11 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
+     if have(gguf):
+         ok(f"{gguf.name} already downloaded")
+     else:
+         if a.gguf_dir:
+             fail(f"{gguf} is missing", f"put {gguf.name} in {folder}, or drop --gguf-dir to download it")
+-        download(fam["hf"] + gguf.name, gguf)
++        download(own_hf(fam, model) + gguf.name, gguf)
+     verify_sha256(gguf, *fam["sha256"][published], own=bool(a.gguf_dir))
+     ok(f"model file: {gguf}")
+     if vision != "none" and fam.get("mmproj"):         # the image encoder: Unsloth's mmproj, pinned, size + SHA-256 checked
+         mmproj = folder / fam["mmproj"]
+         if not a.gguf_dir and not have(mmproj) and not mmproj.with_name(mmproj.name + ".part").exists():
+@@ -11009,18 +11033,18 @@ def preview_family(a) -> int:
+     if a.model and a.model not in names:
+         fail(f"{fam['title']} has no {a.model} model file", "choose one of: " + ", ".join(names))
+     ram = ram_gb()
+     for i, m in enumerate(names, 1):
+         d = fam["models"][m]
+-        size = fam["sha256"][fam["file"].format(q=m)][0]
++        size = own_size(fam, m)
+         fit = "" if ram >= d["ram_gb"] else f"   <- needs {d['ram_gb']} GB RAM, you have {ram:.0f}"
+         say(f"  {i}) {m:10s} {d['about']}; download {size / 1e9:.1f} GB{fit}")
+     if a.check:
+         return 0
+     model = a.model or names[int(ask("Which size?", [str(i) for i in range(1, len(names) + 1)], "1", a.yes)) - 1]
+     say(f"  Its license: {fam['license']}")
+-    want = [fam["file"].format(q=model)]
++    want = [own_file(fam, model)]
+     if a.vision in ("yes", "gpu", "cpu"):
+         want.append(fam["mmproj"])
+     folder = Path(a.models_dir) / (fam["tag"] + model)
+     files = [folder / w for w in want]
+     left = sum(fam["sha256"][f.name][0] - (f.with_name(f.name + ".part").stat().st_size

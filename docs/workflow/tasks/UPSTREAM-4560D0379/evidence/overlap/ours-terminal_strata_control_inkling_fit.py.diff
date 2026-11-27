@@ -1,0 +1,11 @@
+diff --git a/terminal/strata_control/inkling_fit.py b/terminal/strata_control/inkling_fit.py
+index 74c1b5d91..5d0955241 100644
+--- a/terminal/strata_control/inkling_fit.py
++++ b/terminal/strata_control/inkling_fit.py
+@@ -690,6 +690,5 @@ def launch_parallel(build: str, vram_gib: float | None, ram_gib: float, ctx: int
+     whose K/V stays on the card (resident_parallel); an explicit --parallel is never touched by this.  The card is planned with the desktop reserve (the
+     free memory is not known here), so a headless card gets a safe, not the largest, number."""
+     if build not in BUILDS:
+         return table
+     return max(1, min(int(table), resident_parallel(build, vram_gib, ram_gib, ctx, cap=int(table), backend=backend, desktop=desktop, sm=sm, dspark=dspark)))
+-

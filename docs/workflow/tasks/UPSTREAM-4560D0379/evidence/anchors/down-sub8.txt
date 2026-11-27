@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=down-sub8
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git grep -n -F -m 1 STRATA_DOWN_SUB8 34bd46b86641d4fe34b3ab523e31b816718347e1 --
+34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:387:| `STRATA_DOWN_SUB8` | on / off | NVIDIA and AMD | - | - |
+upstream command: git grep -n -F -m 1 native_expert 4560d03793482ef367294cfbd86a4df8d5679e72 --
+4560d03793482ef367294cfbd86a4df8d5679e72:.gitattributes:11:# copies of real packs' native_experts.txt, parsed byte for byte by engine/tests/core/expert_layout_test.cpp
+candidate-draft: pending; no candidate code was created

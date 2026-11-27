@@ -1,0 +1,1102 @@
+{
+  "tokens": [
+    {
+      "token": "STRATA_ADAPT_MID",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:147:| `--adapt-every`, `--adapt-swaps`, `--adapt-decay` | How busily the VRAM expert cache follows the conversation. `STRATA_TINY_CACHE=1` (0.2.21; 0.1.66 had it on) brings back two rules for a cache below 15% of the experts, 16 swaps instead of 96 and the top quarter of the profile pinned; on an RTX 5080 with a 12% cache they cost 13-22% decode, so they are off. A CPU that reads missed experts slowly (DDR3 or DDR4 in few channels) gains from more swaps. `STRATA_ADAPT_MID=1` or `0` (0.2.21: on for the CUDA build, off for the HIP build; 0.1.66 had it on everywhere) sets a busier curve (`--adapt-every 2 --adapt-swaps 192 --adapt-decay 0.92`) when the VRAM cache holds 15-65% of the experts: the hit rate rises, but on an RX 7900 XT the decode speed went from -8% to +3% against the old values depending on the prompt (slower in 10 of 13 cells, worst at 15-25% coverage), so it is off by default on HIP and on by default on CUDA, where it gained 6-9% on an RTX A4000 at 30% coverage; the three flags win over it. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:147:| `--adapt-every`, `--adapt-swaps`, `--adapt-decay` | How busily the VRAM expert cache follows the conversation. `STRATA_TINY_CACHE=1` (0.2.21; 0.1.66 had it on) brings back two rules for a cache below 15% of the experts, 16 swaps instead of 96 and the top quarter of the profile pinned; on an RTX 5080 with a 12% cache they cost 13-22% decode, so they are off. A CPU that reads missed experts slowly (DDR3 or DDR4 in few channels) gains from more swaps. `STRATA_ADAPT_MID=1` or `0` (0.2.21: on for the CUDA build, off for the HIP build; 0.1.66 had it on everywhere) sets a busier curve (`--adapt-every 2 --adapt-swaps 192 --adapt-decay 0.92`) when the VRAM cache holds 15-65% of the experts: the hit rate rises, but on an RX 7900 XT the decode speed went from -8% to +3% against the old values depending on the prompt (slower in 10 of 13 cells, worst at 15-25% coverage), so it is off by default on HIP and on by default on CUDA, where it gained 6-9% on an RTX A4000 at 30% coverage; the three flags win over it. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:147:| `--adapt-every`, `--adapt-swaps`, `--adapt-decay` | How busily the VRAM expert cache follows the conversation. `STRATA_TINY_CACHE=1` (0.2.21; 0.1.66 had it on) brings back two rules for a cache below 15% of the experts, 16 swaps instead of 96 and the top quarter of the profile pinned; on an RTX 5080 with a 12% cache they cost 13-22% decode, so they are off. A CPU that reads missed experts slowly (DDR3 or DDR4 in few channels) gains from more swaps. `STRATA_ADAPT_MID=1` or `0` (0.2.21: on for the CUDA build, off for the HIP build; 0.1.66 had it on everywhere) sets a busier curve (`--adapt-every 2 --adapt-swaps 192 --adapt-decay 0.92`) when the VRAM cache holds 15-65% of the experts: the hit rate rises, but on an RX 7900 XT the decode speed went from -8% to +3% against the old values depending on the prompt (slower in 10 of 13 cells, worst at 15-25% coverage), so it is off by default on HIP and on by default on CUDA, where it gained 6-9% on an RTX A4000 at 30% coverage; the three flags win over it. |"
+    },
+    {
+      "token": "STRATA_ALLOW_NATIVE_SPEC0",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/qwen38-verdict-32k.md:15:- Opt-in: `STRATA_ALLOW_NATIVE_SPEC0=1`; DFlash2 для Swift исключён терминалом.",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_ALLOW_UNPINNED",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SAFETY.md:128:  the repository's current file instead. A tester can set `STRATA_ALLOW_UNPINNED=1` to take the current file anyway, without",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SAFETY.md:128:  the repository's current file instead. A tester can set `STRATA_ALLOW_UNPINNED=1` to take the current file anyway, without",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SAFETY.md:128:  the repository's current file instead. A tester can set `STRATA_ALLOW_UNPINNED=1` to take the current file anyway, without"
+    },
+    {
+      "token": "STRATA_API_KEY",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:.github/SECURITY.md:25:- **API key.** `\"api_key\"` in the run config (or `STRATA_API_KEY`) is required on `/v1/*` and on every endpoint",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:.github/SECURITY.md:25:- **API key.** `\"api_key\"` in the run config (or `STRATA_API_KEY`) is required on `/v1/*` and on every endpoint",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:.github/SECURITY.md:25:- **API key.** `\"api_key\"` in the run config (or `STRATA_API_KEY`) is required on `/v1/*` and on every endpoint"
+    },
+    {
+      "token": "STRATA_BUILD_TESTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:395:- **Build and tests:** `-DCMAKE_HIP_ARCHITECTURES=gfx1201 -DSTRATA_BUILD_TESTS=ON`. On an R9700,",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:build-verify.bat:21:  -DSTRATA_BUILD_TESTS=OFF -DSTRATA_GGML_DIR=\"%LLAMA%\"",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:395:- **Build and tests:** `-DCMAKE_HIP_ARCHITECTURES=gfx1201 -DSTRATA_BUILD_TESTS=ON`. On an R9700,"
+    },
+    {
+      "token": "STRATA_CACHE_PIN_FRAC",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/include/strata/core/low_vram_rules.hpp:103:/// with the old swaps given explicitly (`--adapt-swaps 96`) -10% / -10% / -3%, and without the pinning as well (STRATA_CACHE_PIN_FRAC=0 and 96)",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:2574:  STRATA_CACHE_PIN_FRAC=0 + swaps 96 -5.5%, -6.4%, -4.4%",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/include/strata/core/low_vram_rules.hpp:103:/// with the old swaps given explicitly (`--adapt-swaps 96`) -10% / -10% / -3%, and without the pinning as well (STRATA_CACHE_PIN_FRAC=0 and 96)"
+    },
+    {
+      "token": "STRATA_COMPONENTS_DIR",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/desktop/scripts/app-close-matrix.py:82:        self.env = {**os.environ, \"STRATA_COMPONENTS_DIR\": str(self.components), \"STRATA_PROFILE_DIR\": str(root / \"profiles\"),",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/desktop/scripts/app-close-matrix.py:82:        self.env = {**os.environ, \"STRATA_COMPONENTS_DIR\": str(self.components), \"STRATA_PROFILE_DIR\": str(root / \"profiles\"),",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/desktop/scripts/app-close-matrix.py:82:        self.env = {**os.environ, \"STRATA_COMPONENTS_DIR\": str(self.components), \"STRATA_PROFILE_DIR\": str(root / \"profiles\"),"
+    },
+    {
+      "token": "STRATA_CONFIG",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:tools/packaging/kit/recommend.py:164:STRATA_CONFIG = \"run\" + SEP + \"strata.json\"      # её тело отдаётся отдельным ключом config",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_CONTROL_INSTALL",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/desktop/scripts/stage-control.py:166:    env[\"STRATA_CONTROL_INSTALL\"] = \"1\"",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/desktop/scripts/stage-control.py:166:    env[\"STRATA_CONTROL_INSTALL\"] = \"1\"",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/desktop/scripts/stage-control.py:166:    env[\"STRATA_CONTROL_INSTALL\"] = \"1\""
+    },
+    {
+      "token": "STRATA_DEFAULTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/tests/speed-switches.test.mjs:40:  assert.ok(!SPEED_SWITCHES.some(s => s.env.STRATA_DEFAULTS || /0\\.2\\.6 behaviour/.test(s.label)));",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/host/tests/speed-switches.test.mjs:40:  assert.ok(!SPEED_SWITCHES.some(s => s.env.STRATA_DEFAULTS || /0\\.2\\.6 behaviour/.test(s.label)));",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/tests/speed-switches.test.mjs:40:  assert.ok(!SPEED_SWITCHES.some(s => s.env.STRATA_DEFAULTS || /0\\.2\\.6 behaviour/.test(s.label)));"
+    },
+    {
+      "token": "STRATA_DOT_X4",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:60:| `STRATA_DOT_X4` | text | CPU | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:60:| `STRATA_DOT_X4` | text | CPU | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:465:| `STRATA_DOT_X4` | text | CPU | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_DOWN",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/OLDER_GPUS.md:170:- **`STRATA_DOWN_WS=1`** (compute capability 6.0 only, CUDA build with `STRATA_EXPERIMENTAL_SM60`): the verify window's IQ4_NL / Q2_0",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/OLDER_GPUS.md:170:- **`STRATA_DOWN_WS=1`** (compute capability 6.0 only, CUDA build with `STRATA_EXPERIMENTAL_SM60`): the verify window's IQ4_NL / Q2_0",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/OLDER_GPUS.md:170:- **`STRATA_DOWN_WS=1`** (compute capability 6.0 only, CUDA build with `STRATA_EXPERIMENTAL_SM60`): the verify window's IQ4_NL / Q2_0"
+    },
+    {
+      "token": "STRATA_DOWN_SUB8",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:387:| `STRATA_DOWN_SUB8` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_DP4A",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/OLDER_GPUS.md:162:  the dot on `STRATA_DP4A`, no barrier per row. Shapes it declines keep the usual kernel. It is not bitwise the exact kernels.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/OLDER_GPUS.md:162:  the dot on `STRATA_DP4A`, no barrier per row. Shapes it declines keep the usual kernel. It is not bitwise the exact kernels.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/OLDER_GPUS.md:162:  the dot on `STRATA_DP4A`, no barrier per row. Shapes it declines keep the usual kernel. It is not bitwise the exact kernels."
+    },
+    {
+      "token": "STRATA_ENABLE_CUDA",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:185:  -DSTRATA_ENABLE_HIP=ON -DSTRATA_ENABLE_CUDA=OFF \\",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:build-verify.bat:19:  -DSTRATA_ENABLE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 ^",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:185:  -DSTRATA_ENABLE_HIP=ON -DSTRATA_ENABLE_CUDA=OFF \\"
+    },
+    {
+      "token": "STRATA_ENABLE_HIP",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:185:  -DSTRATA_ENABLE_HIP=ON -DSTRATA_ENABLE_CUDA=OFF \\",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/AMD_HIP.md:185:  -DSTRATA_ENABLE_HIP=ON -DSTRATA_ENABLE_CUDA=OFF \\",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:185:  -DSTRATA_ENABLE_HIP=ON -DSTRATA_ENABLE_CUDA=OFF \\"
+    },
+    {
+      "token": "STRATA_EXPDEC_MINB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/EXPERTDEC.md:27:- take `rb` rows per block instead of 16 (`STRATA_EXPDEC_RB` / `_DRB`; 0 = the most that keep `STRATA_EXPDEC_MINBLK`,",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/EXPERTDEC.md:27:- take `rb` rows per block instead of 16 (`STRATA_EXPDEC_RB` / `_DRB`; 0 = the most that keep `STRATA_EXPDEC_MINBLK`,",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/EXPERTDEC.md:27:- take `rb` rows per block instead of 16 (`STRATA_EXPDEC_RB` / `_DRB`; 0 = the most that keep `STRATA_EXPDEC_MINBLK`,"
+    },
+    {
+      "token": "STRATA_EXPERIMENTAL_SM60",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:.github/workflows/backends.yml:67:          # the cuda12 package is the one for Pascal and Volta: sm_60 needs STRATA_EXPERIMENTAL_SM60 (tools/packaging/build_cuda_linux.sh)",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/GDN_CONTRACT.md:71:`STRATA_GDN_REC_WARP` and `STRATA_GDN_CHUNK` exist only in `STRATA_EXPERIMENTAL_SM60` builds and act only on a cc 7.0 device at run",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:.github/workflows/backends.yml:67:          # the cuda12 package is the one for Pascal and Volta: sm_60 needs STRATA_EXPERIMENTAL_SM60 (tools/packaging/build_cuda_linux.sh)"
+    },
+    {
+      "token": "STRATA_EXPERT_I8",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:375:| `STRATA_EXPERT_I8` | text | NVIDIA and AMD | v0.2.16 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:388:| `STRATA_EXPERT_I8` | text | NVIDIA and AMD | v0.2.16 | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:466:| `STRATA_EXPERT_I8` | text | NVIDIA and AMD | v0.2.16 | - |"
+    },
+    {
+      "token": "STRATA_EXP_MODE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:602:| Grouped native experts | Mode 7: signs as `dp4a(g ^ m, u) - dp4a(m, u)`, grids and activations in LDS. IQ formats only (K-quant / Q5_1 / Q8_0 experts take the CUDA layout). | `STRATA_EXP_MODE=2` |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/AMD_HIP.md:602:| Grouped native experts | Mode 7: signs as `dp4a(g ^ m, u) - dp4a(m, u)`, grids and activations in LDS. IQ formats only (K-quant / Q5_1 / Q8_0 experts take the CUDA layout). | `STRATA_EXP_MODE=2` |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:602:| Grouped native experts | Mode 7: signs as `dp4a(g ^ m, u) - dp4a(m, u)`, grids and activations in LDS. IQ formats only (K-quant / Q5_1 / Q8_0 experts take the CUDA layout). | `STRATA_EXP_MODE=2` |"
+    },
+    {
+      "token": "STRATA_FIXED",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:tools/packaging/kit/recommend.py:90:STRATA_FIXED = {\"chunk\": 128, \"batch\": 1, \"prefill\": 2048, \"kv_type\": KV_TYPE,",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_FORCE_ISA",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1274:| `STRATA_VNNI_TIER=1` | Native packs on CPUs with AVX-512 F/DQ/BW/VL and VNNI, without VBMI (e.g. Cascade Lake) | Enables the 512-bit VNNI Q2_0, supported i-quant and Q5_0 rows, and activation quantizer. Set it in the engine's environment before starting. `STRATA_FORCE_AVX2=1` and `STRATA_FORCE_ISA=avx2\\|avx\\|sse` still cap dispatch. NVFP4 and trellis rows, and the canonical Q2_0 pack, still require VBMI. | Off by default: these rows round differently from the AVX-2 rows. No speed gain is assumed. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1274:| `STRATA_VNNI_TIER=1` | Native packs on CPUs with AVX-512 F/DQ/BW/VL and VNNI, without VBMI (e.g. Cascade Lake) | Enables the 512-bit VNNI Q2_0, supported i-quant and Q5_0 rows, and activation quantizer. Set it in the engine's environment before starting. `STRATA_FORCE_AVX2=1` and `STRATA_FORCE_ISA=avx2\\|avx\\|sse` still cap dispatch. NVFP4 and trellis rows, and the canonical Q2_0 pack, still require VBMI. | Off by default: these rows round differently from the AVX-2 rows. No speed gain is assumed. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1286:| `STRATA_VNNI_TIER=1` | Native packs on CPUs with AVX-512 F/DQ/BW/VL and VNNI, without VBMI (e.g. Cascade Lake) | Enables the 512-bit VNNI Q2_0, supported i-quant and Q5_0 rows, and activation quantizer. Set it in the engine's environment before starting. `STRATA_FORCE_AVX2=1` and `STRATA_FORCE_ISA=avx2\\|avx\\|sse` still cap dispatch. NVFP4 and trellis rows, and the canonical Q2_0 pack, still require VBMI. | Off by default: these rows round differently from the AVX-2 rows. No speed gain is assumed. |"
+    },
+    {
+      "token": "STRATA_GDN_SPLIT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1487:| sm_70 (Tesla V100 / Titan V / Quadro GV100) | `STRATA_ADAPT_OVERLAP=1`, `STRATA_SM70_TABLE=1`, `STRATA_B6_MMVQ_ROWS=1`, `STRATA_TSUM=1`, `STRATA_SMALL_UNR=3`, `STRATA_GR_NORM_FAST=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ARGMAX_ROWS_SM70=1`, `STRATA_LFUSE=1`, `STRATA_GDN_SPLIT=1`, `STRATA_SH_STREAM=1`, `STRATA_Q80_ROWS1=1`, `STRATA_NO_MMVQ_ROWS2=1`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_GR_Q8_DOWN_MODE=2`, `STRATA_GR_Q8_UP_COLS=16`, `STRATA_GR_Q8_UP_MODE=2`, `STRATA_SCORES_HALVE=1`, `STRATA_SCORES_THREAD=1`, `STRATA_TOPK_SAMPLE=1`, `STRATA_SELECT_LONG=1` | `STRATA_SM70_PERF=0` (and `STRATA_DEFAULTS=026`) |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1487:| sm_70 (Tesla V100 / Titan V / Quadro GV100) | `STRATA_ADAPT_OVERLAP=1`, `STRATA_SM70_TABLE=1`, `STRATA_B6_MMVQ_ROWS=1`, `STRATA_TSUM=1`, `STRATA_SMALL_UNR=3`, `STRATA_GR_NORM_FAST=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ARGMAX_ROWS_SM70=1`, `STRATA_LFUSE=1`, `STRATA_GDN_SPLIT=1`, `STRATA_SH_STREAM=1`, `STRATA_Q80_ROWS1=1`, `STRATA_NO_MMVQ_ROWS2=1`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_GR_Q8_DOWN_MODE=2`, `STRATA_GR_Q8_UP_COLS=16`, `STRATA_GR_Q8_UP_MODE=2`, `STRATA_SCORES_HALVE=1`, `STRATA_SCORES_THREAD=1`, `STRATA_TOPK_SAMPLE=1`, `STRATA_SELECT_LONG=1` | `STRATA_SM70_PERF=0` (and `STRATA_DEFAULTS=026`) |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1500:| sm_70 (Tesla V100 / Titan V / Quadro GV100) | `STRATA_ADAPT_OVERLAP=1`, `STRATA_SM70_TABLE=1`, `STRATA_B6_MMVQ_ROWS=1`, `STRATA_TSUM=1`, `STRATA_SMALL_UNR=3`, `STRATA_GR_NORM_FAST=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ARGMAX_ROWS_SM70=1`, `STRATA_LFUSE=1`, `STRATA_GDN_SPLIT=1`, `STRATA_SH_STREAM=1`, `STRATA_Q80_ROWS1=1`, `STRATA_NO_MMVQ_ROWS2=1`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_GR_Q8_DOWN_MODE=2`, `STRATA_GR_Q8_UP_COLS=16`, `STRATA_GR_Q8_UP_MODE=2`, `STRATA_SCORES_HALVE=1`, `STRATA_SCORES_THREAD=1`, `STRATA_TOPK_SAMPLE=1`, `STRATA_SELECT_LONG=1` | `STRATA_SM70_PERF=0` (and `STRATA_DEFAULTS=026`) |"
+    },
+    {
+      "token": "STRATA_GFX1151_EXP8",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/include/strata/kernels/hip_unsloth_wmma.hpp:256:/// (covers gfx1151, gfx1100..1103, gfx1150, AND gfx1200/1201; respects STRATA_GFX1151_EXP8=0 /",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/include/strata/kernels/hip_unsloth_wmma.hpp:256:/// (covers gfx1151, gfx1100..1103, gfx1150, AND gfx1200/1201; respects STRATA_GFX1151_EXP8=0 /",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/include/strata/kernels/hip_unsloth_wmma.hpp:256:/// (covers gfx1151, gfx1100..1103, gfx1150, AND gfx1200/1201; respects STRATA_GFX1151_EXP8=0 /"
+    },
+    {
+      "token": "STRATA_GFX11_DEFAULTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:379:| `STRATA_GFX11_DEFAULTS` | on / off | NVIDIA and AMD | v0.2.19 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:392:| `STRATA_GFX11_DEFAULTS` | on / off | NVIDIA and AMD | v0.2.19 | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:470:| `STRATA_GFX11_DEFAULTS` | on / off | NVIDIA and AMD | v0.2.19 | - |"
+    },
+    {
+      "token": "STRATA_GFX11_EXP8",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:380:| `STRATA_GFX11_EXP8` | text | AMD | v0.2.19 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:393:| `STRATA_GFX11_EXP8` | text | NVIDIA and AMD | v0.2.19 | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:471:| `STRATA_GFX11_EXP8` | text | AMD | v0.2.19 | - |"
+    },
+    {
+      "token": "STRATA_GFX12_EXP8",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:383:| `STRATA_GFX12_EXP8` | text | AMD | v0.2.20 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:396:| `STRATA_GFX12_EXP8` | text | AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:474:| `STRATA_GFX12_EXP8` | text | AMD | v0.2.20 | - |"
+    },
+    {
+      "token": "STRATA_GGML_DIR",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/bench-results/2026-10-05-community-arc-b65/BUILD.md:53:  -DSTRATA_GGML_DIR=/absolute/path/to/llama.cpp -DCMAKE_BUILD_TYPE=Release",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:LOCAL.en.md:14:| `912ea835` | fork notes: the `q8-kv` branch, the `STRATA_GGML_DIR` build, `build-verify.bat` |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/bench-results/2026-10-05-community-arc-b65/BUILD.md:53:  -DSTRATA_GGML_DIR=/absolute/path/to/llama.cpp -DCMAKE_BUILD_TYPE=Release"
+    },
+    {
+      "token": "STRATA_GR_FUSED",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:92:| `STRATA_GR_FUSED` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:92:| `STRATA_GR_FUSED` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:91:| `STRATA_GR_FUSED` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_GR_UNFUSED",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/prefill/prefill.cpp:1055:// F-1: STRATA_GR_UNFUSED=1 keeps the FP32 copy of the normalized rows (gr_norm + gr_mix), the A/B arm",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:1272:right to wrong). STRATA_GR_UNFUSED=1 restored the old bits.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/prefill/prefill.cpp:1055:// F-1: STRATA_GR_UNFUSED=1 keeps the FP32 copy of the normalized rows (gr_norm + gr_mix), the A/B arm"
+    },
+    {
+      "token": "STRATA_GU_FMTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/metal/kernels/moe.metal:470:// Gyro (agentionai's trellis experts): TQK6 / TQ2_T gate/up, TQK7 / TQ2_T down (the CUDA engine's STRATA_GU_FMTS / D_FMTS)",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/metal/kernels/moe.metal:470:// Gyro (agentionai's trellis experts): TQK6 / TQ2_T gate/up, TQK7 / TQ2_T down (the CUDA engine's STRATA_GU_FMTS / D_FMTS)",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/metal/kernels/moe.metal:470:// Gyro (agentionai's trellis experts): TQK6 / TQ2_T gate/up, TQK7 / TQ2_T down (the CUDA engine's STRATA_GU_FMTS / D_FMTS)"
+    },
+    {
+      "token": "STRATA_GU_SWIGLU",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1486:| sm_86 (RTX 3050-3090, RTX A2000-A6000) | `STRATA_ADAPT_NOWAIT=1`, `STRATA_ADAPT_LAG=2`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ATTN_DAILY=1`, `STRATA_GR_UP75=1`, `STRATA_GU_SWIGLU=1`, `STRATA_QSA_ROWS=1`, `STRATA_B6_MMVQ_ROWS=1` | `STRATA_SM86_PERF=0` |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1486:| sm_86 (RTX 3050-3090, RTX A2000-A6000) | `STRATA_ADAPT_NOWAIT=1`, `STRATA_ADAPT_LAG=2`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ATTN_DAILY=1`, `STRATA_GR_UP75=1`, `STRATA_GU_SWIGLU=1`, `STRATA_QSA_ROWS=1`, `STRATA_B6_MMVQ_ROWS=1` | `STRATA_SM86_PERF=0` |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1499:| sm_86 (RTX 3050-3090, RTX A2000-A6000) | `STRATA_ADAPT_NOWAIT=1`, `STRATA_ADAPT_LAG=2`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ATTN_DAILY=1`, `STRATA_GR_UP75=1`, `STRATA_GU_SWIGLU=1`, `STRATA_QSA_ROWS=1`, `STRATA_B6_MMVQ_ROWS=1` | `STRATA_SM86_PERF=0` |"
+    },
+    {
+      "token": "STRATA_HC_Q8_BF16TC",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/tests/settings-hand-edit-6772.test.mjs:23:    handEdit(path,{STRATA_HC_Q8_TC:'0',STRATA_HC_Q8_BF16TC:'0'},{my_own_key:'kept'});   // Open settings file: the person adds the workaround",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/host/tests/settings-hand-edit-6772.test.mjs:23:    handEdit(path,{STRATA_HC_Q8_TC:'0',STRATA_HC_Q8_BF16TC:'0'},{my_own_key:'kept'});   // Open settings file: the person adds the workaround",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/tests/settings-hand-edit-6772.test.mjs:23:    handEdit(path,{STRATA_HC_Q8_TC:'0',STRATA_HC_Q8_BF16TC:'0'},{my_own_key:'kept'});   // Open settings file: the person adds the workaround"
+    },
+    {
+      "token": "STRATA_HC_Q8_TC",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/tests/settings-hand-edit-6772.test.mjs:1:// #6772: the model's settings file is also edited by hand (Expert settings > Open settings file: \"env\": {\"STRATA_HC_Q8_TC\": \"0\", ...}). The settings panel loads the values when it",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/host/tests/settings-hand-edit-6772.test.mjs:1:// #6772: the model's settings file is also edited by hand (Expert settings > Open settings file: \"env\": {\"STRATA_HC_Q8_TC\": \"0\", ...}). The settings panel loads the values when it",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/tests/settings-hand-edit-6772.test.mjs:1:// #6772: the model's settings file is also edited by hand (Expert settings > Open settings file: \"env\": {\"STRATA_HC_Q8_TC\": \"0\", ...}). The settings panel loads the values when it"
+    },
+    {
+      "token": "STRATA_HIP_CPU_SPLIT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:387:| `STRATA_HIP_CPU_SPLIT` | on / off | AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:400:| `STRATA_HIP_CPU_SPLIT` | on / off | AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:478:| `STRATA_HIP_CPU_SPLIT` | on / off | AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_HIP_EXP8",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:388:| `STRATA_HIP_EXP8` | text | AMD | v0.2.20 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:401:| `STRATA_HIP_EXP8` | text | AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:479:| `STRATA_HIP_EXP8` | text | AMD | v0.2.20 | - |"
+    },
+    {
+      "token": "STRATA_HIP_GFX906",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:589:cmake -S engine -B build-906 -G Ninja -DSTRATA_HIP_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906 \\",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/AMD_HIP.md:589:cmake -S engine -B build-906 -G Ninja -DSTRATA_HIP_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906 \\",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:589:cmake -S engine -B build-906 -G Ninja -DSTRATA_HIP_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906 \\"
+    },
+    {
+      "token": "STRATA_HIP_HYB_PROF",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/hip/ink_hip_hybrid.hpp:31:// STRATA_HIP_HYB_PROF=1: time split of the hybrid decode MoE step (B <= 16), printed every 480 MoE visits (10 tokens).",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:2717:- STRATA_HIP_HYB_PROF=1 prints the time split of the hybrid decode step.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/hip/ink_hip_hybrid.hpp:31:// STRATA_HIP_HYB_PROF=1: time split of the hybrid decode MoE step (B <= 16), printed every 480 MoE visits (10 tokens)."
+    },
+    {
+      "token": "STRATA_HOME",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:.github/workflows/check.yml:148:          STRATA_HOME: ${{ runner.temp }}\\ps7-probe",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/desktop/scripts/app-close-matrix.py:85:                    \"STRATA_HOME\": str(root / \"home\"), \"APPDATA\": str(root / \"appdata\"), \"LOCALAPPDATA\": str(root / \"local\"),",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:.github/workflows/check.yml:148:          STRATA_HOME: ${{ runner.temp }}\\ps7-probe"
+    },
+    {
+      "token": "STRATA_INKLING_DRAFTER_SOURCE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/strata_control/inkling_family.py:224:DRAFTER_SOURCE_ENV = \"STRATA_INKLING_DRAFTER_SOURCE\"",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:12249:inkling_drafter_source, env STRATA_INKLING_DRAFTER_SOURCE, STRATA_INKLING_SOURCE mirror, then the pinned repository); size_of / sha256_of / pins_for know it.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/strata_control/inkling_family.py:399:DRAFTER_SOURCE_ENV = \"STRATA_INKLING_DRAFTER_SOURCE\""
+    },
+    {
+      "token": "STRATA_INKLING_EFFORT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:536:| `inkling_thinking_budget` | by level | Inkling-2-Mini only: the default thinking budget, in tokens, for a request (and config) that names none. One number for every level; `0` none. Unset: 1,024 at `none` / `minimal`, 2,048 at `low`, 4,096 at `medium`, 8,192 at `high`, 16,384 at `xhigh` / `max`. `STRATA_INKLING_THINKING_BUDGET` in the environment does the same, `STRATA_INKLING_EFFORT` sets the default thinking level (`low`). See [MODELS.md](MODELS.md#inkling-2-mini-thinking-levels). |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:536:| `inkling_thinking_budget` | by level | Inkling-2-Mini only: the default thinking budget, in tokens, for a request (and config) that names none. One number for every level; `0` none. Unset: 1,024 at `none` / `minimal`, 2,048 at `low`, 4,096 at `medium`, 8,192 at `high`, 16,384 at `xhigh` / `max`. `STRATA_INKLING_THINKING_BUDGET` in the environment does the same, `STRATA_INKLING_EFFORT` sets the default thinking level (`low`). See [MODELS.md](MODELS.md#inkling-2-mini-thinking-levels). |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:537:| `inkling_thinking_budget` | by level | Inkling-2-Mini only: the default thinking budget, in tokens, for a request (and config) that names none. One number for every level; `0` none. Unset: 1,024 at `none` / `minimal`, 2,048 at `low`, 4,096 at `medium`, 8,192 at `high`, 16,384 at `xhigh` / `max`. `STRATA_INKLING_THINKING_BUDGET` in the environment does the same, `STRATA_INKLING_EFFORT` sets the default thinking level (`low`). See [MODELS.md](MODELS.md#inkling-2-mini-thinking-levels). |"
+    },
+    {
+      "token": "STRATA_INKLING_GGUF_SOURCE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/strata_control/inkling_family.py:186:GGUF_SOURCE_ENV = \"STRATA_INKLING_GGUF_SOURCE\"",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:11011:terminal/data/inkling-sources.json: the GGUF source base is that commit. Overrides (STRATA_INKLING_GGUF_SOURCE, inkling_gguf_source) still win.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/strata_control/inkling_family.py:329:GGUF_SOURCE_ENV = \"STRATA_INKLING_GGUF_SOURCE\""
+    },
+    {
+      "token": "STRATA_INKLING_PROMPT_CKPT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/serve/server.py:6108:                        if (pass_n or os.environ.get(\"STRATA_INKLING_PROMPT_CKPT\") == \"0\") and self.inkling and str((getattr(self.engine, \"info\", None) or {}).get(\"ckpt_key\")) == \"1\":",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5536:### `59d835b2fe2d` — serve: STRATA_INKLING_PROMPT_CKPT=0 turns the Inkling prompt-end checkpoint off",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/serve/server.py:6333:                        if (pass_n or os.environ.get(\"STRATA_INKLING_PROMPT_CKPT\") == \"0\") and self.inkling and str((getattr(self.engine, \"info\", None) or {}).get(\"ckpt_key\")) == \"1\":"
+    },
+    {
+      "token": "STRATA_INKLING_SHARED_PREFIX",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/RESEARCH_RUNS.md:46:prompt-end checkpoint. Start the server with `STRATA_INKLING_SHARED_PREFIX=1` to pin leading `system`/`developer`",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/RESEARCH_RUNS.md:46:prompt-end checkpoint. Start the server with `STRATA_INKLING_SHARED_PREFIX=1` to pin leading `system`/`developer`",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/RESEARCH_RUNS.md:46:prompt-end checkpoint. Start the server with `STRATA_INKLING_SHARED_PREFIX=1` to pin leading `system`/`developer`"
+    },
+    {
+      "token": "STRATA_INKLING_SOURCE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/data/inkling-sources.json:2: \"note\": \"Hugging Face repositories for Thinking Machines Inkling-2-Mini: flagship native .strata v1.1 builds (strata-engine/Inkling-2-Mini-Strata) and Unsloth Dynamic GGUF builds (unsloth/Inkling-2-Mini-GGUF, pinned to the commit whose bytes the size / sha256 table in strata_control/inkling_family.py describes: Unsloth re-uploaded every GGUF and the drafter in another layout on 2026-11-23 14:54 UTC). Overridden by STRATA_INKLING_SOURCE or config key inkling_source.\",",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:12249:inkling_drafter_source, env STRATA_INKLING_DRAFTER_SOURCE, STRATA_INKLING_SOURCE mirror, then the pinned repository); size_of / sha256_of / pins_for know it.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/data/inkling-sources.json:2: \"note\": \"Extra download mirrors for Inkling-2-Mini, tried AFTER the built-in pinned sources of strata_control/inkling_family.py: the Strata packs, the Vision shard and the tokenizer files (strata-engine/Inkling-2-Mini-Strata at STRATA_PACK_COMMIT), the GSQ-RCO GGUF (ISTA-DASLab/Inkling-2-Mini-GSQ-RCO-GGUF at GSQ_COMMIT) and Unsloth's UD-Q4_K_XL (unsloth/Inkling-2-Mini-GGUF at UNSLOTH_COMMIT). Every pin is a Hugging Face commit, so a later upload to a repository never changes what an install downloads. Empty by default. Overridden by STRATA_INKLING_SOURCE or config key inkling_source (a local mirror of every file).\","
+    },
+    {
+      "token": "STRATA_INKLING_THINKING_BUDGET",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:536:| `inkling_thinking_budget` | by level | Inkling-2-Mini only: the default thinking budget, in tokens, for a request (and config) that names none. One number for every level; `0` none. Unset: 1,024 at `none` / `minimal`, 2,048 at `low`, 4,096 at `medium`, 8,192 at `high`, 16,384 at `xhigh` / `max`. `STRATA_INKLING_THINKING_BUDGET` in the environment does the same, `STRATA_INKLING_EFFORT` sets the default thinking level (`low`). See [MODELS.md](MODELS.md#inkling-2-mini-thinking-levels). |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:536:| `inkling_thinking_budget` | by level | Inkling-2-Mini only: the default thinking budget, in tokens, for a request (and config) that names none. One number for every level; `0` none. Unset: 1,024 at `none` / `minimal`, 2,048 at `low`, 4,096 at `medium`, 8,192 at `high`, 16,384 at `xhigh` / `max`. `STRATA_INKLING_THINKING_BUDGET` in the environment does the same, `STRATA_INKLING_EFFORT` sets the default thinking level (`low`). See [MODELS.md](MODELS.md#inkling-2-mini-thinking-levels). |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:537:| `inkling_thinking_budget` | by level | Inkling-2-Mini only: the default thinking budget, in tokens, for a request (and config) that names none. One number for every level; `0` none. Unset: 1,024 at `none` / `minimal`, 2,048 at `low`, 4,096 at `medium`, 8,192 at `high`, 16,384 at `xhigh` / `max`. `STRATA_INKLING_THINKING_BUDGET` in the environment does the same, `STRATA_INKLING_EFFORT` sets the default thinking level (`low`). See [MODELS.md](MODELS.md#inkling-2-mini-thinking-levels). |"
+    },
+    {
+      "token": "STRATA_INK_CHUNK_AUTO",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:395:| `STRATA_INK_CHUNK_AUTO` | number | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:408:| `STRATA_INK_CHUNK_AUTO` | number | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:487:| `STRATA_INK_CHUNK_AUTO` | number | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_CPU_PROF",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_hybrid.cuh:1406:    // CPU-pool profile of the M = 1 doorbell path (printed by STATS when STRATA_INK_CPU_PROF is set)",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6158:    misses on the card, so STATS reports a hit rate for plain decode; STRATA_INK_CPU_PROF=1 prints the CPU pool's time and bytes per visit;",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_hybrid.cuh:1522:    // CPU-pool profile of the M = 1 doorbell path (printed by STATS when STRATA_INK_CPU_PROF is set)"
+    },
+    {
+      "token": "STRATA_INK_CUDA_ARCHS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/CMakeLists.txt:199:  if(NOT DEFINED STRATA_INK_CUDA_ARCHS OR \"${STRATA_INK_CUDA_ARCHS}\" STREQUAL \"\")",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5775:120 -> 120a (121 -> 121a) only when STRATA_INK_CUDA_ARCHS held the bare number. A build that inherits CMAKE_CUDA_ARCHITECTURES such as",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/CMakeLists.txt:200:  if(NOT DEFINED STRATA_INK_CUDA_ARCHS OR \"${STRATA_INK_CUDA_ARCHS}\" STREQUAL \"\")"
+    },
+    {
+      "token": "STRATA_INK_EXACT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:396:| `STRATA_INK_EXACT_GRAPH` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:409:| `STRATA_INK_EXACT_GRAPH` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:488:| `STRATA_INK_EXACT_GRAPH` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_EXACT_ROWS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:397:| `STRATA_INK_EXACT_ROWS` | on / off | AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:410:| `STRATA_INK_EXACT_ROWS` | on / off | AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:489:| `STRATA_INK_EXACT_ROWS` | on / off | AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_GGUF_MT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_moe_cuda.cuh:3825:        // 2 per group costs 8.0 / 19.9 / 12.7 ms. Equal at 8 slots. STRATA_INK_GGUF_MT = 1 / 2 / 4 / 8 / 16 forces a value.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:16175:17.9 ms on an RTX 4090. Two tokens per group (STRATA_INK_GGUF_MT forces 1 / 2 / 4 / 8 / 16) costs 8.0 / 19.9 / 12.7 ms; at 8 slots every setting is equal, at 32 slots",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_moe_cuda.cuh:4476:        // 2 per group costs 8.0 / 19.9 / 12.7 ms. Equal at 8 slots. STRATA_INK_GGUF_MT = 1 / 2 / 4 / 8 / 16 forces a value."
+    },
+    {
+      "token": "STRATA_INK_HASH",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_kernels.cuh:2277:// #6671 diagnostics (STRATA_INK_HASH=1): an order independent 64-bit hash of every FP32 bit of one row, so a verify window can be compared stage by",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:2269:Found with a per-stage hash of every visit (new STRATA_INK_HASH=1, compared by",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_kernels.cuh:2300:// #6671 diagnostics (STRATA_INK_HASH=1): an order independent 64-bit hash of every FP32 bit of one row, so a verify window can be compared stage by"
+    },
+    {
+      "token": "STRATA_INK_HASH_VISIT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_runner.cuh:1798:    int dbg_tap_visit = 0;   // STRATA_INK_HASH_VISIT: the visit whose inner stages (projections, attention, MoE) are hashed",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6570:STRATA_INK_HASH_VISIT=n) against the B=1 steps found three causes:",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_runner.cuh:2512:    int dbg_tap_visit = 0;   // STRATA_INK_HASH_VISIT: the visit whose inner stages (projections, attention, MoE) are hashed"
+    },
+    {
+      "token": "STRATA_INK_KEEP_MAPPED_PAGES",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:398:| `STRATA_INK_KEEP_MAPPED_PAGES` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:411:| `STRATA_INK_KEEP_MAPPED_PAGES` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:496:| `STRATA_INK_KEEP_MAPPED_PAGES` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_MOE_V1",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:399:| `STRATA_INK_MOE_V1` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:412:| `STRATA_INK_MOE_V1` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:497:| `STRATA_INK_MOE_V1` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_NO_CAND",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:400:| `STRATA_INK_NO_CAND` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:413:| `STRATA_INK_NO_CAND` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:498:| `STRATA_INK_NO_CAND` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_NO_GRAPH",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:306:            if (const char* ng = std::getenv(\"STRATA_INK_NO_GRAPH\"); ng && ng[0] == '1' && runner_->use_cuda_graph) {",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6230:### `080da82d3b78` — inkling CUDA: STRATA_INK_NO_GRAPH=1 launches every kernel of a step eagerly",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_attn_probe.cuh:4:// writes only its own scratch buffers, and synchronises the stream, so it must run with STRATA_INK_NO_GRAPH=1 / --no-graph)."
+    },
+    {
+      "token": "STRATA_INK_NUMA",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:121:| `STRATA_INK_NUMA` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:121:| `STRATA_INK_NUMA` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:142:| `STRATA_INK_NUMA` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_INK_OOM_RETRY",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:401:| `STRATA_INK_OOM_RETRY` | number | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:414:| `STRATA_INK_OOM_RETRY` | number | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:499:| `STRATA_INK_OOM_RETRY` | number | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_PF_TILE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:402:| `STRATA_INK_PF_TILE` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:415:| `STRATA_INK_PF_TILE` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:500:| `STRATA_INK_PF_TILE` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_PIN_GB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:403:| `STRATA_INK_PIN_GB` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:416:| `STRATA_INK_PIN_GB` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:501:| `STRATA_INK_PIN_GB` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_PREFILL_CAP",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:122:| `STRATA_INK_PREFILL_CAP` | number | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:122:| `STRATA_INK_PREFILL_CAP` | number | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:143:| `STRATA_INK_PREFILL_CAP` | number | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_INK_PROF",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:311:            if (const char* pe = std::getenv(\"STRATA_INK_PROF\"); pe && (pe[0] == '1' || pe[0] == '2')) {   // per-phase decode times, eager (no graph); 2 = prefill chunks too",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6248:### `e32fa5334c71` — inkling serve: opt-in cap on the prompt tokens read per step while another slot decodes, and STRATA_INK_PROF phase timing",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:678:            if (const char* pe = std::getenv(\"STRATA_INK_PROF\"); pe && (pe[0] == '1' || pe[0] == '2')) {   // per-phase decode times, eager (no graph); 2 = prefill chunks too"
+    },
+    {
+      "token": "STRATA_INK_PROMOTE_ASYNC",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:404:| `STRATA_INK_PROMOTE_ASYNC` | text | AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:417:| `STRATA_INK_PROMOTE_ASYNC` | text | AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:502:| `STRATA_INK_PROMOTE_ASYNC` | text | AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_Q80_TC",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:405:| `STRATA_INK_Q80_TC` | number | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:418:| `STRATA_INK_Q80_TC` | number | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:503:| `STRATA_INK_Q80_TC` | number | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_Q8_0_DENSE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:406:| `STRATA_INK_Q8_0_DENSE` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:419:| `STRATA_INK_Q8_0_DENSE` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:504:| `STRATA_INK_Q8_0_DENSE` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_SM120_PF",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:123:| `STRATA_INK_SM120_PF_MX8` | number | NVIDIA | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:123:| `STRATA_INK_SM120_PF_MX8` | number | NVIDIA | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:178:| `STRATA_INK_SM120_PF_MX8` | number | NVIDIA | - |"
+    },
+    {
+      "token": "STRATA_INK_SM120_PFD",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_moe_fp4_sm120.cu:971:// STRATA_INK_SM120_PF (gate/up, default 128) and STRATA_INK_SM120_PFD (down, default off): L2 prefetch window per weight row in bytes (multiple of 32), 0 = off.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:16951:STRATA_INK_SM120_PF (gate/up, default 128) and STRATA_INK_SM120_PFD (down, default 0) set the window in bytes per row, a multiple of 32; 0 turns it off.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_moe_fp4_sm120.cu:4111:// STRATA_INK_SM120_PF (gate/up, default 128) and STRATA_INK_SM120_PFD (down, default 0): L2 prefetch window per weight row in bytes (multiple of 32), 0 = off."
+    },
+    {
+      "token": "STRATA_INK_SM120_PF_MX8",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:123:| `STRATA_INK_SM120_PF_MX8` | number | NVIDIA | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:123:| `STRATA_INK_SM120_PF_MX8` | number | NVIDIA | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:178:| `STRATA_INK_SM120_PF_MX8` | number | NVIDIA | - |"
+    },
+    {
+      "token": "STRATA_INK_SPEC",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:118:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_BEAM\")) spec_cfg_.beam = std::atoi(e);",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5818:### `7a2518ceaabc` — inkling2 serve: STRATA_INK_SPEC=block, a measurement switch for the linear block-8 drafter",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:416:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_BEAM\")) spec_cfg_.beam = std::atoi(e);"
+    },
+    {
+      "token": "STRATA_INK_SPEC_",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:118:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_BEAM\")) spec_cfg_.beam = std::atoi(e);",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5877:### `e0ab3e241fc8` — inkling2 cuda: the drafter's tree step can be a linear chain and can fall back to one plain token (STRATA_INK_SPEC_BEAM / _COST / _PLAIN / _LOG)",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:416:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_BEAM\")) spec_cfg_.beam = std::atoi(e);"
+    },
+    {
+      "token": "STRATA_INK_SPEC_BEAM",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:118:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_BEAM\")) spec_cfg_.beam = std::atoi(e);",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5877:### `e0ab3e241fc8` — inkling2 cuda: the drafter's tree step can be a linear chain and can fall back to one plain token (STRATA_INK_SPEC_BEAM / _COST / _PLAIN / _LOG)",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:416:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_BEAM\")) spec_cfg_.beam = std::atoi(e);"
+    },
+    {
+      "token": "STRATA_INK_SPEC_COST",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:119:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_COST\")) spec_cfg_.cost = (float)std::atof(e);",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5897:- STRATA_INK_SPEC_COST=r sets the MoE share of the cost model (4.2 as before);",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:417:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_COST\")) spec_cfg_.cost = (float)std::atof(e);"
+    },
+    {
+      "token": "STRATA_INK_SPEC_LOG",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:125:        spec_cfg_.log = std::getenv(\"STRATA_INK_SPEC_LOG\") != nullptr;",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5898:- STRATA_INK_SPEC_LOG=1 prints \"[SPEC-STATS]\" every 200 steps: mean window size, predicted and actual tokens per step, plain steps.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:423:        spec_cfg_.log = std::getenv(\"STRATA_INK_SPEC_LOG\") != nullptr;"
+    },
+    {
+      "token": "STRATA_INK_SPEC_PLAIN",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:120:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_PLAIN\")) spec_cfg_.plain = (float)std::atof(e);",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5895:- STRATA_INK_SPEC_PLAIN=x lets the step choose a 1 or 2 node window; with 1.0 a step whose expected tokens do not pay for the window runs as a",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:418:        if (const char* e = std::getenv(\"STRATA_INK_SPEC_PLAIN\")) spec_cfg_.plain = (float)std::atof(e);"
+    },
+    {
+      "token": "STRATA_INK_SPLIT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:408:| `STRATA_INK_SPLIT` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:421:| `STRATA_INK_SPLIT` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:511:| `STRATA_INK_SPLIT` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_STEPTIME",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:709:        // STRATA_INK_STEPTIME=1: where one decode token of the serving loop goes, with the graph kept (diagnostic, off by default):",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:17364:### `fb5973183e88` — inkling2/cuda: STRATA_INK_STEPTIME=1 splits one decode token into host time between steps, call wall time and GPU span",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:1132:        // STRATA_INK_STEPTIME=1: where one decode token of the serving loop goes, with the graph kept (diagnostic, off by default):"
+    },
+    {
+      "token": "STRATA_INK_SWA_RING",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/hip/ink_hip_backend.hip.cpp:722:        // at max_ctx (positions below the ring size never wrap). STRATA_INK_SWA_RING=N overrides the ring size",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:13901:window (STRATA_INK_SWA_RING=N overrides it; N = 1024 brings the old ring back for A/B checks).",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/hip/ink_hip_backend.hip.cpp:893:        // at max_ctx (positions below the ring size never wrap). STRATA_INK_SWA_RING=N overrides the ring size"
+    },
+    {
+      "token": "STRATA_INK_TAP_VISITS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/hip/ink_hip_backend.hip.cpp:566:        // Debug only (--spec-check): STRATA_INK_TAP_VISITS=a,b,c,d takes the four host taps after those visits instead of the",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:2293:B = 1 steps, bitwise; prints a fingerprint for repeat runs. STRATA_INK_TAP_VISITS=a,b,c,d",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/hip/ink_hip_backend.hip.cpp:683:        // Debug only (--spec-check): STRATA_INK_TAP_VISITS=a,b,c,d takes the four host taps after those visits instead of the"
+    },
+    {
+      "token": "STRATA_INK_TEST_STEAL_MIB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_cuda_backend.cu:277:        // Test hook: STRATA_INK_TEST_STEAL_MIB=N holds N MiB of the card after the experts are placed, to imitate a plan that left too little.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:2051:- test hook STRATA_INK_TEST_STEAL_MIB=N (holds N MiB after the experts are placed), switch STRATA_INK_OOM_RETRY=0 (old behaviour).",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_cuda_backend.cu:656:        // Test hook: STRATA_INK_TEST_STEAL_MIB=N holds N MiB of the card after the experts are placed, to imitate a plan that left too little."
+    },
+    {
+      "token": "STRATA_INK_THREADS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_hybrid.cuh:1783:        if (const char* e = std::getenv(\"STRATA_INK_THREADS\")) n_threads = std::max(1, std::min(128, std::atoi(e)));   // the pool size, for sweeps",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6155:    threads take; rows are independent, so the result is the same bit for bit. STRATA_INK_THREADS sets the pool size for sweeps.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_hybrid.cuh:2056:        if (const char* e = std::getenv(\"STRATA_INK_THREADS\")) n_threads = std::max(1, std::min(128, std::atoi(e)));   // the pool size, for sweeps"
+    },
+    {
+      "token": "STRATA_INK_TIER",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:409:| `STRATA_INK_TIER` | on / off | NVIDIA and AMD | - | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:422:| `STRATA_INK_TIER` | on / off | NVIDIA and AMD | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:512:| `STRATA_INK_TIER` | on / off | NVIDIA and AMD | v0.2.21 | - |"
+    },
+    {
+      "token": "STRATA_INK_TRACE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/cuda/ink_hybrid.cuh:1135:// One routing record of the expert trace (STRATA_INK_TRACE): 16 bytes, written by the doorbell kernel (kind 0: one decode token,",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6157:  * STRATA_INK_TRACE=<file> writes the routed expert sets (16-byte records, request markers at STATS); the M = 1 kernel counts selections and",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/cuda/ink_hybrid.cuh:1242:// One routing record of the expert trace (STRATA_INK_TRACE): 16 bytes, written by the doorbell kernel (kind 0: one decode token,"
+    },
+    {
+      "token": "STRATA_INSTALL_DIR",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/desktop/scripts/app-close-matrix.py:83:                    \"STRATA_RUNTIME_DIR\": str(root / \"runtime\"), \"STRATA_INSTALL_DIR\": str(self.models),",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/desktop/scripts/app-close-matrix.py:83:                    \"STRATA_RUNTIME_DIR\": str(root / \"runtime\"), \"STRATA_INSTALL_DIR\": str(self.models),",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/desktop/scripts/app-close-matrix.py:83:                    \"STRATA_RUNTIME_DIR\": str(root / \"runtime\"), \"STRATA_INSTALL_DIR\": str(self.models),"
+    },
+    {
+      "token": "STRATA_KQ_SPLIT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/cmake/strata_gpu_engine.cmake:856:  set_tests_properties(iq_multi_parity PROPERTIES ENVIRONMENT \"STRATA_KQ_SPLIT=1\")   # the Q4_K / Q5_K / Q8_0 Split path against the old kernels",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/expert-types-2026-11-24.md:46:| `STRATA_KQ_SPLIT=1 iq_multi_parity` | rc=0 |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/cmake/strata_gpu_engine.cmake:856:  set_tests_properties(iq_multi_parity PROPERTIES ENVIRONMENT \"STRATA_KQ_SPLIT=1\")   # the Q4_K / Q5_K / Q8_0 Split path against the old kernels"
+    },
+    {
+      "token": "STRATA_KV_WH",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/research/rejected-levers.md:24:| Walsh–Hadamard rotation for q4_0 KV (q36 patch C, `STRATA_KV_WH=1`) | rotate q/k/v before q4_0 quantization to spread outliers | speed neutral: 1099.0/24.9 vs 1094.5/21.8 (96k, 3 reps); quality not measurable: its only carrier build (`build-c-only`) hallucinated on the 78k needle with the flag off as well (0/6 both ways), while the base build scores 1/1 (96k) and 3/3 (128k) | rejected: no speed gain, no proven quality gain, carrier build not equivalent to base on long prompts; retry only on a clean build |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_LOG",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/KVA.md:123:| `STRATA_LOGITS_DUMP` | — | debug (not KVA-specific): write every verify window's sampler logits to `path`, for KL / top-1 between two runs |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/KVA.md:123:| `STRATA_LOGITS_DUMP` | — | debug (not KVA-specific): write every verify window's sampler logits to `path`, for KL / top-1 between two runs |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/KVA.md:123:| `STRATA_LOGITS_DUMP` | — | debug (not KVA-specific): write every verify window's sampler logits to `path`, for KL / top-1 between two runs |"
+    },
+    {
+      "token": "STRATA_METAL_EXP_CACHE_GB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:164:| `STRATA_METAL_EXP_CACHE_GB` | number | Mac | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:164:| `STRATA_METAL_EXP_CACHE_GB` | number | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:255:| `STRATA_METAL_EXP_CACHE_GB` | number | Mac | - |"
+    },
+    {
+      "token": "STRATA_MMQ",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/tests/fixtures/bing-results.html:3:<li class=\"b_algo\" data-id iid=SERP.5345><div class=\"b_tpcn\"><a class=\"tilk\" aria-label=\"github.com\" RedirectUrl=\"\" tabindex=\"-1\" target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.1\"><div class=\"tpic\"><div class=\"wr_fav\" data-priority=\"2\"><div class=\"cico siteicon\" style=\"width:32px;height:32px;\"><div class=\"rms_iac\" style=\"height:32px;line-height:32px;width:32px;\" data-height=\"32\" data-width=\"32\" data-alt=\"Global web icon\" data-class=\"rms_img\" data-src=\"https://th.bing.com/th/id/ODLS.A2450BEC-5595-40BA-9F13-D9EC6AB74B9F?w=32&amp;h=32&amp;qlt=91&amp;pcl=fffffa&amp;o=6&amp;pid=1.2\"></div></div></div></div><div class=\"tptxt\"><div class=\"tptt\">github.com</div><div class=\"tpmeta\"><div class=\"b_attribution\" tabindex=\"-1\"><cite>https://github.com › Strata › releases</cite></div></div></div></a></div><h2><a target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.2\">Releases &#183; Niko1221/<strong>Strata</strong> - GitHub</a></h2><div class=\"b_caption\"><p class=\"b_lineclamp2\" data-rslinkclamp-iid=\"\"><span class=\"news_dt\">Sep 29, 2026</span>&nbsp;&#0183;&#32;CUDA only, a build option: -DSTRATA_MMQ_TAB=ON with STRATA_MMQ_DIRECT=1 and …</p></div></li>",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:LOCAL.en.md:8:| `86200712` | the out-of-VRAM error suggests `--mtp 0` and `STRATA_MMQ_KQ=0` |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/tests/fixtures/bing-results.html:3:<li class=\"b_algo\" data-id iid=SERP.5345><div class=\"b_tpcn\"><a class=\"tilk\" aria-label=\"github.com\" RedirectUrl=\"\" tabindex=\"-1\" target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.1\"><div class=\"tpic\"><div class=\"wr_fav\" data-priority=\"2\"><div class=\"cico siteicon\" style=\"width:32px;height:32px;\"><div class=\"rms_iac\" style=\"height:32px;line-height:32px;width:32px;\" data-height=\"32\" data-width=\"32\" data-alt=\"Global web icon\" data-class=\"rms_img\" data-src=\"https://th.bing.com/th/id/ODLS.A2450BEC-5595-40BA-9F13-D9EC6AB74B9F?w=32&amp;h=32&amp;qlt=91&amp;pcl=fffffa&amp;o=6&amp;pid=1.2\"></div></div></div></div><div class=\"tptxt\"><div class=\"tptt\">github.com</div><div class=\"tpmeta\"><div class=\"b_attribution\" tabindex=\"-1\"><cite>https://github.com › Strata › releases</cite></div></div></div></a></div><h2><a target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.2\">Releases &#183; Niko1221/<strong>Strata</strong> - GitHub</a></h2><div class=\"b_caption\"><p class=\"b_lineclamp2\" data-rslinkclamp-iid=\"\"><span class=\"news_dt\">Sep 29, 2026</span>&nbsp;&#0183;&#32;CUDA only, a build option: -DSTRATA_MMQ_TAB=ON with STRATA_MMQ_DIRECT=1 and …</p></div></li>"
+    },
+    {
+      "token": "STRATA_MMQ_KQ",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1210:| K-quant experts read the prompt on MMQ | gfx12, Linux: UD-Q4/Q5/Q6_K_XL files (Q4_K, Q5_K, Q5_1, Q6_K experts) | `STRATA_MMQ_KQ=0` or `STRATA_GFX12_DEFAULTS=0` | Instead of dequantizing the experts to FP16 for hipBLASLt (R9700, UD-Q4_K_XL: prompt 4K +10%, 8K +14%, 32K +17%). It rounds differently: first-token KL against the FP16 path about 0.03. Models without K-quant experts never read it. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:LOCAL.en.md:8:| `86200712` | the out-of-VRAM error suggests `--mtp 0` and `STRATA_MMQ_KQ=0` |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1219:| K-quant experts read the prompt on MMQ | gfx12, Linux: UD-Q4/Q5/Q6_K_XL files (Q4_K, Q5_K, Q5_1, Q6_K experts) | `STRATA_MMQ_KQ=0` or `STRATA_GFX12_DEFAULTS=0` | Instead of dequantizing the experts to FP16 for hipBLASLt (R9700, UD-Q4_K_XL: prompt 4K +10%, 8K +14%, 32K +17%). It rounds differently: first-token KL against the FP16 path about 0.03. Models without K-quant experts never read it. |"
+    },
+    {
+      "token": "STRATA_MMQ_KQUANTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/bench-results/2026-10-05-community-2x-rx-6900xt/helper-prs/BUILD.txt:4:CMAKE_BUILD_TYPE:STRING=Release CMAKE_HIP_ARCHITECTURES:UNINITIALIZED=gfx1030 GPU_TARGETS:STRING=gfx1030;gfx1030 STRATA_BUILD_CONVERSATION_TESTS:BOOL=OFF STRATA_BUILD_TESTS:BOOL=OFF STRATA_ENABLE_CUDA:BOOL=OFF STRATA_ENABLE_HIP:BOOL=ON STRATA_ENABLE_SYCL:BOOL=OFF STRATA_GFX1012_PORTABLE_DOT:BOOL=OFF STRATA_HIP_GFX906:BOOL=OFF STRATA_ISA_FLOOR:STRING= STRATA_MMQ_KQUANTS:BOOL=OFF STRATA_NATIVE_EXPERTS:BOOL=ON STRATA_ORCA_Q4KS_MMQ:BOOL=OFF STRATA_PORTABLE:BOOL=OFF STRATA_PREFILL_MMQ:BOOL=ON STRATA_WERROR:BOOL=OFF ",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/bench-results/2026-10-05-community-2x-rx-6900xt/helper-prs/BUILD.txt:4:CMAKE_BUILD_TYPE:STRING=Release CMAKE_HIP_ARCHITECTURES:UNINITIALIZED=gfx1030 GPU_TARGETS:STRING=gfx1030;gfx1030 STRATA_BUILD_CONVERSATION_TESTS:BOOL=OFF STRATA_BUILD_TESTS:BOOL=OFF STRATA_ENABLE_CUDA:BOOL=OFF STRATA_ENABLE_HIP:BOOL=ON STRATA_ENABLE_SYCL:BOOL=OFF STRATA_GFX1012_PORTABLE_DOT:BOOL=OFF STRATA_HIP_GFX906:BOOL=OFF STRATA_ISA_FLOOR:STRING= STRATA_MMQ_KQUANTS:BOOL=OFF STRATA_NATIVE_EXPERTS:BOOL=ON STRATA_ORCA_Q4KS_MMQ:BOOL=OFF STRATA_PORTABLE:BOOL=OFF STRATA_PREFILL_MMQ:BOOL=ON STRATA_WERROR:BOOL=OFF ",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/bench-results/2026-10-05-community-2x-rx-6900xt/helper-prs/BUILD.txt:4:CMAKE_BUILD_TYPE:STRING=Release CMAKE_HIP_ARCHITECTURES:UNINITIALIZED=gfx1030 GPU_TARGETS:STRING=gfx1030;gfx1030 STRATA_BUILD_CONVERSATION_TESTS:BOOL=OFF STRATA_BUILD_TESTS:BOOL=OFF STRATA_ENABLE_CUDA:BOOL=OFF STRATA_ENABLE_HIP:BOOL=ON STRATA_ENABLE_SYCL:BOOL=OFF STRATA_GFX1012_PORTABLE_DOT:BOOL=OFF STRATA_HIP_GFX906:BOOL=OFF STRATA_ISA_FLOOR:STRING= STRATA_MMQ_KQUANTS:BOOL=OFF STRATA_NATIVE_EXPERTS:BOOL=ON STRATA_ORCA_Q4KS_MMQ:BOOL=OFF STRATA_PORTABLE:BOOL=OFF STRATA_PREFILL_MMQ:BOOL=ON STRATA_WERROR:BOOL=OFF "
+    },
+    {
+      "token": "STRATA_MMQ_TAB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/tests/fixtures/bing-results.html:3:<li class=\"b_algo\" data-id iid=SERP.5345><div class=\"b_tpcn\"><a class=\"tilk\" aria-label=\"github.com\" RedirectUrl=\"\" tabindex=\"-1\" target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.1\"><div class=\"tpic\"><div class=\"wr_fav\" data-priority=\"2\"><div class=\"cico siteicon\" style=\"width:32px;height:32px;\"><div class=\"rms_iac\" style=\"height:32px;line-height:32px;width:32px;\" data-height=\"32\" data-width=\"32\" data-alt=\"Global web icon\" data-class=\"rms_img\" data-src=\"https://th.bing.com/th/id/ODLS.A2450BEC-5595-40BA-9F13-D9EC6AB74B9F?w=32&amp;h=32&amp;qlt=91&amp;pcl=fffffa&amp;o=6&amp;pid=1.2\"></div></div></div></div><div class=\"tptxt\"><div class=\"tptt\">github.com</div><div class=\"tpmeta\"><div class=\"b_attribution\" tabindex=\"-1\"><cite>https://github.com › Strata › releases</cite></div></div></div></a></div><h2><a target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.2\">Releases &#183; Niko1221/<strong>Strata</strong> - GitHub</a></h2><div class=\"b_caption\"><p class=\"b_lineclamp2\" data-rslinkclamp-iid=\"\"><span class=\"news_dt\">Sep 29, 2026</span>&nbsp;&#0183;&#32;CUDA only, a build option: -DSTRATA_MMQ_TAB=ON with STRATA_MMQ_DIRECT=1 and …</p></div></li>",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/host/tests/fixtures/bing-results.html:3:<li class=\"b_algo\" data-id iid=SERP.5345><div class=\"b_tpcn\"><a class=\"tilk\" aria-label=\"github.com\" RedirectUrl=\"\" tabindex=\"-1\" target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.1\"><div class=\"tpic\"><div class=\"wr_fav\" data-priority=\"2\"><div class=\"cico siteicon\" style=\"width:32px;height:32px;\"><div class=\"rms_iac\" style=\"height:32px;line-height:32px;width:32px;\" data-height=\"32\" data-width=\"32\" data-alt=\"Global web icon\" data-class=\"rms_img\" data-src=\"https://th.bing.com/th/id/ODLS.A2450BEC-5595-40BA-9F13-D9EC6AB74B9F?w=32&amp;h=32&amp;qlt=91&amp;pcl=fffffa&amp;o=6&amp;pid=1.2\"></div></div></div></div><div class=\"tptxt\"><div class=\"tptt\">github.com</div><div class=\"tpmeta\"><div class=\"b_attribution\" tabindex=\"-1\"><cite>https://github.com › Strata › releases</cite></div></div></div></a></div><h2><a target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.2\">Releases &#183; Niko1221/<strong>Strata</strong> - GitHub</a></h2><div class=\"b_caption\"><p class=\"b_lineclamp2\" data-rslinkclamp-iid=\"\"><span class=\"news_dt\">Sep 29, 2026</span>&nbsp;&#0183;&#32;CUDA only, a build option: -DSTRATA_MMQ_TAB=ON with STRATA_MMQ_DIRECT=1 and …</p></div></li>",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/tests/fixtures/bing-results.html:3:<li class=\"b_algo\" data-id iid=SERP.5345><div class=\"b_tpcn\"><a class=\"tilk\" aria-label=\"github.com\" RedirectUrl=\"\" tabindex=\"-1\" target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.1\"><div class=\"tpic\"><div class=\"wr_fav\" data-priority=\"2\"><div class=\"cico siteicon\" style=\"width:32px;height:32px;\"><div class=\"rms_iac\" style=\"height:32px;line-height:32px;width:32px;\" data-height=\"32\" data-width=\"32\" data-alt=\"Global web icon\" data-class=\"rms_img\" data-src=\"https://th.bing.com/th/id/ODLS.A2450BEC-5595-40BA-9F13-D9EC6AB74B9F?w=32&amp;h=32&amp;qlt=91&amp;pcl=fffffa&amp;o=6&amp;pid=1.2\"></div></div></div></div><div class=\"tptxt\"><div class=\"tptt\">github.com</div><div class=\"tpmeta\"><div class=\"b_attribution\" tabindex=\"-1\"><cite>https://github.com › Strata › releases</cite></div></div></div></a></div><h2><a target=\"_blank\" href=\"https://www.bing.com/ck/a?!&amp;&amp;p=83a355ead65461d915b3a98842374b9104c98dfcc6a84d37dced83063413be2dJmltdHM9MTc5MjI4MTYwMA&amp;ptn=3&amp;ver=2&amp;hsh=4&amp;fclid=0df69d14-8c8b-65ee-062f-8ae28d666410&amp;u=a1aHR0cHM6Ly9naXRodWIuY29tL05pa28xMjIxL1N0cmF0YS9yZWxlYXNlcw&amp;ntb=1\" h=\"ID=SERP,5147.2\">Releases &#183; Niko1221/<strong>Strata</strong> - GitHub</a></h2><div class=\"b_caption\"><p class=\"b_lineclamp2\" data-rslinkclamp-iid=\"\"><span class=\"news_dt\">Sep 29, 2026</span>&nbsp;&#0183;&#32;CUDA only, a build option: -DSTRATA_MMQ_TAB=ON with STRATA_MMQ_DIRECT=1 and …</p></div></li>"
+    },
+    {
+      "token": "STRATA_MMQ_TQ_OVERLAY",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/research/mmq-removed-by-upstream.md:29:`STRATA_MMQ_TQ_OVERLAY:BOOL=ON`), the new cache carries **zero** `STRATA_*MMQ*` keys - the options",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_MODE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/desktop/scripts/app-close-matrix.py:84:                    \"STRATA_MODELS_DIR\": str(root / \"models-unused\"), \"STRATA_ENGINE_BACKEND\": \"cuda\",",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/desktop/scripts/app-close-matrix.py:84:                    \"STRATA_MODELS_DIR\": str(root / \"models-unused\"), \"STRATA_ENGINE_BACKEND\": \"cuda\",",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/desktop/scripts/app-close-matrix.py:84:                    \"STRATA_MODELS_DIR\": str(root / \"models-unused\"), \"STRATA_ENGINE_BACKEND\": \"cuda\","
+    },
+    {
+      "token": "STRATA_NATIVE_EXPERTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/ORCA_Q4_K_S.md:14:cmake -S . -B build -G Ninja -DSTRATA_ENABLE_CUDA=ON -DSTRATA_NATIVE_EXPERTS=ON -DSTRATA_ORCA_Q4KS_MMQ=ON -DCMAKE_CUDA_ARCHITECTURES=89 -DCMAKE_CUDA_RUNTIME_LIBRARY=Shared -DCMAKE_BUILD_TYPE=Release",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/ORCA_Q4_K_S.md:14:cmake -S . -B build -G Ninja -DSTRATA_ENABLE_CUDA=ON -DSTRATA_NATIVE_EXPERTS=ON -DSTRATA_ORCA_Q4KS_MMQ=ON -DCMAKE_CUDA_ARCHITECTURES=89 -DCMAKE_CUDA_RUNTIME_LIBRARY=Shared -DCMAKE_BUILD_TYPE=Release",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/ORCA_Q4_K_S.md:14:cmake -S . -B build -G Ninja -DSTRATA_ENABLE_CUDA=ON -DSTRATA_NATIVE_EXPERTS=ON -DSTRATA_ORCA_Q4KS_MMQ=ON -DCMAKE_CUDA_ARCHITECTURES=89 -DCMAKE_CUDA_RUNTIME_LIBRARY=Shared -DCMAKE_BUILD_TYPE=Release"
+    },
+    {
+      "token": "STRATA_NOT_CALIBRATED",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:tools/packaging/kit/recommend.py:128:STRATA_NOT_CALIBRATED = (",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_NO_DOT_X4",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:424:| `STRATA_NO_DOT_X4` | on / off | CPU | v0.2.20 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:437:| `STRATA_NO_DOT_X4` | on / off | CPU | - | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:527:| `STRATA_NO_DOT_X4` | on / off | CPU | v0.2.20 | - |"
+    },
+    {
+      "token": "STRATA_NW_D",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/prefill/moe_fused_iq.cu:3829:#define STRATA_NW_D(T) do { if (occ_d) native_w11_kernel<T, false, true, NW_LB><<<g_d, NW_THREADS, 0, s>>>(b, g, tb, ha8, src, nullptr, dm); else native_w11_kernel<T, false><<<g_d, NW_THREADS, 0, s>>>(b, g, tb, ha8, src, nullptr, dm); } while (0)",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/src/prefill/moe_fused_iq.cu:3837:#define STRATA_NW_D(T) do { if (occ_d) native_w11_kernel<T, false, true, NW_LB><<<g_d, NW_THREADS, 0, s>>>(b, g, tb, ha8, src, nullptr, dm); else native_w11_kernel<T, false><<<g_d, NW_THREADS, 0, s>>>(b, g, tb, ha8, src, nullptr, dm); } while (0)",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/prefill/moe_fused_iq.cu:3861:#define STRATA_NW_D(T) do { if (occ_d) native_w11_kernel<T, false, true, NW_LB><<<g_d, NW_THREADS, 0, s>>>(b, g, tb, ha8, src, nullptr, dm); else native_w11_kernel<T, false><<<g_d, NW_THREADS, 0, s>>>(b, g, tb, ha8, src, nullptr, dm); } while (0)"
+    },
+    {
+      "token": "STRATA_OLD_IQ_MMVQ",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/EXPERTDEC.md:33:Formats outside the list keep the default kernel for that role; `STRATA_OLD_IQ_MMVQ=1` turns EXPDEC off as it turns",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/EXPERTDEC.md:33:Formats outside the list keep the default kernel for that role; `STRATA_OLD_IQ_MMVQ=1` turns EXPDEC off as it turns",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/EXPERTDEC.md:33:Formats outside the list keep the default kernel for that role; `STRATA_OLD_IQ_MMVQ=1` turns EXPDEC off as it turns"
+    },
+    {
+      "token": "STRATA_ORCA_Q4KS_MMQ",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/ORCA_Q4_K_S.md:9:Strata 0.2.16 builds no MMQ kernels, so the Q5_0 down layers of this file have no GPU prompt kernel yet. To run it, build the v0.2.15 tag with `-DSTRATA_ORCA_Q4KS_MMQ=ON` as below.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/ORCA_Q4_K_S.md:9:Strata 0.2.16 builds no MMQ kernels, so the Q5_0 down layers of this file have no GPU prompt kernel yet. To run it, build the v0.2.15 tag with `-DSTRATA_ORCA_Q4KS_MMQ=ON` as below.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/ORCA_Q4_K_S.md:9:Strata 0.2.16 builds no MMQ kernels, so the Q5_0 down layers of this file have no GPU prompt kernel yet. To run it, build the v0.2.15 tag with `-DSTRATA_ORCA_Q4KS_MMQ=ON` as below."
+    },
+    {
+      "token": "STRATA_PF_FUSED",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:304:| `STRATA_PF_FUSED` | gfx12 native IQ packs; integrated gfx11 | gfx12 Linux: on for IQ3_S, IQ3_XXS and Q2_0 gate/up. Integrated gfx11 on Linux (Radeon 780M / 760M gfx1103, 890M / 880M gfx1150, Strix Halo gfx1151): on. IQ2 formats on gfx12, discrete gfx11 and Windows (the Strix Halo on Windows has it in its own set): `=1` | Prompt experts on int8 matrix-core kernels instead of MMQ. `=0` keeps MMQ in a build that has it (the release builds of 0.2.16 and later have none: `=0` there runs the prompt experts on the native int8 kernels, #6251); `STRATA_PF_FUSED_NATIVE=0` keeps MMQ with the flag set. Radeon 780M, Q2_0: prompt x1.30 at 2K tokens and x1.13 at 8K, no change at 300 and 1,000 tokens; forced-token KL against the FP16 path (24 prompts of 2,048 tokens, 64 tokens each) 0.0060 against 0.0054 for MMQ (ratio 1.10, 95% CI 0.93 to 1.37). The 890M / 880M and Strix Halo take it by the same rule and were not run. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/AMD_HIP.md:304:| `STRATA_PF_FUSED` | gfx12 native IQ packs; integrated gfx11 | gfx12 Linux: on for IQ3_S, IQ3_XXS and Q2_0 gate/up. Integrated gfx11 on Linux (Radeon 780M / 760M gfx1103, 890M / 880M gfx1150, Strix Halo gfx1151): on. IQ2 formats on gfx12, discrete gfx11 and Windows (the Strix Halo on Windows has it in its own set): `=1` | Prompt experts on int8 matrix-core kernels instead of MMQ. `=0` keeps MMQ in a build that has it (the release builds of 0.2.16 and later have none: `=0` there runs the prompt experts on the native int8 kernels, #6251); `STRATA_PF_FUSED_NATIVE=0` keeps MMQ with the flag set. Radeon 780M, Q2_0: prompt x1.30 at 2K tokens and x1.13 at 8K, no change at 300 and 1,000 tokens; forced-token KL against the FP16 path (24 prompts of 2,048 tokens, 64 tokens each) 0.0060 against 0.0054 for MMQ (ratio 1.10, 95% CI 0.93 to 1.37). The 890M / 880M and Strix Halo take it by the same rule and were not run. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:304:| `STRATA_PF_FUSED` | gfx12 native IQ packs; integrated gfx11 | gfx12 Linux: on for IQ3_S, IQ3_XXS and Q2_0 gate/up. Integrated gfx11 on Linux (Radeon 780M / 760M gfx1103, 890M / 880M gfx1150, Strix Halo gfx1151): on. IQ2 formats on gfx12, discrete gfx11 and Windows (the Strix Halo on Windows has it in its own set): `=1` | Prompt experts on int8 matrix-core kernels instead of MMQ. `=0` keeps MMQ in a build that has it (the release builds of 0.2.16 and later have none: `=0` there runs the prompt experts on the native int8 kernels, #6251); `STRATA_PF_FUSED_NATIVE=0` keeps MMQ with the flag set. Radeon 780M, Q2_0: prompt x1.30 at 2K tokens and x1.13 at 8K, no change at 300 and 1,000 tokens; forced-token KL against the FP16 path (24 prompts of 2,048 tokens, 64 tokens each) 0.0060 against 0.0054 for MMQ (ratio 1.10, 95% CI 0.93 to 1.37). The 890M / 880M and Strix Halo take it by the same rule and were not run. |"
+    },
+    {
+      "token": "STRATA_PF_FUSED_IQ2S",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1202:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1202:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1211:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |"
+    },
+    {
+      "token": "STRATA_PF_FUSED_Q4NL",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:217:| `STRATA_PF_FUSED_Q4NL` | on / off | NVIDIA and AMD | - |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_PF_FUSED_Q6K",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/cmake/backends/cuda.cmake:253:      # the opt-in STRATA_PF_FUSED_Q6K=1 (phase 4): UD-Q6_K_XL's Q6_K gate/up with a Q8_0 down on the native kernels, against the reference, the",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/cmake/backends/cuda.cmake:269:      # the opt-in STRATA_PF_FUSED_Q6K=1 (phase 4): UD-Q6_K_XL's Q6_K gate/up with a Q8_0 down on the native kernels, against the reference, the",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/cmake/backends/cuda.cmake:253:      # the opt-in STRATA_PF_FUSED_Q6K=1 (phase 4): UD-Q6_K_XL's Q6_K gate/up with a Q8_0 down on the native kernels, against the reference, the"
+    },
+    {
+      "token": "STRATA_PF_W16_CACHE_MIB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:441:| `STRATA_PF_W16_CACHE_MIB` | on / off | NVIDIA and AMD | v0.2.16 | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:454:| `STRATA_PF_W16_CACHE_MIB` | on / off | NVIDIA and AMD | v0.2.16 | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:544:| `STRATA_PF_W16_CACHE_MIB` | on / off | NVIDIA and AMD | v0.2.16 | - |"
+    },
+    {
+      "token": "STRATA_PF_WMMA",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/NVIDIA_V100.md:39:| MoE experts | MMQ by default. Opt-in `STRATA_PF_WMMA=1` (only when every visible card is compute capability 7 or newer): `gemm_iq_f16_grouped`, a group of experts per launch on the FP16 tensor cores. FP16 activations instead of MMQ's q8_1, so answers differ. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/NVIDIA_V100.md:39:| MoE experts | MMQ by default. Opt-in `STRATA_PF_WMMA=1` (only when every visible card is compute capability 7 or newer): `gemm_iq_f16_grouped`, a group of experts per launch on the FP16 tensor cores. FP16 activations instead of MMQ's q8_1, so answers differ. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/NVIDIA_V100.md:39:| MoE experts | MMQ by default. Opt-in `STRATA_PF_WMMA=1` (only when every visible card is compute capability 7 or newer): `gemm_iq_f16_grouped`, a group of experts per launch on the FP16 tensor cores. FP16 activations instead of MMQ's q8_1, so answers differ. |"
+    },
+    {
+      "token": "STRATA_PLE_AUTO_RAM",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP.md:313:| `STRATA_PLE_AUTO_RAM=0` | all | On where the RAM fits | Keep the n-gram table in RAM when `--ple-io` was not given (RDNA4: 8K prompt +22.5%, see [RDNA4](#rdna4-gfx1201)); `=0` keeps the direct reads |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/AMD_HIP.md:313:| `STRATA_PLE_AUTO_RAM=0` | all | On where the RAM fits | Keep the n-gram table in RAM when `--ple-io` was not given (RDNA4: 8K prompt +22.5%, see [RDNA4](#rdna4-gfx1201)); `=0` keeps the direct reads |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP.md:313:| `STRATA_PLE_AUTO_RAM=0` | all | On where the RAM fits | Keep the n-gram table in RAM when `--ple-io` was not given (RDNA4: 8K prompt +22.5%, see [RDNA4](#rdna4-gfx1201)); `=0` keeps the direct reads |"
+    },
+    {
+      "token": "STRATA_POOL_DEP",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1267:| `STRATA_L3_PF=1` | CUDA, one GPU, a native pack with its experts in RAM, an AVX2 CPU; not with the NUMA split | After each layer the CPU workers run the next layer's router on this layer's input, pick its 4 most likely experts that are not in VRAM (`STRATA_L3_PF_TOP`, 1-16) and read them from RAM into their caches while the GPU works. The next batch of CPU work stops the reading. Each worker always computes the same rows of every expert (`STRATA_POOL_STATIC=1` alone), so it computes the rows it read; a native layer call then runs as two phases instead of `STRATA_POOL_DEP`'s one batch. The output does not change. The routers take 120 MiB of RAM. The startup log says when it is on or why it is off. | RTX 3090 at PCIe 4.0 x8 with a Ryzen 9 5950X and DDR4, against 0.1.64 with its defaults: decode +5.8% on short prompts and +6.0% on a 142K-174K token agent session. Top 2 to 8 gave about the same; static rows alone gave nothing. Measured on one machine only. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1267:| `STRATA_L3_PF=1` | CUDA, one GPU, a native pack with its experts in RAM, an AVX2 CPU; not with the NUMA split | After each layer the CPU workers run the next layer's router on this layer's input, pick its 4 most likely experts that are not in VRAM (`STRATA_L3_PF_TOP`, 1-16) and read them from RAM into their caches while the GPU works. The next batch of CPU work stops the reading. Each worker always computes the same rows of every expert (`STRATA_POOL_STATIC=1` alone), so it computes the rows it read; a native layer call then runs as two phases instead of `STRATA_POOL_DEP`'s one batch. The output does not change. The routers take 120 MiB of RAM. The startup log says when it is on or why it is off. | RTX 3090 at PCIe 4.0 x8 with a Ryzen 9 5950X and DDR4, against 0.1.64 with its defaults: decode +5.8% on short prompts and +6.0% on a 142K-174K token agent session. Top 2 to 8 gave about the same; static rows alone gave nothing. Measured on one machine only. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1279:| `STRATA_L3_PF=1` | CUDA, one GPU, a native pack with its experts in RAM, an AVX2 CPU; not with the NUMA split | After each layer the CPU workers run the next layer's router on this layer's input, pick its 4 most likely experts that are not in VRAM (`STRATA_L3_PF_TOP`, 1-16) and read them from RAM into their caches while the GPU works. The next batch of CPU work stops the reading. Each worker always computes the same rows of every expert (`STRATA_POOL_STATIC=1` alone), so it computes the rows it read; a native layer call then runs as two phases instead of `STRATA_POOL_DEP`'s one batch. The output does not change. The routers take 120 MiB of RAM. The startup log says when it is on or why it is off. | RTX 3090 at PCIe 4.0 x8 with a Ryzen 9 5950X and DDR4, against 0.1.64 with its defaults: decode +5.8% on short prompts and +6.0% on a 142K-174K token agent session. Top 2 to 8 gave about the same; static rows alone gave nothing. Measured on one machine only. |"
+    },
+    {
+      "token": "STRATA_PORTABLE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/bench-results/2026-10-03-community-2x-mi50/README.md:25:- **Build:** `-DSTRATA_HIP_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906 -DSTRATA_PORTABLE=ON`, ROCm clang, Ninja,",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/bench-results/2026-10-03-community-2x-mi50/README.md:25:- **Build:** `-DSTRATA_HIP_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906 -DSTRATA_PORTABLE=ON`, ROCm clang, Ninja,",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/bench-results/2026-10-03-community-2x-mi50/README.md:25:- **Build:** `-DSTRATA_HIP_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906 -DSTRATA_PORTABLE=ON`, ROCm clang, Ninja,"
+    },
+    {
+      "token": "STRATA_PREFILL_COPY_EVENT_EVERY",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1328:`STRATA_PREFILL_COPY_EVENT_EVERY` above 1 or `STRATA_PREFILL_COPY_WAIT_DEDUPE=1` the switch stays off: those keep the",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1328:`STRATA_PREFILL_COPY_EVENT_EVERY` above 1 or `STRATA_PREFILL_COPY_WAIT_DEDUPE=1` the switch stays off: those keep the",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1340:`STRATA_PREFILL_COPY_EVENT_EVERY` above 1 or `STRATA_PREFILL_COPY_WAIT_DEDUPE=1` the switch stays off: those keep the"
+    },
+    {
+      "token": "STRATA_PREFILL_COPY_WAIT_DEDUPE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1328:`STRATA_PREFILL_COPY_EVENT_EVERY` above 1 or `STRATA_PREFILL_COPY_WAIT_DEDUPE=1` the switch stays off: those keep the",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1328:`STRATA_PREFILL_COPY_EVENT_EVERY` above 1 or `STRATA_PREFILL_COPY_WAIT_DEDUPE=1` the switch stays off: those keep the",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1340:`STRATA_PREFILL_COPY_EVENT_EVERY` above 1 or `STRATA_PREFILL_COPY_WAIT_DEDUPE=1` the switch stays off: those keep the"
+    },
+    {
+      "token": "STRATA_PREFILL_CPU_SHARE_BATCH",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1202:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1202:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1211:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |"
+    },
+    {
+      "token": "STRATA_PREFILL_LAYER_MAJOR",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:262:| `STRATA_PREFILL_LAYER_MAJOR` | on / off | NVIDIA and AMD | [release-notes-0.2.7.md](release-notes-0.2.7.md) |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:263:| `STRATA_PREFILL_LAYER_MAJOR` | on / off | NVIDIA and AMD | [release-notes-0.2.7.md](release-notes-0.2.7.md) |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:353:| `STRATA_PREFILL_LAYER_MAJOR` | on / off | NVIDIA and AMD | [release-notes-0.2.7.md](release-notes-0.2.7.md) |"
+    },
+    {
+      "token": "STRATA_PREFILL_LM_TOKENS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/prefill/prefill.cpp:8099:    static const int64_t v = [] { const char* e = std::getenv(\"STRATA_PREFILL_LM_TOKENS\"); return e ? (int64_t) std::atoll(e) : (int64_t) 0; }();",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/qwen38-verdict-32k.md:16:- Для B..E: `STRATA_PREFILL_LAYER_MAJOR=1`, `STRATA_PREFILL_LM_TOKENS=32768`; fit ограничивает супер-чанк по VRAM.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/prefill/prefill.cpp:8099:    static const int64_t v = [] { const char* e = std::getenv(\"STRATA_PREFILL_LM_TOKENS\"); return e ? (int64_t) std::atoll(e) : (int64_t) 0; }();"
+    },
+    {
+      "token": "STRATA_PREFILL_MMQ",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/AMD_HIP_PERFORMANCE.md:15:removed in 0.2.16). To repeat them, build the v0.2.15 tag with `-DSTRATA_PREFILL_MMQ=ON -DSTRATA_MMQ=ON` and use these",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/AMD_HIP_PERFORMANCE.md:15:removed in 0.2.16). To repeat them, build the v0.2.15 tag with `-DSTRATA_PREFILL_MMQ=ON -DSTRATA_MMQ=ON` and use these",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/AMD_HIP_PERFORMANCE.md:15:removed in 0.2.16). To repeat them, build the v0.2.15 tag with `-DSTRATA_PREFILL_MMQ=ON -DSTRATA_MMQ=ON` and use these"
+    },
+    {
+      "token": "STRATA_PREFILL_RAM_RESERVE_MIB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:265:| `STRATA_PREFILL_RAM_RESERVE_MIB` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:266:| `STRATA_PREFILL_RAM_RESERVE_MIB` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:356:| `STRATA_PREFILL_RAM_RESERVE_MIB` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QWEN36.md:67:`STRATA_Q36_READ_WINDOWS=4` lets the decoding slots produce more tokens during a long prompt read, at the cost of a",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:LOCAL.en.md:25:| `efec68e7` | q36: the attention buffer size is the `STRATA_Q36_ATT_MB` env flag |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QWEN36.md:67:`STRATA_Q36_READ_WINDOWS=4` lets the decoding slots produce more tokens during a long prompt read, at the cost of a"
+    },
+    {
+      "token": "STRATA_Q36_ATT_MB",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:LOCAL.en.md:25:| `efec68e7` | q36: the attention buffer size is the `STRATA_Q36_ATT_MB` env flag |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_CHUNK",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QWEN36.md:110:slower). `--prefill 512` (or `STRATA_Q36_CHUNK=512`) gives the 512 size, and then the text is the base engine's, bit",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QWEN36.md:110:slower). `--prefill 512` (or `STRATA_Q36_CHUNK=512`) gives the 512 size, and then the text is the base engine's, bit",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QWEN36.md:110:slower). `--prefill 512` (or `STRATA_Q36_CHUNK=512`) gives the 512 size, and then the text is the base engine's, bit"
+    },
+    {
+      "token": "STRATA_Q36_CKPT_EVERY",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:274:| `STRATA_Q36_CKPT_EVERY` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:276:| `STRATA_Q36_CKPT_EVERY` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:365:| `STRATA_Q36_CKPT_EVERY` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_CKPT_N",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:275:| `STRATA_Q36_CKPT_N` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:277:| `STRATA_Q36_CKPT_N` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:366:| `STRATA_Q36_CKPT_N` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_EXPERT_CACHE_MB",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QUICKSTART.ru.md:88:| «no host memory for a layer's experts» | Мало RAM под модель: закройте лишнее, включите MAP-режим (`STRATA_Q36_EXPERT_CACHE_MB`) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:279:| `STRATA_Q36_FA_LAYER` | text | NVIDIA and AMD | [fa-attention.md](research/fa-attention.md), [fa-attention.ru.md](research/fa-attention.ru.md), [stock-vs-fork-2026-11-08.md](research/stock-vs-fork-2026-11-08.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA_CHECK",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/2026-11-20_23-fa-v2.md:18:Точность (`STRATA_Q36_FA_CHECK=1`, сверка с cuBLAS-веткой): worst max_abs 4,2e-3, cos 1.000000.",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA_LAYER",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:279:| `STRATA_Q36_FA_LAYER` | text | NVIDIA and AMD | [fa-attention.md](research/fa-attention.md), [fa-attention.ru.md](research/fa-attention.ru.md), [stock-vs-fork-2026-11-08.md](research/stock-vs-fork-2026-11-08.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA_LOG",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/research/fa-attention.md:35:the winner is printed at start-up. `STRATA_Q36_FA_LOG=1` prints the launch line;",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA_PROF",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/2026-11-20_23-fa-v2.md:16:5. Диагностика: `STRATA_Q36_FA_PROF=1` — счётчики clock64 по фазам (K, score, softmax, p.v) для слоёв 0 и 47.",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA_QB",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/2026-11-23-fa-qb-verdict.md:22:## Замер (патч применён, opt-in STRATA_Q36_FA_QB=1)",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FA_TILE",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:280:| `STRATA_Q36_FA_TILE` | text | NVIDIA and AMD | [fa-attention.md](research/fa-attention.md), [fa-attention.ru.md](research/fa-attention.ru.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FDEC",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:281:| `STRATA_Q36_FDEC` | text | NVIDIA and AMD | [2026-11-24-fdec-verdict.md](reports/2026-11-24-fdec-verdict.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FDEC_CHECK",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/2026-11-24-fdec-verdict.md:11:- Диагностика `STRATA_Q36_FDEC_CHECK`: сверка FDEC со старым split-K (как fa-check).",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_FIXED_SLOTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QWEN36.md:91:different rounding. With the slot tables fixed (`STRATA_Q36_FIXED_SLOTS=1`, a test setting) every slot equals its solo",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QWEN36.md:91:different rounding. With the slot tables fixed (`STRATA_Q36_FIXED_SLOTS=1`, a test setting) every slot equals its solo",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QWEN36.md:91:different rounding. With the slot tables fixed (`STRATA_Q36_FIXED_SLOTS=1`, a test setting) every slot equals its solo"
+    },
+    {
+      "token": "STRATA_Q36_MTP_SAMPLED",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:277:| `STRATA_Q36_MTP_SAMPLED` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:283:| `STRATA_Q36_MTP_SAMPLED` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:368:| `STRATA_Q36_MTP_SAMPLED` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_NO_EXT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/qwen35/q36_engine.cu:2899:        const bool ext = one || (fast_k && std::getenv(\"STRATA_Q36_NO_EXT\") == nullptr && !verify_k && T <= kGemmT && g.n_expert == 256 && Kp == 8);",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/profile-q36.md:90:| `STRATA_Q36_NO_EXT=1` | 299.5 / 298.9 / 300.2 | 16.0 / 19.7 / 19.2 | 6697 | 17 |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/qwen35/q36_engine.cu:2899:        const bool ext = one || (fast_k && std::getenv(\"STRATA_Q36_NO_EXT\") == nullptr && !verify_k && T <= kGemmT && g.n_expert == 256 && Kp == 8);"
+    },
+    {
+      "token": "STRATA_Q36_NO_MMQ",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/include/strata/kernels/q36_prompt_route.hpp:22:/// STRATA_Q36_NO_MMQ is not set; `i8_covers` = native_expert_i8_supported(the layer's layout) (formats, sizes, the device's shared memory).",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/include/strata/kernels/q36_prompt_route.hpp:22:/// STRATA_Q36_NO_MMQ is not set; `i8_covers` = native_expert_i8_supported(the layer's layout) (formats, sizes, the device's shared memory).",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/include/strata/kernels/q36_prompt_route.hpp:22:/// STRATA_Q36_NO_MMQ is not set; `i8_covers` = native_expert_i8_supported(the layer's layout) (formats, sizes, the device's shared memory)."
+    },
+    {
+      "token": "STRATA_Q36_OLD_KERNELS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QWEN36.md:118:kernel beside each new one on the real activations and compares them bit for bit. `STRATA_Q36_OLD_KERNELS=1` switches",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QWEN36.md:118:kernel beside each new one on the real activations and compares them bit for bit. `STRATA_Q36_OLD_KERNELS=1` switches",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QWEN36.md:118:kernel beside each new one on the real activations and compares them bit for bit. `STRATA_Q36_OLD_KERNELS=1` switches"
+    },
+    {
+      "token": "STRATA_Q36_P4",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:284:| `STRATA_Q36_P4` | on / off | NVIDIA and AMD | [2026-11-20_23-fork-report.md](reports/2026-11-20_23-fork-report.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_PEER_FIXED",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:278:| `STRATA_Q36_PEER_FIXED` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:285:| `STRATA_Q36_PEER_FIXED` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:369:| `STRATA_Q36_PEER_FIXED` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_PEER_SWAPS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:279:| `STRATA_Q36_PEER_SWAPS` | number | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:286:| `STRATA_Q36_PEER_SWAPS` | number | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:370:| `STRATA_Q36_PEER_SWAPS` | number | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_PEER_SWAP_MIB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:280:| `STRATA_Q36_PEER_SWAP_MIB` | number | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:287:| `STRATA_Q36_PEER_SWAP_MIB` | number | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:371:| `STRATA_Q36_PEER_SWAP_MIB` | number | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_PEER_SWAP_QUIET",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:281:| `STRATA_Q36_PEER_SWAP_QUIET` | on / off | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:288:| `STRATA_Q36_PEER_SWAP_QUIET` | on / off | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:372:| `STRATA_Q36_PEER_SWAP_QUIET` | on / off | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_Q36_PEER_VERIFY",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/qwen35/q36_engine.cu:1828:    float* cpu_chk = nullptr;    // STRATA_Q36_PEER_VERIFY: the CPU's own rows for the peer's entries, bit-compared",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:terminal/data/settings-register.json:39682:   \"name\": \"STRATA_Q36_PEER_VERIFY\",",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/qwen35/q36_engine.cu:1828:    float* cpu_chk = nullptr;    // STRATA_Q36_PEER_VERIFY: the CPU's own rows for the peer's entries, bit-compared"
+    },
+    {
+      "token": "STRATA_Q36_PEER_VS_C0",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/qwen35/q36_engine.cu:3210:        static const bool vs_c0 = std::getenv(\"STRATA_Q36_PEER_VS_C0\") != nullptr;   // the check: card 0's own experts",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:terminal/data/settings-register.json:39715:   \"name\": \"STRATA_Q36_PEER_VS_C0\",",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/qwen35/q36_engine.cu:3210:        static const bool vs_c0 = std::getenv(\"STRATA_Q36_PEER_VS_C0\") != nullptr;   // the check: card 0's own experts"
+    },
+    {
+      "token": "STRATA_Q36_PINNED_LAYERS",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:LOCAL.en.md:31:| `53a8f8ca` | q36: the pinned-arena share is the `STRATA_Q36_PINNED_LAYERS` flag |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_PROFILE",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/profile-q36.md:1:# Профилировщик q36 (`STRATA_Q36_PROFILE=1`)",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_READ_WINDOWS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QWEN36.md:67:`STRATA_Q36_READ_WINDOWS=4` lets the decoding slots produce more tokens during a long prompt read, at the cost of a",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QWEN36.md:67:`STRATA_Q36_READ_WINDOWS=4` lets the decoding slots produce more tokens during a long prompt read, at the cost of a",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QWEN36.md:67:`STRATA_Q36_READ_WINDOWS=4` lets the decoding slots produce more tokens during a long prompt read, at the cost of a"
+    },
+    {
+      "token": "STRATA_Q36_REBALANCE",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:291:| `STRATA_Q36_REBALANCE` | number | NVIDIA and AMD | - |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_STAGING_ONE",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:292:| `STRATA_Q36_STAGING_ONE` | on / off | NVIDIA and AMD | [2026-11-24-fdec-verdict.md](reports/2026-11-24-fdec-verdict.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_STREAM_ALL",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/qwen35/q36_engine.cu:3125:        // of consecutive experts from the same source in one copy each.  STRATA_Q36_STREAM_ALL=1: the whole layer from",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/profile-q36.md:92:| `STRATA_Q36_STREAM_ALL=1` | 294.1 / 297.9 / 299.3 | 19.0 / 19.5 / 20.1 | 6187 | 17 |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/qwen35/q36_engine.cu:3125:        // of consecutive experts from the same source in one copy each.  STRATA_Q36_STREAM_ALL=1: the whole layer from"
+    },
+    {
+      "token": "STRATA_Q36_STREAM_DEPTH",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/src/qwen35/q36_engine.cu:3325:        // STRATA_Q36_STREAM_DEPTH=1: one layer prefetched at a time on the pair (separates the prefetch depth",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_SUPER_CHUNK",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:293:| `STRATA_Q36_SUPER_CHUNK` | text | NVIDIA and AMD | [profile-q36.md](profile-q36.md), [kernel-progress.md](research/kernel-progress.md), [kernel-progress.ru.md](research/kernel-progress.ru.md) |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q36_SWAPS",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:294:| `STRATA_Q36_SWAPS` | number | NVIDIA and AMD | - |",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_Q6K_EXPERTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QUANTS.md:39:| Q6_K (gate/up) | yes (since this change; was `-DSTRATA_Q6K_EXPERTS=ON`) | FP16 path; MMQ with `STRATA_MMQ_KQ=1` | ggml AVX2 dot | yes (CUDA layout) | FP16 path; MMQ with `STRATA_MMQ_KQ=1` | kernels built, not run with these files | FP16 path |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QUANTS.md:39:| Q6_K (gate/up) | yes (since this change; was `-DSTRATA_Q6K_EXPERTS=ON`) | FP16 path; MMQ with `STRATA_MMQ_KQ=1` | ggml AVX2 dot | yes (CUDA layout) | FP16 path; MMQ with `STRATA_MMQ_KQ=1` | kernels built, not run with these files | FP16 path |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QUANTS.md:39:| Q6_K (gate/up) | yes (since this change; was `-DSTRATA_Q6K_EXPERTS=ON`) | FP16 path; MMQ with `STRATA_MMQ_KQ=1` | ggml AVX2 dot | yes (CUDA layout) | FP16 path; MMQ with `STRATA_MMQ_KQ=1` | kernels built, not run with these files | FP16 path |"
+    },
+    {
+      "token": "STRATA_RESIDENT_HEADROOM_GIB",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/server/native-resources.mjs:94: // 10 GB), and a STRATA_RESIDENT_HEADROOM_GIB of 20% of the RAM. Full performance (and `strata serve`) pass nothing: the whole system, the arena whenever it fits; either rule is taken out again.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/host/server/native-resources.mjs:94: // 10 GB), and a STRATA_RESIDENT_HEADROOM_GIB of 20% of the RAM. Full performance (and `strata serve`) pass nothing: the whole system, the arena whenever it fits; either rule is taken out again.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/server/native-resources.mjs:94: // 10 GB), and a STRATA_RESIDENT_HEADROOM_GIB of 20% of the RAM. Full performance (and `strata serve`) pass nothing: the whole system, the arena whenever it fits; either rule is taken out again."
+    },
+    {
+      "token": "STRATA_ROUTE_PRIOR",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/host/server/native-settings.mjs:38: * \"Faster answers on 12 GB NVIDIA cards\" (residency-biased routing) is OFF by default since 0.2.8 (owner decision, 29 October; #4402): STRATA_ROUTE_PRIOR=1.5",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/host/server/native-settings.mjs:38: * \"Faster answers on 12 GB NVIDIA cards\" (residency-biased routing) is OFF by default since 0.2.8 (owner decision, 29 October; #4402): STRATA_ROUTE_PRIOR=1.5",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/host/server/native-settings.mjs:38: * \"Faster answers on 12 GB NVIDIA cards\" (residency-biased routing) is OFF by default since 0.2.8 (owner decision, 29 October; #4402): STRATA_ROUTE_PRIOR=1.5"
+    },
+    {
+      "token": "STRATA_RULES",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:tools/packaging/kit/recommend.py:76:STRATA_RULES = [",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_SERVER",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:app/desktop/src-tauri/src/main.rs:548:    if let Ok(url) = std::env::var(\"STRATA_SERVER_URL\") {",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:app/desktop/src-tauri/src/main.rs:548:    if let Ok(url) = std::env::var(\"STRATA_SERVER_URL\") {",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:app/desktop/src-tauri/src/main.rs:567:    if let Ok(url) = std::env::var(\"STRATA_SERVER_URL\") {"
+    },
+    {
+      "token": "STRATA_SHARED_ALIGN16",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/kernels/cuda/iq_kernels.cu:2066:#define STRATA_SHARED_ALIGN16(T, name, ...) __shared__ T name[__VA_ARGS__] __attribute__((aligned(16)))",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/src/kernels/cuda/iq_kernels.cu:2004:#define STRATA_SHARED_ALIGN16(T, name, ...) __shared__ T name[__VA_ARGS__] __attribute__((aligned(16)))",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/kernels/cuda/iq_kernels.cu:2066:#define STRATA_SHARED_ALIGN16(T, name, ...) __shared__ T name[__VA_ARGS__] __attribute__((aligned(16)))"
+    },
+    {
+      "token": "STRATA_SLOT0_PREFIX",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/serve/server.py:2496:    SLOT0_PREFIX_MAX = int(os.environ.get(\"STRATA_SLOT0_PREFIX\", \"512\") or 512)   # Inkling with its drafter: a request whose best held prefix is shorter than this takes slot 0 when it is free (see pick_slot)",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:19130:longest start itself or the best start held elsewhere is shorter than SLOT0_PREFIX_MAX (512 tokens, STRATA_SLOT0_PREFIX; re-prefilling that costs well under a second), the request takes",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/serve/server.py:2605:    SLOT0_PREFIX_MAX = int(os.environ.get(\"STRATA_SLOT0_PREFIX\", \"512\") or 512)   # Inkling with its drafter: a request whose best held prefix is shorter than this takes slot 0 when it is free (see pick_slot)"
+    },
+    {
+      "token": "STRATA_SM70_PERF",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1487:| sm_70 (Tesla V100 / Titan V / Quadro GV100) | `STRATA_ADAPT_OVERLAP=1`, `STRATA_SM70_TABLE=1`, `STRATA_B6_MMVQ_ROWS=1`, `STRATA_TSUM=1`, `STRATA_SMALL_UNR=3`, `STRATA_GR_NORM_FAST=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ARGMAX_ROWS_SM70=1`, `STRATA_LFUSE=1`, `STRATA_GDN_SPLIT=1`, `STRATA_SH_STREAM=1`, `STRATA_Q80_ROWS1=1`, `STRATA_NO_MMVQ_ROWS2=1`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_GR_Q8_DOWN_MODE=2`, `STRATA_GR_Q8_UP_COLS=16`, `STRATA_GR_Q8_UP_MODE=2`, `STRATA_SCORES_HALVE=1`, `STRATA_SCORES_THREAD=1`, `STRATA_TOPK_SAMPLE=1`, `STRATA_SELECT_LONG=1` | `STRATA_SM70_PERF=0` (and `STRATA_DEFAULTS=026`) |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1487:| sm_70 (Tesla V100 / Titan V / Quadro GV100) | `STRATA_ADAPT_OVERLAP=1`, `STRATA_SM70_TABLE=1`, `STRATA_B6_MMVQ_ROWS=1`, `STRATA_TSUM=1`, `STRATA_SMALL_UNR=3`, `STRATA_GR_NORM_FAST=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ARGMAX_ROWS_SM70=1`, `STRATA_LFUSE=1`, `STRATA_GDN_SPLIT=1`, `STRATA_SH_STREAM=1`, `STRATA_Q80_ROWS1=1`, `STRATA_NO_MMVQ_ROWS2=1`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_GR_Q8_DOWN_MODE=2`, `STRATA_GR_Q8_UP_COLS=16`, `STRATA_GR_Q8_UP_MODE=2`, `STRATA_SCORES_HALVE=1`, `STRATA_SCORES_THREAD=1`, `STRATA_TOPK_SAMPLE=1`, `STRATA_SELECT_LONG=1` | `STRATA_SM70_PERF=0` (and `STRATA_DEFAULTS=026`) |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1500:| sm_70 (Tesla V100 / Titan V / Quadro GV100) | `STRATA_ADAPT_OVERLAP=1`, `STRATA_SM70_TABLE=1`, `STRATA_B6_MMVQ_ROWS=1`, `STRATA_TSUM=1`, `STRATA_SMALL_UNR=3`, `STRATA_GR_NORM_FAST=1`, `STRATA_SIDE_MIXER=2`, `STRATA_ARGMAX_ROWS_SM70=1`, `STRATA_LFUSE=1`, `STRATA_GDN_SPLIT=1`, `STRATA_SH_STREAM=1`, `STRATA_Q80_ROWS1=1`, `STRATA_NO_MMVQ_ROWS2=1`, `STRATA_CPU_IQ_ALL_EXACT1=1`, `STRATA_GR_Q8_DOWN_MODE=2`, `STRATA_GR_Q8_UP_COLS=16`, `STRATA_GR_Q8_UP_MODE=2`, `STRATA_SCORES_HALVE=1`, `STRATA_SCORES_THREAD=1`, `STRATA_TOPK_SAMPLE=1`, `STRATA_SELECT_LONG=1` | `STRATA_SM70_PERF=0` (and `STRATA_DEFAULTS=026`) |"
+    },
+    {
+      "token": "STRATA_SM86_DOWN_WS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/SETTINGS.md:316:| `STRATA_SM86_DOWN_WS` | number | NVIDIA and AMD | - |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/SETTINGS.md:328:| `STRATA_SM86_DOWN_WS` | number | NVIDIA and AMD | - |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/SETTINGS.md:406:| `STRATA_SM86_DOWN_WS` | number | NVIDIA and AMD | - |"
+    },
+    {
+      "token": "STRATA_SNAPSHOT_UPDATE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:.github/workflows/snapshot.yml:6:# get has to update the golden files in the same commit (STRATA_SNAPSHOT_UPDATE=1 python -m pytest terminal/tests/snapshot, see terminal/tests/snapshot/README.md).",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:terminal/tests/snapshot/README.md:12:STRATA_SNAPSHOT_UPDATE=1 python -m pytest tests/snapshot     # after an intended change: rewrites golden/, then review the git diff of golden/",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:.github/workflows/snapshot.yml:6:# get has to update the golden files in the same commit (STRATA_SNAPSHOT_UPDATE=1 python -m pytest terminal/tests/snapshot, see terminal/tests/snapshot/README.md)."
+    },
+    {
+      "token": "STRATA_SPEC_CHECK_IDS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/ink_main.cpp:745:        if (const char* e = std::getenv(\"STRATA_SPEC_CHECK_IDS\"); e && e[0] == '1') {   // the generated ids, for a quality check of the answer text",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6586:### `eb2c0b23d519` — inkling --spec-check: STRATA_SPEC_CHECK_IDS=1 prints the generated ids (plain and drafter); STRATA_SPEC_CHECK_QUICK=1 skips the verify-window comparisons",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/ink_main.cpp:841:        if (const char* e = std::getenv(\"STRATA_SPEC_CHECK_IDS\"); e && e[0] == '1') {   // the generated ids, for a quality check of the answer text"
+    },
+    {
+      "token": "STRATA_SPEC_CHECK_QUICK",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/ink_main.cpp:753:        if (const char* q = std::getenv(\"STRATA_SPEC_CHECK_QUICK\"); q && q[0] == '1') {   // skip the verify-window comparisons",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6586:### `eb2c0b23d519` — inkling --spec-check: STRATA_SPEC_CHECK_IDS=1 prints the generated ids (plain and drafter); STRATA_SPEC_CHECK_QUICK=1 skips the verify-window comparisons",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/ink_main.cpp:849:        if (const char* q = std::getenv(\"STRATA_SPEC_CHECK_QUICK\"); q && q[0] == '1') {   // skip the verify-window comparisons"
+    },
+    {
+      "token": "STRATA_SPEC_CHECK_SNAP",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/ink_main.cpp:638:        // STRATA_SPEC_CHECK_SNAP=1: value-neutral work between the prompt and the first decode step (a ShortConv snapshot: allocations",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:6067:### `3ebe83724218` — inkling: --spec-check can insert value-neutral work before the first decode step (STRATA_SPEC_CHECK_SNAP=1)",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/ink_main.cpp:734:        // STRATA_SPEC_CHECK_SNAP=1: value-neutral work between the prompt and the first decode step (a ShortConv snapshot: allocations"
+    },
+    {
+      "token": "STRATA_SPEC_CHECK_STEPS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/inkling2/ink_main.cpp:637:        static const bool dump_steps = [] { const char* e = std::getenv(\"STRATA_SPEC_CHECK_STEPS\"); return e && e[0] == '1'; }();",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:5599:### `a0fb0fe080de` — inkling: --spec-check prints a logits hash per plain step with STRATA_SPEC_CHECK_STEPS=1",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/inkling2/ink_main.cpp:733:        static const bool dump_steps = [] { const char* e = std::getenv(\"STRATA_SPEC_CHECK_STEPS\"); return e && e[0] == '1'; }();"
+    },
+    {
+      "token": "STRATA_SPLIT_FEWER_PCT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/MULTI_GPU.md:251:  least 20% shorter without the first cards. The placement does not change. `STRATA_SPLIT_FEWER_PCT` sets the threshold in",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/MULTI_GPU.md:251:  least 20% shorter without the first cards. The placement does not change. `STRATA_SPLIT_FEWER_PCT` sets the threshold in",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/MULTI_GPU.md:251:  least 20% shorter without the first cards. The placement does not change. `STRATA_SPLIT_FEWER_PCT` sets the threshold in"
+    },
+    {
+      "token": "STRATA_SWITCH_POINT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1202:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1202:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1211:| `STRATA_PREFILL_CPU_SHARE` (`auto`, limit `STRATA_PREFILL_CPU_SHARE_MAX=3072`) | CUDA: one GPU, or the server on a layer split of two cards; no `--batch`; prompt chunks under 3,072 tokens. HIP: one gfx12 card (under 2,304 tokens on Linux, where the fused IQ2_S / IQ4_XS prompt kernels are on by default; 3,072 on Windows or with `STRATA_PF_FUSED=0` / `STRATA_PF_FUSED_IQ2S=0`) or one discrete gfx1100/gfx1101/gfx1102 card | `STRATA_PREFILL_CPU_SHARE=0` | The CPU pool computes the experts few of the chunk's tokens route to, while the GPU works on the rest. `auto` measures per layer how long each side takes and checks that sharing pays. Skipped with one log line when RAM or commit is short; on one GPU the default is also not armed when the GPU cache holds every expert. Output changes in the last bits. `STRATA_PREFILL_CPU_SHARE_MAX=1024` keeps the old 1,024 limit; `STRATA_SWITCH_POINT` and `STRATA_PREFILL_CPU_SHARE_AUTO` move the limit where they are on. With `--batch` slots the share needs `STRATA_PREFILL_CPU_SHARE_BATCH=1` and a prompt read takes it only while no slot is decoding. Other HIP cards keep it off unless you set it, and so does a layer split of three or more cards unless the `STRATA_PREFILL_CPU_SHARE_AUTO` rule arms it. On a layer split the explicit `STRATA_PREFILL_CPU_SHARE=auto` works (2x RTX 5090 with a PCIe 4.0 x2 + x8 board, UD-Q4_K_XL, one 1,024-token prompt 1,958 -> 986 ms). |"
+    },
+    {
+      "token": "STRATA_SYCL_BMG_ROUTED_EXPERTS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/INTEL.md:428:| `STRATA_SYCL_BMG_ROUTED_EXPERTS` | Group routed rows, dequantization and expert projections. Where available, TLA kernels fuse gate/up and SwiGLU or project directly from the packed expert weights. Set to `0` to use the previous expert path and disable the window. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/INTEL.md:428:| `STRATA_SYCL_BMG_ROUTED_EXPERTS` | Group routed rows, dequantization and expert projections. Where available, TLA kernels fuse gate/up and SwiGLU or project directly from the packed expert weights. Set to `0` to use the previous expert path and disable the window. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/INTEL.md:428:| `STRATA_SYCL_BMG_ROUTED_EXPERTS` | Group routed rows, dequantization and expert projections. Where available, TLA kernels fuse gate/up and SwiGLU or project directly from the packed expert weights. Set to `0` to use the previous expert path and disable the window. |"
+    },
+    {
+      "token": "STRATA_SYCL_NO_XMX",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/INTEL.md:326:STRATA_SYCL_NO_XMX=1        # the older name INK_SYCL_NO_XMX=1 works too",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/INTEL.md:326:STRATA_SYCL_NO_XMX=1        # the older name INK_SYCL_NO_XMX=1 works too",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/INTEL.md:326:STRATA_SYCL_NO_XMX=1        # the older name INK_SYCL_NO_XMX=1 works too"
+    },
+    {
+      "token": "STRATA_TASK_ID",
+      "base": null,
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:tools/workflow/workflow_hook.ps1:53:    $explicit = [Environment]::GetEnvironmentVariable('STRATA_TASK_ID')",
+      "upstream": null
+    },
+    {
+      "token": "STRATA_TELEMETRY_KEY",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DEVELOPER_INTEGRATION_HANDOFF.md:89:strata connection create work --url https://HOST --prefix /strata --credential-env STRATA_TELEMETRY_KEY",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DEVELOPER_INTEGRATION_HANDOFF.md:89:strata connection create work --url https://HOST --prefix /strata --credential-env STRATA_TELEMETRY_KEY",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DEVELOPER_INTEGRATION_HANDOFF.md:89:strata connection create work --url https://HOST --prefix /strata --credential-env STRATA_TELEMETRY_KEY"
+    },
+    {
+      "token": "STRATA_TINY_CACHE",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:147:| `--adapt-every`, `--adapt-swaps`, `--adapt-decay` | How busily the VRAM expert cache follows the conversation. `STRATA_TINY_CACHE=1` (0.2.21; 0.1.66 had it on) brings back two rules for a cache below 15% of the experts, 16 swaps instead of 96 and the top quarter of the profile pinned; on an RTX 5080 with a 12% cache they cost 13-22% decode, so they are off. A CPU that reads missed experts slowly (DDR3 or DDR4 in few channels) gains from more swaps. `STRATA_ADAPT_MID=1` or `0` (0.2.21: on for the CUDA build, off for the HIP build; 0.1.66 had it on everywhere) sets a busier curve (`--adapt-every 2 --adapt-swaps 192 --adapt-decay 0.92`) when the VRAM cache holds 15-65% of the experts: the hit rate rises, but on an RX 7900 XT the decode speed went from -8% to +3% against the old values depending on the prompt (slower in 10 of 13 cells, worst at 15-25% coverage), so it is off by default on HIP and on by default on CUDA, where it gained 6-9% on an RTX A4000 at 30% coverage; the three flags win over it. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:147:| `--adapt-every`, `--adapt-swaps`, `--adapt-decay` | How busily the VRAM expert cache follows the conversation. `STRATA_TINY_CACHE=1` (0.2.21; 0.1.66 had it on) brings back two rules for a cache below 15% of the experts, 16 swaps instead of 96 and the top quarter of the profile pinned; on an RTX 5080 with a 12% cache they cost 13-22% decode, so they are off. A CPU that reads missed experts slowly (DDR3 or DDR4 in few channels) gains from more swaps. `STRATA_ADAPT_MID=1` or `0` (0.2.21: on for the CUDA build, off for the HIP build; 0.1.66 had it on everywhere) sets a busier curve (`--adapt-every 2 --adapt-swaps 192 --adapt-decay 0.92`) when the VRAM cache holds 15-65% of the experts: the hit rate rises, but on an RX 7900 XT the decode speed went from -8% to +3% against the old values depending on the prompt (slower in 10 of 13 cells, worst at 15-25% coverage), so it is off by default on HIP and on by default on CUDA, where it gained 6-9% on an RTX A4000 at 30% coverage; the three flags win over it. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:147:| `--adapt-every`, `--adapt-swaps`, `--adapt-decay` | How busily the VRAM expert cache follows the conversation. `STRATA_TINY_CACHE=1` (0.2.21; 0.1.66 had it on) brings back two rules for a cache below 15% of the experts, 16 swaps instead of 96 and the top quarter of the profile pinned; on an RTX 5080 with a 12% cache they cost 13-22% decode, so they are off. A CPU that reads missed experts slowly (DDR3 or DDR4 in few channels) gains from more swaps. `STRATA_ADAPT_MID=1` or `0` (0.2.21: on for the CUDA build, off for the HIP build; 0.1.66 had it on everywhere) sets a busier curve (`--adapt-every 2 --adapt-swaps 192 --adapt-decay 0.92`) when the VRAM cache holds 15-65% of the experts: the hit rate rises, but on an RX 7900 XT the decode speed went from -8% to +3% against the old values depending on the prompt (slower in 10 of 13 cells, worst at 15-25% coverage), so it is off by default on HIP and on by default on CUDA, where it gained 6-9% on an RTX A4000 at 30% coverage; the three flags win over it. |"
+    },
+    {
+      "token": "STRATA_TOKENIZER",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/serve/test_detok.py:21:    cands = [os.environ.get(\"STRATA_TOKENIZER\", \"\")]",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:terminal/serve/test_detok.py:21:    cands = [os.environ.get(\"STRATA_TOKENIZER\", \"\")]",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/serve/test_detok.py:21:    cands = [os.environ.get(\"STRATA_TOKENIZER\", \"\")]"
+    },
+    {
+      "token": "STRATA_TQP_FMT",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/src/kernels/cuda/iq_kernels.cu:917:#define STRATA_TQP_FMT(T) template<> struct Fmt<T> { static constexpr int qk = 128, ipb = 8, step = 4; \\",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:engine/src/kernels/cuda/iq_kernels.cu:904:#define STRATA_TQP_FMT(T) template<> struct Fmt<T> { static constexpr int qk = 128, ipb = 8, step = 4; \\",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/src/kernels/cuda/iq_kernels.cu:917:#define STRATA_TQP_FMT(T) template<> struct Fmt<T> { static constexpr int qk = 128, ipb = 8, step = 4; \\"
+    },
+    {
+      "token": "STRATA_UMA",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/BATCHING.md:158:`STRATA_UMA_PIN_CAP=0` turns that off.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/BATCHING.md:158:`STRATA_UMA_PIN_CAP=0` turns that off.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/BATCHING.md:176:`STRATA_UMA_PIN_CAP=0` turns that off."
+    },
+    {
+      "token": "STRATA_UNBUFFERED_LOAD",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/QUANTS.md:139:the document's experts in the file cache. So it stays opt-in. Reading everything unbuffered (`STRATA_UNBUFFERED_LOAD=1`) doubled the prompt too but cost",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/QUANTS.md:139:the document's experts in the file cache. So it stays opt-in. Reading everything unbuffered (`STRATA_UNBUFFERED_LOAD=1`) doubled the prompt too but cost",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/QUANTS.md:139:the document's experts in the file cache. So it stays opt-in. Reading everything unbuffered (`STRATA_UNBUFFERED_LOAD=1`) doubled the prompt too but cost"
+    },
+    {
+      "token": "STRATA_UPDATE_TRUSTED_KEYS",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:terminal/strata_cli/update_cmd.py:34:#: one-line installers use). Only a feed signed with a key in update_keys.json (or STRATA_UPDATE_TRUSTED_KEYS) is accepted.",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/share-bundle.md:66:  `STRATA_UPDATE_TRUSTED_KEYS=<FEED>/test-trust.json` (a test key, fine for a trial run).",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:terminal/strata_cli/update_cmd.py:34:#: one-line installers use). Only a feed signed with a key in update_keys.json (or STRATA_UPDATE_TRUSTED_KEYS) is accepted."
+    },
+    {
+      "token": "STRATA_VERIFY_NO_HOST",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/A770_SPEED_SPEC.md:417:`ONEAPI_DEVICE_SELECTOR=level_zero:1`; set `STRATA_VERIFY_NO_HOST=0` in the",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/A770_SPEED_SPEC.md:417:`ONEAPI_DEVICE_SELECTOR=level_zero:1`; set `STRATA_VERIFY_NO_HOST=0` in the",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/A770_SPEED_SPEC.md:417:`ONEAPI_DEVICE_SELECTOR=level_zero:1`; set `STRATA_VERIFY_NO_HOST=0` in the"
+    },
+    {
+      "token": "STRATA_VERSION",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/CMakeLists.txt:34:add_compile_definitions(STRATA_VERSION=\"${PROJECT_VERSION}\")",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/reports/2026-11-25-upstream-2af30cca-final-review.md:58:- Build identity: normalized compile commands равны; host `.text` равен; source checks rc0; различия ограничены `STRATA_VERSION` и путём к исходникам.",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/CMakeLists.txt:34:add_compile_definitions(STRATA_VERSION=\"${PROJECT_VERSION}\")"
+    },
+    {
+      "token": "STRATA_WATCHDOG_IO_S",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:engine/include/strata/core/watchdog_limits.hpp:3:// STRATA_WATCHDOG_S (default 60, 0 = the watchdog is off) and STRATA_WATCHDOG_IO_S (default 10 x the first, 0 = no allowance while the file",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md:13727:STRATA_WATCHDOG_S and STRATA_WATCHDOG_IO_S were read with std::atoi. The #6861 logs show",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:engine/include/strata/core/watchdog_limits.hpp:3:// STRATA_WATCHDOG_S (default 60, 0 = the watchdog is off) and STRATA_WATCHDOG_IO_S (default 10 x the first, 0 = no allowance while the file"
+    },
+    {
+      "token": "STRATA_WATCHDOG_S",
+      "base": "2af30ccaa0729177c4725ee2073f72bf550e2f86:docs/DETAILS.md:1544:| A request ends with `no progress for ... s ... (issue #29)`, with a stall report under it | A request that stops moving ends with an error after 2 minutes, and the next request starts the engine again. `STRATA_WATCHDOG_S` sets the time in seconds (`0` turns it off). Open an issue with the line, the stall report and, on Windows, the `strata-stall-<pid>.dmp` file. |",
+      "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1:docs/DETAILS.md:1544:| A request ends with `no progress for ... s ... (issue #29)`, with a stall report under it | A request that stops moving ends with an error after 2 minutes, and the next request starts the engine again. `STRATA_WATCHDOG_S` sets the time in seconds (`0` turns it off). Open an issue with the line, the stall report and, on Windows, the `strata-stall-<pid>.dmp` file. |",
+      "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72:docs/DETAILS.md:1557:| A request ends with `no progress for ... s ... (issue #29)`, with a stall report under it | A request that stops moving ends with an error after 2 minutes, and the next request starts the engine again. `STRATA_WATCHDOG_S` sets the time in seconds (`0` turns it off). Open an issue with the line, the stall report and, on Windows, the `strata-stall-<pid>.dmp` file. |"
+    }
+  ]
+}

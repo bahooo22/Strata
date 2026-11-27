@@ -1,0 +1,1186 @@
+{
+  "contentCommits": 65,
+  "rows": [
+    {
+      "commit": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+      "files": [
+        "docs/workflow/README.md",
+        "tools/workflow/test_workflow.py",
+        "tools/workflow/workflow_hook.ps1"
+      ],
+      "primaryRow": "workflow-tooling",
+      "relatedRows": [
+        "workflow-tooling"
+      ],
+      "subject": "RU: fix(workflow): обязать supervised handoff и ACK"
+    },
+    {
+      "commit": "e799f0d933fcd9dd2039ad03c00ffdd516edfbb1",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "qwen35-cli-context-guard",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "RU: fix(qwen35): отклонить переполнение контекста в CLI"
+    },
+    {
+      "commit": "153f6a1cdfa998860374bfdd9447828c9aca28a0",
+      "files": [
+        "terminal/run-qwen36-iq4_xs-huihui.bat",
+        "terminal/run-qwen36-iq4_xs-kat.bat",
+        "terminal/strata-qwen36-iq4_xs-huihui.json",
+        "terminal/strata-qwen36-iq4_xs-kat.json",
+        "terminal/tools/check_qwen36_200k_launch.py"
+      ],
+      "primaryRow": "qwen36-200k-launch",
+      "relatedRows": [
+        "qwen36-200k-launch"
+      ],
+      "subject": "RU: fix(terminal): привести qwen36 200k launch к штатному server"
+    },
+    {
+      "commit": "f11d2ed58ee6df586fb5af6ab3c0954f7458518e",
+      "files": [
+        "AGENTS.md",
+        "docs/workflow/README.md",
+        "tools/workflow/test_workflow.py",
+        "tools/workflow/workflow.py",
+        "tools/workflow/workflow_hook.ps1"
+      ],
+      "primaryRow": "workflow-tooling",
+      "relatedRows": [
+        "agents-workflow",
+        "agents-version",
+        "workflow-tooling"
+      ],
+      "subject": "RU: feat(workflow): добавить idea/algorithm диаграммы с проверкой гейтов"
+    },
+    {
+      "commit": "9ec1982ff3a75e2b5698fefc83af77a8973b71c0",
+      "files": [
+        "terminal/tests/terminal/test_inkling_fit_free.py",
+        "terminal/tests/terminal/test_inkling_fit_hip_window.py",
+        "terminal/tests/terminal/test_tui2_023_versions.py",
+        "terminal/tools/test_setup_config.py",
+        "tools/test_release_manifest.py"
+      ],
+      "primaryRow": "setup-upstream-features",
+      "relatedRows": [],
+      "subject": "Upstream: добавить regression tests для setup/HIP/release"
+    },
+    {
+      "commit": "b1c2c937753cfd2e4c88c9cea93721ac6b41d500",
+      "files": [
+        "terminal/setup.py",
+        "terminal/strata_control/inkling_fit.py"
+      ],
+      "primaryRow": "setup-upstream-features",
+      "relatedRows": [
+        "setup-kat-huihui",
+        "setup-upstream-features",
+        "inkling-upstream-lineup"
+      ],
+      "subject": "Upstream: планировать HIP K/V window и выбранный тип"
+    },
+    {
+      "commit": "194b68c7c247a8fba8664d3d55ac196184a1c99f",
+      "files": [
+        "terminal/setup.py"
+      ],
+      "primaryRow": "setup-upstream-features",
+      "relatedRows": [
+        "setup-kat-huihui",
+        "setup-upstream-features"
+      ],
+      "subject": "Upstream: добавить HIP RAM slack для expert plan"
+    },
+    {
+      "commit": "d484ccdeb4193c82188ae745b13f36e37ed6257b",
+      "files": [
+        "terminal/setup.py",
+        "terminal/strata_cli/cli.py"
+      ],
+      "primaryRow": "setup-upstream-features",
+      "relatedRows": [
+        "setup-kat-huihui",
+        "setup-upstream-features"
+      ],
+      "subject": "Upstream: создать install folder перед первым config"
+    },
+    {
+      "commit": "ce67d696cef760f462518bc63623d27bd43b6523",
+      "files": [
+        "docs/AI_REFERENCE.md",
+        "docs/CAPABILITIES.md",
+        "docs/data/release.json",
+        "engine/CMakeLists.txt",
+        "terminal/strata_cli/__init__.py",
+        "tools/packaging/README.md",
+        "tools/packaging/UPDATES.md",
+        "tools/release_manifest.py"
+      ],
+      "primaryRow": "cmake-upstream-build",
+      "relatedRows": [
+        "cmake-expert-parity",
+        "cmake-upstream-build",
+        "packaging-fork-notes",
+        "packaging-upstream-version"
+      ],
+      "subject": "Upstream: обновить версии Control/Terminal и packaging"
+    },
+    {
+      "commit": "996eb9195b1790f954dd48f50be27893cae93937",
+      "files": [
+        "docs/IMPROVEMENT_REGISTRY.md",
+        "docs/PROGRESS.md",
+        "docs/workflow/README.md",
+        "docs/workflow/events.jsonl",
+        "docs/workflow/state.json",
+        "docs/workflow/tasks/CANARY-001/DECISION_RECORD.md",
+        "docs/workflow/tasks/CANARY-001/DOC_IMPL.md",
+        "docs/workflow/tasks/CANARY-001/FAST_RUN_REPORT.md",
+        "docs/workflow/tasks/CANARY-001/FULL_RUN_REPORT.md",
+        "docs/workflow/tasks/CANARY-001/IMPL_PLAN.md",
+        "docs/workflow/tasks/CANARY-001/INTEGRATION_REPORT.md",
+        "docs/workflow/tasks/CANARY-001/PATCH.diff",
+        "docs/workflow/tasks/CANARY-001/REVIEW_REPORT.md",
+        "docs/workflow/tasks/CANARY-001/TASK_IDEA.md",
+        "docs/workflow/tasks/CANARY-001/UPSTREAM_PR_CHECK.md",
+        "docs/workflow/tasks/CANARY-001/experiment-profile.json",
+        "docs/workflow/tasks/CANARY-001/metrics-fast.json",
+        "docs/workflow/tasks/CANARY-001/metrics-full.json",
+        "docs/workflow/tasks/CANARY-001/metrics.template.json",
+        "tools/workflow/test_workflow.py",
+        "tools/workflow/workflow.py",
+        "tools/workflow/workflow_hook.ps1"
+      ],
+      "primaryRow": "workflow-tooling",
+      "relatedRows": [
+        "workflow-tooling"
+      ],
+      "subject": "Готово: закрыть workflow v3 и архивировать CANARY-001"
+    },
+    {
+      "commit": "4356a467780900923cbf83d92675790e7fbeb32a",
+      "files": [
+        "AGENTS.md",
+        "docs/IMPROVEMENT_REGISTRY.md",
+        "docs/PROGRESS.md",
+        "docs/UPSTREAM_MERGE.md",
+        "docs/workflow/README.md",
+        "docs/workflow/events.jsonl",
+        "docs/workflow/participants.json",
+        "docs/workflow/qoder-settings.json",
+        "docs/workflow/state.json",
+        "tools/workflow/test_workflow.py",
+        "tools/workflow/workflow.py",
+        "tools/workflow/workflow_hook.ps1"
+      ],
+      "primaryRow": "workflow-tooling",
+      "relatedRows": [
+        "agents-workflow",
+        "agents-version",
+        "workflow-tooling"
+      ],
+      "subject": "Feat: добавить workflow v3 для A/H/N"
+    },
+    {
+      "commit": "c172374b80d7201240604d8cde71e1659d3d0771",
+      "files": [
+        "docs/IMPROVEMENT_REGISTRY.md",
+        "docs/PROGRESS.md",
+        "docs/UPSTREAM_MERGE.md",
+        "docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.en.md",
+        "docs/upstream-merges/d46f5f268f8e-cc195b909a1a-2026-11-25.ru.md",
+        "tools/upstream_merge/merge_docs.py",
+        "tools/upstream_merge/test_upstream_merge.py",
+        "tools/upstream_merge/upstream_merge.py"
+      ],
+      "primaryRow": "upstream-merge-tooling",
+      "relatedRows": [
+        "upstream-merge-tooling"
+      ],
+      "subject": "Feat: добавить RU+EN MD-отчёты upstream merge"
+    },
+    {
+      "commit": "27f107d70bf0bce8d03712bffc8be43703634d3b",
+      "files": [
+        "tools/upstream_merge/merge_gate/evidence.py",
+        "tools/upstream_merge/merge_gate/selftest.py"
+      ],
+      "primaryRow": "upstream-merge-tooling",
+      "relatedRows": [
+        "upstream-merge-tooling"
+      ],
+      "subject": "Fix: нормализовать evidence warning codes"
+    },
+    {
+      "commit": "9e08a67325c12f3a91e2473370595ac97cfd9ed5",
+      "files": [
+        "tools/upstream_merge/owner_guard.ps1"
+      ],
+      "primaryRow": "upstream-merge-tooling",
+      "relatedRows": [
+        "upstream-merge-tooling"
+      ],
+      "subject": "tools: разрешить helper сборку в upstream-merge candidate"
+    },
+    {
+      "commit": "50567b5fefa43405c4bbf43e4d6b1f5cfe728672",
+      "files": [
+        "docs/bench-results/2026-10-04-community-rx-6800-windows/ab.py",
+        "docs/bench-results/2026-10-04-community-rx-6800-windows/strata_eval.py",
+        "docs/bench-results/2026-10-06-community-rtx4090-opt-ins/conc_bench.py",
+        "docs/bench-results/2026-10-06-community-rtx4090-toolcall-hotfix/probe_parser_corpus.py",
+        "docs/bench-results/2026-10-06-community-rtx4090-toolcall-hotfix/probe_restart_waiters.py",
+        "docs/bench-results/2026-10-06-community-rtx4090-toolcall-hotfix/probe_toolcall.py",
+        "terminal/tools/image/gate/te_tok_cases.py",
+        "tools/packaging/kit/ci/kit_dll_deps.py",
+        "tools/packaging/kit/ci/patch_markers.py",
+        "tools/packaging/kit/ci/registry_counts.py",
+        "tools/packaging/kit/ci/web_closure.py",
+        "tools/packaging/kit/classify.py",
+        "tools/packaging/kit/detect.py",
+        "tools/packaging/kit/gguf_meta.py",
+        "tools/packaging/kit/recommend.py"
+      ],
+      "primaryRow": "qwen36-200k-launch",
+      "relatedRows": [],
+      "subject": "tools: явно включить UTF-8 в Python-инструментах"
+    },
+    {
+      "commit": "f976c71c2d81faed0853c6c2bba63d86c8b96e24",
+      "files": [
+        "docs/UPSTREAM_MERGE.md",
+        "docs/plans/2026-11-24-upstream-safe-refactor.md",
+        "tools/upstream_merge/.gitignore",
+        "tools/upstream_merge/__init__.py",
+        "tools/upstream_merge/merge-plan.example.json",
+        "tools/upstream_merge/merge-plan.schema.json",
+        "tools/upstream_merge/merge_gate/__init__.py",
+        "tools/upstream_merge/merge_gate/checks.py",
+        "tools/upstream_merge/merge_gate/cli.py",
+        "tools/upstream_merge/merge_gate/console.py",
+        "tools/upstream_merge/merge_gate/evidence.py",
+        "tools/upstream_merge/merge_gate/gate.py",
+        "tools/upstream_merge/merge_gate/gitops.py",
+        "tools/upstream_merge/merge_gate/plan.py",
+        "tools/upstream_merge/merge_gate/report.py",
+        "tools/upstream_merge/merge_gate/scan.py",
+        "tools/upstream_merge/merge_gate/schema.py",
+        "tools/upstream_merge/merge_gate/selftest.py",
+        "tools/upstream_merge/merge_profile.example.json",
+        "tools/upstream_merge/owner_guard.ps1",
+        "tools/upstream_merge/test_upstream_merge.py",
+        "tools/upstream_merge/upstream_merge.py"
+      ],
+      "primaryRow": "upstream-merge-tooling",
+      "relatedRows": [
+        "upstream-merge-tooling"
+      ],
+      "subject": "tools: принять evidence-gated upstream merge в fork"
+    },
+    {
+      "commit": "a8ebf5d598583e8a1001d39232e957e14157a2a5",
+      "files": [
+        "docs/reports/expert-types-2026-11-24.md",
+        "engine/CMakeLists.txt",
+        "engine/cmake/strata_gpu_engine.cmake",
+        "engine/src/kernels/cuda/iq_kernels.cu",
+        "engine/src/kernels/iq_multi_parity.cpp",
+        "engine/src/kernels/native_grouped_parity.cpp",
+        "engine/tests/cuda/nvfp4_decode_sm120_test.cpp",
+        "terminal/strata_control/q36_types.py",
+        "terminal/tests/terminal/test_q36_types.py",
+        "terminal/tools/qwen4_intake.py"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "cmake-expert-parity",
+        "cmake-upstream-build",
+        "down-sub8"
+      ],
+      "subject": "engine: полный routed-expert контракт 10/11/18/21"
+    },
+    {
+      "commit": "ba9ae196e15cdbc9235b7db95d174ddfe6a248a8",
+      "files": [
+        "terminal/tests/terminal/test_launch_qwen36_rows.py",
+        "terminal/tools/strata_mcp.py"
+      ],
+      "primaryRow": "setup-kat-huihui",
+      "relatedRows": [
+        "mcp-own-size",
+        "mcp-upstream-features"
+      ],
+      "subject": "terminal: launch использует setup.own_size для KAT/Huihui вместо шаблонного имени файла"
+    },
+    {
+      "commit": "3a44a352aac04efcdc1a2c101835cdfeccd1bbd7",
+      "files": [
+        "tools/packaging/kit/ci/pack_kit.ps1"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [],
+      "subject": "kit: fallback вложенного dir сохраняет разделитель; регрессия на terminal"
+    },
+    {
+      "commit": "88eeda4246e99f6b033b6db939d5ed1f0684d760",
+      "files": [
+        "tools/packaging/kit/ci/pack_kit.ps1"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [],
+      "subject": "kit: гейт замыкания получает terminal-корень на 0.2.16-раскладке; доливайка вложенных dir — backslash"
+    },
+    {
+      "commit": "e31f451b8f846700c72173c6b3c7e4094fad1a6d",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: вердикт-строка FDEC — вооружён маршрут или knob молчит вхолостую"
+    },
+    {
+      "commit": "0c21904e7726c8b629da7732add94f37ce4d62b0",
+      "files": [
+        "engine/cmake/backends/cuda.cmake",
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fdec_decode.cuh",
+        "engine/tests/cuda/fdec_decode_golden.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: распаковщики FDEC вынесены в заголовок; golden-тест распаковки q8/q4 (12288 проверок)"
+    },
+    {
+      "commit": "4d47b170ff62a78eb8dc7e5de9a48d96c139ebdf",
+      "files": [
+        "docs/reports/2026-11-23-fa-qb-verdict.md",
+        "docs/reports/2026-11-23-fdec-q4.md",
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: FA_PROF — загрузка V отделена от softmax (слот 2); вердикт FA-QB исправлен по потолку"
+    },
+    {
+      "commit": "8e2f2af948f2949bff97b0788a5ac050b3b3d53f",
+      "files": [
+        "docs/SETTINGS.md",
+        "docs/reports/2026-11-23-fdec-q4.md",
+        "docs/reports/2026-11-23-kv-answers.md",
+        "docs/reports/2026-11-24-fdec-verdict.md",
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "settings-fork-knobs",
+        "settings-upstream-register",
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "down-sub8",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: FDEC для KV_Q4 — ниббл-распаковка в decode-ядре; STREAM_DEPTH для причинности глубины"
+    },
+    {
+      "commit": "11ff82f935316b006c620cf4525b0c8854833565",
+      "files": [
+        "docs/reports/2026-11-23-staging-one-fix.md",
+        "docs/reports/2026-11-24-fdec-verdict.md",
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-memory-staging",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: STAGING_ONE — один буфер реально аллоцируется; stream_done пишет событие в свой слот (F1/F2)"
+    },
+    {
+      "commit": "e8009530add7c83756c6db3471da7930e941f968",
+      "files": [
+        "engine/src/qwen35/q36_metadata_test.cpp"
+      ],
+      "primaryRow": "q36-memory-staging",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fdec",
+        "q36-memory-staging"
+      ],
+      "subject": "q36_metadata_test: регресс-кейс STRATA_Q36_STAGING_ONE — один staging-буфер влезает, пара drop"
+    },
+    {
+      "commit": "da404b74a559d830a23bca69412b4fa8255a7816",
+      "files": [
+        "docs/SETTINGS.md",
+        "engine/src/kernels/cuda/iq_kernels.cu",
+        "terminal/data/settings-register.json"
+      ],
+      "primaryRow": "down-sub8",
+      "relatedRows": [
+        "settings-fork-knobs",
+        "settings-upstream-register",
+        "down-sub8"
+      ],
+      "subject": "iq_kernels: STRATA_DOWN_SUB8=0 — прежняя 32-lane down-редукция (opt-out); реестр настроек догнал код"
+    },
+    {
+      "commit": "0a47d05de2327185f581fda3b09b1f23bfe1292d",
+      "files": [
+        "docs/reports/2026-11-24-fdec-verdict.md",
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: STRATA_Q36_STAGING_ONE — 200k/q8_0+FDEC на 8 ГиБ (pp 704,5 / tg 15,3)"
+    },
+    {
+      "commit": "09a558358883f90408b803b767d8db0e7b5f7251",
+      "files": [
+        "docs/reports/2026-11-24-fdec-verdict.md",
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: баннер печатает SMs и число ssm v-heads; вердикт FDEC поправлен по приёмке"
+    },
+    {
+      "commit": "1843ebcc4f29f6b545250071c9ad39e1fb0aebfe",
+      "files": [
+        "docs/SETTINGS.md",
+        "terminal/data/settings-register.json",
+        "tools/settings_register.py"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "settings-fork-knobs",
+        "settings-upstream-register",
+        "down-sub8"
+      ],
+      "subject": "docs: реестр настроек видит knob-env (STRATA_Q36_FDEC в SETTINGS.md)"
+    },
+    {
+      "commit": "880ab1dbf54b75b3a54b417b42ad37e01d5229c6",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-memory-staging",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: streamed-путь не вооружается без staging (200k+q8 падал invalid resource handle)"
+    },
+    {
+      "commit": "27794da39cf80eccc89525466519893ed51212de",
+      "files": [
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec"
+      ],
+      "subject": "q36: шапка q36_fa.cuh больше не говорит «не включается ни в одну сборку»"
+    },
+    {
+      "commit": "04ff7064618f615e67723020aea70233155302be",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "tools/packaging/kit/ci/patch-markers.json"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: FDEC заведён как knob --fdec/STRATA_Q36_FDEC (A14 этап 3) + маркеры"
+    },
+    {
+      "commit": "0987a29d8440d86a20e620025fc7efe86dca80ef",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: decode-attention FDEC на тензорных ядрах для KV_Q8 (A14 этап 2, opt-in)"
+    },
+    {
+      "commit": "a7cbe05e17d7962c5b5ee3adbc824cff076feeaf",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fdec",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: KV-строка переложена scale-first под decode-ядро FDEC (A14 этап 1)"
+    },
+    {
+      "commit": "b24caaaf4a9876624356fc5588c679fbe23142d5",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "copy-session-quantized-kv",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: copy_session переносит и квантованный KV (A14 этап 0)"
+    },
+    {
+      "commit": "8183280177197de0a4bb9c3b3138fc7f8d225450",
+      "files": [
+        "tools/packaging/kit/ci/pack_kit.ps1"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [],
+      "subject": "kit: база правила морды переезжает под terminal, если в корне нет файлов"
+    },
+    {
+      "commit": "45f1b46a0cf761aa0d56777e3303e74e286b9f03",
+      "files": [
+        ".github/workflows/kit-release.yml",
+        "tools/packaging/kit/ci/pack_kit.ps1"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [
+        "packaging-kit"
+      ],
+      "subject": "kit: pack_kit ищет доливайку и пин под 0.2.16-раскладку (terminal/, tools/packaging/)"
+    },
+    {
+      "commit": "58569c234cf5afbd54e300df7d89813d1c08d75a",
+      "files": [
+        "terminal/setup.py"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "setup-kat-huihui",
+        "setup-upstream-features"
+      ],
+      "subject": "setup: qwen36 принимает KAT и Huihui IQ4_XS (1-click для наших моделей)"
+    },
+    {
+      "commit": "d3db2dc20e30c6aa5f2c8df3a878a9f9cf53bd15",
+      "files": [
+        "tools/packaging/kit/ci/patch-markers.json"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [],
+      "subject": "kit: убраны 2 устаревших маркера MTP/MMQ 0.2.16 (апстрим 0.2.19 переписал путь)"
+    },
+    {
+      "commit": "87b6ccd141f8ffece2f6fdb85681a56049cd3ced",
+      "files": [
+        "tools/packaging/kit/ci/patch-markers.json"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [],
+      "subject": "kit: commits_with_marker реестра = 16 (после +5 маркеров 22.11)"
+    },
+    {
+      "commit": "59b28a62b2a138098d10b7c49f19cd3038c68c61",
+      "files": [
+        ".github/workflows/kit-build.yml",
+        "tools/packaging/kit/ci/pack_kit.ps1"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [
+        "packaging-kit"
+      ],
+      "subject": "kit: TextGate мерил ноль входов; serve/server_parts и RepoSrc в CI"
+    },
+    {
+      "commit": "1c28ffa68a003fa6ec57740986c4d0a8b85753cf",
+      "files": [
+        ".github/workflows/kit-build.yml",
+        ".github/workflows/kit-release.yml",
+        "tools/packaging/kit/README.en.md",
+        "tools/packaging/kit/README.ru.md",
+        "tools/packaging/kit/START.bat",
+        "tools/packaging/kit/ci/build_kit.ps1",
+        "tools/packaging/kit/ci/pack_kit.ps1",
+        "tools/packaging/kit/ci/patch_markers.py",
+        "tools/packaging/kit/ci/smoke_kit.ps1",
+        "tools/packaging/kit/ci/verify_zip.sh"
+      ],
+      "primaryRow": "packaging-kit",
+      "relatedRows": [
+        "packaging-kit"
+      ],
+      "subject": "kit: Portable — только Strata; llama-нога и strata_kq убраны, имя Strata-Portable"
+    },
+    {
+      "commit": "868ef31a71ef8b6110aeb9370580ba645ee9db6a",
+      "files": [
+        "tools/packaging/kit/ci/patch-markers.json"
+      ],
+      "primaryRow": "q36-expert-cache",
+      "relatedRows": [],
+      "subject": "kit: реестр маркеров под 0.2.19 и наши патчи P4/MAP/FA/rebalance"
+    },
+    {
+      "commit": "d53ebc8fb3841458527b48f197d895476ca81064",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-expert-cache",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: prep пишет q16 сразу; env-кадэнс rebalance (дефолт прежний)"
+    },
+    {
+      "commit": "30d71e3162ece3a900d27ebb01cb01f8c0d6502c",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-fa-v2",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "q36: FA v2 — 16x32-плитка, регистровая softmax-схема, ldmatrix"
+    },
+    {
+      "commit": "f6bfb16f2d90e71547539c4c5c72421bdb4d8b5e",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "Revert \"[Engine] F2b: Q во fragment из глобальной памяти — Qs=16/32 влезают; автовыбор по T\""
+    },
+    {
+      "commit": "485ec58511ffb4ad3c9f5f1a53eb495e744c2685",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] F2b: Q во fragment из глобальной памяти — Qs=16/32 влезают; автовыбор по T"
+    },
+    {
+      "commit": "ec44fc23556ad63559743e9916e4c6d039204294",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "Revert \"[Engine] F2: FA-варианты Qs=16/32 и автовыбор по T (K/V перечитывается T/Qs раз)\""
+    },
+    {
+      "commit": "69a50abaf753e91eb4275977e230e4bde1cb197d",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_fa.cuh"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] F2: FA-варианты Qs=16/32 и автовыбор по T (K/V перечитывается T/Qs раз)"
+    },
+    {
+      "commit": "cd73c1cbba0d085ba9ec3360d3364de4ef3dbc68",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-fa-v2",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] F1: под-таймеры attention (kv-конверсия, FA/fallback, wo) в профиле"
+    },
+    {
+      "commit": "28e87fcad2eff4dd649a1ea8f6cf2d648c52272d",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] merge-фикс: use_pf выставляется до правила hybrid_t (иначе prompt-чанки уходили в CPU-пул)"
+    },
+    {
+      "commit": "16a78f33b9682a3bf56b67f9a24195ce0992176b",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] merge-фикс: use_pf выставляется в place_experts"
+    },
+    {
+      "commit": "2507b17fb18081ed9f64dc0abdf19958420d6a9a",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] merge-фикс: поле use_pf (0.2.18) и включение стриминга в нашем init"
+    },
+    {
+      "commit": "0678f6ff6d4498941ba81ce38ca3854fc85da9a0",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-expert-cache",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] q36: префетч mmap-режима в pinned-буферы (STRATA_Q36_EXPERT_CACHE_MB)"
+    },
+    {
+      "commit": "9a1700f22154ed5fe336b0b3607cd7aa020a32a5",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-p4",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] q36: fused-ядра prompt-экспертов по STRATA_Q36_P4=1"
+    },
+    {
+      "commit": "dbb4b1b65096181ab424753a6af58e29efb04275",
+      "files": [
+        "engine/src/prefill/moe_fused_iq.cu"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "fused-format-support",
+        "fused-sync-debug"
+      ],
+      "subject": "[Engine] fused/int8: down IQ4_XS в fused-ядрах (формат 23) — верный результат"
+    },
+    {
+      "commit": "27bb3db8c3bf081381b7dffacda58f837eed89e8",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "q36-knobs",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] q36: кэш экспертов в RAM с чтением из mmap-GGUF (модели больше RAM)"
+    },
+    {
+      "commit": "49e57b6819445295ab91d30cb30055dbe90db539",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] q36: MTP-блок стримится и в сборке без MMQ"
+    },
+    {
+      "commit": "af67278cca2761d75e778c13c9d2dac4543dba5c",
+      "files": [
+        "engine/src/kernels/cuda/i8_expert.cuh",
+        "engine/src/kernels/cuda/iq_kernels.cu",
+        "engine/tests/cuda/prefill_expert_paths_bench.cpp"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "down-sub8",
+        "int8-prompt-experts"
+      ],
+      "subject": "[Engine] int8: IQ4_NL gate/up (формат 20) в native_expert_i8"
+    },
+    {
+      "commit": "cc820825d96af7a1e6d0361c9ff059f7dc12826a",
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] q36: int8 prompt-эксперты по умолчанию в сборке без MMQ"
+    },
+    {
+      "commit": "5fc067efc097446d009826debf930940f892c5e5",
+      "files": [
+        "engine/src/kernels/cuda/iq_kernels.cu"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "down-sub8"
+      ],
+      "subject": "[Engine] int8: down IQ4_XS (формат 23) в native_expert_i8"
+    },
+    {
+      "commit": "f9c1c8d5f7ea5cc820396123a3458cc41220934f",
+      "files": [
+        "engine/src/kernels/cuda/iq_kernels.cu",
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "down-sub8",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "[Engine] IQ4_NL: ssm_alpha/ssm_beta деквант и gate/up экспертов"
+    },
+    {
+      "commit": "08fff0bb555ed75606dbdade36402c0052b99a5d",
+      "files": [
+        "engine/src/kernels/cuda/i8_expert.cuh",
+        "engine/src/prefill/moe_fused_iq.cu",
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/tests/cuda/prefill_expert_paths_bench.cpp"
+      ],
+      "primaryRow": "int8-prompt-experts",
+      "relatedRows": [
+        "fused-format-support",
+        "fused-sync-debug",
+        "qwen35-no-delta",
+        "q36-fa-v2",
+        "q36-fdec",
+        "q36-expert-cache",
+        "q36-p4",
+        "q36-memory-staging",
+        "q36-super-chunk",
+        "q36-knobs",
+        "down-sub8",
+        "int8-prompt-experts",
+        "copy-session-quantized-kv",
+        "qwen35-cli-context-guard"
+      ],
+      "subject": "RU: 0.2.16 без MMQ: GPU-путь prompt-экспертов (P0+P2+P1+P3)"
+    },
+    {
+      "commit": "7da004a97f94dca6d2b7c26cc410dbc3de4b6787",
+      "files": [
+        "docs/share-bundle.md",
+        "docs/share-bundle.ru.md",
+        "packaging/make_share_bundle.py",
+        "tools/test_make_share_bundle.py"
+      ],
+      "primaryRow": "fork-docs-evidence",
+      "relatedRows": [],
+      "subject": "RU: packaging: обёртка раздачи комплекта и её проверки в историю"
+    }
+  ]
+}

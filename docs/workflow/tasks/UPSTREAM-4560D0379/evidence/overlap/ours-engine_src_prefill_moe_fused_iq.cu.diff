@@ -1,0 +1,141 @@
+diff --git a/engine/src/prefill/moe_fused_iq.cu b/engine/src/prefill/moe_fused_iq.cu
+index d99619296..56521928c 100644
+--- a/engine/src/prefill/moe_fused_iq.cu
++++ b/engine/src/prefill/moe_fused_iq.cu
+@@ -981,11 +981,11 @@ native_kernel(const BatchOf<NT> b, const NativeGeom geo, const Tables tb, const
+         const uint8_t* wrow = GU ? blob + ((ur & 8) ? geo.up_off : 0) +
+                                        (size_t) (fb * (WR / 2) + 8 * (ur >> 4) + (ur & 7)) * geo.gu_row
+                                  : blob + geo.down_off + (size_t) (rbase + ur) * geo.d_row;
+         // gate/up in Q2_0 (64-value blocks): a block per stage, as the down rows read theirs; in Q8_0 (32-value blocks, CUDA
+         // STRATA_PF_FUSED_Q8GU=1): two blocks a stage, as the Q8_0 down rows read theirs
+-        constexpr bool GU256 = (GU || ((WT == T_Q4_K || WT == T_Q5_K || WT == T_Q6_K) && D_ROWS_K % 256 == 0)) && WT != T_Q2_0 && WT != T_Q8_0 && WT != T_NVFP4 && !is_tq(WT);   // (a K-quant DOWN walks its 256-value super-blocks too, when n_ff is a multiple of 256: Qwen3.6's 512)
++        constexpr bool GU256 = (GU || ((WT == T_Q4_K || WT == T_Q5_K || WT == T_Q6_K || WT == T_IQ4_XS) && D_ROWS_K % 256 == 0)) && WT != T_Q2_0 && WT != T_Q8_0 && WT != T_NVFP4 && !is_tq(WT);   // (a 256-value-block DOWN — the K-quants and IQ4_XS — walks its super-blocks too, when n_ff is a multiple of 256: Qwen3.6's 512)
+         constexpr bool B128 = is_tq(WT);   // (CUDA, STRATA_PF_FUSED_TQ=1) 128-value blocks, gate/up and down: a block per two stages, sub-blocks 0-3
+         auto unit = [&](int s) -> const uint8_t* {                  // the block of stage s's sub-block
+             if (B128) return wrow + (s >> 1) * BS;
+             if (GU256) return wrow + (s >> 2) * BS;
+             return (WT == T_IQ4_NL || WT == T_Q5_0 || WT == T_Q5_1 || WT == T_Q8_0) ? wrow + (2 * s + uj) * BS : wrow + s * BS;   // 32-value blocks: two a stage
+@@ -1445,11 +1445,11 @@ native_ws_kernel(const WideBatch b, const NativeGeom geo, const Tables tb, const
+     constexpr int NS = (GU ? GU_ROWS_K : D_ROWS_K) / 64;
+     constexpr int NFB = (GU ? GU_ROWS_N : D_ROWS_N) / WR;
+     constexpr int ACT_LD = NS * AB;
+     constexpr int BS = block_bytes(WT);
+     constexpr int WT_BYTES = WR * WLDH, ACT_STAGE = TR * AB;
+-    constexpr bool GU256 = GU && WT != T_Q2_0;
++    constexpr bool GU256 = GU ? WT != T_Q2_0 : (WT == T_IQ4_XS && D_ROWS_K % 256 == 0);   // 0216-accel P2: the IQ4_XS down reads 256-value super-blocks
+     extern __shared__ __align__(16) uint8_t smem[];
+     uint8_t* wt = smem;                                         // [SLOTS][WR][WLDH] F16 weights
+     uint8_t* stages = smem + WS_SLOTS * WS_KS * WT_BYTES;       // [SLOTS * KS][TR][AB] activations
+     int* srow = (int*) (stages + WS_SLOTS * WS_KS * ACT_STAGE); // [2][TR] (producers only)
+     static_assert(NS % WS_KS == 0, "whole slots");
+@@ -2677,11 +2677,13 @@ struct DevInfo {
+     bool kq8 = false;   // with kq: the Q8_0 down kernels are set up too (A2; UD-Q4_K_XL's five Q8_0-down layers)
+     int occ_kq8 = 1;
+     bool q8d = false;   // sm_80+ with STRATA_PF_FUSED_Q8D=1: the same Q8_0 down kernels behind an i-quant gate/up (opt-in, phase 4; their occupancy is occ_kq8)
+     bool q8gu = false;  // sm_80+ with STRATA_PF_FUSED_Q8GU=1: the Q8_0 gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
+     int occ_q8gu = 1;   // the Q8_0 gate/up kernels' blocks per multiprocessor (the down keeps occ_kq8)
+-    bool q6k = false;   // sm_80+ with STRATA_PF_FUSED_Q6K=1: the Q6_K gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
++    bool q6k = false;  // sm_80+ with STRATA_PF_FUSED_Q6K=1: the Q6_K gate/up kernels, and the Q8_0 down ones behind them (opt-in, phase 4)
++    bool q4nlgu = false;   // 0216-accel P3: STRATA_PF_FUSED_Q4NL=1 - an IQ4_NL gate/up (the HauhauCS pack)
++    int occ_q4nlgu = 1;
+     int occ_q6k = 1;    // the Q6_K gate/up kernels' blocks per multiprocessor (the down keeps occ_kq8)
+     bool tq = false;    // the trellis kernels (TQK6 / TQ2_T gate/up, TQK7 / TQ2_T down) are set up: by default on sm_86 with 80+ SMs, STRATA_PF_FUSED_TQ=1 on any sm_80+ (fused_tq_default.hpp)
+     int occ_tq_gu = 1, occ_tq_d = 1;   // their blocks per multiprocessor (their own)
+     bool nvfp4 = false; // the NVFP4 kernels (gate/up and down) are set up on this sm_80+ card (whether a layer takes them: native_supported)
+     int occ_nvfp4_gu = 1, occ_nvfp4_d = 1;   // their blocks per multiprocessor (their own)
+@@ -2932,18 +2934,23 @@ const DevInfo& dev_info() {
+             if (int o9 = 1 << 20, o10 = 1 << 20; q6k_cuda_requested() && setup_ww<T_Q6_K, true, 2>(o9) && setup_ww<T_Q8_0, false, 2>(o10)) {
+                 d.q6k = true;
+                 d.occ_q6k = o9;
+                 d.occ_kq8 = o10;
+             }
++            static const bool q4nlgu = [] {   // 0216-accel P3
++                const char* v = std::getenv("STRATA_PF_FUSED_Q4NL");
++                return v != nullptr && v[0] == '1';
++            }();
++            if (int o11 = 1 << 20; q4nlgu && setup_ww<T_IQ4_NL, true, 2>(o11)) { d.q4nlgu = true; d.occ_q4nlgu = o11; }
+         }
+         d.occ = d.ok ? occ : 1;
+         cudaGetLastError();
+         return d;
+     }
+     d.ok = setup_one<T_IQ2_XXS, true>(occ) && setup_one<T_IQ2_XS, true>(occ) && setup_one<T_IQ2_S, true>(occ) &&
+            setup_one<T_IQ3_XXS, true>(occ) && setup_one<T_IQ3_S, true>(occ) && setup_one<T_IQ4_XS, true>(occ) &&
+-           setup_one<T_Q2_0, false>(occ) && setup_one<T_IQ4_NL, false>(occ);   // (Q2_0 gate/up: the Turing opt-in's, or below)
++           setup_one<T_Q2_0, false>(occ) && setup_one<T_IQ4_NL, false>(occ) && setup_one<T_IQ4_XS, false>(occ);   // 0216-accel P2: the IQ4_XS down instances too
+     // STRATA_PF_FUSED_Q2N=1: the native Q2_0 pack's Q2_0 gate/up on these kernels here too (what #2145 took with
+     // STRATA_PF_FUSED=1 on every CUDA card until b6443f3a kept it to Turing).  Its own variable, so STRATA_PF_FUSED=1 keeps
+     // its bits: unset, the kernel is not set up and the Q2_0 layers keep MMQ.  A failed setup leaves occ as it was.
+     static const bool q2n = [] { const char* v = std::getenv("STRATA_PF_FUSED_Q2N"); return v != nullptr && v[0] == '1'; }();
+     if (int o2 = occ; q2n && d.ok && setup_one<T_Q2_0, true>(o2)) { d.q2n = true; occ = o2; }
+@@ -3006,19 +3013,19 @@ const DevInfo& dev_info() {
+     }
+     if (d.ok && nt256_requested()) {
+         int o2 = 1 << 20;
+         const bool ok2 = setup_nt<T_IQ2_XXS, true>(o2) && setup_nt<T_IQ2_XS, true>(o2) && setup_nt<T_IQ2_S, true>(o2) &&
+                          setup_nt<T_IQ3_XXS, true>(o2) && setup_nt<T_IQ3_S, true>(o2) && setup_nt<T_IQ4_XS, true>(o2) &&
+-                         setup_nt<T_Q2_0, false>(o2) && setup_nt<T_IQ4_NL, false>(o2) &&
++                         setup_nt<T_Q2_0, false>(o2) && setup_nt<T_IQ4_NL, false>(o2) && setup_nt<T_IQ4_XS, false>(o2) &&
+                          (!d.q2n || setup_nt<T_Q2_0, true>(o2));   // (the Q2_0 gate/up of STRATA_PF_FUSED_Q2N=1 too)
+         d.occ_nt = ok2 ? o2 : 0;
+         if (!ok2) std::fprintf(stderr, "prefill fused experts (native): STRATA_PF_FUSED_NT=256 is not available here\n");
+     }
+     if (d.ok && ws_requested()) {
+         d.ws = setup_ws<T_IQ2_XXS, true>() && setup_ws<T_IQ2_XS, true>() && setup_ws<T_IQ2_S, true>() &&
+                setup_ws<T_IQ3_XXS, true>() && setup_ws<T_IQ3_S, true>() && setup_ws<T_IQ4_XS, true>() &&
+-               setup_ws<T_Q2_0, false>() && setup_ws<T_IQ4_NL, false>() &&
++               setup_ws<T_Q2_0, false>() && setup_ws<T_IQ4_NL, false>() && setup_ws<T_IQ4_XS, false>() &&
+                (!d.q2n || setup_ws<T_Q2_0, true>());   // (the Q2_0 gate/up of STRATA_PF_FUSED_Q2N=1 too)
+         if (!d.ws) std::fprintf(stderr, "prefill fused experts (native): STRATA_PF_FUSED_WS=1 is not available here\n");
+     }
+     cudaGetLastError();
+ #endif
+@@ -3058,10 +3065,11 @@ bool tq_hip_device(const DevInfo& d);   // (the trellis instances on this device
+ bool q8gu_hip_requested();   // (STRATA_PF_FUSED_Q8GU on HIP: below)
+ bool q6k_hip_requested();    // (STRATA_PF_FUSED_Q6K on HIP: below)
+ #endif
+ bool gu_covered(int t) {
+     return t == T_IQ2_XXS || t == T_IQ2_XS || t == T_IQ2_S || t == T_IQ3_XXS || t == T_IQ3_S || t == T_IQ4_XS
++           || (t == T_IQ4_NL && dev_info().q4nlgu)   // 0216-accel P3: opt-in IQ4_NL gate/up (HauhauCS)
+ #if !defined(__HIPCC__)
+            || (t == T_Q2_0 && (dev_info().t75 || dev_info().q2n))   // Q2_0 gate/up: the Turing opt-in, or STRATA_PF_FUSED_Q2N=1 on sm_80+
+            || ((t == T_Q4_K || t == T_Q5_K) && dev_info().kq)       // STRATA_PF_FUSED_KQ=1 and its kernels set up
+            || (t == T_Q8_0 && dev_info().q8gu)                      // STRATA_PF_FUSED_Q8GU=1 and its kernels set up
+            || (t == T_Q6_K && dev_info().q6k)                       // STRATA_PF_FUSED_Q6K=1 and its kernels set up
+@@ -3077,11 +3085,11 @@ bool gu_covered(int t) {
+            || (t == T_NVFP4 && dev_info().g11_wmma && !dev_info().w12 && h11p_wanted())   // gfx11 WMMA (STRATA_PF_F16=2): native_h11p_kernel<T_NVFP4>
+ #endif
+         ;
+ }
+ bool d_covered(int t) {
+-    return t == T_Q2_0 || t == T_IQ4_NL
++    return t == T_Q2_0 || t == T_IQ4_NL || t == T_IQ4_XS   // 0216-accel P2: the IQ4_XS packs' down (KAT, Huihui)
+ #if defined(__HIPCC__)
+            || ((t == T_Q5_1 || t == T_Q8_0) && kq_on())
+ #endif
+         ;
+ }
+@@ -3844,10 +3852,11 @@ void experts_native(const Batch& b, const NativeGeom& g, int n_expert, int64_t n
+         }
+         else if (g.d_type == T_Q2_0) STRATA_NW_D(T_Q2_0);
+         else if (g.d_type == T_Q5_0) STRATA_NW_D(T_Q5_0);
+         else if (g.d_type == T_Q5_1) STRATA_NW_D(T_Q5_1);
+         else if (g.d_type == T_Q8_0) STRATA_NW_D(T_Q8_0);
++        else if (g.d_type == T_IQ4_XS) STRATA_NW_D(T_IQ4_XS);   // 0216-accel P2: the IQ4_XS down (KAT/Huihui packs)
+         else STRATA_NW_D(T_IQ4_NL);
+ #undef STRATA_NW_D
+ #undef STRATA_F16_LAUNCH
+         ck(cudaGetLastError(), "experts_native");
+         return;
+@@ -3943,10 +3952,11 @@ void experts_native(const Batch& b, const NativeGeom& g, int n_expert, int64_t n
+         const unsigned gt = (unsigned) std::min<int64_t>(tiles * (D_ROWS_N / weight_rows(ww)), (int64_t) d.sms * d.occ_tq_d);
+         if (g.d_type == T_TQK7) launch<T_TQK7, false>(ww, gt, b, g, tb, ha, src, nullptr, dm, s);
+         else launch<T_TQ2_T, false>(ww, gt, b, g, tb, ha, src, nullptr, dm, s);
+     }
+ #endif
++    else if (g.d_type == T_IQ4_XS) launch<T_IQ4_XS, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);   // 0216-accel P2: the IQ4_XS down
+     else launch<T_IQ4_NL, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);
+     ck(cudaGetLastError(), "experts_native");
+ }
+ 
+ bool native_wide() { const DevInfo& d = dev_info(); return d.occ_nt > 0 || d.ws; }

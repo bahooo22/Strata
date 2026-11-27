@@ -1,0 +1,85 @@
+COMMIT f11d2ed58ee6df586fb5af6ab3c0954f7458518e RU: feat(workflow): добавить idea/algorithm диаграммы с проверкой гейтов
+
+AGENTS.md
+COMMIT b1c2c937753cfd2e4c88c9cea93721ac6b41d500 Upstream: планировать HIP K/V window и выбранный тип
+
+terminal/setup.py
+terminal/strata_control/inkling_fit.py
+COMMIT 194b68c7c247a8fba8664d3d55ac196184a1c99f Upstream: добавить HIP RAM slack для expert plan
+
+terminal/setup.py
+COMMIT d484ccdeb4193c82188ae745b13f36e37ed6257b Upstream: создать install folder перед первым config
+
+terminal/setup.py
+COMMIT ce67d696cef760f462518bc63623d27bd43b6523 Upstream: обновить версии Control/Terminal и packaging
+
+engine/CMakeLists.txt
+tools/packaging/README.md
+COMMIT 4356a467780900923cbf83d92675790e7fbeb32a Feat: добавить workflow v3 для A/H/N
+
+AGENTS.md
+COMMIT 65ec7c975f39fc4edb4c3c7f446a5e60e3114247 Мерж upstream d46f5f2 в candidate на main 311c9fc6
+COMMIT a8ebf5d598583e8a1001d39232e957e14157a2a5 engine: полный routed-expert контракт 10/11/18/21
+
+engine/CMakeLists.txt
+COMMIT ba9ae196e15cdbc9235b7db95d174ddfe6a248a8 terminal: launch использует setup.own_size для KAT/Huihui вместо шаблонного имени файла
+
+terminal/tools/strata_mcp.py
+COMMIT 8e2f2af948f2949bff97b0788a5ac050b3b3d53f q36: FDEC для KV_Q4 — ниббл-распаковка в decode-ядре; STREAM_DEPTH для причинности глубины
+
+docs/SETTINGS.md
+COMMIT da404b74a559d830a23bca69412b4fa8255a7816 iq_kernels: STRATA_DOWN_SUB8=0 — прежняя 32-lane down-редукция (opt-out); реестр настроек догнал код
+
+docs/SETTINGS.md
+terminal/data/settings-register.json
+COMMIT 1843ebcc4f29f6b545250071c9ad39e1fb0aebfe docs: реестр настроек видит knob-env (STRATA_Q36_FDEC в SETTINGS.md)
+
+docs/SETTINGS.md
+terminal/data/settings-register.json
+COMMIT 49d70d327ce49b93b286776644b30dc47e8229ab RU: merge 0.2.20 (923e2df4d) в форк — выборочно, наши патчи сохранены
+COMMIT 58569c234cf5afbd54e300df7d89813d1c08d75a setup: qwen36 принимает KAT и Huihui IQ4_XS (1-click для наших моделей)
+
+terminal/setup.py
+COMMIT 57944d38ec4bf6a02fb875461500b5541ad27a5c RU: merge 0.2.19 (c6f6427d9) в форк; наши патчи сохранены веткой fork/pre-0219-2026-11-22
+COMMIT fbf2cfbde6dd5df71df73cbd3aa3045f84aad6bb [Engine] мерж апстрима 0.2.18 (6e38f588a) с нашими патчами
+COMMIT dbb4b1b65096181ab424753a6af58e29efb04275 [Engine] fused/int8: down IQ4_XS в fused-ядрах (формат 23) — верный результат
+
+engine/src/prefill/moe_fused_iq.cu
+COMMIT 08fff0bb555ed75606dbdade36402c0052b99a5d RU: 0.2.16 без MMQ: GPU-путь prompt-экспертов (P0+P2+P1+P3)
+
+engine/src/prefill/moe_fused_iq.cu
+COMMIT c8f9562ed3df5b34368b509290f264e04c46ab8f RU: Мерж upstream/main в main: restructure 0.2.16 и удаление MMQ
+COMMIT 74da7cf82a4c62ab6bf38433f2eceee052ca90b4 RU: синк: main вобрал upstream/main (45 коммита, релиз 0.2.15), наши якоря целы
+COMMIT c930ed15dd55bb2b073c335bd3ff65b1fb72a1a7 RU: синк: main вобрал upstream/main (742 коммита), q36-архитектура сохранена целиком
+COMMIT 509a2e660405b5fe668c525c470ac5c72cbfaf1f RU: Числа прогона 12 в README-парах и тело релиза, привязка чисел починена
+
+README.md
+COMMIT 2bf725e2ecf093b8d42c7fa94ebc6854c4f2ecab RU: Ссылки на готовый комплект в трёх README, метка прогона у веса
+
+README.md
+COMMIT 3c71e5ec376991af9ef565f504dcc73df52daf83 RU: синк: main догнал актуальный upstream/main (64 коммита апстрима)
+COMMIT 60cac8270213a59c54a69aea2eeae7b7053694d4 RU: Сводные отчёты 11.11 перенесены в форк Страты
+
+README.md
+COMMIT ac346145850e56548b03e709e7d4400184856ecf RU: merge origin/main в main — синк апстрима Niko1221 (релиз 0.2.13) поверх наших патчей
+COMMIT 26cba0c102d8950f2380f3206d56d85d9013b66c Merge branch 'Niko1221:main' into main
+COMMIT 26bfa9495889622cc917ca9457f02365fe19d3ce RU: README форка: ссылки диаграмм ведут в несуществующий документ
+
+README.md
+COMMIT c553fda2cd62f20b73edc2ebaec34918732dbf20 RU: README форка: пятая диаграмма — прогресс ядра от стока к 160k
+
+README.md
+COMMIT dbc484a2d3544e683e8f0cd2fd4ff3f87ee20b71 RU: README форка: ещё две диаграммы — кванты и окна
+
+README.md
+COMMIT b715b778995776a9a51831903086352bed65dee0 RU: README форка: две диаграммы замеров на главной
+
+README.md
+COMMIT 09ec4e7b2ee891a9d7196d3775fdff40df97e1e7 Merge branch 'Niko1221:main' into main
+COMMIT bcd46d0282fbb0daa282beecd0997fd300f80e04 Merge remote-tracking branch 'upstream/main' into sync-upstream
+COMMIT c9ca876d91aa569aa52d0929fa0bd6e82f1e4b48 RU: q36: профиль запроса в serve-DONE; заметки форка на двух языках
+
+README.md
+COMMIT 912ea835e2ca610107c9d5f615535c1ff0b753a6 RU: Локальные заметки форка: ветка q8-kv, сборка с STRATA_GGML_DIR
+
+README.md

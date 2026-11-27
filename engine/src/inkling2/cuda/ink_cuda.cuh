@@ -15,6 +15,7 @@
 #endif
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include "ink_pdl_dev.cuh"
 
 // MERGED from kuraneko1/Strata (MIT, kuraneko1/_ryu15_): two-axis SM x VRAM
 // automatic profile selection. Credit: kuraneko1 (_ryu15_), kuraneko1/Strata (MIT).
@@ -76,6 +77,9 @@ inline void ink_alloc_failed(cudaError_t e, size_t bytes, const char* file, int 
     std::snprintf(_what, sizeof(_what), "strata-inkling CUDA error %d at %s:%d (allocating %.0f MiB; %.0f of %.0f MiB free)",
                   (int)e, file, line, (double)bytes / 1048576.0, (double)vf / 1048576.0, (double)vt / 1048576.0);
     if (ink_alloc_throws()) throw InkAllocFailure(_what);
+    if (e == cudaErrorMemoryAllocation)
+        std::fprintf(stderr, "[InkCUDA] The card has too little free memory for this model and these settings (%.0f of %.0f MiB free): close other programs that use the GPU, or use a smaller model or a smaller --max-context.\n",
+                     (double)vf / 1048576.0, (double)vt / 1048576.0);
     strata::core::exit_device_error(_what, cudaGetErrorString(e));
 }
 
@@ -123,7 +127,16 @@ inline strata::inkling2::ArchProfile current_arch_profile(int dev = 0) {
 // cudaMemGetInfo subtracts reclaimable OS page cache (like the 19 GB .strata file just read!),
 // so take max(cuda_free, /proc/meminfo MemAvailable) to prevent false hybrid spill!
 inline cudaError_t ink_cuda_mem_info(size_t* vfree, size_t* vtot, int dev = -1) {
+    // #7093: cudaMemGetInfo answers for the CURRENT device, so `dev` has to be made current for the call: the layer split asked for
+    // a peer card's memory while the primary card was current and got the primary's, so the peer's expert budget was far too small
+    // (an RTX 3060 pair, SQ-20: the peer was budgeted 7.2 GiB with 10.8 GiB free), and its overflow became host experts it cannot compute.
+    int prev_dev = -1;
+    if (dev >= 0) {
+        int cur_dev = -1;
+        if (cudaGetDevice(&cur_dev) == cudaSuccess && cur_dev != dev && cudaSetDevice(dev) == cudaSuccess) prev_dev = cur_dev;
+    }
     cudaError_t ce = cudaMemGetInfo(vfree, vtot);
+    if (prev_dev >= 0) cudaSetDevice(prev_dev);
     if (ce != cudaSuccess) return ce;
 #if defined(__linux__)
     int cur = dev;
@@ -179,7 +192,8 @@ constexpr int kInkVocabUnpad  = 200058;
 constexpr int kInkDsparkLayers = 3;
 constexpr int kInkDsparkBlock  = 8;
 constexpr int kInkMaxTree      = 32;
-constexpr int kInkMaxTreeDepth = 8;  // root (depth 0) + up to 7 draft steps = 8 ancestors max!
+constexpr int kInkMaxTreeDepth = 8;  // root (depth 0) + up to 7 draft steps = 8 ancestors max! (the shipped table; deeper trees use the 32 x 32 table, kInkDeepTreeDepth)
+constexpr int kInkDeepTreeDepth = 24; // root + up to 23 draft/PLD steps in the deep verify tree (d_tree_anc32), RTX 50 fast mode only
 constexpr int kInkDsparkInter  = 9216;
 constexpr int kInkMarkovRank   = 256;
 constexpr int kInkSconvCh      = 2 * kInkKVDim + 2 * kInkHidden; // 1024 + 1024 + 2304 + 2304 = 6656
@@ -379,10 +393,10 @@ __device__ __forceinline__ float situ_f32(float g, float u) {
     return ga * ua;
 }
 
-// Hardware dp4a.s32.s32 exists ONLY on sm_61 (Pascal GP102/104/106) and sm_75+ (Turing..Blackwell).
-// On sm_60 (P100) and sm_70 (V100), PTX dp4a is software-emulated; use single-instruction PRMT.S4E + IMAD!
+// Hardware dp4a (SASS IDP.4A.S8.S8) exists on sm_61 (Pascal GP102/104/106), sm_70 (Volta: measured on a V100, cuobjdump shows IDP.4A and __dp4a runs 2.1x faster than the four-multiply form) and
+// sm_75+ (Turing..Blackwell). Only sm_60 (P100) has none: there the exact integer emulation below runs.
 __device__ __forceinline__ int32_t dp4a_i8(uint32_t a, uint32_t b, int32_t c) {
-#if defined(__CUDA_ARCH__) && ((__CUDA_ARCH__ == 610) || (__CUDA_ARCH__ >= 750))
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 610)
     return __dp4a((int)a, (int)b, c);
 #else
     const int32_t a0 = (int32_t)(int8_t)(a),        b0 = (int32_t)(int8_t)(b);

@@ -1,0 +1,65 @@
+34bd46b86641d4fe34b3ab523e31b816718347e1	RU: fix(workflow): обязать supervised handoff и ACK
+e799f0d933fcd9dd2039ad03c00ffdd516edfbb1	RU: fix(qwen35): отклонить переполнение контекста в CLI
+153f6a1cdfa998860374bfdd9447828c9aca28a0	RU: fix(terminal): привести qwen36 200k launch к штатному server
+f11d2ed58ee6df586fb5af6ab3c0954f7458518e	RU: feat(workflow): добавить idea/algorithm диаграммы с проверкой гейтов
+9ec1982ff3a75e2b5698fefc83af77a8973b71c0	Upstream: добавить regression tests для setup/HIP/release
+b1c2c937753cfd2e4c88c9cea93721ac6b41d500	Upstream: планировать HIP K/V window и выбранный тип
+194b68c7c247a8fba8664d3d55ac196184a1c99f	Upstream: добавить HIP RAM slack для expert plan
+d484ccdeb4193c82188ae745b13f36e37ed6257b	Upstream: создать install folder перед первым config
+ce67d696cef760f462518bc63623d27bd43b6523	Upstream: обновить версии Control/Terminal и packaging
+996eb9195b1790f954dd48f50be27893cae93937	Готово: закрыть workflow v3 и архивировать CANARY-001
+4356a467780900923cbf83d92675790e7fbeb32a	Feat: добавить workflow v3 для A/H/N
+c172374b80d7201240604d8cde71e1659d3d0771	Feat: добавить RU+EN MD-отчёты upstream merge
+27f107d70bf0bce8d03712bffc8be43703634d3b	Fix: нормализовать evidence warning codes
+9e08a67325c12f3a91e2473370595ac97cfd9ed5	tools: разрешить helper сборку в upstream-merge candidate
+50567b5fefa43405c4bbf43e4d6b1f5cfe728672	tools: явно включить UTF-8 в Python-инструментах
+f976c71c2d81faed0853c6c2bba63d86c8b96e24	tools: принять evidence-gated upstream merge в fork
+a8ebf5d598583e8a1001d39232e957e14157a2a5	engine: полный routed-expert контракт 10/11/18/21
+ba9ae196e15cdbc9235b7db95d174ddfe6a248a8	terminal: launch использует setup.own_size для KAT/Huihui вместо шаблонного имени файла
+3a44a352aac04efcdc1a2c101835cdfeccd1bbd7	kit: fallback вложенного dir сохраняет разделитель; регрессия на terminal
+88eeda4246e99f6b033b6db939d5ed1f0684d760	kit: гейт замыкания получает terminal-корень на 0.2.16-раскладке; доливайка вложенных dir — backslash
+e31f451b8f846700c72173c6b3c7e4094fad1a6d	q36: вердикт-строка FDEC — вооружён маршрут или knob молчит вхолостую
+0c21904e7726c8b629da7732add94f37ce4d62b0	q36: распаковщики FDEC вынесены в заголовок; golden-тест распаковки q8/q4 (12288 проверок)
+4d47b170ff62a78eb8dc7e5de9a48d96c139ebdf	q36: FA_PROF — загрузка V отделена от softmax (слот 2); вердикт FA-QB исправлен по потолку
+8e2f2af948f2949bff97b0788a5ac050b3b3d53f	q36: FDEC для KV_Q4 — ниббл-распаковка в decode-ядре; STREAM_DEPTH для причинности глубины
+11ff82f935316b006c620cf4525b0c8854833565	q36: STAGING_ONE — один буфер реально аллоцируется; stream_done пишет событие в свой слот (F1/F2)
+e8009530add7c83756c6db3471da7930e941f968	q36_metadata_test: регресс-кейс STRATA_Q36_STAGING_ONE — один staging-буфер влезает, пара drop
+da404b74a559d830a23bca69412b4fa8255a7816	iq_kernels: STRATA_DOWN_SUB8=0 — прежняя 32-lane down-редукция (opt-out); реестр настроек догнал код
+0a47d05de2327185f581fda3b09b1f23bfe1292d	q36: STRATA_Q36_STAGING_ONE — 200k/q8_0+FDEC на 8 ГиБ (pp 704,5 / tg 15,3)
+09a558358883f90408b803b767d8db0e7b5f7251	q36: баннер печатает SMs и число ssm v-heads; вердикт FDEC поправлен по приёмке
+1843ebcc4f29f6b545250071c9ad39e1fb0aebfe	docs: реестр настроек видит knob-env (STRATA_Q36_FDEC в SETTINGS.md)
+880ab1dbf54b75b3a54b417b42ad37e01d5229c6	q36: streamed-путь не вооружается без staging (200k+q8 падал invalid resource handle)
+27794da39cf80eccc89525466519893ed51212de	q36: шапка q36_fa.cuh больше не говорит «не включается ни в одну сборку»
+04ff7064618f615e67723020aea70233155302be	q36: FDEC заведён как knob --fdec/STRATA_Q36_FDEC (A14 этап 3) + маркеры
+0987a29d8440d86a20e620025fc7efe86dca80ef	q36: decode-attention FDEC на тензорных ядрах для KV_Q8 (A14 этап 2, opt-in)
+a7cbe05e17d7962c5b5ee3adbc824cff076feeaf	q36: KV-строка переложена scale-first под decode-ядро FDEC (A14 этап 1)
+b24caaaf4a9876624356fc5588c679fbe23142d5	q36: copy_session переносит и квантованный KV (A14 этап 0)
+8183280177197de0a4bb9c3b3138fc7f8d225450	kit: база правила морды переезжает под terminal, если в корне нет файлов
+45f1b46a0cf761aa0d56777e3303e74e286b9f03	kit: pack_kit ищет доливайку и пин под 0.2.16-раскладку (terminal/, tools/packaging/)
+58569c234cf5afbd54e300df7d89813d1c08d75a	setup: qwen36 принимает KAT и Huihui IQ4_XS (1-click для наших моделей)
+d3db2dc20e30c6aa5f2c8df3a878a9f9cf53bd15	kit: убраны 2 устаревших маркера MTP/MMQ 0.2.16 (апстрим 0.2.19 переписал путь)
+87b6ccd141f8ffece2f6fdb85681a56049cd3ced	kit: commits_with_marker реестра = 16 (после +5 маркеров 22.11)
+59b28a62b2a138098d10b7c49f19cd3038c68c61	kit: TextGate мерил ноль входов; serve/server_parts и RepoSrc в CI
+1c28ffa68a003fa6ec57740986c4d0a8b85753cf	kit: Portable — только Strata; llama-нога и strata_kq убраны, имя Strata-Portable
+868ef31a71ef8b6110aeb9370580ba645ee9db6a	kit: реестр маркеров под 0.2.19 и наши патчи P4/MAP/FA/rebalance
+d53ebc8fb3841458527b48f197d895476ca81064	q36: prep пишет q16 сразу; env-кадэнс rebalance (дефолт прежний)
+30d71e3162ece3a900d27ebb01cb01f8c0d6502c	q36: FA v2 — 16x32-плитка, регистровая softmax-схема, ldmatrix
+f6bfb16f2d90e71547539c4c5c72421bdb4d8b5e	Revert "[Engine] F2b: Q во fragment из глобальной памяти — Qs=16/32 влезают; автовыбор по T"
+485ec58511ffb4ad3c9f5f1a53eb495e744c2685	[Engine] F2b: Q во fragment из глобальной памяти — Qs=16/32 влезают; автовыбор по T
+ec44fc23556ad63559743e9916e4c6d039204294	Revert "[Engine] F2: FA-варианты Qs=16/32 и автовыбор по T (K/V перечитывается T/Qs раз)"
+69a50abaf753e91eb4275977e230e4bde1cb197d	[Engine] F2: FA-варианты Qs=16/32 и автовыбор по T (K/V перечитывается T/Qs раз)
+cd73c1cbba0d085ba9ec3360d3364de4ef3dbc68	[Engine] F1: под-таймеры attention (kv-конверсия, FA/fallback, wo) в профиле
+28e87fcad2eff4dd649a1ea8f6cf2d648c52272d	[Engine] merge-фикс: use_pf выставляется до правила hybrid_t (иначе prompt-чанки уходили в CPU-пул)
+16a78f33b9682a3bf56b67f9a24195ce0992176b	[Engine] merge-фикс: use_pf выставляется в place_experts
+2507b17fb18081ed9f64dc0abdf19958420d6a9a	[Engine] merge-фикс: поле use_pf (0.2.18) и включение стриминга в нашем init
+0678f6ff6d4498941ba81ce38ca3854fc85da9a0	[Engine] q36: префетч mmap-режима в pinned-буферы (STRATA_Q36_EXPERT_CACHE_MB)
+9a1700f22154ed5fe336b0b3607cd7aa020a32a5	[Engine] q36: fused-ядра prompt-экспертов по STRATA_Q36_P4=1
+dbb4b1b65096181ab424753a6af58e29efb04275	[Engine] fused/int8: down IQ4_XS в fused-ядрах (формат 23) — верный результат
+27bb3db8c3bf081381b7dffacda58f837eed89e8	[Engine] q36: кэш экспертов в RAM с чтением из mmap-GGUF (модели больше RAM)
+49e57b6819445295ab91d30cb30055dbe90db539	[Engine] q36: MTP-блок стримится и в сборке без MMQ
+af67278cca2761d75e778c13c9d2dac4543dba5c	[Engine] int8: IQ4_NL gate/up (формат 20) в native_expert_i8
+cc820825d96af7a1e6d0361c9ff059f7dc12826a	[Engine] q36: int8 prompt-эксперты по умолчанию в сборке без MMQ
+5fc067efc097446d009826debf930940f892c5e5	[Engine] int8: down IQ4_XS (формат 23) в native_expert_i8
+f9c1c8d5f7ea5cc820396123a3458cc41220934f	[Engine] IQ4_NL: ssm_alpha/ssm_beta деквант и gate/up экспертов
+08fff0bb555ed75606dbdade36402c0052b99a5d	RU: 0.2.16 без MMQ: GPU-путь prompt-экспертов (P0+P2+P1+P3)
+7da004a97f94dca6d2b7c26cc410dbc3de4b6787	RU: packaging: обёртка раздачи комплекта и её проверки в историю

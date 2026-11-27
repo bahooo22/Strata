@@ -1,0 +1,271 @@
+4560d03793482ef367294cfbd86a4df8d5679e72	release prep 0.2.23: app and Terminal 0.2.23, Control and strata-inkling 0.1.70, release data and generated pages
+94e4dbc0775aaacde715560731c112a9fd434283	control: no console window when the engine is asked for --info
+a028763c3c8e1ab751fa3ca248a6fa0e6ee429ff	tests: list the new process start (engine --info) in the spawn-site list
+55bb8997e5d3d1cc0f0d83c6b9f2d385bd88041a	control: an engine's --info answer counts only for that engine's own family
+e22ac39130f904cd34ad586cc49f5d03c32632f4	control: a .strata whose manifest this Python cannot unpack is read by the installed engine
+25b4677591bccf023620bbb4ab84941df9ca3fc7	control, tui: fixes from the full suite run
+90d46e3243f2967adfa30411896753ddb2492122	docs: --model-path takes .strata files and custom builds; --custom-label
+63efcd48bf4fcacdf607dec18dae36c357db1636	app: use local model files (.strata or .gguf), name them, pick them next to the official builds
+e9632d068ac7755426006197dcc560c63683ba37	tui: list, import and remove custom builds in the terminal
+e28d9222fa326cdd09322cfcb3d2e0e5d04331c1	control: custom builds, a person's own .gguf / .strata files of a model the engines run, used in place under their own name
+82bb6a65cd1b2e1d35c5c5fa008b3f32330a1dc7	inkling2(hip): R9700 multi-slot decode rows (more than 16 rows from two or more slots) run the FP8 trunk and MoE on every layer, the drafter-tapped layers included
+c159570f64ceb205f920cf370043fafb31fac87f	prefill(hip): the STRATA_PF_SYNC_DEBUG memory-kind query in moe_fused_iq.cu compiles on HIP
+cd5fec5d36f6082201a710c0c300e0eef26159e3	inkling2/sycl: the fast Intel Arc set is refused on Battlemage (the exact set runs), decided by the device's architecture
+f5b40610ad503174e891a676534cd8974360b14f	ci(b70): the EXACT == OFF token check compares generated ids on both sides (the OFF side was the dump-ref message)
+eae3ca0ffbc86d892166b2b7a09423fe3cc29d81	inkling2/metal: DFlash 2 is back on for the 16 KiB-aligned SQ-20 pack on an Apple M5 Max (not in the exact mode, plain from 3072 tokens of context)
+fb497b985d90c20f039793d40cbf4d699280ec3e	inkling2(cuda): table row 5090m for the RTX 5090 Laptop GPU (82 SMs, 24 GB): measured, default_on = false
+f79ffc8cbcd4cdf5c0ef696d5424110bd5d520b6	inkling2(hip): Strix Halo release default also takes prefill chunk 8192 with the fused SWA attention (prefill 4K 1071 -> ~1520 ppts; chunk alone is lossless)
+b6e6c7b8051478f65d7f847986a840158f2ae512	metal: form the pointer first before indexing with a literal plus a shifted variable (pl[128 + (j >> 2)], blk[106 + (sub >> 1)]): the Apple7 / Apple8 compiler cannot select the old form (#6608, tools/test_metal_g13_index_pattern)
+5f36afb2a809b53523642fa9ff25ac2fa607f42a	feat(inkling2-cuda): the Tesla P100 (cc 6.0) keeps DFlash 2 by default on a hybrid load (owner: "Turn drafter on at P100")
+71292910c19dbd26640b0dd9352d666590377b72	inkling2(hip): Strix Halo release default: for a verified gfx1151 the fused SWA prefill attention is on when STRATA_INK_STRIXHALO is unset (STRIXHALO=0 off, =1 the full FAST set with SWA_FUSED back in it, EXACT alone exact); silent refusal elsewhere, no DirectML probe, shipped flush stride and chunk
+1d17f60ee67b0595066442e1f55ff5befd1d0bf2	inkling2 cpu: the CPU-only engine keeps its built-in DSpark drafter as in 0.2.22 (it has no DFlash 2 port; every GPU backend stays DFlash 2 only); Control's first-start measurement keeps it only where it is faster
+a9f70cb0daff0dd96fa51b03440287ea7d47b6ed	settings register regenerated after the f-owner-mi merge (the 15 Metal / SYCL names, STRATA_INK_DFLASH2_SF4 and the moved line numbers)
+589447b1e4b512388d1bd047d95ade5200a1abe4	inkling2(hip): fix the merge of the Strix fused SWA attention: it sat inside the R9700 else-block of the shipped chain and never ran when SWA_FUSED was on (wrong logits, KLD 10); it now runs in its own branch (the owner's executable gives KLD 0.0076 there)
+1a6102be51ae17884595c4d88fdd44a79a04f1cc	settings register: STRATA_INK_DFLASH2_SF4 (HIP, research)
+bd075a3a8835718d60f60eaa901676b1af72f3d0	inkling2/sycl: DFlash 2 is opt-in on SYCL for 0.2.23 (--draft on or STRATA_INK_DRAFTER=dflash2) until a resident card has measured it
+8c86eb953872a90bbdfa7c1e124ca4b65596f8be	inkling2/metal: DFlash 2 is off on Metal for 0.2.23 (the port accepts no draft token and changes greedy output on long documents)
+99037019a9b846e8bac231547b071e8ce47ab4b1	inkling2/sycl: namespace of to_lower_ascii in the drafter rule
+acb86ea1689689c1ed70b698c1a21a9498e004af	inkling2/metal: the one drafter rule for DFlash 2 (residency veto at load, plain steps by context on a paged model), the load prints what it took
+c3341564caf2b54609846f84fd19230ba63a7885	inkling2/sycl: the one drafter rule for DFlash 2 (residency veto at load, plain steps by context on a hybrid load), the widened file counted in the memory plan
+3dca18b19a7994b3a8757c981bb0fd6342937e8a	inkling2/metal: the FP8 KV read of the decode attention kernels lives in its own library (fast mode only); the default kernels read the half cache as before
+7b097977174bb5e20fce44c36c7ef6b5c4fdd37c	review fixes: settings register, Level Zero V2 only without oneMKL, B70 CI fetches the shipped DFlash 2 file
+0aa6a92cf6c26d32757aa309fa9bc3150b8f7675	inkling2/metal: effective_chunk() returns 0 when the M5 Max path is off, so --chunk works as before
+950a616192e6c796ef9a1afb19c94806715b2f71	inkling2: Metal and SYCL DFlash 2 read the shipped pre-quantized file (strata-dflash2-q1, variant mix)
+f65183d68f9ffeaa529fc06473454dc54e8cc1f9	inkling2/sycl: use the integration tip's shared backend hooks, DFlash 2 only
+066537ef072ffe833f929c9c03d5a27f556c9983	inkling2(sycl): add STRATA_INK_INTELARC SG16 XMX, DFlash 2, FMT_MX8, and 6 GSQ-RCO codecs
+6d0ba85c133e03fbe3016aa97b563671df8757b4	ci(b70): pin 0.2.23 SQv2-20, GSQ-RCO-IQ3_S, UD-Q4_K_XL, DFlash 2, and STRATA_INK_INTELARC gates
+1299c63dd9c377dd442d1555ed56046475b74133	inkling2/metal: use the integration tip's shared backend hooks, drop the n-gram suffix drafter
+9bdc12b26c67836209ddc32584349aba33d56b31	inkling2/metal: add opt-in M5 Max speed path, DFlash 2 drafter, and GSQ-RCO codecs
+a1df145cea408ea520e611bac7e780c8e22ccd3c	fix(inkling2-cuda): a failed CUDA graph instantiate no longer destroys its graph twice (the stale "invalid argument" that killed the engine after the eager fallback)
+adf4458724ccd03523f555f2b938cf86075baa9d	inkling2 HIP DFlash 2: the start-up line names the block weight format from the loaded tensors
+9e8e44f9de2224bc83af23cfb5dcaae1b92676db	inkling2 HIP: DFlash 2 reads the shipped pre-quantized mix file (strata-dflash2-q1, variant mix)
+9b72017ca21745d7056b870cd45471dd556088c9	docs: the DFlash 2 paragraph of MODELS.md names only the port's author; the publisher credit lives in the notice
+c944f85b6c5c17ceb0f51987cc6eea7ad70bf7d0	packaging notices: the bundled runtime libraries keep their own license; bundling them does not change the license of Strata (MIT)
+b0b4a16a2512d27c92f0997df1379e14336446c2	docs: the DFlash 2 notice describes the shipped file (our converted 551,600,700-byte mix of the Inco AI / z-lab weights, with the statement of changes) and says it does not change Strata's MIT licence; the setup hint states the size from the pin
+f3796e96ba19746bd8d994a5229674f9aaa1eade	feat(control): the DFlash 2 sidecar is our 551 MB mix on Hugging Face (strata-engine/Inkling-2-Mini-DFlash2), pinned by commit
+12982f239debc2936e919748602c231470752f2c	sm120 table: the measured Ada / Ampere part sets (no PACK), the RTX 4060 Ti 16 GB and RTX 3060 12 GB rows measured but not default, the big-card guard
+55371e9fe26d47df88d02de649ed6017d6922c78	docs: DETAILS.md says the Turing (sm_75) kernel series is on by default since 0.2.23 and STRATA_SM75_PERF=0 turns it off (from 6306a81c5; #7041, #7076); register regenerated for the moved line numbers
+e5ca77d7a84ee0121d5dd95257bda68c9ad1559a	settings register: the three RDNA2 / HIP K/V names after AMD-RDNA32's last commit (RDNA2_MOE opt-in, RDNA2_GEMM rollback, KV_FP8_SMALL opt-in); SETTINGS.md regenerated
+d04d40bd6063a9406d7ba900a46367ff27f627e1	inkling2 HIP (RDNA2): the tiled grouped-MoE prefill kernels are opt-in (STRATA_HIP_RDNA2_MOE=1): KL 0.0006 against the per-row kernels for +3% prefill; the 64 x 64 dense GEMM stays the default (bit-identical, +22% prefill, STRATA_HIP_RDNA2_GEMM=0 restores the old kernel)
+ee11839d69472b6d7fe5487e97f0fb6768183ffe	settings register: STRATA_INK_R9700_FP8_DECODE / _FP8_TAIL / _FP8_TAPS and STRATA_INK_STRIXHALO_SF4_TAPS (opt-in)
+752526d0ec8883d125fabd4202ce7a22782ebf82	inkling2(hip): Strix Halo defaults: SWA_FUSED, SF4 trunk, FP8 KV at C16 and the DirectML probe are opt-in (wrong logits at width 2048 / 4-7x floor / unmeasured); Q8 trunk stays the FAST trunk
+0b9cdc1b27c162b6067ac04b05ff3037247115d2	inkling2(hip): R9700 default set on for a verified R9700 (kDefaultOn, refusal silent unless STRATA_INK_R9700 is set): FP8 prompt rows with the drafter window and tapped layers exact, fused attention, chunk 8192
+89992310528324cd752b5e327a157f726d29ba68	inkling2(hip): with DFlash 2 the R9700 FP8 rows only read prompt rows older than the drafter's window (STRATA_INK_R9700_FP8_TAIL, default 2304): the drafter keeps exact taps
+50d9661d27e25ae3f315a866ce2633ebf94736e7	Drafter rule: a plain step skips the whole drafting block; COMPACT_HYBRID is no longer refused by the all-VRAM end-of-start estimate
+f78e234a2c5b6a0c457dbcf31595d3936db72b0d	engine: the drafter rule's context threshold: 2048 tokens on hybrid cards, 3072 on resident sm < 80 cards
+04c94cbe3246e7f2539681b8d790654dcd292569	feat(inkling2-cuda): below sm_80 a hybrid load never gets the default drafter (principle 1b of the drafter rule), for .strata and .gguf
+36a42cd914d1ef0f89e169e1c26d611209af8c69	sm120 table: the 16 GB Ada / Ampere rows (4080, 4070 Ti SUPER, 4060 Ti 16 GB, A4000) carry no COMPACT_HYBRID (with it COMPACT ran at 2..15 slots and a 16 GB card died at the start with 3 MiB free); a table test pins that no row of 15 GiB or more holds it
+d6ed7cfa881157aab642933ecbd7536f738e5cd9	fix(inkling2-cuda): the Ada / Ampere small-card candidate rows try COMPACT with COMPACT_HYBRID (compact limit 20 GiB, chunk 256)
+7cebe7a6cf2019fb24d6e02947a5893a69bbfa56	feat(serve,launch): the engine's "DFlash 2 not loaded" line reaches the person, and --draft on forces the drafter through
+bc5817f17b9de59f00f8a8e3a7bf3f7c126498f6	sm120 table: the DGX Spark's fast set is the default (default_on), after the FASTQ subset
+6f9b779ef910107c352fba409649f1011f1e3b77	sm120 table: the GB10 row is measured; drafting numbers cost 5 / plain 0, an empty exact set
+d713d175faa9907e089c9766f26c48474a75910c	[Control] Ornith fit figures per size, from a real load of all four sizes (#7134)
+c8613a0561c326f382895e200ad5842ac6ec9dca	fix(inkling2-cuda): dp4a_i8 uses the hardware dp4a on sm_70 (a V100 ran an emulation); the V100 head screen of DFlash 2 is the dp4a kernel
+1fec406093a507d5956b5447e54196854234ceb2	docs: no link to the lab results folder (it is not in the repository; the link check failed on it)
+b6ca5053342d3037e4759fb9a60940b2b31ee8e8	[Control] tests: the own-path family lists include Ornith (#7134)
+d21329299798ac8bb0f28aea55df0bf423583427	[Control, app] Ornith-1.5-35B-A3B in the catalog as family ornith (#7134)
+ee311129473d5f33735815cd3eeb3d1ea460f585	inkling2(hip): R9700 FIXED_SWA is opt-in only (swa_ring without margin corrupts small batches: KLD 0.014 at width 16 against 0.000 without it); EXACT no longer turns it on at C>=16
+f0e22a289343c43248f54787febbef01dbaf8534	fix(inkling2-cuda): the ring margin of ensure_slot is the 128 MiB of the start-up loop (the 256 MiB of the first fix would have cut the rings the 16/64-slot starts were measured with)
+15cae0067f23bced3f0b8e222ffa0a8410210c52	sm120: no drafter for 2..15 slots on a card below 24 GiB; DFlash 2's rings stop while 128 MiB stay free; the COMPACT keep stays 128 MiB (crash proof)
+72f18fa6400f5da02464b8ee7675d78096d7c415	fix(inkling2-cuda): the hybrid plan holds back the whole DFlash 2 drafter below sm_80 (--parallel 4 ran a 2080 Ti out of memory)
+017b6b86519e588d8aa8e809ba4d57bda03ba740	engine(cuda): the Turing (sm_75) kernel series is on by default; STRATA_SM75_PERF=0 turns it off (#7041, #7076)
+7347f043ac17a1df34d6e4dda78d151fc6d3872f	Revert "[Control, app] Ornith-1.5-35B-A3B in the catalog as family ornith (#7134)"
+fdf990b8c4ec2687c1f697d350910c04e11025e1	fix(app): ui-r3 follows the tool-card rule in lib/tool-cards.ts; the French port-reserved text keeps its narrow no-break space (#7184, #7244)
+38db450a47831d3eb741dcdc47bbcc693b7705bd	test(snapshot): the engine stub carries --prompt-cache-spread, as a current engine does; the golden files stay
+5a1a767d44225952e5a96c79831cb69c6214d028	inkling2 HIP DFlash 2: only slot 0's ring is taken at start, the others when they first run and 1 GiB stays free
+19ee92a5196edcf4cb3a1bb0dc192aae972061db	inkling2(hip): R9700 FP8 trunk and FP8 MoE skip the drafter-tapped layers 5/11/17/23 (STRATA_INK_R9700_FP8_TAPS=1 restores)
+3e16df5fbf0e4962fe2c0d8df0f01aad06669a01	test(control): the model-host scan knows the address of our planned DFlash 2 copy (inkling_family._own_url)
+6d71afe55eb05f1b010ae9bde4ad875fddff3d5b	inkling2 HIP DFlash 2: no drafting for 1 to 3 steps after a plain decision (the draft is not free)
+6d6e9064efdc442bf8d12565b61dd06ab64f8085	settings register regenerated after the late merges (STRATA_PF_SYNC_DEBUG, STRATA_INK_DFLASH2_F32 / _SCREEN, the picture reader names); table test: the 5090 row holds TC_ATTN
+550d0e14fa80ddbb7ae5ae4cb1c2516492ba939f	inkling2 HIP DFlash 2: larger MoE share in the window model when part of the experts is on the host
+8c2ed915b1729101fba3c9e5addf630a9b8cc21a	inkling2 HIP: one DEPENDS line for the IQ codec header
+ddeafea8766bd0f5b9151c60b352e1e0f04bc71e	sm120: the row's drafting numbers (beam, cost, plain margin) apply in fast mode only; a table test pins that no row's exact set holds DSPARK_OPT or any other part that changes tokens or the drafting policy
+f96e8c096c88a24c2a7b38f6dbc7a917b04ee199	sm120 table: the RTX PRO 4000 row is default on (FASTQ equal or better than off on every suite)
+402cd017e4925e9cb14be6c71c5a3938ebb620d9	engine: the ONE drafter on/off rule: residency first at load, plain steps by context on hybrid cards
+91887998408128d6b56e2ddf80e22ffc1321c1e2	sm120 table: measured rows for the RTX 5080, 5070 Ti, 5070 (12 GB), 5060 (8 GB) and the RTX PRO 6000 / 5000 / 4500 / 4000
+bb5bd7d9913cef289a16a58f3597110a51580781	inkling2(hip): one effective_chunk(): owner opt-in chunk when active, else the compact-GGUF chunk
+13dd52dda7a7856d29209b939e42bb814b65f0eb	inkling2 HIP: the DFlash 2 and IQ headers are dependencies of the HIP object
+7e6ecdd874206f9cc2908c1fe54065ea3bbc5247	inkling2 HIP: the IQ codec, RDNA2 GEMM and grid headers are dependencies of the HIP backend object
+1853290f02bee5e7bbacb301883f767431a074af	inkling2 HIP (RDNA2): 64 x 64 tiled fdot2 GEMM for the dense BF16 projections and tiled fdot2 grouped-MoE kernels for prefill
+4041df272f6841baf8c00c6716d14ab44d8e2bcb	inkling2 HIP DFlash 2: ring bookkeeping keeps the rows below a batch that re-starts inside the valid range (cached prompt prefix reused without rollback)
+94c0a93ba30fcd0b6f19e7ccd0adfdab612a732a	fix(inkling2-cuda): DFlash 2 start-up rings for slots 1..7 are taken only while a 256 MiB crash margin stays free (a --parallel 8 start on a 5060 Ti ended with 13 MiB free and died at the first launch probe)
+8e1f1358bbb362163bcba09c6574fcb62751c7e5	sm120: the 5090's FP8 trunk copy is built only when DFlash 2 and the crash margin still fit after it (with the margin alone the copy took the freed 641 MiB and the drafter was left with 6 MiB: a 5090 holding 11 GB for other programs died at the first launch probe)
+a37566893ce2deddf74f47a7ecd2a3ce4bda79ee	sm120: TC_ATTN joins the 5090 default set (FASTQ tools 24/26 and 24/26, code 11/11, math 146/150 and 148/150, needles 20/20 with and without it; 128K decode 84 to 238 tok/s); STRATA_INK_SM120_TC_ATTN=0 takes it out; the other big rows keep the big set
+a89f5344c02c3937ad823b0504df823d2b9af3eb	sm120: the RTX 50 fast path keeps a 256 MiB crash margin at the end of the start (a 5090 with 11.8-12.7 GB held by other programs ended the start with 24-32 MiB free and died in graph capture / top-k / a 1 MiB allocation); an out-of-memory allocation prints one plain line
+b94ec1fdd13a9ea8454ad0bee56c454a48050d76	inkling2 HIP DFlash 2: fixed-length drafts for acceptance measurements
+4b473b3d55234e8d701fd3f91ea271bc902ea6e4	fix(inkling2): StdinReader::wait_next_for (picture reader lane) uses the shared State of the shutdown fix (merge of 850002823 and e62e8448d)
+51a605564ad1c1c06178984b30ae1d680d137a20	inkling2 HIP: the K/V stays FP16 on 8 / 10 / 12 GB cards (FP8 only when the post-load check says FP16 does not fit); STRATA_HIP_KV_FP8_SMALL=1 restores the old default
+b8435c3f99fb15d38bb0736423c762e7b6806146	sm120: the COMPACT precheck counts what DFlash 2 and the runner really take and keeps a 256 MiB crash margin; the K/V sizing uses the same real numbers
+7f6c54dbfd78959196d3f195789d364f1bdc0488	fix(inkling2-cuda): DFlash 2 starts with as many context rings as fit (a 16 GB card in compact mode), instead of all 8 or no drafter
+0b493c7d802d8632c15fa977858f0157351c997c	feat(inkling2-cuda): a pre-quantized DFlash 2 sidecar is expanded to bf16 on cards of 24 GiB and more; batches above 32 slots decode plainly there
+08536e7d619ca2ae31026bf507771c2f2b2796b9	inkling2 HIP DFlash 2: residency first (not loaded when its VRAM would move experts off the card; --draft on loads it), 4-bit feed-forward on cards below 24 GB
+56829a8b5cd7a406b54d6b17172bd55d703760b4	feat(inkling): pictures follow the Qwen rule in Control and serve (CPU reader under 24 GB, the card's from 24 GB, Mac GPU, Intel CPU unless asked)
+e62e8448d83180965431db2e26c31999f11d1dce	feat(inkling2): one picture-reader rule for every backend (the Qwen rule): CPU reader under 24 GB, the card's from 24 GB, Mac always GPU, --vision-reader
+9c313502faa9acc12c554a0f37f658c36ad5b7f1	feat(inkling2): GPU picture reader for NVIDIA (BF16 tensor cores, FP32-class accuracy), loaded with the first picture and freed after 120 s idle
+3886fe60a89bb30986082f4ea87fce59a25dc21a	feat(inkling2-cuda): DFlash 2 on sm_60, sm_61, sm_70 and sm_75 cards (FP32 matrices, dp4a head screen on sm_60)
+5bafbe3bcdb1409b4852a29c605c84ef8a83f2aa	engine(cpu): the 4-row dot kernels are the default from two tokens per expert call, off for one token (#7075, #6552)
+0bd162f43f70fcc8554960aa769a4138c4b639e7	feat(inkling): --tail-role-token ID, an opt-in prompt checkpoint in front of the trailing thinking-level turn (#7241)
+850002823549cb86ba71dbfcc2995089efcad17b	fix(inkling): the engine no longer crashes or hangs at shutdown after QUIT
+f8e2fc6e8ade6c2307c7dc24752e61713e944aaa	build(release): the split engines keep their symbols, and the HIP links carry a sha1 build id
+fd5fc4aa76ecfda8491f7897be0797ac9da0069f	engine: STRATA_PF_SYNC_DEBUG=1 names the fused expert launch that faults (#7115)
+faddb5159249dad8aa324ce3dea1640606397a20	serve(inkling): the drafter's slot-0 preference also holds for DFlash 2 (#7226)
+87a1d0679236ddfbf0c379f5447c978f86364f63	docs(batching): two long Inkling conversations keep their slots with --parallel 2 (#7226)
+7ae844c6025f9ed3cd141b1fc571a78b199c9c16	serve(inkling): keep a chat in slot 0 only while it is alive; the solo path stamps slot 0 (#7226)
+f61646586538427e41991631ad7d442dafd85475	serve(inkling): with --parallel 2 a request that continues nothing no longer wipes a long chat (#7226)
+10d8fd712e386ddef1d8f801aa1a1c91172ff509	packaging: add_notices.py writes licenses/ for vendor runtime libraries already in a staging folder
+b6babd69d9393ef6d2af4f85acff1e2650a12315	packaging: notices for the Intel oneAPI runtime and the Microsoft Visual C++ runtime that the packages bundle
+6b74e749ae8d918db4bc299d6776579490d297bc	packaging: every Linux CUDA package carries licenses/ (libgomp and libatomic notices)
+a7ab14947a92a42d2ceb02ebc4abd44df8febc05	fix(app): keep port 47831, remember the fallback port, say when the system keeps the port back (#7244)
+a3808c64485b8f2ccecff887692460ce1ce775ba	inkling2(hip): R9700 NT_MALL and ASYNC_CKPT default off in both modes (with DFlash 2 they changed tokens and lowered decode; p620 only-X matrix)
+839b358f18221c1de3cb02bb4a257d6df591bc4b	inkling2 HIP: the compact GGUF trunk and the 256-token chunk say so in the log
+b3916be11d53a2b5522d011d5c6bb9ad11a26fbb	inkling2 HIP: compact trunk for GSQ-RCO GGUF files (host embedding, Q8_ROW unembed) and a 256-token prefill chunk on cards of 13 GB or less
+e1ff7b5f9cfa1a45abe679595ca858a60c1acd45	inkling2 HIP: native GGUF expert decode for IQ2_XXS, IQ2_XS, IQ2_S, IQ3_S, IQ1_S and Q2_0 (RDNA2 and RDNA3)
+ec4e201c05e18dde7632195150c5037ca261b41c	inkling2(hip): R9700 FP8 trunk and FP8 MoE run for prompt reading only unless STRATA_INK_R9700_FP8_DECODE=1 (with DFlash 2 their decode rows lowered decode speed)
+7d52febf875b4979220d74398fa2d595865cbc50	wip ablation switch
+b60a5d2d0b70ba3d4c0c6e4f78908a79a963913f	fix(inkling2-cuda): table rows for RTX 40 (sm_89) and RTX 30 / A-series (sm_86) with a per-family part mask
+c8a525ab1706bd424f7bb0006d9f6bc227f49d43	sm120: COMPACT_HYBRID for 8 and 12 GB cards, probe-derived CPU/PCIe split, compact refuses 2-15 slots, default_on per row
+31c24ad0fa282d0628c41ad6486df62c0fe7304a	inkling2(hip): R9700 EXACT keeps off's tokens; the single-pass prompt checkpoint is off in EXACT
+28666d64d7b667c158a55511d3d5d6637758927a	inkling2: hint_prompt_len (serve tells the backend where the prompt ends), DFlash 2 skips prompt rows older than its window; ablation switch
+1066916836cf305c2395dec8dd1c2335850d5ac3	inkling2 HIP DFlash 2: ingest stage timing under PROF=2
+a0a2ba5cf9266b7bab0d82760a7020fdeab84e4c	inkling2 HIP DFlash 2: a plain step is allowed by default (+3 to +4% on prose and chat, measured on the 7900 XT), head grid 768
+6a121e1ea043097421eda26076cc81565750d05b	sm120 table: a DGX Spark (GB10, cc 12.1) row, matched by name + SM count + memory + cc minor; a placeholder until measured
+885941f4958f87b3d932ef9cbb829abfc5e3176c	sm120: the 5090 exact set is empty: exact must not change the drafting policy against off (DFlash 2 verify batches differ otherwise)
+77d13a156527e1ad9d636f150fcdfed1d25c781b	fix(inkling2-cuda): tcattn::launch refuses on a card below sm_80
+484a0204893c9d91359744d6b74365ad6a798c4f	[Control, app] Ornith-1.5-35B-A3B in the catalog as family ornith (#7134)
+527612af6244219b16384b97da34b4ff353a0057	feat(serve): opt-in thinking level at the end of the prompt for Inkling-2-Mini, Control half (#7241)
+c282ce6c40a2b578d3cf11d0570e9d24cf416c10	fix(serve): an engine crash the system reports is no longer blamed on RAM (#7245)
+51abfdc329cd4ff624cbe1c04eb4dbb4d3c020dd	fix(app): a failed tool row no longer stays after the same step worked; "Hide failed steps" setting, default show (#7184)
+82623cd60c04087e72a4c9020c8d69f9bd27933d	fix(control): `strata launch` no longer freezes on a key press while the hardware is read again (#7183)
+45b66d971a8482b114af87d33be6e850683b23ff	inkling2 HIP DFlash 2: stage timing (PROF=2), head grid size and plain-step switches for tuning
+369a6eac32be4911becc922b560a6ea3be1af3ae	sm120: compact keeps 128 MiB free (K/V that does not fit goes to mapped host memory), prints its sizing
+0eda064fcda975831da5e3f092fe52163fb69cb5	inkling2 HIP DFlash 2: draft timing (STRATA_INK_DFLASH2_PROF) and a per-draft trace (STRATA_INK_DFLASH2_TRACE)
+0d29af22bee9f4f844ecf9d062768f966fe29d6e	inkling2: --kld-eval takes INK_KLD_CHUNK (tokens per forward, like INK_DUMP_CHUNK for --dump-ref): the KL of the verify-width and one-token kernels on real text, not only the single big batch
+f573f072c0a508e22ae7797607ae7ae9f5e9f386	fix(inkling2-cuda): TC_ATTN ldmatrix / mma bodies are a trap on device passes below sm_80, so a multi-arch build with sm_75 or lower assembles
+1f6c0ab809b0c014ed6f6182b7ebf7c145234838	inkling2 HIP DFlash 2: the draft runs as one captured graph (meta read from device memory), graph dropped with the backend's graphs
+d55de4e5f3edfe5a85f4e837829e5ec478b8a1b6	settings register: the 42 new STRATA_INK_R9700_*, STRATA_INK_STRIXHALO_* and STRATA_HALO_SF4_TRUNK names (opt-in, owner-hip); regenerated with tools/settings_register.py
+60aedcda9956fcba354983441a32144c3a42b9cf	inkling2 HIP: DFlash 2 drafter port for RDNA2 / RDNA3 (wave32)
+4b164947c1a34c4db075036eb046c2480b5e9245	inkling2(hip): the merged R9700 + Strix backend compiles; the Strix 4-bit trunk and Coda transcode keep the drafter-tapped layers
+a1e146d71137d0644bacc903ae5d4a18e062c521	revert the two test word lists to their previous content (the rock name is not a credit; whitespace churn removed)
+db5c993f3a8a0265b070562fb264292bc5517da5	docs, comments and notices: no third-party design credit in the tree; the DFlash 2 port credit to tjm8874 stays; notices/basalt-MIT.txt removed (no code was copied)
+29575b82504ffdd60df3f530dda1eb013a6914d1	turbo: one line when --turbo has no effect on the RTX 50 fast path; the settings register gets the 40 names the merged lanes added
+e4fdcef21e6479319fcc6d24e68b52f1104d9619	inkling2(hip): add opt-in AMD Strix Halo (gfx1151) UMA/WDDM/SF4/WMMA optimizations, merged with the R9700 path
+23aaa0fdc13b50d77c7a3ca22cffc0513ab89416	inkling2(hip): add opt-in Radeon AI PRO R9700 32GB (gfx1201) exact and fast paths
+99e881584a1f912e5d418db309a6e1901350c1f7	inkling2: opt-in backend hooks from the owner's HIP branches (sampled spec, async prompt checkpoint, decoder-aware prefill cap, BCO prewarm)
+efe32d0188bd01e88ef4855f42fd7746150c10c6	merge fix: the 5090 router path passes an off InkTailArgs to the tail-skip router kernel
+34cf13848e6c22a72f88339b6a4cb4bc579fd4fb	fix(file tier): keep the GGUF stage pool when the start-up unbuffered reads end
+de885d2dae3376a491e5224e385576a053abb8eb	fix(inkling2-cuda): the DSpark drafter does not try to grow a mapped-host global context (cudaFree of a mapped pointer); it stops gracefully
+074e78b3d6c5d0c5b1d5dd5b09ae285aeb5b58f1	fix(inkling2-cuda): one drop_all_graphs(): the prefix+core graphs go with the K/V layout (CUDA error 700 with PACK + CORE_GRAPH + elastic KV growth)
+3a82b438f62a4581f06966976af67acb80922d19	feat(inkling2): a model file's embedded DSpark is not used on any backend; backends without a DFlash 2 port run without a drafter
+0cff0e64b154de1960100522bcfa3cc881115684	fix(inkling2-cuda): DFlash 2 at 32 and 64 slots, and a drafter that cannot start gives its memory back
+a35a0c15054f521a97dda5dc21d126a1575bfd58	feat(inkling2-cuda): DFlash 2 is the only Inkling drafter on CUDA; pre-quantized sidecar (strata-dflash2-q1); format by card; no drafter without the sidecar
+7a0d50b15fd9324bd4227ac18f062ee598d90f46	feat(inkling2-cuda): DFlash 2 block weights in bf16, Q8, 4-bit groups or SF4 (STRATA_INK_DFLASH2_WQ), reserves follow the format
+d9d285068fe055a68b8051a34cacf88db2ce01ae	feat(inkling2-cuda): DFlash 2 block-diffusion drafter for Inkling 2 Mini (sidecar dflash2.safetensors), long-context window cost, 2-block chain
+4f81377752cb57b4b1d9021fcf95580ea1ed2621	feat(control): pin of the pre-quantized DFlash 2 copy, placeholders for our own HF copy, the Apache statement of changes (on top of the 0.2.23 lineup)
+15de6e915c8ad4750a635f0adff28a9b6f21a5dc	inkling2 CUDA: compact GGUF on a card of 13 GB or less plans with a 256-token prefill chunk so every expert fits (STRATA_INK_GGUF_CHUNK256=0 turns it off)
+9773f0d4e87ffae57b17d348f08d17d1488f9836	inkling2 CUDA: type-specialised decode kernels for GGUF experts (the layer's ggml type is a compile-time constant; STRATA_INK_GGUF_SPEC=0 turns it off)
+45785bda0cdf629e18e35990bb45e9ee807665ec	perfstep 4: INT8-screened exact top-128 of the head for one row (STRATA_INK_HEAD_SCREEN, on in the 5090 fast set, off in exact mode)
+ce9240236a6eb8dba691f8c571eae23fa6ab73f4	inkling cuda: SPEC_ADAPT, the draft window follows the measured step cost per row and the measured acceptance (fast only, off by default; the exact form keeps the static model)
+3a41889fe58cb3adf7da90bcf1996938e020882a	inkling2 CUDA test: tensor-core prefill kernels against the dp4a kernels on a synthetic expert
+e37274378662afd97deeb5ca275f33175d8ad593	inkling cuda: TC_ATTN partial buffers sized by the card's slice count (a 5060 Ti needs none beyond the old ones; the 96-slice size ran a 16 GB COMPACT C4 engine out of memory: cuBLAS error 14 with 53 MiB free)
+4adbc88135bba02005b2c3f60ef02bc0b86e2550	feat(control): the Inkling-2-Mini lineup of 0.2.23: Strata packs, GSQ-RCO IQ3_S, Unsloth UD-Q4_K_XL, DFlash 2 the only drafter
+0105ba7f1cf96f0fbdd41b9e7c9e980527d81612	feat(app): Inkling-2-Mini versions in the lineup order, GSQ-RCO IQ3_S, no-longer-offered quants only while installed, DFlash 2 as the drafting word
+2af00e5341135960896767e20b575959ad85c9ea	inkling2 CUDA: STRATA_INK_IQ_TC_MASK picks the RCO types that use the tensor-core kernels (type-by-type checks)
+4401b38739ca50874ea0be041833036e1df980ef	inkling2 CUDA: tensor-core prefill kernels for the IQ1_S / IQ2 / IQ3 gate-up types and Q2_0 down of the GSQ-RCO files (STRATA_INK_IQ_TC=0 turns them off)
+32da8cf667a83aba3cbcc293143b328a53659487	inkling2 GGUF: with STRATA_INK_DRAFTER=dflash2 and its sidecar present the model counts as having a drafter (DFlash 2 brings its own weights)
+072280ddbb2bcdf1826b3d961fc93d9a6e3c7ac3	inkling2 CUDA: IQ4_NL experts on the int8 tensor cores for prefill batches (STRATA_INK_IQ4NL_TC=0 turns it off)
+51c6370087bca5de944a1e14021b2a8ac5bb06b8	inkling2 CUDA: faster GGUF expert dots: IQ4_NL by byte permutes, IQ3_XXS table in global memory, no lane shuffles in the new types; per-type kernel benchmark in the test
+4ee366e7152aabbad553591b5b78d8bf263e3d1c	perfstep 3: build the CUDA runner for sm_120a / sm_121a too: the FP4 -> half2 conversion becomes the hardware instruction (plain decode +10..13 % on a 5090)
+2cbe802195d8c7f7545d5ac76b27e8778dd981f7	perfstep 3: build the CUDA runner for sm_120a / sm_121a too: the FP4 -> half2 conversion becomes the hardware instruction (plain decode +10..13 % on a 5090)
+9faad3a300bc2b608632139c6086180610ce6d12	inkling cuda: prompt checkpoints save into page-locked buffers, 20-40 ms less time to the first token
+54c4f281918f7b4129b14585442d1dce320c3f46	docs: Inkling-2-Mini --turbo and --turbo-max (opt-in tail skip), measured KL and speed per card class
+8c758f80dbf1fe3b9e9c9d322645723875092933	inkling cuda: K256 SF4 expert GEMM for prefill chunks (TR=128), bit-identical to k_moe_sf4_tc_tr128, 1.65x on the gate+up call
+cdfa7d8a5e204c8252b8d5037fea9ae27495a1d6	inkling2 CUDA: compact trunk uses Q8_ROW attention (not Q8_0 fragments) and is allowed on any CUDA card from sm_61
+b78860cbd3a3b874ff39ff6d7d0219df09f6a456	fix(inkling2-cuda): the 5060 Ti exact set is L2PF only (C64_SPEC's memory plan needs COMPACT: 64 slots died without it)
+a5d6d5c31eeece98c334fafccaf693f2b434d8b8	fix(inkling2-cuda): COMPACT refuses for 2..15 slots and the old path runs (from the SM120-ROWS lane, f-sm120-rows); a row's default is its own flag
+4c90917e5139480a6798ee3766f27809bfa67dac	inkling2 CUDA: compact trunk for GGUF files with GSQ-RCO expert types (one 12 GB card)
+a5aa58b1ba2d06136e3857c287f93def3c07430e	perfstep 1c: PDL is on by default on the RTX 5090 row; the 5090 row's spec_cost goes from 12 to 8
+73acfd256b9ee211b6ec924d9d16c5be37527b37	inkling2 CUDA: native expert dot kernels for IQ2_XXS, IQ2_XS, IQ2_S, IQ3_S, IQ1_S and Q2_0
+f79964fb70fcb9d100f17d700dc9cce7b549a20b	fix(inkling2): load the tail-skip tables before the runner can capture a CUDA graph
+18791e70f5284106a2634610dac5c732636466a2	feat(control): fetch the DFlash 2 sidecar beside an Inkling .strata model (new install and update), verified, DSpark when it is missing
+81802531fcc9eb38320e520f1a74b5915369c439	feat(control): pin the DFlash 2 drafter weights (incoai/Inkling-2-Mini-DFlash2, commit 4f9088ea) like mtp.safetensors
+4d5ecc5e85b878c6b90275445f3890fbc2681c52	fix(inkling2): the tail-skip notice lines in ink_main.cpp
+4a3830e4bf75b8ae27171b135c3abcdf4270cd93	feat(terminal): strata launch --turbo / --turbo-max and a Terminal-only row for the Inkling tail-skip presets, with tests; fix: the tail-skip tables are loaded at init, never inside a CUDA graph capture
+71c8110cb2ef659108b7216b1e4a09f9e0ea3cec	feat(inkling2): --turbo and --turbo-max presets (STRATA_INK_TAIL_SKIP=turbo | turbo-max), a notice where a backend has no tail skip, HIP set_tail_skip, parser test
+9eb92bda52561990a37f6a728ed28f749839366d	inkling cuda: FP8-KV tile loader of the prefill attention (register prefetch, bit-identical), 1.8-5.7x faster per visit
+6f3b0b37541373db192642c840787a006f8d54ca	feat(inkling2): tail skip with a calibrated per-layer bias (tail_comp), cold-aware eligibility, resident-fallback substitution and cold-read counters; --tail-calib writes the bias table
+33b08ef7cc62693ea29b6ec5d70974dbabce1d33	inkling cuda: tcattn::force_ref in f-perflong itself (the chain and drafter call sites use it)
+60d9e716ec8ccc4512b0b2d695572d910da5188c	inkling cuda: TC_ATTN for the DSpark drafter's global-layer block attention (block mode: no bias, no sink, the block's own K/V as the shared tail), kernel test
+eb4a4c32e56fe146a0326f2bd13f86389d771b63	inkling cuda: TC_ATTN for batched drafting (C2..C16): one group per slot, the slot's chain rows share every K/V tile; the chain's own K/V is the exact tail
+c649756156dc9baa1777fd07dd021c321f10e6e8	perfstep 1b: PDL does not start a kernel early behind a one-block kernel; per-kernel bisect switches
+ea6766836184295d737d8c25640673719272dea5	inkling cuda: TC_ATTN slice count follows the card, mode 0 rows too; STRATA_INK_KV_FIRST (LCTX placement rule, off by default); docs
+938a678656c8b2085287a9c9dba6f64ed8f38518	inkling cuda: FP8-KV tile loader of the prefill attention (register prefetch, bit-identical), 1.8-5.7x faster per visit
+0eebd25829caead1d579b52d92248b6dbc6e72dc	feat(inkling2): the opt-in tail skip on the host-streamed (hybrid) path: a dropped slot is neither fetched nor computed (M = 1 doorbell, exact stage plan; the batched path already ignores ids below 0)
+6ad0c00004660c78a94a48438b0309aad0c19162	inkling cuda: tensor-core split-K decode attention for the global visits (TC_ATTN, fast only, off by default)
+acf45f2b12dd2e9951bf23a45cd33e6642e77740	feat(inkling2): --tail-kl with a small chunk prefills the prompt before the first scored row in 2048-token chunks
+4961b4d16e7e869458e91c26396eb6233769cce0	feat(inkling2): tail-skip counters for the experts the exact router would have read against the experts read (window-level read share)
+dc80279754d5696d72dec3d3ba9e5661331e34df	perfstep 2a: the M=1 gate+up expert kernel prefetches the expert's down matrix into L2 (STRATA_INK_M1_DNPF=1, off until measured)
+fa7995697e6079b9e7590bd62bb1a58608cf88b6	feat(inkling2): the opt-in tail skip on the HIP direct MoE path (B <= 4 and exact rows), environment switch only, not yet compiled here
+9a0b4653db929ab0df95bba3885bd4cc6d3df347	perfstep 1: programmatic dependent launch for the decode graphs (STRATA_INK_PDL, off by default for now)
+14fdaa5eb8de92e93d964d74ea2f070566a5afbd	feat(inkling2): per-range stride in the --tail-kl corpus
+842975a5710477e480b0c1996f1bfaf35ea8c532	feat(inkling2): --tail-gen, the exact model's greedy answers as an on-policy corpus for --tail-kl
+835a4618e0cbf72ed1f54ea227b1ba9b88ec8e3e	inkling cuda: long-context study tools (attention-mass probe, one-read verify kernel), both off by default
+fa48f00d34afc84d835598c8ee1c5728c246d6a6	feat(inkling2): opt-in router tail skip (STRATA_INK_TAIL_SKIP) and a teacher-forced KL harness (--tail-kl), both off by default
+91e7c4bca95edab0821fdafe8b1149ecfc289fdb	wip: compact margins from the ballast runs
+55cff4c9332613155a3e8b3a49f586ed8190eabf	fix(tools): the Python .strata readers take the 16 KiB-aligned layout too, old files read as before
+382dd7d551ea3275758c5d34735d9d3d6ee62393	fix(artifact): read the 16 KiB-aligned .strata v1.1 layout (SQ-20 re-adjusted), keep the 4 KiB one exactly as before
+6d06c2ccb70e45be8056e47ba6e35f3dd9c34f5f	wip: compact precheck prints its numbers, adds the loader's staging buffer
+3b10f2a05b85fb8521b8adacb95499050077ed72	wip: settings register entries for the master switches
+dccdac232044b405872f41d26c25eb8327602d76	wip: docs, decide reads through env_get literals
+21347b590612884879f7a848350aba623d2c436f	wip: COMPACT refuses before converting anything when the card cannot hold it
+c0f99749c1daee531f1c35e1d7ad43c90afac98b	wip: fast mode default on the two measured rows (table, tests)
+4fefe2e0770bda2292b8a85e72664107ba067174	fix(inkling2-cuda): COMPACT with COMPACT_KV=0 keeps the shipped workspace reserve
+c609f6430270b0f19e62bd90a548824416c612e8	fix(inkling2-cuda): the 5060 Ti exact set is C64_SPEC + L2PF (PLD and CORE_GRAPH change tokens)
+5e140c8d9802fb70d9ed6ee0f57e895bfdf9c683	fix(inkling2-cuda): the 5060 Ti exact set loses PACK and PREFILL (they change tokens on a hybrid SQ-20 load)
+298de5d4eb2ae63689dc8e5d4262a6e91a0f4c98	feat(inkling2-cuda): one FP8 trunk for every RTX 50 card (the 5090 cache engine); the 5060 Ti in-place FP8 is explicit-only
+476f38d25c6846a36fdac2688f323eda6af76ab9	feat(inkling2-cuda): COMPACT leaves the 5060 Ti fast set; its FP8 KV and MX8->SF4 transcode get their own switches
+f70c895c3c7e7877a9a278b73a5bc8387083a496	fix(inkling2-cuda): the merge allocated the activation buffers twice (bind_acts and the old block): one allocation again, with the 5090 screen capacity and the deep-tree table in bind_acts
+8065654e86b27a2eb57c7c884332b1c0a4d6df65	docs+register: the RTX 50 switch set (docs/INKLING_SM120.md); the 25 new STRATA_INK_* names in the settings register
+bdb4c0d7b7e9d1eb32d532f66704805252b8e3b6	fix(inkling2-cuda): the shipped k_ink_rel_table stays instruction-for-instruction the same; the max-distance form is its own kernel
+fc87910bf78c817c2db0c2c9b00b1620f7622c43	fix(inkling2-cuda): keep the null guard of the Q8_ROW pre-quantized GEMV cap (shipped behavior), notes
+4d766638e9f22b65fd98e500d0405145e632ba8d	fix(tools): the Python .strata readers take the 16 KiB-aligned layout too, old files read as before
+22f73e018a0c6582f8d50abf91ba981753013b19	merge(inkling2-cuda): RTX 5060 Ti engine into the shared sm_120 base; one switch set, one card table, one hook, one MoE dispatch
+227d01b80a803619a1199d05eb227fdb3c4fa076	fix(tools): the Python .strata readers take the 16 KiB-aligned layout too, old files read as before
+4fca9fd414e578dd9c86e23326e83cd198dadb26	import(inkling2-cuda): 3-tier elastic KV / SSD and RAM-tier budgeting from handoff/gpu-rtx5060ti-1126
+1a8b39f39a6f96b05fe19dadc43d95911211fbce	import(inkling2-cuda): RTX 5090 sm_120 engine work from the owner's handoff/gpu-rtx5090-1126
+0420a656e11e24bccd5c4446eb10466884a3c715	fix(artifact): read the 16 KiB-aligned .strata v1.1 layout (SQ-20 re-adjusted), keep the 4 KiB one exactly as before
+c234774038d1c9249cb33637d27b895d47b39786	fix(packaging): bundle libgomp.so.1 with the engine, like libatomic.so.1
+d0717815c240a8888d68a09fae598666f688e240	build(release): the Windows clang (ROCm HIP) build takes -gline-tables-only for C and C++ files, so its code does not change
+88f4f39713ef98cc5f9df6625b67f2d0ebd071f3	fix(serve): only the coding client's DEFAULT thinking budget (budget_tokens 31999 on /v1/messages) is held to the default of its level on Inkling; every other budget goes through as sent (#7133)
+a5bfe0369bfb9471fc72a7124910db93e40fd960	build(release): symbol flags that never change the machine code: no HIP-language flag, icpx -g1, AppleClang line tables, sha1 build id on SYCL
+2aed34d4e6ea2beb775b91feb2603f5254798a76	fix(engine): the layer split's lend reservation stays whole by default; STRATA_SPLIT_LEND_RESERVE=0 / a percent is the opt-in (#7089, owner decision)
+db5f769c14bbf97500bc54d7bc3f9aea861982c0	test(packaging): the Windows CUDA configure line carries -DSTRATA_KEEP_SYMBOLS=ON
+f21a72a68c3eb3285504e8c092b0e7f436bdd0bc	test(packaging): the Windows CUDA configure line carries -DSTRATA_KEEP_SYMBOLS=ON
+bbbf28a901b1ec9a18f0e68bcc006655d412a0d2	release prep 0.2.22: app and Terminal 0.2.22, Control and engines 0.1.69
+284e2c5b65a5974b2134ef33609a02696818138c	French catalog: a no-break space before the colon in toast.keyFrom (#7063)
+45e909ffa3a446df99a32aac89ac8fa160681ef4	keep_symbols check: accept a .text that differs only in rip-relative displacements that all moved by one constant (the debug directory added in front of .rdata)
+25e2319149dd2865afb6489e9bc8fb2c092a0aaa	docs: macOS 15 is supported, and on it the Qwen engine reads prompts about 10x more slowly because a macOS 26 feature is off
+09d8afb1abb5a5e0df6c00b227cfca8d0c01ba07	fix(serve): a request that names no sampling gets Inkling-2-Mini's model-card sampling (temperature 1.0), not the engine's greedy picking (#7092)
+98c187512bd65a6562ccf774f8d972f9bea596ed	Engine 0.1.69: version bump of the engine sources that are rebuilt (Qwen engine, all backends; Inkling CUDA)
+4fd373cfea1f6ea7acfa4d640cab2fe21ef0aa1f	build(release): every engine package keeps a symbol file (PDB, .debug, dSYM), outside the package and the release assets
+7ab0d923c275c15002ff82e02336220a2e97d824	fix(engine): the layer split's lend reservation takes half of its RAM on a fast drive, so decode gets its 9% back (#7089)
+327e9438114a77a13870bb2f0370c9a99e2551c4	fix(serve): a thinking budget a client asks for is capped at the default of its level on Inkling-2-Mini; the default client's 31,999 now thinks at most 8,192 tokens (#7133)
+12145b78c6c9fe8f5b7cdffc6e964da0a1a04116	Hebrew: "Resume agents" button says "המשך עבודת הסוכנים"
+4999a979af7885396df10d750e3d040719659f77	App host: serve a person's SVG and HTML files with a sandbox policy (follow-up of #7130)
+5a7b03643f08420b70d2bf9f7ed388ca7657090c	fix(setup): a failed install of a model shape's engine (Inkling's strata-inkling) says why, instead of "See the line above" with nothing above it (#7119)
+e83de74d7d6207622c7e8f3ae5f8b35dae15d491	fix(serve): /v1/responses sends a keep-alive while a custom tool call (Codex apply_patch) is written, so the stream is no longer silent for the whole call (#7132)
+6df3f1af18a253121bfeee7ed9dd6d1cc038daf8	App: the chat toolbar's "Pause for update" button shows only when an update is waiting
+f36cd62e556b83dcf29fe022819864aa395c5034	fix(inkling-cuda): a peer card's expert budget was read from the wrong card, so a layer split put host experts on a card that cannot compute them (#7093)
+d863220481385919f30beb585b691ffc087c2c68	App host: only the app's own page may use /api from a browser (#7130)
+8f4fac1f3eebee04e2dd47463121f8beea8bd11b	App: Ask again, Edit and Branch keep the chat's working folder (#7101)
+97151cd251102c7077b8faffc9e65b63ab122e66	App: resume the chat agent when "Update Strata" does not install a new app (#7099)
+289fa51dea00a1c6435262ae5e17dba854add1f9	fix(setup): Auto is the MTP on the canonical Q2_0 pack of an AVX-512 CPU, so a fresh CUDA, HIP or SYCL start no longer ends at "it needs a native pack" (#7090)
+752ac4519d785220e1987dc80af746f3e94fa7e3	fix(serve): Inkling's thinking budget stays armed after the wrap-up, so a thinking turn the model opens again is capped (#7084)
+1e5070f739e4a0fbb8ae9cf61e7f3abf57f4f1dd	fix(serve): the greedy default under --mtp applies to Qwen3.6 only; Flash-Next and Gyro keep the model card's sampling (#3354, #6536, #7070)
+924e59f4d20851946a0cfd599b40485dd5ea8df6	fix(mac): the Qwen Metal engine starts on macOS 15 with the prompt through the decode windows (#7082, #3915)
+8111e580d326981183ae3ba81db016a68fb51ce1	Control 0.1.68.1 / Terminal 0.2.21.2: version bump for the second Control-only update (app stays 0.2.21, engine packages stay 0.1.67)
+d32eb528d1962981a042488c55b96ac27844b084	fix(serve): Inkling pictures on the CPU reader: scaled to 0.8 MP, and a request with pictures is never ended by the silence watchdog (#7043)
+6c3f3fbb4fbc1deb995b2cb3453176acce9be168	feat(serve): the conversation cache grows with the PC's RAM instead of stopping at 8 GiB, through the engine's own option (#7044)
+51644762f8fd2fe9b3d5a72407cd73ebf4ad33b3	fix(web): the "needs an API key" messages say where the key comes from (#7063)
+89ef8456aa972de89a9413871e63e6ca9268b76f	fix(serve): the engine's READY wait moves while the engine shows it is working, so a slow disk is not cut off at 15 minutes (#7060)
+e2491d8ef260588d3eddc6f0911c00a7bec6734d	fix(serve): a tool result keeps the name of the call it answers, so Inkling's header is not empty (#7051)
+75f76a8a37448ec98c4aff34e3ca0d571d488127	fix(serve): Inkling takes the shared Chat-settings level and the config's reasoning_effort like every model (#7035)

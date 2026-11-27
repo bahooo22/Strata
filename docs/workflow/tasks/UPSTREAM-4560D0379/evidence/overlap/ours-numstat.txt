@@ -1,0 +1,10 @@
+4	0	AGENTS.md
+67	0	README.md
+32	19	docs/SETTINGS.md
+19	0	engine/CMakeLists.txt
+17	7	engine/src/prefill/moe_fused_iq.cu
+2019	1388	terminal/data/settings-register.json
+31	7	terminal/setup.py
+0	1	terminal/strata_control/inkling_fit.py
+1	1	terminal/tools/strata_mcp.py
+4	2	tools/packaging/README.md

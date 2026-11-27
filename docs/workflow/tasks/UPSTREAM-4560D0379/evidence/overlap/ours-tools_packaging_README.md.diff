@@ -1,0 +1,21 @@
+diff --git a/tools/packaging/README.md b/tools/packaging/README.md
+index e146f554f..ed0ade6a2 100644
+--- a/tools/packaging/README.md
++++ b/tools/packaging/README.md
+@@ -132,12 +132,14 @@ The Terminal bundles a private Python and its dependencies for `windows-x86_64`,
+ 3. Real inference on a supported pack, with the engine build hash and the model hashes recorded.
+ 4. A qualification run on that platform, with raw evidence kept. The Mac-first run in October 2026 is the earlier example: [history/docs/work/QUALIFICATION-KIT.md](../../docs/history/docs/work/QUALIFICATION-KIT.md).
+ 
+ ## Release checks and gaps
+ 
+-- CI covers scripts, Terminal checks, Metal builds and Docker images ([.github/workflows](../../.github/workflows)). It does not replace native desktop
+-  packaging, signing or real-GPU acceptance on every target. Some recipes still run by hand.
++- This fork keeps only the kit workflows ([.github/workflows](../../.github/workflows)): `kit-build.yml` compiles the CUDA servers on demand
++  (`workflow_dispatch` only since 13.11, measured on the branch) and `kit-release.yml` packs the portable kit on a published release or on demand.
++  The upstream workflows for scripts, Terminal checks, Metal builds and Docker images were removed here, so those checks run in the upstream
++  repository. CI does not replace native desktop packaging, signing or real-GPU acceptance on every target; some recipes still run by hand.
+ - Signing needs the owner's credentials, which are never in this tree. The feed and every engine package are signed with the feed key
+   (`feed_tool.py`); the app installers with the Tauri updater key ([UPDATES.md](UPDATES.md)). The Mac app and Terminal archive are signed and
+   notarised on a Mac that holds the Developer ID certificate. No Windows code-signing certificate is configured, so Windows may warn about the installer.
+ - Check the licenses and provenance of bundled fonts and assets when packaging. The early D05 checklist lacked redistribution evidence;
+   treat that as an open checklist finding, not an audit of every release asset.

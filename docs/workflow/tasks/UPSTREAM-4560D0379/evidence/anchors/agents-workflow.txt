@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=agents-workflow
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git grep -n -F -m 1 ## Workflow v3 34bd46b86641d4fe34b3ab523e31b816718347e1 --
+34bd46b86641d4fe34b3ab523e31b816718347e1:AGENTS.md:80:## Workflow v3
+upstream command: git ls-tree -z --full-tree 4560d03793482ef367294cfbd86a4df8d5679e72 -- AGENTS.md
+100644 blob f1900f563dc3e2b569e7cd86c2dca4bd9e3a6e15	AGENTS.md
+candidate-draft: pending; no candidate code was created

@@ -1,0 +1,1287 @@
+{
+  "aheadBehind": {
+    "oursOnly": 281,
+    "upstreamOnly": 296
+  },
+  "candidateRef": "pending:sync/upstream-0.2.23",
+  "mergeBase": "2af30ccaa0729177c4725ee2073f72bf550e2f86",
+  "ours": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+  "rows": [
+    {
+      "candidateDraft": {
+        "anchor": "## Workflow v3",
+        "draftOnly": true,
+        "location": {
+          "line": 80,
+          "path": "AGENTS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "## Workflow v3"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:agents-workflow",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/agents-workflow.txt"
+      ],
+      "files": [
+        "AGENTS.md"
+      ],
+      "id": "agents-workflow",
+      "oursAnchor": {
+        "line": 80,
+        "path": "AGENTS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "## Workflow v3"
+      },
+      "reason": "Upstream меняет только версии; fork workflow-раздел сохраняется.",
+      "title": "Workflow v3 в AGENTS",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "AGENTS.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "AGENTS.md"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "Version 0.2.23",
+        "draftOnly": true,
+        "location": {
+          "line": 3,
+          "path": "AGENTS.md",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "Version 0.2.23"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:agents-version",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/agents-version.txt"
+      ],
+      "files": [
+        "AGENTS.md"
+      ],
+      "id": "agents-version",
+      "oursAnchor": {
+        "line": 3,
+        "path": "AGENTS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "Version 0.2.21"
+      },
+      "reason": "Берём upstream version line 0.2.23 / engine 0.1.70; workflow-раздел остаётся отдельной ours-строкой.",
+      "title": "Версии AGENTS",
+      "upstreamAnchor": {
+        "line": 3,
+        "path": "AGENTS.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "Version 0.2.23"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "## Fork measurement charts",
+        "draftOnly": true,
+        "location": {
+          "line": 247,
+          "path": "README.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "## Fork measurement charts"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:readme-fork-notes",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/readme-fork-notes.txt"
+      ],
+      "files": [
+        "README.md"
+      ],
+      "id": "readme-fork-notes",
+      "oursAnchor": {
+        "line": 247,
+        "path": "README.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "## Fork measurement charts"
+      },
+      "reason": "Upstream не заменяет fork-заметки, research-ссылки и диаграммы измерений.",
+      "title": "Fork notes и charts",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "README.md"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "Ornith-1.5-35B-A3B",
+        "draftOnly": true,
+        "location": {
+          "line": 71,
+          "path": "README.md",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "Ornith-1.5-35B-A3B"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:readme-upstream-catalog",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/readme-upstream-catalog.txt"
+      ],
+      "files": [
+        "README.md"
+      ],
+      "id": "readme-upstream-catalog",
+      "oursAnchor": {
+        "line": 84,
+        "path": "README.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "Model guide and compatibility"
+      },
+      "reason": "Добавляем Ornith/Inkling 0.2.23 и release 0.2.23, не удаляя fork-блоки.",
+      "title": "Upstream catalog и release",
+      "upstreamAnchor": {
+        "line": 71,
+        "path": "README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "Ornith-1.5-35B-A3B"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_FDEC",
+        "draftOnly": true,
+        "location": {
+          "line": 281,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_FDEC"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:settings-fork-knobs",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/settings-fork-knobs.txt"
+      ],
+      "files": [
+        "docs/SETTINGS.md"
+      ],
+      "id": "settings-fork-knobs",
+      "oursAnchor": {
+        "line": 281,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_FDEC"
+      },
+      "reason": "FDEC/DOWN_SUB8 и связанные fork-настройки отсутствуют в upstream delta.",
+      "title": "Fork knobs в SETTINGS",
+      "upstreamAnchor": {
+        "line": 76,
+        "path": "engine/src/prefill/moe_fused_iq.cu",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "STRATA_PF_SYNC_DEBUG"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_PF_SYNC_DEBUG",
+        "draftOnly": true,
+        "location": {
+          "line": 76,
+          "path": "engine/src/prefill/moe_fused_iq.cu",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "STRATA_PF_SYNC_DEBUG"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:settings-upstream-register",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/settings-upstream-register.txt"
+      ],
+      "files": [
+        "docs/SETTINGS.md"
+      ],
+      "id": "settings-upstream-register",
+      "oursAnchor": {
+        "line": 54,
+        "path": "engine/include/strata/kernels/cpu/native_expert.hpp",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_ACT_DUMP"
+      },
+      "reason": "Берём upstream settings additions; итоговый register/docs перегенерировать после объединения.",
+      "title": "Upstream settings additions",
+      "upstreamAnchor": {
+        "line": 76,
+        "path": "engine/src/prefill/moe_fused_iq.cu",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "STRATA_PF_SYNC_DEBUG"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "q2_K/iq4_xs",
+        "draftOnly": true,
+        "location": {
+          "line": 1346,
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "q2_K/iq4_xs"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:cmake-expert-parity",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/cmake-expert-parity.txt"
+      ],
+      "files": [
+        "engine/CMakeLists.txt"
+      ],
+      "id": "cmake-expert-parity",
+      "oursAnchor": {
+        "line": 1346,
+        "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "q2_K/iq4_xs"
+      },
+      "reason": "Upstream не содержит наших parity pairs 10/11/18/21 и whole-block geometry.",
+      "title": "Fork expert parity tests",
+      "upstreamAnchor": {
+        "line": 14,
+        "path": "docs/ORCA_Q4_K_S.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "STRATA_NATIVE_EXPERTS"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "project(strata VERSION 0.1.70",
+        "draftOnly": true,
+        "location": {
+          "line": 13,
+          "path": "engine/CMakeLists.txt",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "project(strata VERSION 0.1.70"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:cmake-upstream-build",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/cmake-upstream-build.txt"
+      ],
+      "files": [
+        "engine/CMakeLists.txt"
+      ],
+      "id": "cmake-upstream-build",
+      "oursAnchor": {
+        "line": 147,
+        "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "project(strata VERSION 0.1.68"
+      },
+      "reason": "Берём version 0.1.70, symbols, sm120/draft-rule tests и dot-x4 policy; fork parity tests сохраняются отдельно.",
+      "title": "Upstream build/release infrastructure",
+      "upstreamAnchor": {
+        "line": 13,
+        "path": "engine/CMakeLists.txt",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "project(strata VERSION 0.1.70"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_PF_FUSED_Q4NL",
+        "draftOnly": true,
+        "location": {
+          "line": 217,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_PF_FUSED_Q4NL"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:fused-format-support",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/fused-format-support.txt"
+      ],
+      "files": [
+        "engine/src/prefill/moe_fused_iq.cu"
+      ],
+      "id": "fused-format-support",
+      "oursAnchor": {
+        "line": 217,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_PF_FUSED_Q4NL"
+      },
+      "reason": "Upstream добавляет диагностику, но не нашу поддержку IQ4_XS down и IQ4_NL gate/up.",
+      "title": "Fused IQ4_XS/IQ4_NL support",
+      "upstreamAnchor": {
+        "line": 220,
+        "path": "engine/cmake/backends/cuda.cmake",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "experts_native"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_PF_SYNC_DEBUG",
+        "draftOnly": true,
+        "location": {
+          "line": 76,
+          "path": "engine/src/prefill/moe_fused_iq.cu",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "STRATA_PF_SYNC_DEBUG"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:fused-sync-debug",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/fused-sync-debug.txt"
+      ],
+      "files": [
+        "engine/src/prefill/moe_fused_iq.cu"
+      ],
+      "id": "fused-sync-debug",
+      "oursAnchor": {
+        "line": 39,
+        "path": "engine/bench/micro/fusions_parity.cu",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "void ck(cudaError_t"
+      },
+      "reason": "Берём default-off dbg_sync; он оборачивает launches и не меняет bits при выключенном флаге.",
+      "title": "Upstream fused launch diagnostics",
+      "upstreamAnchor": {
+        "line": 76,
+        "path": "engine/src/prefill/moe_fused_iq.cu",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "STRATA_PF_SYNC_DEBUG"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "IQ4_XS-KAT",
+        "draftOnly": true,
+        "location": {
+          "line": 54,
+          "path": "docs/reports/expert-types-2026-11-24.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "IQ4_XS-KAT"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:setup-kat-huihui",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/setup-kat-huihui.txt"
+      ],
+      "files": [
+        "terminal/setup.py"
+      ],
+      "id": "setup-kat-huihui",
+      "oursAnchor": {
+        "line": 54,
+        "path": "docs/reports/expert-types-2026-11-24.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "IQ4_XS-KAT"
+      },
+      "reason": "Upstream добавляет Ornith/custom builds, но не KAT/Huihui pins и per-model own_file/own_hf.",
+      "title": "KAT/Huihui own-path models",
+      "upstreamAnchor": {
+        "line": 10046,
+        "path": "terminal/setup.py",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "def install_own_path"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "def run_tag",
+        "draftOnly": true,
+        "location": {
+          "line": 7841,
+          "path": "terminal/setup.py",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "def run_tag"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:setup-upstream-features",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/setup-upstream-features.txt"
+      ],
+      "files": [
+        "terminal/setup.py"
+      ],
+      "id": "setup-upstream-features",
+      "oursAnchor": {
+        "line": 1462,
+        "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "def install_own_path"
+      },
+      "reason": "Берём Ornith, custom-label, hardware refresh, DFlash2 и setup error hint; KAT/Huihui остаются отдельной ours-строкой.",
+      "title": "Upstream setup features",
+      "upstreamAnchor": {
+        "line": 7841,
+        "path": "terminal/setup.py",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "def run_tag"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "DFLASH2_GB",
+        "draftOnly": true,
+        "location": {
+          "line": 46,
+          "path": "terminal/strata_control/inkling_fit.py",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "DFLASH2_GB"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:inkling-upstream-lineup",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/inkling-upstream-lineup.txt"
+      ],
+      "files": [
+        "terminal/strata_control/inkling_fit.py"
+      ],
+      "id": "inkling-upstream-lineup",
+      "oursAnchor": {
+        "line": 1625,
+        "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "def launch_parallel"
+      },
+      "reason": "Наш единственный diff — удаление финальной пустой строки; семантической ours-реализации нет. Берём upstream lineup/DFlash2.",
+      "title": "Upstream Inkling 0.2.23 lineup",
+      "upstreamAnchor": {
+        "line": 46,
+        "path": "terminal/strata_control/inkling_fit.py",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "DFLASH2_GB"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "self.setup_module().own_size(d, model)",
+        "draftOnly": true,
+        "location": {
+          "line": 754,
+          "path": "terminal/tools/strata_mcp.py",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "self.setup_module().own_size(d, model)"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:mcp-own-size",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/mcp-own-size.txt"
+      ],
+      "files": [
+        "terminal/tools/strata_mcp.py"
+      ],
+      "id": "mcp-own-size",
+      "oursAnchor": {
+        "line": 754,
+        "path": "terminal/tools/strata_mcp.py",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "self.setup_module().own_size(d, model)"
+      },
+      "reason": "Upstream не заменяет наш per-model own_size lookup.",
+      "title": "MCP own-size для KAT/Huihui",
+      "upstreamAnchor": {
+        "line": 669,
+        "path": "terminal/tools/strata_mcp.py",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "def own_size"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "def _refresh_hardware_later",
+        "draftOnly": true,
+        "location": {
+          "line": 1157,
+          "path": "terminal/tools/strata_mcp.py",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "def _refresh_hardware_later"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:mcp-upstream-features",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/mcp-upstream-features.txt"
+      ],
+      "files": [
+        "terminal/tools/strata_mcp.py"
+      ],
+      "id": "mcp-upstream-features",
+      "oursAnchor": {
+        "line": 8214,
+        "path": "terminal/setup.py",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "def hardware"
+      },
+      "reason": "Берём stale-ok hardware refresh, custom models, Inkling legacy/update metadata; наша own-size строка сохраняется.",
+      "title": "Upstream MCP features",
+      "upstreamAnchor": {
+        "line": 1157,
+        "path": "terminal/tools/strata_mcp.py",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "def _refresh_hardware_later"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "This fork keeps only the kit workflows",
+        "draftOnly": true,
+        "location": {
+          "line": 1647,
+          "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "This fork keeps only the kit workflows"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:packaging-fork-notes",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/packaging-fork-notes.txt"
+      ],
+      "files": [
+        "tools/packaging/README.md"
+      ],
+      "id": "packaging-fork-notes",
+      "oursAnchor": {
+        "line": 1647,
+        "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "This fork keeps only the kit workflows"
+      },
+      "reason": "Upstream меняет только version line; fork CI/gap notes сохраняются.",
+      "title": "Fork packaging CI notes",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "tools/packaging/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "# Strata packaging"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "current release (app and Terminal 0.2.23",
+        "draftOnly": true,
+        "location": {
+          "line": 4,
+          "path": "tools/packaging/README.md",
+          "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+          "symbol": "current release (app and Terminal 0.2.23"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:packaging-upstream-version",
+      "decision": "upstream",
+      "evidence": [
+        "evidence/anchors/packaging-upstream-version.txt"
+      ],
+      "files": [
+        "tools/packaging/README.md"
+      ],
+      "id": "packaging-upstream-version",
+      "oursAnchor": {
+        "line": 1638,
+        "path": "docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "current release (app and Terminal 0.2.21"
+      },
+      "reason": "Обновляем version line до 0.2.23 / Control 0.1.70 / engines 0.1.70.",
+      "title": "Upstream packaging version",
+      "upstreamAnchor": {
+        "line": 4,
+        "path": "tools/packaging/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "current release (app and Terminal 0.2.23"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "q36_engine",
+        "draftOnly": true,
+        "location": {
+          "line": 7,
+          "path": "docs/architecture/qwen35-core/architecture-understanding.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "q36_engine"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:qwen35-no-delta",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/qwen35-no-delta.txt"
+      ],
+      "files": [
+        "engine/src/qwen35",
+        "engine/include/strata/qwen35"
+      ],
+      "id": "qwen35-no-delta",
+      "oursAnchor": {
+        "line": 7,
+        "path": "docs/architecture/qwen35-core/architecture-understanding.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "q36_engine"
+      },
+      "reason": "Upstream delta не меняет qwen35; candidate обязан быть побитово равен ours по этим путям.",
+      "title": "qwen35 upstream no-delta guard",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_FA_TILE",
+        "draftOnly": true,
+        "location": {
+          "line": 280,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_FA_TILE"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-fa-v2",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-fa-v2.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_fa.cuh",
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "q36-fa-v2",
+      "oursAnchor": {
+        "line": 280,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_FA_TILE"
+      },
+      "reason": "Upstream не содержит fork FA tile/map/check/prof контракта.",
+      "title": "Q36 FA v2/tile/prof",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_FDEC",
+        "draftOnly": true,
+        "location": {
+          "line": 281,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_FDEC"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-fdec",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-fdec.txt"
+      ],
+      "files": [
+        "engine/src/qwen35"
+      ],
+      "id": "q36-fdec",
+      "oursAnchor": {
+        "line": 281,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_FDEC"
+      },
+      "reason": "Upstream не содержит fork FDEC decode route.",
+      "title": "Q36 FDEC",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_EXPERT_CACHE_MB",
+        "draftOnly": true,
+        "location": {
+          "line": 88,
+          "path": "docs/QUICKSTART.ru.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_EXPERT_CACHE_MB"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-expert-cache",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-expert-cache.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "q36-expert-cache",
+      "oursAnchor": {
+        "line": 88,
+        "path": "docs/QUICKSTART.ru.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_EXPERT_CACHE_MB"
+      },
+      "reason": "Upstream не содержит fork LRU host expert cache и rebalance cadence.",
+      "title": "Q36 expert cache/rebalance",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_P4",
+        "draftOnly": true,
+        "location": {
+          "line": 284,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_P4"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-p4",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-p4.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "q36-p4",
+      "oursAnchor": {
+        "line": 284,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_P4"
+      },
+      "reason": "Upstream не содержит fork P4 fused prompt route.",
+      "title": "Q36 P4 fused prompt experts",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_STAGING_ONE",
+        "draftOnly": true,
+        "location": {
+          "line": 292,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_STAGING_ONE"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-memory-staging",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-memory-staging.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/qwen35/q36_metadata_test.cpp"
+      ],
+      "id": "q36-memory-staging",
+      "oursAnchor": {
+        "line": 292,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_STAGING_ONE"
+      },
+      "reason": "Upstream не содержит fork staging-one и memory controls.",
+      "title": "Q36 memory/staging controls",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_SUPER_CHUNK",
+        "draftOnly": true,
+        "location": {
+          "line": 293,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_SUPER_CHUNK"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-super-chunk",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-super-chunk.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "q36-super-chunk",
+      "oursAnchor": {
+        "line": 293,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_SUPER_CHUNK"
+      },
+      "reason": "Upstream не содержит fork layer-major super-chunk route.",
+      "title": "Q36 super-chunk",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_Q36_ATT_MB",
+        "draftOnly": true,
+        "location": {
+          "line": 25,
+          "path": "LOCAL.en.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_Q36_ATT_MB"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:q36-knobs",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/q36-knobs.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "q36-knobs",
+      "oursAnchor": {
+        "line": 25,
+        "path": "LOCAL.en.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_Q36_ATT_MB"
+      },
+      "reason": "Upstream не содержит fork attention/profile/swap knobs.",
+      "title": "Q36 knobs/profile/rebalance",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "STRATA_DOWN_SUB8",
+        "draftOnly": true,
+        "location": {
+          "line": 387,
+          "path": "docs/SETTINGS.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "STRATA_DOWN_SUB8"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "adapted"
+      },
+      "commitRefPlan": "pending:down-sub8",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/down-sub8.txt"
+      ],
+      "files": [
+        "engine/src/kernels",
+        "docs/SETTINGS.md",
+        "terminal/data/settings-register.json"
+      ],
+      "id": "down-sub8",
+      "oursAnchor": {
+        "line": 387,
+        "path": "docs/SETTINGS.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "STRATA_DOWN_SUB8"
+      },
+      "reason": "Upstream не содержит fork opt-out для 32-lane down reduction.",
+      "title": "DOWN_SUB8 opt-out",
+      "upstreamAnchor": {
+        "line": 11,
+        "path": ".gitattributes",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "native_expert"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "native_expert_i8_set_mmq_free",
+        "draftOnly": true,
+        "location": {
+          "line": 108,
+          "path": "engine/include/strata/kernels/iq_kernels.hpp",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "native_expert_i8_set_mmq_free"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:int8-prompt-experts",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/int8-prompt-experts.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu",
+        "engine/src/kernels/cuda/i8_expert.cuh"
+      ],
+      "id": "int8-prompt-experts",
+      "oursAnchor": {
+        "line": 108,
+        "path": "engine/include/strata/kernels/iq_kernels.hpp",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "native_expert_i8_set_mmq_free"
+      },
+      "reason": "Upstream не содержит fork no-MMQ int8 prompt route.",
+      "title": "Int8 prompt experts/no-MMQ",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "a.kq[l] && a.pos > 0",
+        "draftOnly": true,
+        "location": {
+          "line": 3919,
+          "path": "engine/src/qwen35/q36_engine.cu",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "a.kq[l] && a.pos > 0"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:copy-session-quantized-kv",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/copy-session-quantized-kv.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "copy-session-quantized-kv",
+      "oursAnchor": {
+        "line": 3919,
+        "path": "engine/src/qwen35/q36_engine.cu",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "a.kq[l] && a.pos > 0"
+      },
+      "reason": "Upstream delta не содержит fork copy_session для квантованного KV.",
+      "title": "Quantized KV copy_session",
+      "upstreamAnchor": {
+        "line": 144,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "copy_session"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "exceeds the context",
+        "draftOnly": true,
+        "location": {
+          "line": 161,
+          "path": "app/host/server/agent/context-budget.mjs",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "exceeds the context"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:qwen35-cli-context-guard",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/qwen35-cli-context-guard.txt"
+      ],
+      "files": [
+        "engine/src/qwen35/q36_engine.cu"
+      ],
+      "id": "qwen35-cli-context-guard",
+      "oursAnchor": {
+        "line": 161,
+        "path": "app/host/server/agent/context-budget.mjs",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "exceeds the context"
+      },
+      "reason": "Upstream delta не содержит fork overflow guard.",
+      "title": "Qwen35 CLI context guard",
+      "upstreamAnchor": {
+        "line": 43,
+        "path": "docs/bench-results/2026-11-20-q36-kv-precision/README.md",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "q36_engine"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "terminal/tools/check_qwen36_200k_launch.py",
+        "draftOnly": true,
+        "location": {
+          "line": 1,
+          "path": "terminal/tools/check_qwen36_200k_launch.py",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "terminal/tools/check_qwen36_200k_launch.py"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:qwen36-200k-launch",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/qwen36-200k-launch.txt"
+      ],
+      "files": [
+        "terminal/run-qwen36-iq4_xs-kat.bat",
+        "terminal/run-qwen36-iq4_xs-huihui.bat",
+        "terminal/tools/check_qwen36_200k_launch.py"
+      ],
+      "id": "qwen36-200k-launch",
+      "oursAnchor": {
+        "line": 1,
+        "path": "terminal/tools/check_qwen36_200k_launch.py",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "terminal/tools/check_qwen36_200k_launch.py"
+      },
+      "reason": "Upstream не заменяет fork launch profiles и static checker.",
+      "title": "Qwen36 200k launch profiles",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "terminal/serve/server.py",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "terminal/serve/server.py"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "tools/workflow/workflow.py",
+        "draftOnly": true,
+        "location": {
+          "line": 1,
+          "path": "tools/workflow/workflow.py",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "tools/workflow/workflow.py"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:workflow-tooling",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/workflow-tooling.txt"
+      ],
+      "files": [
+        "tools/workflow",
+        "docs/workflow"
+      ],
+      "id": "workflow-tooling",
+      "oursAnchor": {
+        "line": 1,
+        "path": "tools/workflow/workflow.py",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "tools/workflow/workflow.py"
+      },
+      "reason": "Upstream не содержит fork A/H/N workflow tooling.",
+      "title": "Workflow v3 tooling",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "docs",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "docs"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "tools/upstream_merge/upstream_merge.py",
+        "draftOnly": true,
+        "location": {
+          "line": 1,
+          "path": "tools/upstream_merge/upstream_merge.py",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "tools/upstream_merge/upstream_merge.py"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:upstream-merge-tooling",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/upstream-merge-tooling.txt"
+      ],
+      "files": [
+        "tools/upstream_merge"
+      ],
+      "id": "upstream-merge-tooling",
+      "oursAnchor": {
+        "line": 1,
+        "path": "tools/upstream_merge/upstream_merge.py",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "tools/upstream_merge/upstream_merge.py"
+      },
+      "reason": "Upstream не содержит fork merge profile/matrix/gate framework.",
+      "title": "Evidence-gated upstream merge tooling",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "tools",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "tools"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": ".github/workflows/kit-build.yml",
+        "draftOnly": true,
+        "location": {
+          "line": 1,
+          "path": ".github/workflows/kit-build.yml",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": ".github/workflows/kit-build.yml"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:packaging-kit",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/packaging-kit.txt"
+      ],
+      "files": [
+        ".github/workflows/kit-build.yml",
+        ".github/workflows/kit-release.yml",
+        "tools/packaging/kit"
+      ],
+      "id": "packaging-kit",
+      "oursAnchor": {
+        "line": 1,
+        "path": ".github/workflows/kit-build.yml",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": ".github/workflows/kit-build.yml"
+      },
+      "reason": "Upstream workflows не заменяют fork portable kit pipelines.",
+      "title": "Portable kit workflows",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": ".github/workflows",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": ".github/workflows"
+      }
+    },
+    {
+      "candidateDraft": {
+        "anchor": "docs/research/full-measurement-report.md",
+        "draftOnly": true,
+        "location": {
+          "line": 1,
+          "path": "docs/research/full-measurement-report.md",
+          "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+          "symbol": "docs/research/full-measurement-report.md"
+        },
+        "ref": "pending:sync/upstream-0.2.23",
+        "status": "preserved"
+      },
+      "commitRefPlan": "pending:fork-docs-evidence",
+      "decision": "ours",
+      "evidence": [
+        "evidence/anchors/fork-docs-evidence.txt"
+      ],
+      "files": [
+        "docs/research",
+        "docs/reports",
+        "docs/profile-q36.md",
+        "LOCAL.ru.md",
+        "LOCAL.en.md"
+      ],
+      "id": "fork-docs-evidence",
+      "oursAnchor": {
+        "line": 1,
+        "path": "docs/research/full-measurement-report.md",
+        "ref": "34bd46b86641d4fe34b3ab523e31b816718347e1",
+        "symbol": "docs/research/full-measurement-report.md"
+      },
+      "reason": "Upstream delta не заменяет fork measurement corpus и provenance docs.",
+      "title": "Fork research/evidence docs",
+      "upstreamAnchor": {
+        "line": 1,
+        "path": "docs",
+        "ref": "4560d03793482ef367294cfbd86a4df8d5679e72",
+        "symbol": "docs"
+      }
+    }
+  ],
+  "status": "draft-ready-for-n",
+  "taskId": "UPSTREAM-4560D0379",
+  "upstream": "4560d03793482ef367294cfbd86a4df8d5679e72"
+}

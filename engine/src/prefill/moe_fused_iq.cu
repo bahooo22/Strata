@@ -50,6 +50,7 @@
 #include "../kernels/cuda/tq_lut_i8.cuh"
 
 #include <algorithm>
+#include <vector>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -70,6 +71,37 @@ void ck(cudaError_t e, const char* what) {
         std::fprintf(stderr, "prefill fused experts (native): %s: %s\n", what, cudaGetErrorString(e));
         std::exit(1);
     }
+}
+
+// STRATA_PF_SYNC_DEBUG=1 (a diagnostic, #7115): the launch check ck() after a launch reports the first error the process has pending, which can come from
+// any earlier kernel of any stream (an "illegal memory access" at "experts_native" names the check, not the kernel).  With the switch on every launch of the
+// native fused kernels is followed by a stream synchronize and, on an error, a line that names THIS launch: stage, pair, rows, experts, tile, grid and the memory
+// kind of the batch's blobs.  Off by default (the synchronize stalls the stream); the default launches and bits are unchanged.
+bool sync_debug() {
+    static const bool on = [] { const char* v = std::getenv("STRATA_PF_SYNC_DEBUG"); return v != nullptr && v[0] == '1'; }();
+    return on;
+}
+template <class B>
+void dbg_sync(cudaStream_t s, const char* stage, const B& b, int gu_type, int d_type, int64_t n, int n_expert, int ww, unsigned grid) {
+    if (!sync_debug()) return;
+    std::vector<int> kind;   // the blobs' memory kinds are asked before the synchronize: after a fault the context answers nothing
+    for (int i = b.e0; i < b.e1; ++i) {
+#if defined(__HIP_PLATFORM_AMD__) || defined(__HIPCC__)
+        hipPointerAttribute_t pa{};   // the HIP build has no mapping for the CUDA names (fnx_hip.h maps the same two)
+        if (hipPointerGetAttributes(&pa, b.blob[i - b.e0]) == hipSuccess) kind.push_back((int) pa.type);
+#else
+        cudaPointerAttributes pa{};
+        if (cudaPointerGetAttributes(&pa, b.blob[i - b.e0]) == cudaSuccess) kind.push_back((int) pa.type);
+#endif
+        else { cudaGetLastError(); kind.push_back(-1); }
+    }
+    const cudaError_t e = cudaStreamSynchronize(s);
+    if (e == cudaSuccess) return;
+    std::fprintf(stderr, "prefill fused experts (native): STRATA_PF_SYNC_DEBUG: %s of pair %d / %d failed: %s (rows %lld, %d experts in the layer, batch experts [%d, %d), tile ww %d, grid %u)\n",
+                 stage, gu_type, d_type, cudaGetErrorString(e), (long long) n, n_expert, b.e0, b.e1, ww, grid);
+    for (int i = b.e0; i < b.e1; ++i)
+        std::fprintf(stderr, "  blob of expert %d: %p memory type %d%s\n", i, (const void*) b.blob[i - b.e0], kind[(size_t) (i - b.e0)], kind[(size_t) (i - b.e0)] < 0 ? " (not known to the driver)" : "");
+    std::exit(1);
 }
 
 constexpr int AB = 80;                  // activation bytes per 64 values: 64 codes, {d0, d1}, 8 unused
@@ -983,7 +1015,7 @@ native_kernel(const BatchOf<NT> b, const NativeGeom geo, const Tables tb, const 
                                  : blob + geo.down_off + (size_t) (rbase + ur) * geo.d_row;
         // gate/up in Q2_0 (64-value blocks): a block per stage, as the down rows read theirs; in Q8_0 (32-value blocks, CUDA
         // STRATA_PF_FUSED_Q8GU=1): two blocks a stage, as the Q8_0 down rows read theirs
-        constexpr bool GU256 = (GU || ((WT == T_Q4_K || WT == T_Q5_K || WT == T_Q6_K || WT == T_IQ4_XS) && D_ROWS_K % 256 == 0)) && WT != T_Q2_0 && WT != T_Q8_0 && WT != T_NVFP4 && !is_tq(WT);   // (a 256-value-block DOWN — the K-quants and IQ4_XS — walks its super-blocks too, when n_ff is a multiple of 256: Qwen3.6's 512)
+        constexpr bool GU256 = (GU || ((WT == T_Q4_K || WT == T_Q5_K || WT == T_Q6_K || WT == T_IQ4_XS) && D_ROWS_K % 256 == 0)) && WT != T_Q2_0 && WT != T_Q8_0 && WT != T_NVFP4 && !is_tq(WT);   // (a K-quant DOWN walks its 256-value super-blocks too, when n_ff is a multiple of 256: Qwen3.6's 512)
         constexpr bool B128 = is_tq(WT);   // (CUDA, STRATA_PF_FUSED_TQ=1) 128-value blocks, gate/up and down: a block per two stages, sub-blocks 0-3
         auto unit = [&](int s) -> const uint8_t* {                  // the block of stage s's sub-block
             if (B128) return wrow + (s >> 1) * BS;
@@ -1447,7 +1479,7 @@ native_ws_kernel(const WideBatch b, const NativeGeom geo, const Tables tb, const
     constexpr int ACT_LD = NS * AB;
     constexpr int BS = block_bytes(WT);
     constexpr int WT_BYTES = WR * WLDH, ACT_STAGE = TR * AB;
-    constexpr bool GU256 = GU ? WT != T_Q2_0 : (WT == T_IQ4_XS && D_ROWS_K % 256 == 0);   // 0216-accel P2: the IQ4_XS down reads 256-value super-blocks
+    constexpr bool GU256 = GU ? WT != T_Q2_0 : (WT == T_IQ4_XS && D_ROWS_K % 256 == 0);
     extern __shared__ __align__(16) uint8_t smem[];
     uint8_t* wt = smem;                                         // [SLOTS][WR][WLDH] F16 weights
     uint8_t* stages = smem + WS_SLOTS * WS_KS * WT_BYTES;       // [SLOTS * KS][TR][AB] activations
@@ -2948,7 +2980,7 @@ const DevInfo& dev_info() {
     }
     d.ok = setup_one<T_IQ2_XXS, true>(occ) && setup_one<T_IQ2_XS, true>(occ) && setup_one<T_IQ2_S, true>(occ) &&
            setup_one<T_IQ3_XXS, true>(occ) && setup_one<T_IQ3_S, true>(occ) && setup_one<T_IQ4_XS, true>(occ) &&
-           setup_one<T_Q2_0, false>(occ) && setup_one<T_IQ4_NL, false>(occ) && setup_one<T_IQ4_XS, false>(occ);   // 0216-accel P2: the IQ4_XS down instances too
+           setup_one<T_Q2_0, false>(occ) && setup_one<T_IQ4_NL, false>(occ) && setup_one<T_IQ4_XS, false>(occ);   // (Q2_0 gate/up: the Turing opt-in's, or below)
     // STRATA_PF_FUSED_Q2N=1: the native Q2_0 pack's Q2_0 gate/up on these kernels here too (what #2145 took with
     // STRATA_PF_FUSED=1 on every CUDA card until b6443f3a kept it to Turing).  Its own variable, so STRATA_PF_FUSED=1 keeps
     // its bits: unset, the kernel is not set up and the Q2_0 layers keep MMQ.  A failed setup leaves occ as it was.
@@ -3067,7 +3099,7 @@ bool q6k_hip_requested();    // (STRATA_PF_FUSED_Q6K on HIP: below)
 #endif
 bool gu_covered(int t) {
     return t == T_IQ2_XXS || t == T_IQ2_XS || t == T_IQ2_S || t == T_IQ3_XXS || t == T_IQ3_S || t == T_IQ4_XS
-           || (t == T_IQ4_NL && dev_info().q4nlgu)   // 0216-accel P3: opt-in IQ4_NL gate/up (HauhauCS)
+           || (t == T_IQ4_NL && dev_info().q4nlgu)
 #if !defined(__HIPCC__)
            || (t == T_Q2_0 && (dev_info().t75 || dev_info().q2n))   // Q2_0 gate/up: the Turing opt-in, or STRATA_PF_FUSED_Q2N=1 on sm_80+
            || ((t == T_Q4_K || t == T_Q5_K) && dev_info().kq)       // STRATA_PF_FUSED_KQ=1 and its kernels set up
@@ -3087,7 +3119,7 @@ bool gu_covered(int t) {
         ;
 }
 bool d_covered(int t) {
-    return t == T_Q2_0 || t == T_IQ4_NL || t == T_IQ4_XS   // 0216-accel P2: the IQ4_XS packs' down (KAT, Huihui)
+    return t == T_Q2_0 || t == T_IQ4_NL || t == T_IQ4_XS
 #if defined(__HIPCC__)
            || ((t == T_Q5_1 || t == T_Q8_0) && kq_on())
 #endif
@@ -3854,7 +3886,7 @@ void experts_native(const Batch& b, const NativeGeom& g, int n_expert, int64_t n
         else if (g.d_type == T_Q5_0) STRATA_NW_D(T_Q5_0);
         else if (g.d_type == T_Q5_1) STRATA_NW_D(T_Q5_1);
         else if (g.d_type == T_Q8_0) STRATA_NW_D(T_Q8_0);
-        else if (g.d_type == T_IQ4_XS) STRATA_NW_D(T_IQ4_XS);   // 0216-accel P2: the IQ4_XS down (KAT/Huihui packs)
+        else if (g.d_type == T_IQ4_XS) STRATA_NW_D(T_IQ4_XS);
         else STRATA_NW_D(T_IQ4_NL);
 #undef STRATA_NW_D
 #undef STRATA_F16_LAUNCH
@@ -3901,10 +3933,15 @@ void experts_native(const Batch& b, const NativeGeom& g, int n_expert, int64_t n
         }
         if (g.gu_type == T_Q4_K) launch<T_Q4_K, true>(ww, k_gu, b, g, tb, xa, src, ha, nullptr, s);
         else launch<T_Q5_K, true>(ww, k_gu, b, g, tb, xa, src, ha, nullptr, s);
+        dbg_sync(s, "gate/up", b, g.gu_type, g.d_type, n, n_expert, ww, k_gu);
         if (g.d_type == T_Q8_0) {   // (A2) its own occupancy
             const unsigned k8 = (unsigned) std::min<int64_t>(tiles * (D_ROWS_N / weight_rows(ww)), (int64_t) d.sms * d.occ_kq8);
             launch<T_Q8_0, false>(ww, k8, b, g, tb, ha, src, nullptr, dm, s);
-        } else launch<T_Q5_1, false>(ww, k_d, b, g, tb, ha, src, nullptr, dm, s);
+            dbg_sync(s, "down", b, g.gu_type, g.d_type, n, n_expert, ww, k8);
+        } else {
+            launch<T_Q5_1, false>(ww, k_d, b, g, tb, ha, src, nullptr, dm, s);
+            dbg_sync(s, "down", b, g.gu_type, g.d_type, n, n_expert, ww, k_d);
+        }
         ck(cudaGetLastError(), "experts_native");
         return;
     }
@@ -3954,8 +3991,9 @@ void experts_native(const Batch& b, const NativeGeom& g, int n_expert, int64_t n
         else launch<T_TQ2_T, false>(ww, gt, b, g, tb, ha, src, nullptr, dm, s);
     }
 #endif
-    else if (g.d_type == T_IQ4_XS) launch<T_IQ4_XS, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);   // 0216-accel P2: the IQ4_XS down
+    else if (g.d_type == T_IQ4_XS) launch<T_IQ4_XS, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);
     else launch<T_IQ4_NL, false>(ww, g_d, b, g, tb, ha, src, nullptr, dm, s);
+    dbg_sync(s, "gate/up + down", b, g.gu_type, g.d_type, n, n_expert, ww, g_d);
     ck(cudaGetLastError(), "experts_native");
 }
 

@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=upstream-merge-tooling
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git ls-tree -z --full-tree 34bd46b86641d4fe34b3ab523e31b816718347e1 -- tools/upstream_merge/upstream_merge.py
+100644 blob 4da0a60627db74b1d236faad58749c5530978564	tools/upstream_merge/upstream_merge.py
+upstream command: git ls-tree -z --full-tree 4560d03793482ef367294cfbd86a4df8d5679e72 -- tools
+040000 tree b209afa95201c6845b31c87de5d2a4bb15d7f887	tools
+candidate-draft: pending; no candidate code was created

@@ -10,7 +10,7 @@
 # building for a pre-Ampere arch would produce a binary that runs and is wrong about its own performance, which is
 # the worst of both outcomes.
 cmake_minimum_required(VERSION 3.24)
-project(strata VERSION 0.1.68 LANGUAGES CXX)
+project(strata VERSION 0.1.70 LANGUAGES CXX)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/strata_geometry.cmake)   # -DSTRATA_GEOMETRY=<name>: the model shape the kernels are compiled for (default flash_next, no flag added)
 # The build is cut by backend (cleanup 5.4): each file below only DEFINES macros (strata_<part>()), which run here, in this scope, at the place their
 # block used to be - so this file reads in the order the old single CMakeLists.txt evaluated.
@@ -32,9 +32,10 @@ if(STRATA_ENABLE_SYCL)
   return()
 endif()
 add_compile_definitions(STRATA_VERSION="${PROJECT_VERSION}")
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/strata_symbols.cmake)   # -DSTRATA_KEEP_SYMBOLS=ON: host debug information, same machine code (release scripts keep the symbol files)
 # issue #31: release builds keep a PDB beside the exe (not shipped in it), so a minidump from a stalled engine can
 # be read back to the exact source line
-if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
+if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT STRATA_KEEP_SYMBOLS)   # (STRATA_KEEP_SYMBOLS has its own /Z7 + /DEBUG, cmake/strata_symbols.cmake)
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:/Zi>)
   add_link_options(/DEBUG /OPT:REF /OPT:ICF)
 endif()
@@ -330,6 +331,14 @@ if(STRATA_BUILD_TESTS)
   add_executable(ink_caps_test tests/core/ink_caps_test.cpp)
   target_include_directories(ink_caps_test PRIVATE include)
   add_test(NAME ink_caps_test COMMAND ink_caps_test)
+  # the RTX 50 (sm_120) switch set and per-card table (no GPU)
+  add_executable(ink_sm120_table_test tests/core/ink_sm120_table_test.cpp)
+  target_include_directories(ink_sm120_table_test PRIVATE include)
+  add_test(NAME ink_sm120_table_test COMMAND ink_sm120_table_test)
+  # the ONE drafter on/off rule (residency first, plain steps by context on hybrid cards; no GPU)
+  add_executable(ink_draft_rule_test tests/core/ink_draft_rule_test.cpp)
+  target_include_directories(ink_draft_rule_test PRIVATE include)
+  add_test(NAME ink_draft_rule_test COMMAND ink_draft_rule_test)
   add_executable(mapped_pages_test tests/core/mapped_pages_test.cpp)
   target_include_directories(mapped_pages_test PRIVATE include)
   add_test(NAME mapped_pages_test COMMAND mapped_pages_test)
@@ -499,7 +508,12 @@ if(STRATA_BUILD_TESTS)
   target_include_directories(low_vram_rules_test PRIVATE include)
   add_test(NAME low_vram_rules_test COMMAND low_vram_rules_test)
 
-  # the 4-row dot kernels of the native expert path are opt-in (STRATA_DOT_X4=1; #6552): header-only rule
+  # the Turing (sm_75) kernel series is on by default, STRATA_SM75_PERF=0 turns it off (#7041, #7076): header-only rule
+  add_executable(sm75_series_test src/core/sm75_series_test.cpp)
+  target_include_directories(sm75_series_test PRIVATE include)
+  add_test(NAME sm75_series_test COMMAND sm75_series_test)
+
+  # the 4-row dot kernels of the native expert path follow the token count (STRATA_DOT_X4=1 / 0 force them; #6552, #7075): header-only rule
   add_executable(dot_x4_policy_test src/core/dot_x4_policy_test.cpp)
   target_include_directories(dot_x4_policy_test PRIVATE include)
   add_test(NAME dot_x4_policy_test COMMAND dot_x4_policy_test)
@@ -811,7 +825,6 @@ if(STRATA_NATIVE_EXPERTS)
       # noise, not a kernel bug -- see the PR).
       # q4_0/q4_0 and q4_0/q4_1: a plain llama-quantize Q4_0 file (bartowski's Qwen3.8-Flash-Next-Q4_0: gate/up Q4_0,
       # down Q4_0 on 42 layers and Q4_1 on 6)
-      # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
       # q6_K/q8_0: Unsloth UD-Q6_K_XL gate/up Q6_K with Q8_0 down (docs/UNSLOTH_Q6.md). Layer 2 is q8_0/q8_0, already listed.
       set(_strata_parity_pairs q4_K/q5_1 q4_K/q8_0 q5_K/q8_0 q8_0/q8_0 q4_K/q5_0 q5_0/q8_0 q4_0/q4_0 q4_0/q4_1)
       if(STRATA_Q6K_EXPERTS)

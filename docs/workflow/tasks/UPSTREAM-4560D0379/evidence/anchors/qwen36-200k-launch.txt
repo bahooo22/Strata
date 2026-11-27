@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=qwen36-200k-launch
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git ls-tree -z --full-tree 34bd46b86641d4fe34b3ab523e31b816718347e1 -- terminal/tools/check_qwen36_200k_launch.py
+100644 blob 82776295231bb5ff50da812101df95eb1a3eded0	terminal/tools/check_qwen36_200k_launch.py
+upstream command: git ls-tree -z --full-tree 4560d03793482ef367294cfbd86a4df8d5679e72 -- terminal/serve/server.py
+100644 blob cb4a70f4bc1fac91b73a27f7a69cc6a274868faa	terminal/serve/server.py
+candidate-draft: pending; no candidate code was created

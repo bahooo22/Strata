@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=mcp-upstream-features
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git grep -n -F -m 1 def hardware 34bd46b86641d4fe34b3ab523e31b816718347e1 --
+34bd46b86641d4fe34b3ab523e31b816718347e1:terminal/setup.py:8214:def hardware_key(cfg: dict) -> str:
+upstream command: git grep -n -F -m 1 def _refresh_hardware_later 4560d03793482ef367294cfbd86a4df8d5679e72 --
+4560d03793482ef367294cfbd86a4df8d5679e72:terminal/tools/strata_mcp.py:1157:    def _refresh_hardware_later(self) -> threading.Thread | None:
+candidate-draft: pending; no candidate code was created

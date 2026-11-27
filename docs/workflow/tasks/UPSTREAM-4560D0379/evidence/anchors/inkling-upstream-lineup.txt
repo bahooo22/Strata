@@ -1,0 +1,10 @@
+taskId=UPSTREAM-4560D0379
+id=inkling-upstream-lineup
+oursRef=34bd46b86641d4fe34b3ab523e31b816718347e1
+upstreamRef=4560d03793482ef367294cfbd86a4df8d5679e72
+candidateRef=pending:sync/upstream-0.2.23
+ours command: git grep -n -F -m 1 def launch_parallel 34bd46b86641d4fe34b3ab523e31b816718347e1 --
+34bd46b86641d4fe34b3ab523e31b816718347e1:docs/workflow/tasks/UPSTREAM-2AF30CCA/PATCH.diff:1625:+@@ -687,3 +692,4 @@ def launch_parallel(build: str, vram_gib: float | None, ram_gib: float, ctx: int
+upstream command: git grep -n -F -m 1 DFLASH2_GB 4560d03793482ef367294cfbd86a4df8d5679e72 --
+4560d03793482ef367294cfbd86a4df8d5679e72:terminal/strata_control/inkling_fit.py:46:DFLASH2_GB = 0.552              # the DFlash 2 sidecar every build downloads beside the model: dflash2.safetensors (551,600,700 B: Strata's Q8 + SF4 mix; the original is 989,975,616 B)
+candidate-draft: pending; no candidate code was created
