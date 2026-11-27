@@ -33,7 +33,8 @@ GIB = 2 ** 30
 BYTES_PER_TOKEN = 11 * 2 * 256 * 2 * 4 + 2 * 256 * 2 * 2      # 45,056 + 2,048 = 47,104
 STATE_GIB = 0.07e9 / GIB
 BASE_GIB = 8.55                                                # the one figure a measured start replaces ("5070 calibration owed")
-HYBRID_MIN_GIB = {"UD-Q4_K_XL": 1256 / 1024, "UD-Q6_K_XL": 1760 / 1024, "Q8_0": 1760 / 1024}
+HYBRID_MIN_GIB = {"UD-Q4_K_XL": 1256 / 1024, "IQ4_XS-KAT": 1256 / 1024, "IQ4_XS-Huihui": 1256 / 1024,
+                  "UD-Q6_K_XL": 1760 / 1024, "Q8_0": 1760 / 1024}
 FAMILY_NAME = "qwen3.6-35b-a3b"                                # setup.py OWN_PATH_FAMILIES['qwen36']['name'], the config's model_name prefix
 
 # Ornith-1.5-35B-A3B (setup.py OWN_PATH_FAMILIES['ornith']['name']): the same engine path, so BYTES_PER_TOKEN and STATE_GIB are

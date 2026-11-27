@@ -720,7 +720,7 @@ class Helpers(unittest.TestCase):
         fam = next(f for f in s.model_table({"ram_gb": 63.7, "gpus": [{"index": 0, "name": "x", "vram_gb": 12.0, "usable": True}]})
                    if f["family"] == "qwen36")
         by = {x["model"]: x for x in fam["sizes"]}
-        self.assertEqual(list(by), ["UD-Q4_K_XL", "UD-Q6_K_XL", "Q8_0"])
+        self.assertEqual(list(by), ["UD-Q4_K_XL", "IQ4_XS-KAT", "IQ4_XS-Huihui", "UD-Q6_K_XL", "Q8_0"])
         self.assertEqual(by["UD-Q4_K_XL"]["id"], "qwen36-ud-q4_k_xl")          # the tag the install writes its config under
         self.assertEqual(by["UD-Q4_K_XL"]["download_gb"], 22.9)
         self.assertTrue(all(x["images"] and x["engine_min"] == "0.1.45" and x["gpu_options"] is None for x in by.values()))

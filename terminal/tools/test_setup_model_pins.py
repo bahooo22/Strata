@@ -76,7 +76,11 @@ class EveryFileIsPinned(unittest.TestCase):
                         for i in range(1, setup.model_shards(fam, model) + 1):
                             self.pinned(fam["hf"].format(q=model) + setup.model_file(fam, model, i))
                     else:
-                        self.pinned(fam["hf"] + fam["file"].format(q=model))
+                        published = setup.own_file(fam, model)
+                        pin = fam["sha256"].get(published)
+                        self.assertIsNotNone(pin, published)
+                        self.assertGreater(pin[0], 0)
+                        self.assertRegex(pin[1], HEX)
 
     def test_the_picture_reader_of_every_family(self):
         for name, fam in {**setup.FAMILIES, **setup.OWN_PATH_FAMILIES}.items():
