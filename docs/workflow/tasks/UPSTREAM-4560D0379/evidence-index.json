@@ -37,6 +37,11 @@
       "sha256": "a81578d75ccd3932f1f73e4cc08de6ae54483a6e6a202f51782c3350d345a9c0"
     },
     {
+      "path": "evidence/a/N-upstream-4560d0379-blocked-review.md",
+      "bytes": 11328,
+      "sha256": "b629a5ea02e45256fb807bd6de727dd13b08c9b74a1bf750def4cb8311386b7a"
+    },
+    {
       "path": "evidence/a/N-upstream-4560d0379-package-review.md",
       "bytes": 5690,
       "sha256": "bfbe2871ef9fdcc31c459534fe1085bcafb3d2b0ec86094794070a725de5dd94"
@@ -90,6 +95,11 @@
       "path": "evidence/a/upstream-4560d0379-closure-leakcheck.log",
       "bytes": 96,
       "sha256": "5ba33db22ca56bd396d98edd2115b54c20c3bb322b356a122515de2c9eccb5fc"
+    },
+    {
+      "path": "evidence/a/upstream-4560d0379-metadata-corrections.md",
+      "bytes": 1345,
+      "sha256": "461107753bbc35fd60f79e56b8d06de9900e0208545671b265697912440059f1"
     },
     {
       "path": "evidence/a/upstream-4560d0379-performance-flow.evidence.md",
@@ -1884,7 +1894,7 @@
     {
       "path": "evidence/runtime-2026-11-28/RUNTIME-ACCEPTANCE.md",
       "bytes": 1323,
-      "sha256": "7f4ba304918d6d3f996f4e6bdb7d5808c350b3ae85fcc01d8036d1e4af9fc0e8"
+      "sha256": "26c3b715dfbf92d73f52ce685432c0ad1b2cbde4d79c32330d68511fcccaac01"
     },
     {
       "path": "evidence/runtime-2026-11-28/runtime-summary.json",
@@ -1987,7 +1997,7 @@
   "selfExcluded": true,
   "taskId": "UPSTREAM-4560D0379",
   "upstreamRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
-  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+code-algorithms+runtime-2026-11-28+fallback-fa1",
+  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+code-algorithms+runtime-2026-11-28+fallback-fa1+n-blocked-review+metadata-corrections",
   "fallbackEvidence": {
     "reviewBase": "135ddea4efbb0f78ad0ac6b82dd1f574b3132e60",
     "route": "cuBLAS attention fallback",
@@ -1995,5 +2005,11 @@
     "faTile": 0,
     "window": "32k",
     "summary": "evidence/runtime-2026-11-28/fallback-fa1/summary.json"
+  },
+  "nBlockedReview": {
+    "reviewBase": "94f2e6c190982ccc76187f274d635f118ffb3b67",
+    "verdict": "BLOCKED",
+    "artifact": "evidence/a/N-upstream-4560d0379-blocked-review.md",
+    "sha256": "b629a5ea02e45256fb807bd6de727dd13b08c9b74a1bf750def4cb8311386b7a"
   }
 }

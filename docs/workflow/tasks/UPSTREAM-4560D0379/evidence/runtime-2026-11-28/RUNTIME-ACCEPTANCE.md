@@ -18,7 +18,7 @@
 ## Ограничения
 
 - Performance является descriptive; speed progress не заявляется.
-- GPU parity: 85 passed, 1 skipped, 1 baseline-identical failure (Q6_K+Q8_0).
+- GPU parity: 85 passed, 2 skipped, 1 baseline-identical failure (Q6_K+Q8_0).
 - Полный protocol edge matrix и full engine sanitizer не запускались по baseline blockers.
 - Main merge/push не выполнялись.
 
