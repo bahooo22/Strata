@@ -4,6 +4,13 @@
 
 Пакет не меняет candidate code. Он разделяет независимые ours/upstream решения в общих файлах и фиксирует границы, которые A должен сохранить при sync. Defaults и public API не меняются без отдельного обоснования. Qwen35/q36 якоря сохраняются полностью; upstream qwen35 delta пуст.
 
+## Algorithm spec/diagram
+
+- Спецификация: [algorithm.json](algorithm.json).
+- Диаграмма: [algorithm-flow.mmd](algorithm-flow.mmd), сгенерирована штатным `tools/workflow/workflow.py` renderer без внешнего Mermaid renderer.
+- Соответствие: refs/preflight → 34 matrix rows и 10 пересечений → real commitRefs → conflict resolution → settings regeneration 1445 → qwen35 byte-identical guard → build/tests/runtime → N review → merge gate.
+- Владельцы: H готовит matrix/spec, A применяет candidate и проверки, N выполняет независимый review. Pending/failed evidence блокирует переход; откат возвращает candidate к ours/previous upstream.
+
 ## `engine/src/prefill/moe_fused_iq.cu`
 
 - ours владеет format support: IQ4_XS down в `GU256`, `d_covered`, setup/launch и opt-in IQ4_NL gate/up через `STRATA_PF_FUSED_Q4NL`.

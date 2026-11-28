@@ -1,0 +1,48 @@
+flowchart TB
+  REQ["Запрос: KAT IQ4_XS, temperature=0, identical prompt/config"]
+  REQ --> B_SRV["Baseline: Terminal/server main 34bd46b86"]
+  REQ --> C_SRV["Candidate: Terminal/server upstream 4560d0379"]
+
+  subgraph BASE["Baseline runtime"]
+    B_TOK["Tokenizer: 11242 prompt tokens на 32k"]
+    B_Q35["qwen35 engine source: main"]
+    B_SHARED["Shared prefill/build: main"]
+    B_GPU["CUDA kernels + link layout: baseline exe"]
+    B_DEC["Decode loop: 64/256 tokens"]
+    B_SRV --> B_TOK --> B_Q35 --> B_SHARED --> B_GPU --> B_DEC
+  end
+
+  subgraph CAND["Candidate runtime"]
+    C_TOK["Tokenizer: 11242 prompt tokens на 32k"]
+    C_Q35["qwen35 engine source: идентичен main"]
+    C_SHARED["Shared prefill/build: upstream delta"]
+    C_GPU["CUDA kernels + link layout: candidate exe"]
+    C_DEC["Decode loop: 64/256 tokens"]
+    C_SRV --> C_TOK --> C_Q35 --> C_SHARED --> C_GPU --> C_DEC
+  end
+
+  B_DEC --> M32B["32k baseline median<br/>pp 1551.05 / tg 23.55"]
+  C_DEC --> M32C["32k candidate median<br/>pp 1518.75 / tg 22.50<br/>Δ pp -2.082% / tg -4.459%"]
+  B_DEC --> M160B["160k baseline median<br/>pp 908.35 / tg 16.30"]
+  C_DEC --> M160C["160k candidate median<br/>pp 908.05 / tg 16.30<br/>Δ pp -0.033% / tg 0.000%"]
+
+  M32C --> H_NOISE["Гипотеза: шум/thermal/state стенда<br/>confidence: medium"]
+  M32C --> H_SHARED["Гипотеза: shared prefill/build/link<br/>confidence: medium"]
+  M32C -. "маловероятно: prompt tokens/config совпали" .-> H_SERVER["Server/tokenizer/profile<br/>confidence: low"]
+  M32C -. "маловероятно: source diff пуст" .-> H_Q35["qwen35 algorithm regression<br/>confidence: low"]
+
+  M160C --> V200["Следующая проверка: настоящий 200k AB/BA<br/>status: running"]
+  M32C --> V32["Следующая проверка: 32k 3+3 repeat<br/>status: planned"]
+
+  classDef unchanged fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
+  classDef changed fill:#fff3e0,stroke:#ef6c00,color:#e65100;
+  classDef metric fill:#e3f2fd,stroke:#1565c0,color:#0d47a1;
+  classDef hypothesis fill:#f3e5f5,stroke:#6a1b9a,color:#4a148c;
+  classDef pending fill:#eceff1,stroke:#455a64,color:#263238;
+
+  class B_TOK,B_Q35,B_DEC,C_TOK,C_Q35,C_DEC unchanged;
+  class C_SRV,C_SHARED,C_GPU changed;
+  class B_SRV,B_SHARED,B_GPU unchanged;
+  class M32B,M32C,M160B,M160C metric;
+  class H_NOISE,H_SHARED,H_SERVER,H_Q35 hypothesis;
+  class V200,V32 pending;

@@ -7,14 +7,24 @@
       "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
     },
     {
+      "path": "algorithm-flow.mmd",
+      "bytes": 1765,
+      "sha256": "bbb7b135fadea805a3bde169eadeaf4d66a4ec7faa3fa7c2d3b040d8e6a986db"
+    },
+    {
+      "path": "algorithm.json",
+      "bytes": 3192,
+      "sha256": "fc1ed6c42b9165480bff313f886ce1da3d44aff2c1e79580d91a98e8328ba1c5"
+    },
+    {
       "path": "anchor-evidence.json",
       "bytes": 65103,
       "sha256": "35e139e8012f5349f4f8a6d236cb816e854483940043c9708fa3232604e5c0e0"
     },
     {
       "path": "DOC_IMPL.md",
-      "bytes": 7426,
-      "sha256": "60ce2f31b1f28af851c265ad2e1891db69eef2b2009693f2201d9ce2fa83b67e"
+      "bytes": 8237,
+      "sha256": "8bab4dc5eca3f39c8fb8ef3243f1fead788a88ad9563b3ec2c046c804e251128"
     },
     {
       "path": "evidence/a/msg-2195f9b0f.txt",
@@ -80,6 +90,16 @@
       "path": "evidence/a/upstream-4560d0379-closure-leakcheck.log",
       "bytes": 96,
       "sha256": "5ba33db22ca56bd396d98edd2115b54c20c3bb322b356a122515de2c9eccb5fc"
+    },
+    {
+      "path": "evidence/a/upstream-4560d0379-performance-flow.evidence.md",
+      "bytes": 4530,
+      "sha256": "2ecdee0582f89cddc0ae0e1958b3e8273308d05d74c106a714698efea12ac40f"
+    },
+    {
+      "path": "evidence/a/upstream-4560d0379-performance-flow.mmd",
+      "bytes": 2451,
+      "sha256": "2b45150ee9827751ca30f0aa5f56c61f364c5b8ceabbd3ac2f8645c31dc56d12"
     },
     {
       "path": "evidence/a/upstream-4560d0379-unittest-targeted-final.log",
@@ -487,10 +507,10 @@
       "sha256": "2490bcb7fee82c0e58abd60d619cd8216c9021771ba67dd7adc62034fe8025c4"
     }
   ],
-  "generatedAt": "2026-11-27T23:34:43.013089+00:00",
+  "generatedAt": "2026-11-28T01:30:24.938464+00:00",
   "oursRef": "34bd46b86641d4fe34b3ab523e31b816718347e1",
   "selfExcluded": true,
   "taskId": "UPSTREAM-4560D0379",
   "upstreamRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
-  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence"
+  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+algorithm+perf-flow"
 }
