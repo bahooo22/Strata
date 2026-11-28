@@ -8,13 +8,13 @@
     },
     {
       "path": "algorithm-flow.mmd",
-      "bytes": 1765,
-      "sha256": "bbb7b135fadea805a3bde169eadeaf4d66a4ec7faa3fa7c2d3b040d8e6a986db"
+      "bytes": 3069,
+      "sha256": "376df451f85b9e8a78b08123c6c4738a3c1b72f9d9a69e5cfeb7f5a26ef03787"
     },
     {
       "path": "algorithm.json",
-      "bytes": 3192,
-      "sha256": "fc1ed6c42b9165480bff313f886ce1da3d44aff2c1e79580d91a98e8328ba1c5"
+      "bytes": 5391,
+      "sha256": "9af92c8b5ce23472eaf8d97722a2815a7055a4059c5c734dc4d5e2f6cf5a46d8"
     },
     {
       "path": "anchor-evidence.json",
@@ -23,8 +23,8 @@
     },
     {
       "path": "DOC_IMPL.md",
-      "bytes": 8237,
-      "sha256": "8bab4dc5eca3f39c8fb8ef3243f1fead788a88ad9563b3ec2c046c804e251128"
+      "bytes": 8352,
+      "sha256": "6b5cc74c8391de312f974f23bca2b103c053bc39056efbb11b280ffd59e051ae"
     },
     {
       "path": "evidence/a/msg-2195f9b0f.txt",
@@ -302,6 +302,11 @@
       "sha256": "bce5de175e08c351c89f103d4d49c35817bf49b71373e353f9793e3fef01cabb"
     },
     {
+      "path": "evidence/mermaid-render-status.json",
+      "bytes": 614,
+      "sha256": "1048356158f40d1998036bc97e7b67d18833b547e309c7045e30bcb0d3bd6b9f"
+    },
+    {
       "path": "evidence/ours-changed-files.txt",
       "bytes": 16928,
       "sha256": "3ec3da5e104874113007a22fb6a4f87d7ba3b6fc0159c1daea3286fa20a58099"
@@ -478,8 +483,8 @@
     },
     {
       "path": "H-report.md",
-      "bytes": 4908,
-      "sha256": "5d077f07258d8f05b430dfbab116b0c71eb35291dfb9086eff0074b2a348d90f"
+      "bytes": 5602,
+      "sha256": "0330a835e79e4ae4ed3faf7983ca4a78b1f83fc1cbf092e681cba957a120ae32"
     },
     {
       "path": "IMPL_PLAN.md",
@@ -502,15 +507,30 @@
       "sha256": "c76db99b59f3ea5c10400f3c03b65bb59f2d4d5558ac1c62b1b13de842285899"
     },
     {
+      "path": "merge-workflow.json",
+      "bytes": 3192,
+      "sha256": "fc1ed6c42b9165480bff313f886ce1da3d44aff2c1e79580d91a98e8328ba1c5"
+    },
+    {
+      "path": "merge-workflow.mmd",
+      "bytes": 1765,
+      "sha256": "bbb7b135fadea805a3bde169eadeaf4d66a4ec7faa3fa7c2d3b040d8e6a986db"
+    },
+    {
       "path": "PATCH.diff",
       "bytes": 25517,
       "sha256": "2490bcb7fee82c0e58abd60d619cd8216c9021771ba67dd7adc62034fe8025c4"
+    },
+    {
+      "path": "upstream-code-algorithms.md",
+      "bytes": 26483,
+      "sha256": "22796f2be0dae821a702ab6c4b7cde1da8845557c637d385125abbb95d12e033"
     }
   ],
-  "generatedAt": "2026-11-28T01:30:24.938464+00:00",
+  "generatedAt": "2026-11-28T02:14:06.205377+00:00",
   "oursRef": "34bd46b86641d4fe34b3ab523e31b816718347e1",
   "selfExcluded": true,
   "taskId": "UPSTREAM-4560D0379",
   "upstreamRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
-  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+algorithm+perf-flow"
+  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+code-algorithms"
 }

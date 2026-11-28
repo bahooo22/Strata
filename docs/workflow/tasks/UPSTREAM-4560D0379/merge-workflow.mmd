@@ -1,0 +1,44 @@
+flowchart TD
+  start(["Старт: upstream sync 0.2.23"])
+  preflight["A: refs/preflight (34bd / 4560 / 2195)"]
+  matrix["H: matrix decisions (34 rows, 10 overlaps)"]
+  package_review["N: package review"]
+  candidate_commits["A: candidate content commits (real commitRefs)"]
+  conflicts["A: conflict resolution по matrix"]
+  settings["A: settings regeneration (1445)"]
+  qwen_guard["A: qwen35 byte-identical guard"]
+  qwen_ok{"Qwen35 совпадает с ours?"}
+  build_runtime["A: build/tests/runtime evidence"]
+  evidence_ok{"Evidence passed и не pending?"}
+  n_review["N: candidate architecture/runtime review"]
+  n_ok{"N verdict approved?"}
+  merge_gate["A: merge gate (read-only, затем run-checks)"]
+  gate_ok{"Gate PASS?"}
+  ready(["Разрешённый merge / ff-only"])
+  blocked(["BLOCKED: pending/failed evidence"])
+  rollback["A: rollback к ours/previous upstream"]
+  rolled_back(["Откат завершён"])
+
+  start --> preflight
+  preflight --> matrix
+  matrix --> package_review
+  package_review -- "package approved" --> candidate_commits
+  package_review -- "reject" --> rollback
+  candidate_commits --> conflicts
+  conflicts -- "resolved" --> settings
+  conflicts -- "conflict" --> rollback
+  settings -- "generated" --> qwen_guard
+  settings -- "error" --> rollback
+  qwen_guard --> qwen_ok
+  qwen_ok -- "да" --> build_runtime
+  qwen_ok -- "нет" --> rollback
+  build_runtime --> evidence_ok
+  evidence_ok -- "да" --> n_review
+  evidence_ok -- "нет / pending" --> blocked
+  n_review --> n_ok
+  n_ok -- "да" --> merge_gate
+  n_ok -- "нет" --> rollback
+  merge_gate --> gate_ok
+  gate_ok -- "да" --> ready
+  gate_ok -- "нет" --> blocked
+  rollback --> rolled_back

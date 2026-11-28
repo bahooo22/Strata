@@ -1,50 +1,99 @@
 {
   "taskId": "UPSTREAM-4560D0379",
-  "title": "Алгоритм upstream merge adaptation UPSTREAM-4560D0379",
+  "title": "Upstream code algorithms and dataflow",
   "nodes": [
-    {"id": "start", "label": "Старт: upstream sync 0.2.23", "shape": "start"},
-    {"id": "preflight", "label": "A: refs/preflight (34bd / 4560 / 2195)", "shape": "process"},
-    {"id": "matrix", "label": "H: matrix decisions (34 rows, 10 overlaps)", "shape": "process"},
-    {"id": "package_review", "label": "N: package review", "shape": "process"},
-    {"id": "candidate_commits", "label": "A: candidate content commits (real commitRefs)", "shape": "process"},
-    {"id": "conflicts", "label": "A: conflict resolution по matrix", "shape": "process"},
-    {"id": "settings", "label": "A: settings regeneration (1445)", "shape": "process"},
-    {"id": "qwen_guard", "label": "A: qwen35 byte-identical guard", "shape": "process"},
-    {"id": "qwen_ok", "label": "Qwen35 совпадает с ours?", "shape": "decision"},
-    {"id": "build_runtime", "label": "A: build/tests/runtime evidence", "shape": "process"},
-    {"id": "evidence_ok", "label": "Evidence passed и не pending?", "shape": "decision"},
-    {"id": "n_review", "label": "N: candidate architecture/runtime review", "shape": "process"},
-    {"id": "n_ok", "label": "N verdict approved?", "shape": "decision"},
-    {"id": "merge_gate", "label": "A: merge gate (read-only, затем run-checks)", "shape": "process"},
-    {"id": "gate_ok", "label": "Gate PASS?", "shape": "decision"},
-    {"id": "ready", "label": "Разрешённый merge / ff-only", "shape": "end"},
-    {"id": "blocked", "label": "BLOCKED: pending/failed evidence", "shape": "end"},
-    {"id": "rollback", "label": "A: rollback к ours/previous upstream", "shape": "process"},
-    {"id": "rolled_back", "label": "Откат завершён", "shape": "end"}
+    {"id": "start", "label": "Upstream code inputs", "shape": "start"},
+
+    {"id": "cpu_inputs", "label": "CPU expert call: nt, env, type, ISA", "shape": "process"},
+    {"id": "cpu_policy", "label": "dot_x4_mode + dot_x4_enabled", "shape": "process"},
+    {"id": "cpu_choice", "label": "4-row kernel eligible?", "shape": "decision"},
+    {"id": "cpu_x4", "label": "4-row shared-activation dot", "shape": "process"},
+    {"id": "cpu_1row", "label": "1-row dot with prefetch", "shape": "process"},
+    {"id": "cpu_out", "label": "Same expert output bits", "shape": "end"},
+
+    {"id": "file_inputs", "label": "RAM budget + stage lend regions", "shape": "process"},
+    {"id": "lend_plan", "label": "reserve prefix → complement → rest", "shape": "process"},
+    {"id": "file_out", "label": "Expert offsets; past cap stays mmap", "shape": "end"},
+
+    {"id": "reader_inputs", "label": ".strata frame + manifest + Section 3", "shape": "process"},
+    {"id": "layout_choice", "label": "Exactly one strict layout?", "shape": "decision"},
+    {"id": "reader_out", "label": "4K exact or 16K manifest count", "shape": "process"},
+    {"id": "reader_error", "label": "Fail-closed header error", "shape": "end"},
+
+    {"id": "fused_inputs", "label": "Fused MoE launch", "shape": "process"},
+    {"id": "debug_choice", "label": "STRATA_PF_SYNC_DEBUG enabled?", "shape": "decision"},
+    {"id": "fused_out", "label": "Same output; optional fault attribution", "shape": "end"},
+
+    {"id": "terminal_inputs", "label": "Custom files + hardware snapshot", "shape": "process"},
+    {"id": "custom_hw", "label": "run_tag + real bytes + TTL/video scope", "shape": "process"},
+    {"id": "terminal_out", "label": "Separate config + responsive model table", "shape": "end"},
+
+    {"id": "ink_inputs", "label": "Inkling2 taps + DFlash2 sidecar + VRAM", "shape": "process"},
+    {"id": "df2_choice", "label": "DFlash2 requested and residency allows?", "shape": "decision"},
+    {"id": "df2_draft", "label": "5 window layers + 7 draft rows + selector", "shape": "process"},
+    {"id": "target_verify", "label": "Target greedy verification", "shape": "process"},
+    {"id": "plain_decode", "label": "Plain decode without drafter", "shape": "process"},
+    {"id": "ink_out", "label": "Target-owned token", "shape": "end"},
+
+    {"id": "graph_inputs", "label": "Captured Inkling2 decode graph", "shape": "process"},
+    {"id": "pdl_choice", "label": "sm90+/CUDA12.3 and registered edge?", "shape": "decision"},
+    {"id": "graph_out", "label": "Same graph numerics", "shape": "end"},
+
+    {"id": "router_inputs", "label": "Exact top-8 + visit/config", "shape": "process"},
+    {"id": "tail_choice", "label": "Tail rank/share/cap eligible?", "shape": "decision"},
+    {"id": "router_out", "label": "8-slot reduction; optional dropped expert", "shape": "end"},
+
+    {"id": "vision_inputs", "label": "Backend + GiB + explicit ask", "shape": "process"},
+    {"id": "vision_choice", "label": "GPU reader policy?", "shape": "decision"},
+    {"id": "vision_out", "label": "Reader mode + memory reserve", "shape": "end"}
   ],
   "edges": [
-    {"from": "start", "to": "preflight"},
-    {"from": "preflight", "to": "matrix"},
-    {"from": "matrix", "to": "package_review"},
-    {"from": "package_review", "to": "candidate_commits", "label": "package approved"},
-    {"from": "package_review", "to": "rollback", "label": "reject"},
-    {"from": "candidate_commits", "to": "conflicts"},
-    {"from": "conflicts", "to": "settings", "label": "resolved"},
-    {"from": "conflicts", "to": "rollback", "label": "conflict"},
-    {"from": "settings", "to": "qwen_guard", "label": "generated"},
-    {"from": "settings", "to": "rollback", "label": "error"},
-    {"from": "qwen_guard", "to": "qwen_ok"},
-    {"from": "qwen_ok", "to": "build_runtime", "label": "да"},
-    {"from": "qwen_ok", "to": "rollback", "label": "нет"},
-    {"from": "build_runtime", "to": "evidence_ok"},
-    {"from": "evidence_ok", "to": "n_review", "label": "да"},
-    {"from": "evidence_ok", "to": "blocked", "label": "нет / pending"},
-    {"from": "n_review", "to": "n_ok"},
-    {"from": "n_ok", "to": "merge_gate", "label": "да"},
-    {"from": "n_ok", "to": "rollback", "label": "нет"},
-    {"from": "merge_gate", "to": "gate_ok"},
-    {"from": "gate_ok", "to": "ready", "label": "да"},
-    {"from": "gate_ok", "to": "blocked", "label": "нет"},
-    {"from": "rollback", "to": "rolled_back"}
+    {"from": "start", "to": "cpu_inputs"},
+    {"from": "start", "to": "file_inputs"},
+    {"from": "start", "to": "reader_inputs"},
+    {"from": "start", "to": "fused_inputs"},
+    {"from": "start", "to": "terminal_inputs"},
+    {"from": "start", "to": "ink_inputs"},
+    {"from": "start", "to": "graph_inputs"},
+    {"from": "start", "to": "router_inputs"},
+    {"from": "start", "to": "vision_inputs"},
+
+    {"from": "cpu_inputs", "to": "cpu_policy"},
+    {"from": "cpu_policy", "to": "cpu_choice"},
+    {"from": "cpu_choice", "to": "cpu_x4", "label": "yes"},
+    {"from": "cpu_choice", "to": "cpu_1row", "label": "no"},
+    {"from": "cpu_x4", "to": "cpu_out"},
+    {"from": "cpu_1row", "to": "cpu_out"},
+
+    {"from": "file_inputs", "to": "lend_plan"},
+    {"from": "lend_plan", "to": "file_out", "label": "planned / mmap fallback"},
+
+    {"from": "reader_inputs", "to": "layout_choice"},
+    {"from": "layout_choice", "to": "reader_out", "label": "4K or 16K"},
+    {"from": "layout_choice", "to": "reader_error", "label": "ambiguous / invalid"},
+
+    {"from": "fused_inputs", "to": "debug_choice"},
+    {"from": "debug_choice", "to": "fused_out", "label": "on: sync + diagnose"},
+    {"from": "debug_choice", "to": "fused_out", "label": "off: no-op"},
+
+    {"from": "terminal_inputs", "to": "custom_hw"},
+    {"from": "custom_hw", "to": "terminal_out"},
+
+    {"from": "ink_inputs", "to": "df2_choice"},
+    {"from": "df2_choice", "to": "df2_draft", "label": "yes"},
+    {"from": "df2_choice", "to": "plain_decode", "label": "no"},
+    {"from": "df2_draft", "to": "target_verify"},
+    {"from": "target_verify", "to": "ink_out"},
+    {"from": "plain_decode", "to": "ink_out"},
+
+    {"from": "graph_inputs", "to": "pdl_choice"},
+    {"from": "pdl_choice", "to": "graph_out", "label": "eligible: programmatic edge"},
+    {"from": "pdl_choice", "to": "graph_out", "label": "otherwise: ordinary graph"},
+
+    {"from": "router_inputs", "to": "tail_choice"},
+    {"from": "tail_choice", "to": "router_out", "label": "drop id=-1 or exact"},
+
+    {"from": "vision_inputs", "to": "vision_choice"},
+    {"from": "vision_choice", "to": "vision_out", "label": "GPU + reserve / CPU"}
   ]
 }

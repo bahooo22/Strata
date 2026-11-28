@@ -4,12 +4,13 @@
 
 Пакет не меняет candidate code. Он разделяет независимые ours/upstream решения в общих файлах и фиксирует границы, которые A должен сохранить при sync. Defaults и public API не меняются без отдельного обоснования. Qwen35/q36 якоря сохраняются полностью; upstream qwen35 delta пуст.
 
-## Algorithm spec/diagram
+## Code algorithm spec/diagram
 
-- Спецификация: [algorithm.json](algorithm.json).
-- Диаграмма: [algorithm-flow.mmd](algorithm-flow.mmd), сгенерирована штатным `tools/workflow/workflow.py` renderer без внешнего Mermaid renderer.
-- Соответствие: refs/preflight → 34 matrix rows и 10 пересечений → real commitRefs → conflict resolution → settings regeneration 1445 → qwen35 byte-identical guard → build/tests/runtime → N review → merge gate.
-- Владельцы: H готовит matrix/spec, A применяет candidate и проверки, N выполняет независимый review. Pending/failed evidence блокирует переход; откат возвращает candidate к ours/previous upstream.
+- Анализ механизмов: [upstream-code-algorithms.md](upstream-code-algorithms.md) — commits, file:line, inputs, outputs, ownership, streams/sync, fallback, complexity, qwen35 impact и обязательные tests.
+- Спецификация: [algorithm.json](algorithm.json); диаграмма: [algorithm-flow.mmd](algorithm-flow.mmd).
+- Code/dataflow покрывает CPU dot-x4, file-tier lend/stage pool, dual-layout reader, fused diagnostics, Terminal custom/hardware, DFlash2, PDL, tail-skip и vision policy.
+- Auxiliary process-схема сохранена отдельно: [merge-workflow.json](merge-workflow.json) и [merge-workflow.mmd](merge-workflow.mmd); она описывает A/H/N merge workflow и не заменяет code algorithm.
+- Обе `.mmd` прошли реальный bundled Mermaid 12.3.0 `parse`/`render`; console errors — `0`.
 
 ## `engine/src/prefill/moe_fused_iq.cu`
 

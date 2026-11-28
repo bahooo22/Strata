@@ -1,0 +1,23 @@
+{
+  "taskId": "UPSTREAM-4560D0379",
+  "checkedAt": "2026-11-28",
+  "renderer": "Qoder bundled pluginViewDiagramRuntime.cjs (Mermaid 12.3.0)",
+  "runtimeSha256": "f0e5b4d43ff25553b87286276584c5567a567897e205a09d618993926fbdab9d",
+  "method": "local file:// harness; runtime.parse(text) and runtime.render(text)",
+  "files": [
+    {
+      "path": "algorithm-flow.mmd",
+      "parse": "PASS",
+      "render": "PASS",
+      "svgLength": 24580
+    },
+    {
+      "path": "merge-workflow.mmd",
+      "parse": "PASS",
+      "render": "PASS",
+      "svgLength": 15508
+    }
+  ],
+  "consoleErrors": 0,
+  "status": "PASS"
+}

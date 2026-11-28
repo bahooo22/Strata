@@ -1,44 +1,75 @@
 flowchart TD
-  start(["Старт: upstream sync 0.2.23"])
-  preflight["A: refs/preflight (34bd / 4560 / 2195)"]
-  matrix["H: matrix decisions (34 rows, 10 overlaps)"]
-  package_review["N: package review"]
-  candidate_commits["A: candidate content commits (real commitRefs)"]
-  conflicts["A: conflict resolution по matrix"]
-  settings["A: settings regeneration (1445)"]
-  qwen_guard["A: qwen35 byte-identical guard"]
-  qwen_ok{"Qwen35 совпадает с ours?"}
-  build_runtime["A: build/tests/runtime evidence"]
-  evidence_ok{"Evidence passed и не pending?"}
-  n_review["N: candidate architecture/runtime review"]
-  n_ok{"N verdict approved?"}
-  merge_gate["A: merge gate (read-only, затем run-checks)"]
-  gate_ok{"Gate PASS?"}
-  ready(["Разрешённый merge / ff-only"])
-  blocked(["BLOCKED: pending/failed evidence"])
-  rollback["A: rollback к ours/previous upstream"]
-  rolled_back(["Откат завершён"])
+  start(["Upstream code inputs"])
+  cpu_inputs["CPU expert call: nt, env, type, ISA"]
+  cpu_policy["dot_x4_mode + dot_x4_enabled"]
+  cpu_choice{"4-row kernel eligible?"}
+  cpu_x4["4-row shared-activation dot"]
+  cpu_1row["1-row dot with prefetch"]
+  cpu_out(["Same expert output bits"])
+  file_inputs["RAM budget + stage lend regions"]
+  lend_plan["reserve prefix → complement → rest"]
+  file_out(["Expert offsets; past cap stays mmap"])
+  reader_inputs[".strata frame + manifest + Section 3"]
+  layout_choice{"Exactly one strict layout?"}
+  reader_out["4K exact or 16K manifest count"]
+  reader_error(["Fail-closed header error"])
+  fused_inputs["Fused MoE launch"]
+  debug_choice{"STRATA_PF_SYNC_DEBUG enabled?"}
+  fused_out(["Same output; optional fault attribution"])
+  terminal_inputs["Custom files + hardware snapshot"]
+  custom_hw["run_tag + real bytes + TTL/video scope"]
+  terminal_out(["Separate config + responsive model table"])
+  ink_inputs["Inkling2 taps + DFlash2 sidecar + VRAM"]
+  df2_choice{"DFlash2 requested and residency allows?"}
+  df2_draft["5 window layers + 7 draft rows + selector"]
+  target_verify["Target greedy verification"]
+  plain_decode["Plain decode without drafter"]
+  ink_out(["Target-owned token"])
+  graph_inputs["Captured Inkling2 decode graph"]
+  pdl_choice{"sm90+/CUDA12.3 and registered edge?"}
+  graph_out(["Same graph numerics"])
+  router_inputs["Exact top-8 + visit/config"]
+  tail_choice{"Tail rank/share/cap eligible?"}
+  router_out(["8-slot reduction; optional dropped expert"])
+  vision_inputs["Backend + GiB + explicit ask"]
+  vision_choice{"GPU reader policy?"}
+  vision_out(["Reader mode + memory reserve"])
 
-  start --> preflight
-  preflight --> matrix
-  matrix --> package_review
-  package_review -- "package approved" --> candidate_commits
-  package_review -- "reject" --> rollback
-  candidate_commits --> conflicts
-  conflicts -- "resolved" --> settings
-  conflicts -- "conflict" --> rollback
-  settings -- "generated" --> qwen_guard
-  settings -- "error" --> rollback
-  qwen_guard --> qwen_ok
-  qwen_ok -- "да" --> build_runtime
-  qwen_ok -- "нет" --> rollback
-  build_runtime --> evidence_ok
-  evidence_ok -- "да" --> n_review
-  evidence_ok -- "нет / pending" --> blocked
-  n_review --> n_ok
-  n_ok -- "да" --> merge_gate
-  n_ok -- "нет" --> rollback
-  merge_gate --> gate_ok
-  gate_ok -- "да" --> ready
-  gate_ok -- "нет" --> blocked
-  rollback --> rolled_back
+  start --> cpu_inputs
+  start --> file_inputs
+  start --> reader_inputs
+  start --> fused_inputs
+  start --> terminal_inputs
+  start --> ink_inputs
+  start --> graph_inputs
+  start --> router_inputs
+  start --> vision_inputs
+  cpu_inputs --> cpu_policy
+  cpu_policy --> cpu_choice
+  cpu_choice -- "yes" --> cpu_x4
+  cpu_choice -- "no" --> cpu_1row
+  cpu_x4 --> cpu_out
+  cpu_1row --> cpu_out
+  file_inputs --> lend_plan
+  lend_plan -- "planned / mmap fallback" --> file_out
+  reader_inputs --> layout_choice
+  layout_choice -- "4K or 16K" --> reader_out
+  layout_choice -- "ambiguous / invalid" --> reader_error
+  fused_inputs --> debug_choice
+  debug_choice -- "on: sync + diagnose" --> fused_out
+  debug_choice -- "off: no-op" --> fused_out
+  terminal_inputs --> custom_hw
+  custom_hw --> terminal_out
+  ink_inputs --> df2_choice
+  df2_choice -- "yes" --> df2_draft
+  df2_choice -- "no" --> plain_decode
+  df2_draft --> target_verify
+  target_verify --> ink_out
+  plain_decode --> ink_out
+  graph_inputs --> pdl_choice
+  pdl_choice -- "eligible: programmatic edge" --> graph_out
+  pdl_choice -- "otherwise: ordinary graph" --> graph_out
+  router_inputs --> tail_choice
+  tail_choice -- "drop id=-1 or exact" --> router_out
+  vision_inputs --> vision_choice
+  vision_choice -- "GPU + reserve / CPU" --> vision_out

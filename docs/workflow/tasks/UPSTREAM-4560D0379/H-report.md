@@ -16,6 +16,13 @@
 - `merge-plan.json`: штатный JSON Schema — `pass`; `decision=ours`, `candidateRef=2195f9b0f412d7e1f5447dad82a657e4db6904cc`.
 - `PATCH.diff`: 7 файлов, `+141/-18`; `git apply --numstat/--stat` и `git apply --check` на upstream-копии — pass.
 - Settings register в candidate: 1445 записей; 18 ours-only + 153 upstream-only сохранены, `--check` PASS.
+- Code algorithm analysis: `upstream-code-algorithms.md` + `algorithm.json/.mmd`; process-схема сохранена как `merge-workflow.json/.mmd`.
+
+## Mermaid render status
+
+- Локальный bundled Mermaid 12.3.0: `algorithm-flow.mmd` — SVG 24 580 байт; `merge-workflow.mmd` — SVG 15 508 байт; оба `parse`/`render` PASS.
+- Console errors/warnings: `0`; воспроизводимый результат — `evidence/mermaid-render-status.json`.
+- Runtime SHA-256: `f0e5b4d43ff25553b87286276584c5567a567897e205a09d618993926fbdab9d`.
 
 ## Ключевые решения
 
@@ -63,6 +70,11 @@ Commits, merge, push, tests, build, GPU, `merge-gate --run-checks`, subagents и
 
 - `IMPL_PLAN.md`
 - `DOC_IMPL.md`
+- `upstream-code-algorithms.md`
+- `algorithm.json`
+- `algorithm-flow.mmd`
+- `merge-workflow.json`
+- `merge-workflow.mmd`
 - `merge-profile.json`
 - `merge-plan.json`
 - `merge-matrix.json`
