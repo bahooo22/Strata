@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-32k-AB-2-candidate",
+  "startedAt": "2026-11-28T06:28:26.905790+03:00",
+  "finishedAt": "2026-11-28T03:30:27.097338+00:00",
+  "order": "AB",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master-upstream-200k.txt",
+  "chars": 30000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 64,
+  "promptSha256": "afc2cf80cd0204cedf8236f84ee09a957637221abc9b057d8678482789cd36ba",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-fallback-fa1\\32k-AB-2-candidate.engine-config.json",
+    "exists": true,
+    "bytes": 1183,
+    "mtime": "2026-11-28T03:28:33.875133+00:00",
+    "sha256": "a118e94d6c87672110e2e0f951091bfca6e9121506ac7e1d883cf870b432fbf8"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-fallback-fa1\\32k-AB-2-candidate.engine.log",
+    "exists": true,
+    "bytes": 1439,
+    "mtime": "2026-11-28T03:30:26.956858+00:00",
+    "sha256": "06d69f459ca00e321d5ce461bafed6f7a6a10e90b03f8d7e0a045d5944ab420b"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-fallback-fa1\\32k-AB-2-candidate.engine-server.log",
+    "exists": true,
+    "bytes": 942,
+    "mtime": "2026-11-28T03:30:26.956858+00:00",
+    "sha256": "a57f9b815ba2e8b4fe077d1d6c795d32a252c9d4c123954b582789ecf95c22e0"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-fallback-fa1\\32k-AB-2-candidate.answer.json",
+    "exists": true,
+    "bytes": 673,
+    "mtime": "2026-11-28T03:30:26.989919+00:00",
+    "sha256": "745ae82caa16e1ee3df3c96520a3135f9e807bff77c04be78ee7619e47fbb317"
+  }
+}

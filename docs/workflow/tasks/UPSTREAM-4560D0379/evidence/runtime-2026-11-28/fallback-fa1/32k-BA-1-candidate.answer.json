@@ -1,0 +1,15 @@
+{
+  "content": "**Mixture-of-Experts (MoE) inference** — это архитектура LLM, где каждый слой содержит несколько «экспертов» (небольших нейросетей), но для каждого токена активны только **выбранные** из них.\n\n### Как это работает при инференсе",
+  "finishReason": "length",
+  "usage": {
+    "prompt_tokens": 11242,
+    "completion_tokens": 64,
+    "total_tokens": 11306,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  }
+}

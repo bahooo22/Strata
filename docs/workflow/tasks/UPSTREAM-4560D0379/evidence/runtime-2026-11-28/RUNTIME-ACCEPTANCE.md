@@ -1,6 +1,6 @@
 # UPSTREAM-4560D0379 — runtime acceptance
 
-- Candidate runtime/build HEAD: `2195f9b0f`; immutable review tip: `81dccf482`.
+- Candidate runtime/build HEAD: `2195f9b0f`; evidence review base: `135ddea4e`.
 
 | window | baseline pp/tg | candidate pp/tg | Δpp | Δtg | answer parity |
 |---|---:|---:|---:|---:|---|
@@ -21,3 +21,9 @@
 - GPU parity: 85 passed, 1 skipped, 1 baseline-identical failure (Q6_K+Q8_0).
 - Полный protocol edge matrix и full engine sanitizer не запускались по baseline blockers.
 - Main merge/push не выполнялись.
+
+## Fallback cuBLAS
+
+- `--fa -1 --fa-tile 0`, 32k AB/BA: exact answer parity.
+- Baseline pp/tg: 1480.10/21.65; candidate: 1475.95/22.95.
+- Performance является descriptive; fallback acceptance подтверждает корректность, не speed progress.

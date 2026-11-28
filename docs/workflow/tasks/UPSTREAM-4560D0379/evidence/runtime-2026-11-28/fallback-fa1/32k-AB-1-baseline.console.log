@@ -1,0 +1,3 @@
+health ok
+answer ok: '**Mixture-of-Experts (MoE) inference** — это архитектура LLM, где каждый слой со'
+RESULT pp=1477.8 tg=20.9 prefill_ms=7607 gen_ms=3059 chars=30000

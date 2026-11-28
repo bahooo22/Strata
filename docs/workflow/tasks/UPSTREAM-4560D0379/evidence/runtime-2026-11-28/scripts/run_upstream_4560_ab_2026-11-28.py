@@ -27,6 +27,8 @@ SIDES = {
 WINDOWS = {"32k": (32768, 30000, 64), "160k": (163840, 440000, 256), "200k": (204800, 616000, 256)}
 MTP = 0
 DRAFT_VOCAB = None
+FA = -2
+FA_TILE = 4
 RESULT = re.compile(r"RESULT pp=([\d.]+) tg=([\d.]+) prefill_ms=(\d+) gen_ms=(\d+) chars=(\d+)")
 
 
@@ -93,7 +95,7 @@ def run_point(side: str, window: str, order: str, index: int) -> dict[str, objec
     argv = [str(PYTHON), "-X", "utf8", str(RUN_ONE), "--exe", str(SIDES[side]["exe"]),
             "--model", str(MODEL), "--port", "8186", "--ctx", str(ctx), "--chars", str(chars),
             "--master", str(MASTER), "--super", "8", "--att", "256", "--reserve", "512", "--mtp", str(MTP),
-            "--prefill", "2048", "--kv-type", "q4_0", "--max-tokens", str(max_tokens), "--fa", "-2", "--fa-tile", "4",
+            "--prefill", "2048", "--kv-type", "q4_0", "--max-tokens", str(max_tokens), "--fa", str(FA), "--fa-tile", str(FA_TILE),
             "--server-root", str(SIDES[side]["root"]), "--log", str(engine_log), "--answer-out", str(answer),
             "--provenance-out", str(provenance), "--run-id", run_id, "--started-at", iso(), "--order", order,
             "--instruction", "Write a detailed explanation of mixture-of-experts inference.", "--graph", "--no-thinking"]
@@ -139,16 +141,20 @@ def median(values: list[float]) -> float:
 
 
 def main() -> int:
-    global OUT, MTP, DRAFT_VOCAB
+    global OUT, MTP, DRAFT_VOCAB, FA, FA_TILE
     ap = argparse.ArgumentParser()
     ap.add_argument("--windows", default="32k,160k,200k")
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--mtp", type=int, default=0)
     ap.add_argument("--draft-vocab", type=int)
+    ap.add_argument("--fa", type=int, default=-2)
+    ap.add_argument("--fa-tile", type=int, default=4)
     args = ap.parse_args()
     OUT = pathlib.Path(args.out)
     MTP = args.mtp
     DRAFT_VOCAB = args.draft_vocab
+    FA = args.fa
+    FA_TILE = args.fa_tile
     OUT.mkdir(parents=True, exist_ok=True)
     ledger = OUT / "ledger.jsonl"
     rows: list[dict[str, object]] = []
@@ -175,7 +181,8 @@ def main() -> int:
         if failed:
             break
     summary: dict[str, object] = {"ok": not failed, "windows": args.windows.split(","), "mtp": MTP,
-                                 "draftVocab": DRAFT_VOCAB, "rows": rows, "finishedAt": iso()}
+                                 "draftVocab": DRAFT_VOCAB, "fa": FA, "faTile": FA_TILE,
+                                 "rows": rows, "finishedAt": iso()}
     if not failed:
         per_window = {}
         for window in args.windows.split(","):
