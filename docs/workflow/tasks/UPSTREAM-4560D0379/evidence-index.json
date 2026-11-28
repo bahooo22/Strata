@@ -42,6 +42,11 @@
       "sha256": "b629a5ea02e45256fb807bd6de727dd13b08c9b74a1bf750def4cb8311386b7a"
     },
     {
+      "path": "evidence/a/N-upstream-4560d0379-candidate-review.md",
+      "bytes": 3786,
+      "sha256": "d96135411bc2bd7e43f7282a7ab780b858730a46bc09054d13444f9f48792276"
+    },
+    {
       "path": "evidence/a/N-upstream-4560d0379-package-review.md",
       "bytes": 5690,
       "sha256": "bfbe2871ef9fdcc31c459534fe1085bcafb3d2b0ec86094794070a725de5dd94"
@@ -1997,7 +2002,7 @@
   "selfExcluded": true,
   "taskId": "UPSTREAM-4560D0379",
   "upstreamRef": "4560d03793482ef367294cfbd86a4df8d5679e72",
-  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+code-algorithms+runtime-2026-11-28+fallback-fa1+n-blocked-review+metadata-corrections",
+  "stage": "UPSTREAM-4560D0379+metadata-closure+a-build-evidence+code-algorithms+runtime-2026-11-28+fallback-fa1+n-candidate-review",
   "fallbackEvidence": {
     "reviewBase": "135ddea4efbb0f78ad0ac6b82dd1f574b3132e60",
     "route": "cuBLAS attention fallback",
@@ -2011,5 +2016,12 @@
     "verdict": "BLOCKED",
     "artifact": "evidence/a/N-upstream-4560d0379-blocked-review.md",
     "sha256": "b629a5ea02e45256fb807bd6de727dd13b08c9b74a1bf750def4cb8311386b7a"
+  },
+  "nCandidateReview": {
+    "reviewBase": "b689b2c2db7222b3d77d0173e11b42e6775fdb44",
+    "verdict": "APPROVED_UPSTREAM_4560D0379_CANDIDATE",
+    "reviewer": "9ba7a8a6-9973-4bce-8a66-93acde030932",
+    "artifact": "evidence/a/N-upstream-4560d0379-candidate-review.md",
+    "sha256": "d96135411bc2bd7e43f7282a7ab780b858730a46bc09054d13444f9f48792276"
   }
 }
