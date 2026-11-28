@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-32k-BA-1-candidate",
+  "startedAt": "2026-11-28T05:21:46.583543+03:00",
+  "finishedAt": "2026-11-28T02:23:14.421317+00:00",
+  "order": "BA",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master-upstream-200k.txt",
+  "chars": 30000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 64,
+  "promptSha256": "afc2cf80cd0204cedf8236f84ee09a957637221abc9b057d8678482789cd36ba",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.engine-config.json",
+    "exists": true,
+    "bytes": 1214,
+    "mtime": "2026-11-28T02:21:50.568861+00:00",
+    "sha256": "60aec069643d453bd18e16eb3fcbb4c2370c739348b43fca36ed1c838cde5ea8"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.engine.log",
+    "exists": true,
+    "bytes": 1583,
+    "mtime": "2026-11-28T02:23:14.325350+00:00",
+    "sha256": "980e30e2eeff980f2e92ae69a414808d2ebff71474a881116dbe08dc8daa4ce5"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.engine-server.log",
+    "exists": true,
+    "bytes": 892,
+    "mtime": "2026-11-28T02:23:14.325350+00:00",
+    "sha256": "02b6fe7bcc84b19fd34a4b7a836b166c5ff18f6759001cf91f60f0f626d63b9a"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.answer.json",
+    "exists": true,
+    "bytes": 545,
+    "mtime": "2026-11-28T02:23:14.325350+00:00",
+    "sha256": "9014f9a673d9b553fca74e0f1bb6eda9698dbd501d354151e0362e02ecb3f6ed"
+  }
+}

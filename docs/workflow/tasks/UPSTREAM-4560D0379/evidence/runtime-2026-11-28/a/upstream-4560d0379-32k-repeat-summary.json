@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "runs": 12,
+  "baselineRuns": 6,
+  "candidateRuns": 6,
+  "baselinePp": 1513.85,
+  "candidatePp": 1508.85,
+  "deltaPpPct": -0.3302837137100778,
+  "baselineTg": 22.75,
+  "candidateTg": 22.2,
+  "deltaTgPct": -2.41758241758242,
+  "answerParity": true,
+  "perRepeat": [
+    {"repeat": 1, "deltaPpPct": 0.8469249346610752, "deltaTgPct": -5.960264900662238},
+    {"repeat": 2, "deltaPpPct": -2.0129426685311036, "deltaTgPct": -3.8709676419354827},
+    {"repeat": 3, "deltaPpPct": 0.982232651692927, "deltaTgPct": -1.333333333333342}
+  ],
+  "conclusion": "pp regression signal not reproduced; tg delta is small and variable, not conclusive",
+  "raw": "upstream-4560d0379-runtime-32k-repeat1..3"
+}

@@ -1,0 +1,44 @@
+loading the model (the first start takes a minute or two) ...
+[strata] starting the engine: reading the model's weights ...
+[strata] still starting (20 s) - please wait ...
+[strata] still starting (41 s) - please wait ...
+[strata] still starting (61 s) - please wait ...
+[strata] parallel requests: 1 asked, the engine runs one at a time (its log says why)
+[strata] Monitor: watching GPU 0 (main) (as nvidia-smi numbers them)
+ready: http://127.0.0.1:8186/v1  (OpenAI: /v1/chat/completions, Anthropic: /v1/messages, context 163840 tokens)
+       open http://127.0.0.1:8186/ in a browser to chat; close this window to stop the model
+[strata] reading the prompt: 139,307 tokens, 10 s so far
+[strata] reading the prompt: 16,384 of 139,307 tokens, 20 s so far
+[strata] reading the prompt: 32,768 of 139,307 tokens, 22 s so far
+[strata] reading the prompt: 32,768 of 139,307 tokens, 32 s so far
+[strata] reading the prompt: 49,152 of 139,307 tokens, 36 s so far
+[strata] reading the prompt: 49,152 of 139,307 tokens, 47 s so far
+[strata] reading the prompt: 65,536 of 139,307 tokens, 53 s so far
+[strata] reading the prompt: 65,536 of 139,307 tokens, 63 s so far
+[strata] reading the prompt: 81,920 of 139,307 tokens, 71 s so far
+[strata] reading the prompt: 81,920 of 139,307 tokens, 81 s so far
+[strata] reading the prompt: 81,920 of 139,307 tokens, 91 s so far
+[strata] reading the prompt: 98,304 of 139,307 tokens, 102 s so far
+[strata] reading the prompt: 98,304 of 139,307 tokens, 112 s so far
+[strata] reading the prompt: 114,688 of 139,307 tokens, 114 s so far
+[strata] reading the prompt: 114,688 of 139,307 tokens, 124 s so far
+[strata] reading the prompt: 114,688 of 139,307 tokens, 134 s so far
+[strata] reading the prompt: 131,072 of 139,307 tokens, 138 s so far
+[strata] reading the prompt: 131,072 of 139,307 tokens, 148 s so far
+[strata] reading the prompt: 139,307 of 139,307 tokens, 153 s so far
+[strata] answering: 17 of max 256 tokens, 17.4 tok/s, 155 s
+[strata] answering: 34 of max 256 tokens, 16.7 tok/s, 156 s
+[strata] answering: 50 of max 256 tokens, 16.5 tok/s, 157 s
+[strata] answering: 67 of max 256 tokens, 16.4 tok/s, 158 s
+[strata] answering: 84 of max 256 tokens, 16.3 tok/s, 159 s
+[strata] answering: 101 of max 256 tokens, 16.3 tok/s, 160 s
+[strata] answering: 118 of max 256 tokens, 16.3 tok/s, 161 s
+[strata] answering: 135 of max 256 tokens, 16.3 tok/s, 162 s
+[strata] answering: 152 of max 256 tokens, 16.3 tok/s, 163 s
+[strata] answering: 169 of max 256 tokens, 16.3 tok/s, 164 s
+[strata] answering: 186 of max 256 tokens, 16.3 tok/s, 165 s
+[strata] answering: 202 of max 256 tokens, 16.3 tok/s, 166 s
+[strata] answering: 219 of max 256 tokens, 16.3 tok/s, 167 s
+[strata] answering: 236 of max 256 tokens, 16.3 tok/s, 168 s
+[strata] answering: 253 of max 256 tokens, 16.3 tok/s, 169 s
+[strata] done: 256 tokens in 169 s (16.3 tok/s) (length, cancel=False)

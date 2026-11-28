@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "rows": [
+    {
+      "side": "baseline",
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-copy-session\\baseline-engine.log",
+      "copied": {
+        "tokens": [
+          8
+        ],
+        "resume": null,
+        "fresh": 2000,
+        "done": "DONE 1 20000 15902.5 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+        "badm": "BADM 1 0"
+      },
+      "solo": {
+        "tokens": [
+          8
+        ],
+        "resume": null,
+        "fresh": 2000,
+        "done": "DONE 1 20000 15943.0 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+        "badm": "BADM 0 0"
+      },
+      "tokensEqual": true,
+      "copyPrefix": null,
+      "fresh": 2000,
+      "ok": false
+    }
+  ],
+  "finishedAt": "2026-11-28T05:54:16.979899+03:00"
+}

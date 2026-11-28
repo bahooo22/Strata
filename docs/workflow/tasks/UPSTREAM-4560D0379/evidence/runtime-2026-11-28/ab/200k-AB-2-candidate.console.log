@@ -1,0 +1,3 @@
+health ok
+answer ok: '# Механизм MTP (Mixture of Experts) в Strata-q36\n\n## 1. Что такое MoE\n\nQwen3.6-3'
+RESULT pp=745.8 tg=12.5 prefill_ms=271763 gen_ms=20555 chars=616000

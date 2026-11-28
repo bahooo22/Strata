@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-200k-AB-2-candidate",
+  "startedAt": "2026-11-28T04:06:08.620576+03:00",
+  "finishedAt": "2026-11-28T01:10:15.316779+00:00",
+  "order": "AB",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master.txt",
+  "chars": 616000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 256,
+  "promptSha256": "e9efc16a44276905b4a1d6d8b9b8b3a728829f76facca712e8827e08a81d9afe",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-2-candidate.engine-config.json",
+    "exists": true,
+    "bytes": 1180,
+    "mtime": "2026-11-28T01:06:12.281851+00:00",
+    "sha256": "a0e2d4d472fb9982d1a7bf72e6fc1df54e800dc2c2082d9397bf3e6d9afb6768"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-2-candidate.engine.log",
+    "exists": true,
+    "bytes": 1548,
+    "mtime": "2026-11-28T01:10:15.100250+00:00",
+    "sha256": "886a914362326f633ddb31e8af3a80bbd52a2f856c41ac6d96f10ed1b2e85539"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-2-candidate.engine-server.log",
+    "exists": true,
+    "bytes": 2994,
+    "mtime": "2026-11-28T01:10:15.100250+00:00",
+    "sha256": "1e55c600e9298dc0a04685a45e346f6f1a707d730bf4c3f17ba0b3faab5b17ce"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-2-candidate.answer.json",
+    "exists": true,
+    "bytes": 1500,
+    "mtime": "2026-11-28T01:10:15.229451+00:00",
+    "sha256": "92ad391b25f326c9629ad19ae21a6f1972d07ead03a41ea0bd7d10416cebdf1a"
+  }
+}

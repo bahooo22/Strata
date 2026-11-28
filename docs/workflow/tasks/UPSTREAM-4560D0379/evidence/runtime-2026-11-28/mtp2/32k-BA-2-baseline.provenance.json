@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-32k-BA-2-baseline",
+  "startedAt": "2026-11-28T05:23:14.480469+03:00",
+  "finishedAt": "2026-11-28T02:24:47.903395+00:00",
+  "order": "BA",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master-upstream-200k.txt",
+  "chars": 30000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 64,
+  "promptSha256": "afc2cf80cd0204cedf8236f84ee09a957637221abc9b057d8678482789cd36ba",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.engine-config.json",
+    "exists": true,
+    "bytes": 1237,
+    "mtime": "2026-11-28T02:23:18.154232+00:00",
+    "sha256": "ead557d4be3eee74cd7cf1289cb12e299f95c518f830b51cbc9c7f7150f73809"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.engine.log",
+    "exists": true,
+    "bytes": 1590,
+    "mtime": "2026-11-28T02:24:47.781517+00:00",
+    "sha256": "93f7f8eae5b77222bd073004abcc0de91880cd94cad390d0c0b589b353ba302b"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.engine-server.log",
+    "exists": true,
+    "bytes": 951,
+    "mtime": "2026-11-28T02:24:47.782517+00:00",
+    "sha256": "d8e10e5d308fe9cb4fbd45622bf63140d0695e937db7d4f8fbe10454a11e694e"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.answer.json",
+    "exists": true,
+    "bytes": 545,
+    "mtime": "2026-11-28T02:24:47.816242+00:00",
+    "sha256": "9014f9a673d9b553fca74e0f1bb6eda9698dbd501d354151e0362e02ecb3f6ed"
+  }
+}

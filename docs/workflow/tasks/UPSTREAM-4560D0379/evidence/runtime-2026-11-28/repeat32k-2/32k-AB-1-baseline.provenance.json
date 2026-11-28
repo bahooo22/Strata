@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-32k-AB-1-baseline",
+  "startedAt": "2026-11-28T04:56:49.885887+03:00",
+  "finishedAt": "2026-11-28T01:58:15.721932+00:00",
+  "order": "AB",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master-upstream-200k.txt",
+  "chars": 30000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 64,
+  "promptSha256": "afc2cf80cd0204cedf8236f84ee09a957637221abc9b057d8678482789cd36ba",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-32k-repeat2\\32k-AB-1-baseline.engine-config.json",
+    "exists": true,
+    "bytes": 1213,
+    "mtime": "2026-11-28T01:56:53.230546+00:00",
+    "sha256": "7b90f61956d4e16f702fbb80429e68b00513df701cc5199dcb9ac709d048f125"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-32k-repeat2\\32k-AB-1-baseline.engine.log",
+    "exists": true,
+    "bytes": 1549,
+    "mtime": "2026-11-28T01:58:15.630810+00:00",
+    "sha256": "8143a0d53601b89dbf826a4f84382afcb81fe315a2dd5aed33abab20d9921c71"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-32k-repeat2\\32k-AB-1-baseline.engine-server.log",
+    "exists": true,
+    "bytes": 891,
+    "mtime": "2026-11-28T01:58:15.630810+00:00",
+    "sha256": "bd429904f543dbafa81c301424cc969c960d3a60e79c68fdf444ccc0b6118892"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-32k-repeat2\\32k-AB-1-baseline.answer.json",
+    "exists": true,
+    "bytes": 552,
+    "mtime": "2026-11-28T01:58:15.637820+00:00",
+    "sha256": "27a068850baf066d77772b3da65da40967b3be66a5c0bd4b05165c17a85a28c7"
+  }
+}

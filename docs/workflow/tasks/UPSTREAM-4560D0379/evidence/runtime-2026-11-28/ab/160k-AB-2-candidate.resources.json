@@ -1,0 +1,742 @@
+{
+  "before": {
+    "vramUsedMiB": 28,
+    "ramAvailableGiB": 27.89
+  },
+  "samples": [
+    {
+      "at": "2026-11-28T03:49:54.287332+03:00",
+      "vramUsedMiB": 28,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 27.89
+    },
+    {
+      "at": "2026-11-28T03:49:56.330889+03:00",
+      "vramUsedMiB": 28,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 27.68
+    },
+    {
+      "at": "2026-11-28T03:49:58.383455+03:00",
+      "vramUsedMiB": 28,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 27.68
+    },
+    {
+      "at": "2026-11-28T03:50:00.417522+03:00",
+      "vramUsedMiB": 376,
+      "gpuUtil": 6,
+      "ramAvailableGiB": 27.12
+    },
+    {
+      "at": "2026-11-28T03:50:02.472219+03:00",
+      "vramUsedMiB": 1856,
+      "gpuUtil": 4,
+      "ramAvailableGiB": 26.08
+    },
+    {
+      "at": "2026-11-28T03:50:04.509177+03:00",
+      "vramUsedMiB": 5358,
+      "gpuUtil": 62,
+      "ramAvailableGiB": 24.3
+    },
+    {
+      "at": "2026-11-28T03:50:06.558774+03:00",
+      "vramUsedMiB": 5374,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 23.29
+    },
+    {
+      "at": "2026-11-28T03:50:08.615801+03:00",
+      "vramUsedMiB": 5406,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 21.9
+    },
+    {
+      "at": "2026-11-28T03:50:10.666364+03:00",
+      "vramUsedMiB": 5422,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 20.9
+    },
+    {
+      "at": "2026-11-28T03:50:12.704916+03:00",
+      "vramUsedMiB": 5454,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 19.89
+    },
+    {
+      "at": "2026-11-28T03:50:14.757462+03:00",
+      "vramUsedMiB": 5470,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 18.52
+    },
+    {
+      "at": "2026-11-28T03:50:16.813746+03:00",
+      "vramUsedMiB": 5486,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 17.51
+    },
+    {
+      "at": "2026-11-28T03:50:18.866572+03:00",
+      "vramUsedMiB": 5518,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 16.13
+    },
+    {
+      "at": "2026-11-28T03:50:20.902830+03:00",
+      "vramUsedMiB": 5534,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 15.14
+    },
+    {
+      "at": "2026-11-28T03:50:22.960323+03:00",
+      "vramUsedMiB": 5566,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 13.81
+    },
+    {
+      "at": "2026-11-28T03:50:25.016975+03:00",
+      "vramUsedMiB": 5582,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 12.85
+    },
+    {
+      "at": "2026-11-28T03:50:27.069745+03:00",
+      "vramUsedMiB": 5614,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 11.46
+    },
+    {
+      "at": "2026-11-28T03:50:29.110624+03:00",
+      "vramUsedMiB": 5630,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 10.46
+    },
+    {
+      "at": "2026-11-28T03:50:31.148898+03:00",
+      "vramUsedMiB": 5662,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 9.01
+    },
+    {
+      "at": "2026-11-28T03:50:33.185149+03:00",
+      "vramUsedMiB": 5694,
+      "gpuUtil": 2,
+      "ramAvailableGiB": 7.37
+    },
+    {
+      "at": "2026-11-28T03:50:35.238983+03:00",
+      "vramUsedMiB": 5710,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 6.38
+    },
+    {
+      "at": "2026-11-28T03:50:37.292841+03:00",
+      "vramUsedMiB": 5742,
+      "gpuUtil": 7,
+      "ramAvailableGiB": 5.02
+    },
+    {
+      "at": "2026-11-28T03:50:39.347381+03:00",
+      "vramUsedMiB": 5758,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 4.03
+    },
+    {
+      "at": "2026-11-28T03:50:41.387848+03:00",
+      "vramUsedMiB": 5774,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 3.41
+    },
+    {
+      "at": "2026-11-28T03:50:43.430792+03:00",
+      "vramUsedMiB": 5774,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 3.29
+    },
+    {
+      "at": "2026-11-28T03:50:45.474074+03:00",
+      "vramUsedMiB": 5790,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 2.5
+    },
+    {
+      "at": "2026-11-28T03:50:47.517657+03:00",
+      "vramUsedMiB": 5806,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 1.77
+    },
+    {
+      "at": "2026-11-28T03:50:49.561874+03:00",
+      "vramUsedMiB": 5822,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.9
+    },
+    {
+      "at": "2026-11-28T03:50:51.616142+03:00",
+      "vramUsedMiB": 5838,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.6
+    },
+    {
+      "at": "2026-11-28T03:50:53.662750+03:00",
+      "vramUsedMiB": 5870,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.59
+    },
+    {
+      "at": "2026-11-28T03:50:55.706937+03:00",
+      "vramUsedMiB": 5886,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.59
+    },
+    {
+      "at": "2026-11-28T03:50:57.745835+03:00",
+      "vramUsedMiB": 5902,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.4
+    },
+    {
+      "at": "2026-11-28T03:50:59.801663+03:00",
+      "vramUsedMiB": 5918,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.26
+    },
+    {
+      "at": "2026-11-28T03:51:01.872303+03:00",
+      "vramUsedMiB": 5950,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.26
+    },
+    {
+      "at": "2026-11-28T03:51:03.916683+03:00",
+      "vramUsedMiB": 5966,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.26
+    },
+    {
+      "at": "2026-11-28T03:51:05.955091+03:00",
+      "vramUsedMiB": 5982,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.27
+    },
+    {
+      "at": "2026-11-28T03:51:08.055634+03:00",
+      "vramUsedMiB": 6744,
+      "gpuUtil": 4,
+      "ramAvailableGiB": 0.05
+    },
+    {
+      "at": "2026-11-28T03:51:10.198309+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.02
+    },
+    {
+      "at": "2026-11-28T03:51:12.264773+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 0,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:51:14.302318+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:16.342852+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:51:18.382907+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:51:20.436851+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:22.472320+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 84,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:24.509256+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:26.550092+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:28.594453+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:30.633070+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:32.674256+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:34.719881+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:36.777523+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:38.820244+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:40.861814+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:42.901646+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:44.946770+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:46.987486+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:49.032985+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:51.074541+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:53.120044+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:55.173618+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:57.219359+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:51:59.251459+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:01.302509+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:03.342837+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:05.386235+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:07.424864+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:09.469577+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:11.523604+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:13.581312+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:15.627807+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:17.667759+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:19.710640+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:21.755435+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:23.800273+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:25.838998+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:27.881255+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:29.938211+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:31.995103+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:34.052623+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:36.093039+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:38.134999+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:40.182728+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:42.221702+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:44.275587+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:46.314933+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:48.355661+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:50.396015+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:52.438662+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:54.477901+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:52:56.534506+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.44
+    },
+    {
+      "at": "2026-11-28T03:52:58.572103+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:53:00.608752+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.43
+    },
+    {
+      "at": "2026-11-28T03:53:02.641751+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.47
+    },
+    {
+      "at": "2026-11-28T03:53:04.690955+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:06.734331+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:08.787711+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:10.832453+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:12.879546+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:14.916455+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:16.959423+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:19.002653+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:21.048272+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:23.084135+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:25.129014+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.51
+    },
+    {
+      "at": "2026-11-28T03:53:27.166692+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:29.215326+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 76,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:31.268208+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:33.320227+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 76,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:35.363435+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:37.404263+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:39.451609+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 73,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:41.488150+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 100,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:43.531214+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 82,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:45.574198+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 65,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:47.612025+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 54,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:49.670296+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 52,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:51.722499+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 56,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:53.768833+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 52,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:55.810283+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 52,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:57.854238+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 54,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:53:59.911716+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 54,
+      "ramAvailableGiB": 0.5
+    },
+    {
+      "at": "2026-11-28T03:54:01.956081+03:00",
+      "vramUsedMiB": 6980,
+      "gpuUtil": 52,
+      "ramAvailableGiB": 0.5
+    }
+  ],
+  "peakVramMiB": 6980,
+  "minRamAvailableGiB": 0.02
+}

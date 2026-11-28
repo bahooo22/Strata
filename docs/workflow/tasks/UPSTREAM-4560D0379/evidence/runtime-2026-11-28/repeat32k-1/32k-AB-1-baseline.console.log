@@ -1,0 +1,3 @@
+health ok
+answer ok: '## Механизм MoE-инференса в Strata-3060Ti\n\n**Qwen3.6-35B-A3B** — модель с архите'
+RESULT pp=1501.0 tg=21.1 prefill_ms=7490 gen_ms=3033 chars=30000

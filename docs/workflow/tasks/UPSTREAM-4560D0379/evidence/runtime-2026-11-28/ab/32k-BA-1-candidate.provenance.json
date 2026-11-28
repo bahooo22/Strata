@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-32k-BA-1-candidate",
+  "startedAt": "2026-11-28T03:42:10.722800+03:00",
+  "finishedAt": "2026-11-28T00:43:49.389909+00:00",
+  "order": "BA",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master.txt",
+  "chars": 30000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 64,
+  "promptSha256": "afc2cf80cd0204cedf8236f84ee09a957637221abc9b057d8678482789cd36ba",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\32k-BA-1-candidate.engine-config.json",
+    "exists": true,
+    "bytes": 1178,
+    "mtime": "2026-11-28T00:42:14.474251+00:00",
+    "sha256": "74219be7a03c178439bfe3732282b60f0247df743e168f1d331cab8100ce6b23"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\32k-BA-1-candidate.engine.log",
+    "exists": true,
+    "bytes": 1542,
+    "mtime": "2026-11-28T00:43:49.286155+00:00",
+    "sha256": "3b42ff5f9eed950a08ea460dd30f7950bf5b5ef90940947319917ada5e903992"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\32k-BA-1-candidate.engine-server.log",
+    "exists": true,
+    "bytes": 892,
+    "mtime": "2026-11-28T00:43:49.286155+00:00",
+    "sha256": "25b8602768c084fb71f26fc87e4fb3f715e0015e7bbafddc6c5bd053a42e09e9"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\32k-BA-1-candidate.answer.json",
+    "exists": true,
+    "bytes": 552,
+    "mtime": "2026-11-28T00:43:49.286155+00:00",
+    "sha256": "27a068850baf066d77772b3da65da40967b3be66a5c0bd4b05165c17a85a28c7"
+  }
+}

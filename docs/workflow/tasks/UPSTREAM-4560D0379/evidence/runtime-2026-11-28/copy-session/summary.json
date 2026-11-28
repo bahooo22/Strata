@@ -1,0 +1,58 @@
+{
+  "ok": true,
+  "rows": [
+    {
+      "side": "baseline",
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-copy-session\\baseline-engine.log",
+      "copied": {
+        "tokens": [
+          8
+        ],
+        "resume": 18000,
+        "fresh": 2000,
+        "done": "DONE 1 20000 17278.7 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+        "badm": "BADM 1 0"
+      },
+      "solo": {
+        "tokens": [
+          8
+        ],
+        "resume": 18000,
+        "fresh": 2000,
+        "done": "DONE 1 20000 16178.0 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+        "badm": "BADM 0 0"
+      },
+      "tokensEqual": true,
+      "copyPrefix": 18000,
+      "fresh": 2000,
+      "ok": true
+    },
+    {
+      "side": "candidate",
+      "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-copy-session\\candidate-engine.log",
+      "copied": {
+        "tokens": [
+          8
+        ],
+        "resume": 18000,
+        "fresh": 2000,
+        "done": "DONE 1 20000 15956.3 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+        "badm": "BADM 1 0"
+      },
+      "solo": {
+        "tokens": [
+          8
+        ],
+        "resume": 18000,
+        "fresh": 2000,
+        "done": "DONE 1 20000 15912.1 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+        "badm": "BADM 0 0"
+      },
+      "tokensEqual": true,
+      "copyPrefix": 18000,
+      "fresh": 2000,
+      "ok": true
+    }
+  ],
+  "finishedAt": "2026-11-28T06:07:37.340418+03:00"
+}

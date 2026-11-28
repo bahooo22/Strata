@@ -1,0 +1,13 @@
+strata-q36: D:\Strata\models\katcoder\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf: 753 tensors (layout checked), 1.61 GiB on the GPU in 5.2 s (the routed experts are placed after the engine's buffers; device: 38 SMs, 32 ssm v-heads)
+strata-q36: knob --fa = -2 from cli (default -1)
+strata-q36: knob --fa-tile = 4 from cli (default 0)
+strata-q36: prompt experts on the native grouped kernels
+strata-q36: 2 sessions (--batch): 1.43 GiB of VRAM each at a context of 32768 (2.87 GiB in all), 4.23 GiB free before them
+strata-q36: context 32768 cells, prompt chunk 256, MTP block loaded, 3.68 GiB of VRAM free
+strata-q36: hybrid experts: 37 of 256 per layer in VRAM (2.36 GiB), all 16.34 GiB in host memory, the rest of a batch of <= 128 rows on 4 CPU threads, bigger prompt chunks streamed (0.80 GiB staging); 61.8 s
+strata-q36: expert host memory: 37 of 41 layers pinned
+strata-q36: warmed up in 2.5 s (one prompt chunk, a decode step)
+strata batch: slot 0 takes a prompt of 18000 tokens = 0 reused + 18000 read in 140100 ms (128.5 tok/s), done at once
+strata batch: slot 1 takes a prompt of 20000 tokens = 18000 reused + 2000 read in 17279 ms (115.7 tok/s), done at once
+strata batch: slot 0 takes a prompt of 20000 tokens = 18000 reused + 2000 read in 16178 ms (123.6 tok/s), done at once
+strata-q36: hybrid experts: 3599 of 25600 batch entries on the GPU (14.1%), 22001 on the CPU pool in 1392 ms, 1256 slot replacements

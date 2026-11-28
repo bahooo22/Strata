@@ -1,0 +1,15 @@
+{
+  "content": "# Механизм MTP (Mixture of Experts) в Strata-q36\n\n## 1. Что такое MoE\n\nQwen3.6-35B-A3B — модель с архитектурой **qwen35moe**: 35 миллиардов параметров, но в каждом слое активны только ~3 миллиарда. Это достигается за счёт **Mixture-of-Experts (MoE)**:\n\n- **256 экспертов** на слой (gate, up, down).\n- **Top-8**: на каждый токен выбираются 8 экспертов с наибольшим весом от роутера.\n- **Shared expert**: один общий эксперт, который работает всегда, масштабированный `sigmoid(gate)`.\n\n## 2. Как работает inference\n\n### Prefill (обработка промпта)\n\n1. **Router**: FP32-проекция `h → logits_r` (256 выходов), top-8 pick.\n2. **Grouping**: записи сортируются по экспертам (`k_route_count → k_route_scan → k_route_scatter`).\n3. **MMQ (int8)**: для prompt chunk (>8 токенов) используется MM",
+  "finishReason": "length",
+  "usage": {
+    "prompt_tokens": 202672,
+    "completion_tokens": 256,
+    "total_tokens": 202928,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  }
+}

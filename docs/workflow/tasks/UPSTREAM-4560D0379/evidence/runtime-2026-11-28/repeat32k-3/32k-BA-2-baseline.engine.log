@@ -1,0 +1,12 @@
+[strata] 2026-11-28 05:07:49 engine started: F:\tmp\upstream-main-baseline-build\strata-q36.exe --serve --native D:\Strata\models\katcoder\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf --max-context 32768 --chunk 128 --batch 1 --prefill 2048 --mtp 0 --draft-vocab 8192 --kv-type q4_0 --vram-reserve-mib 512 --att-mb 256 --super-chunk 8 --mtp 0 --prefill 2048 --vram-reserve-mib 512 --kv-type q4_0 --fa -2 --fa-tile 4
+strata-q36: D:\Strata\models\katcoder\KAT-Coder-V2.5-Dev-35B-A3B-MTP-ABLITERATED.i1-IQ4_XS.gguf: 753 tensors (layout checked), 1.61 GiB on the GPU in 4.8 s (the routed experts are placed after the engine's buffers; device: 38 SMs, 32 ssm v-heads)
+strata-q36: knob --super-chunk = 8 from cli (default 1)
+strata-q36: knob --fa = -2 from cli (default -1)
+strata-q36: knob --fa-tile = 4 from cli (default 0)
+strata-q36: super-chunk 8 x 2048 tokens, x+h buffers 256 MiB
+strata-q36: prompt experts on the native grouped kernels
+strata-q36: context 32768 cells, prompt chunk 2048, MTP block loaded, 2.97 GiB of VRAM free
+strata-q36: hybrid experts: 26 of 256 per layer in VRAM (1.66 GiB), all 16.34 GiB in host memory, the rest of a batch of <= 128 rows on 4 CPU threads, bigger prompt chunks streamed (0.80 GiB staging); 56.8 s
+strata-q36: expert host memory: 37 of 41 layers pinned
+strata-q36: warmed up in 3.4 s (one prompt chunk, a decode step)
+strata serve: session 0: prompt 11242 tokens = 0 reused + 11242 read in 7465 ms (1506.0 tok/s), 64 generated in 2840 ms (22.5 tok/s), drafts accepted 0 of 0 (length)

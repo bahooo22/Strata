@@ -1,0 +1,15 @@
+{
+  "content": "# Механизм Mixture-of-Experts (MoE) в Strata-3060Ti\n\n## 1. Что такое MoE\n\nМодель **Qwen3.6-35B-A3B** — это MoE (Mixture of Experts). У неё **35 миллиардов** параметров, но в каждом вычислительном слое одновременно задействованы только **~3 миллиарда**.\n\nАрхитектура:\n- **256 маршрутизируемых экспертов** (routed experts) в каждом слое.\n- **1 общий эксперт** (shared expert) — присутствует во всех слоях.\n- **Router** (входной вес `ffn_gate_inp`) решает, какие 8 экспертов («top-8») обработают каждый токен.\n- **Shared expert** обрабатывается всегда, его вклад масштабируется сигмоидой от `ffn_gate_inp_shexp`.\n\nИтог: модель «широкая» (много весов), но «узкая» в вычислении (мало активных весов на токен). Это даёт большой контекст и качество при умеренной скорости.\n\n## 2. Как Strata-q",
+  "finishReason": "length",
+  "usage": {
+    "prompt_tokens": 139307,
+    "completion_tokens": 256,
+    "total_tokens": 139563,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  }
+}

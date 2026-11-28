@@ -1,0 +1,296 @@
+{
+  "ok": true,
+  "perWindow": {
+    "32k": {
+      "baselinePp": 1551.05,
+      "candidatePp": 1518.75,
+      "deltaPpPct": -2.082460268850128,
+      "baselineTg": 23.55,
+      "candidateTg": 22.5,
+      "deltaTgPct": -4.458598726114649,
+      "answerParity": true,
+      "baselineRuns": 2,
+      "candidateRuns": 2
+    },
+    "160k": {
+      "baselinePp": 908.35,
+      "candidatePp": 908.05,
+      "deltaPpPct": -0.03302691693730653,
+      "baselineTg": 16.299999999999997,
+      "candidateTg": 16.3,
+      "deltaTgPct": 2.220446049250313e-14,
+      "answerParity": true,
+      "baselineRuns": 2,
+      "candidateRuns": 2
+    },
+    "200k": {
+      "baselinePp": 746.0999999999999,
+      "candidatePp": 746.3,
+      "deltaPpPct": 0.02680605816915982,
+      "baselineTg": 12.3,
+      "candidateTg": 12.45,
+      "deltaTgPct": 1.21951219512193,
+      "answerParity": true,
+      "baselineRuns": 2,
+      "candidateRuns": 2
+    }
+  },
+  "repeat32k": {
+    "ok": true,
+    "runs": 12,
+    "baselineRuns": 6,
+    "candidateRuns": 6,
+    "baselinePp": 1513.85,
+    "candidatePp": 1508.85,
+    "deltaPpPct": -0.3302837137100778,
+    "baselineTg": 22.75,
+    "candidateTg": 22.2,
+    "deltaTgPct": -2.41758241758242,
+    "answerParity": true,
+    "perRepeat": [
+      {
+        "repeat": 1,
+        "deltaPpPct": 0.8469249346610752,
+        "deltaTgPct": -5.960264900662238
+      },
+      {
+        "repeat": 2,
+        "deltaPpPct": -2.0129426685311036,
+        "deltaTgPct": -3.870967641935483
+      },
+      {
+        "repeat": 3,
+        "deltaPpPct": 0.982232651692927,
+        "deltaTgPct": -1.333333333333342
+      }
+    ],
+    "conclusion": "pp regression signal not reproduced; tg delta is small and variable, not conclusive",
+    "raw": "upstream-4560d0379-runtime-32k-repeat1..3"
+  },
+  "mtp2": {
+    "ok": true,
+    "windows": [
+      "32k"
+    ],
+    "mtp": 2,
+    "draftVocab": 8192,
+    "rows": [
+      {
+        "runId": "upstream4560-32k-AB-1-baseline",
+        "side": "baseline",
+        "window": "32k",
+        "order": "AB",
+        "index": 1,
+        "startedAt": "2026-11-28T05:18:36.772002+03:00",
+        "endedAt": "2026-11-28T05:20:00.813448+03:00",
+        "rc": 0,
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-1-baseline.console.log",
+        "engineLog": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-1-baseline.engine.log",
+        "answer": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-1-baseline.answer.json",
+        "provenance": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-1-baseline.provenance.json",
+        "resources": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-1-baseline.resources.json",
+        "pp": 1388.4,
+        "tg": 20.7,
+        "prefillMs": 8097,
+        "genMs": 3088,
+        "chars": 30000,
+        "answerSha256": "9014f9a673d9b553fca74e0f1bb6eda9698dbd501d354151e0362e02ecb3f6ed",
+        "contentSha256": "b4e997e32639909eb13f297886f866eb44566168901a57fb11e38282c9190297",
+        "completionTokens": 64,
+        "finishReason": "length",
+        "peakVramMiB": 6906,
+        "minRamAvailableGiB": 0.02
+      },
+      {
+        "runId": "upstream4560-32k-AB-2-candidate",
+        "side": "candidate",
+        "window": "32k",
+        "order": "AB",
+        "index": 2,
+        "startedAt": "2026-11-28T05:20:04.379645+03:00",
+        "endedAt": "2026-11-28T05:21:46.581029+03:00",
+        "rc": 0,
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-2-candidate.console.log",
+        "engineLog": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-2-candidate.engine.log",
+        "answer": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-2-candidate.answer.json",
+        "provenance": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-2-candidate.provenance.json",
+        "resources": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-AB-2-candidate.resources.json",
+        "pp": 1391.7,
+        "tg": 20.0,
+        "prefillMs": 8078,
+        "genMs": 3204,
+        "chars": 30000,
+        "answerSha256": "9014f9a673d9b553fca74e0f1bb6eda9698dbd501d354151e0362e02ecb3f6ed",
+        "contentSha256": "b4e997e32639909eb13f297886f866eb44566168901a57fb11e38282c9190297",
+        "completionTokens": 64,
+        "finishReason": "length",
+        "peakVramMiB": 6906,
+        "minRamAvailableGiB": 0.02
+      },
+      {
+        "runId": "upstream4560-32k-BA-1-candidate",
+        "side": "candidate",
+        "window": "32k",
+        "order": "BA",
+        "index": 1,
+        "startedAt": "2026-11-28T05:21:50.195412+03:00",
+        "endedAt": "2026-11-28T05:23:14.462479+03:00",
+        "rc": 0,
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.console.log",
+        "engineLog": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.engine.log",
+        "answer": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.answer.json",
+        "provenance": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.provenance.json",
+        "resources": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-1-candidate.resources.json",
+        "pp": 1425.7,
+        "tg": 21.1,
+        "prefillMs": 7885,
+        "genMs": 3028,
+        "chars": 30000,
+        "answerSha256": "9014f9a673d9b553fca74e0f1bb6eda9698dbd501d354151e0362e02ecb3f6ed",
+        "contentSha256": "b4e997e32639909eb13f297886f866eb44566168901a57fb11e38282c9190297",
+        "completionTokens": 64,
+        "finishReason": "length",
+        "peakVramMiB": 6905,
+        "minRamAvailableGiB": 0.11
+      },
+      {
+        "runId": "upstream4560-32k-BA-2-baseline",
+        "side": "baseline",
+        "window": "32k",
+        "order": "BA",
+        "index": 2,
+        "startedAt": "2026-11-28T05:23:17.886315+03:00",
+        "endedAt": "2026-11-28T05:24:47.940992+03:00",
+        "rc": 0,
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.console.log",
+        "engineLog": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.engine.log",
+        "answer": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.answer.json",
+        "provenance": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.provenance.json",
+        "resources": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime-mtp2\\32k-BA-2-baseline.resources.json",
+        "pp": 1410.8,
+        "tg": 19.8,
+        "prefillMs": 7968,
+        "genMs": 3229,
+        "chars": 30000,
+        "answerSha256": "9014f9a673d9b553fca74e0f1bb6eda9698dbd501d354151e0362e02ecb3f6ed",
+        "contentSha256": "b4e997e32639909eb13f297886f866eb44566168901a57fb11e38282c9190297",
+        "completionTokens": 64,
+        "finishReason": "length",
+        "peakVramMiB": 6906,
+        "minRamAvailableGiB": 0.03
+      }
+    ],
+    "finishedAt": "2026-11-28T05:24:47.961267+03:00",
+    "perWindow": {
+      "32k": {
+        "baselinePp": 1399.6,
+        "candidatePp": 1408.7,
+        "deltaPpPct": 0.6501857673621103,
+        "baselineTg": 20.25,
+        "candidateTg": 20.55,
+        "deltaTgPct": 1.4814814814814836,
+        "answerParity": true,
+        "baselineRuns": 2,
+        "candidateRuns": 2
+      }
+    }
+  },
+  "quality": {
+    "ok": true,
+    "rows": [
+      {
+        "side": "baseline",
+        "rc": 0,
+        "startedAt": "2026-11-28T05:26:27.817338+03:00",
+        "endedAt": "2026-11-28T05:29:12.285968+03:00",
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\baseline.console.log",
+        "consoleSha256": "02031ce7c488fa1caea6aa71ed56fe3ad607e5a7f9f9da23d87f77936b243610",
+        "raw": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\baseline\\upstream-baseline-raw.jsonl",
+        "score": {
+          "pass_w": 16,
+          "total_w": 22,
+          "rate": 0.727
+        },
+        "tasks": 12,
+        "tag": "upstream-baseline"
+      },
+      {
+        "side": "candidate",
+        "rc": 0,
+        "startedAt": "2026-11-28T05:29:12.286950+03:00",
+        "endedAt": "2026-11-28T05:32:10.613476+03:00",
+        "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\candidate.console.log",
+        "consoleSha256": "02031ce7c488fa1caea6aa71ed56fe3ad607e5a7f9f9da23d87f77936b243610",
+        "raw": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\candidate\\upstream-candidate-raw.jsonl",
+        "score": {
+          "pass_w": 16,
+          "total_w": 22,
+          "rate": 0.727
+        },
+        "tasks": 12,
+        "tag": "upstream-candidate"
+      }
+    ],
+    "scoreEqual": true,
+    "finishedAt": "2026-11-28T05:32:10.617218+03:00"
+  },
+  "copySession": {
+    "ok": true,
+    "rows": [
+      {
+        "side": "baseline",
+        "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-copy-session\\baseline-engine.log",
+        "copied": {
+          "tokens": [
+            8
+          ],
+          "resume": 18000,
+          "fresh": 2000,
+          "done": "DONE 1 20000 17278.7 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+          "badm": "BADM 1 0"
+        },
+        "solo": {
+          "tokens": [
+            8
+          ],
+          "resume": 18000,
+          "fresh": 2000,
+          "done": "DONE 1 20000 16178.0 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+          "badm": "BADM 0 0"
+        },
+        "tokensEqual": true,
+        "copyPrefix": 18000,
+        "fresh": 2000,
+        "ok": true
+      },
+      {
+        "side": "candidate",
+        "log": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-copy-session\\candidate-engine.log",
+        "copied": {
+          "tokens": [
+            8
+          ],
+          "resume": 18000,
+          "fresh": 2000,
+          "done": "DONE 1 20000 15956.3 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+          "badm": "BADM 1 0"
+        },
+        "solo": {
+          "tokens": [
+            8
+          ],
+          "resume": 18000,
+          "fresh": 2000,
+          "done": "DONE 1 20000 15912.1 0.1 length 0 0 18000 0 0 0 0 0.0 2000 0",
+          "badm": "BADM 0 0"
+        },
+        "tokensEqual": true,
+        "copyPrefix": 18000,
+        "fresh": 2000,
+        "ok": true
+      }
+    ],
+    "finishedAt": "2026-11-28T06:07:37.340418+03:00"
+  },
+  "rawRows": 12
+}

@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "rows": [
+    {
+      "side": "baseline",
+      "rc": 0,
+      "startedAt": "2026-11-28T05:26:27.817338+03:00",
+      "endedAt": "2026-11-28T05:29:12.285968+03:00",
+      "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\baseline.console.log",
+      "consoleSha256": "02031ce7c488fa1caea6aa71ed56fe3ad607e5a7f9f9da23d87f77936b243610",
+      "raw": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\baseline\\upstream-baseline-raw.jsonl",
+      "score": {
+        "pass_w": 16,
+        "total_w": 22,
+        "rate": 0.727
+      },
+      "tasks": 12,
+      "tag": "upstream-baseline"
+    },
+    {
+      "side": "candidate",
+      "rc": 0,
+      "startedAt": "2026-11-28T05:29:12.286950+03:00",
+      "endedAt": "2026-11-28T05:32:10.613476+03:00",
+      "console": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\candidate.console.log",
+      "consoleSha256": "02031ce7c488fa1caea6aa71ed56fe3ad607e5a7f9f9da23d87f77936b243610",
+      "raw": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-quality\\candidate\\upstream-candidate-raw.jsonl",
+      "score": {
+        "pass_w": 16,
+        "total_w": 22,
+        "rate": 0.727
+      },
+      "tasks": 12,
+      "tag": "upstream-candidate"
+    }
+  ],
+  "scoreEqual": true,
+  "finishedAt": "2026-11-28T05:32:10.617218+03:00"
+}

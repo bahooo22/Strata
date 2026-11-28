@@ -1,0 +1,3 @@
+health ok
+answer ok: '# Механизм Mixture-of-Experts (MoE) в Strata-3060Ti\n\n## 1. Что такое MoE\n\nМодель'
+RESULT pp=907.8 tg=16.3 prefill_ms=153462 gen_ms=15727 chars=430080

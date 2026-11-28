@@ -1,0 +1,15 @@
+{
+  "content": "## Механизм MoE-инференса в Strata-3060Ti\n\n**Qwen3.6-35B-A3B** — модель с архитектурой *Mixture of Experts* (смешивание экспертов). Общая параметризация ~35 млрд, но за",
+  "finishReason": "length",
+  "usage": {
+    "prompt_tokens": 11242,
+    "completion_tokens": 64,
+    "total_tokens": 11306,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  }
+}

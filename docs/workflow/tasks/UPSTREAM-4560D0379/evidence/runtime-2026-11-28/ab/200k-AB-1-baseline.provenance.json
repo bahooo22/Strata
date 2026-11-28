@@ -1,0 +1,46 @@
+{
+  "runId": "upstream4560-200k-AB-1-baseline",
+  "startedAt": "2026-11-28T04:20:53.103045+03:00",
+  "finishedAt": "2026-11-28T01:26:52.497072+00:00",
+  "order": "AB",
+  "status": "ok",
+  "error": "",
+  "master": "E:\\tmp\\master-upstream-200k.txt",
+  "chars": 616000,
+  "instruction": "Write a detailed explanation of mixture-of-experts inference.",
+  "maxTokens": 256,
+  "promptSha256": "876f0c82f3b9232e028f5be0668e5c17d4ef7bf6fa8b598a1a5c0aae6df510be",
+  "tokenIdsSha256": "",
+  "env": {
+    "STRATA_Q36_ROUTE_TRACE": "0"
+  },
+  "runOneSha256": "cdefb849d7036126c716ead5ac4e03093ed40dbcaeb92380917656e4f7e98e84",
+  "config": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-1-baseline.engine-config.json",
+    "exists": true,
+    "bytes": 1203,
+    "mtime": "2026-11-28T01:20:53.326754+00:00",
+    "sha256": "6b277807af356cd1d93911061f8e0d9a3825a1dc719308986ccfd05c1b28ae62"
+  },
+  "engine": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-1-baseline.engine.log",
+    "exists": true,
+    "bytes": 1555,
+    "mtime": "2026-11-28T01:26:52.391642+00:00",
+    "sha256": "775b0cb9700fa900ec3fcc9913d2ebd85a3f4c71d96722cfa9c288dd12de380b"
+  },
+  "serverLog": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-1-baseline.engine-server.log",
+    "exists": true,
+    "bytes": 4099,
+    "mtime": "2026-11-28T01:26:52.391642+00:00",
+    "sha256": "659173aa948a75efdaa978e76148e1f705c701fa0b802ad58d3beee0cef6a61d"
+  },
+  "answer": {
+    "path": "E:\\eXample\\Documents\\Source\\Github\\_work_with_llm\\glm\\2026-11-27_session\\upstream-4560d0379-runtime\\200k-AB-1-baseline.answer.json",
+    "exists": true,
+    "bytes": 1434,
+    "mtime": "2026-11-28T01:26:52.410258+00:00",
+    "sha256": "8ecac6c53c369e3e522ff55e44a0fd7729841b9b85b8fefa5046604f0d3bcc81"
+  }
+}
