@@ -12,6 +12,7 @@
 | EXPERT-TYPES | полный routed-expert контракт 10/11/18/21 | delta к upstream | done | main / 3568a3e2 / b8bd12b8 | `a8ebf5d59`; patch SHA `017d5621`; CUDA/non-Q6K rc=0; CTest 5/5; grouped/MMVQ PASS; hygiene rc=0; markers 29/29 | HIP not-run с waiver только для этого patch; отдельная приёмка при появлении toolchain |
 | UPSTREAM-MERGE | fork sync с upstream `d46f5f2` | matrix ours/upstream/delta/hybrid | done | helper b8bd12b8 / аналитик 3568a3e2 / main | `cc195b909`; merge-base `923e2df4d`; main ahead upstream `253/0`; analyst APPROVE; main gate pass; push rc=0; RU+EN MD и warning-code fix приняты | поддерживать refs и generated reports |
 | UPSTREAM-MERGE-2AF30CCA | fork sync с upstream `2af30cca` | upstream | done | A/H/N | `36e044b045bf18e35e3089a9527fc9c86c57ee88`; merge-base `d46f5f2`; N CODE_APPROVED; static 21/21; markers 29/29; quality/MTP2/resources PASS | 200k order-adjusted tg -1.58% — warning, обратная пара +0.54%; HIP not-run |
+| UPSTREAM-MERGE-4560D0379 | fork sync с upstream v0.2.23 `4560d0379` | matrix ours/upstream | done | A/H/N | accepted candidate/main `c54211739bf8998c0c1d5730494f78a0b77c7b7a`; N APPROVED; schema/gate PASS; markers 29/29; runtime/quality/MTP2/copy_session/fallback exact parity; push origin/main rc=0 | performance descriptive; HIP/SYCL/Metal/CPU и full sanitizer not-run |
 | Q35-ADAPT-REBALANCE | adaptive expert-slot rebalance/prefetch по L/U | idea only | planned | main | docs/architecture/qwen35-core/improvements.md #1 | отдельный TASK_IDEA; ожидаемый эффект +3–8% tg, не замер |
 | Q35-ADAPT-SUPER | adaptive super-chunk по ctx/VRAM/slots | idea only | planned | main | docs/architecture/qwen35-core/improvements.md #2 | первый candidate после порога 5%; отдельный TASK_IDEA и приёмка ≥5% end-to-end |
 | Q35-STREAM-DEPTH | stream depth 2→3/4 с lifetime guards | idea only | planned | main | docs/architecture/qwen35-core/improvements.md #3 | проверить VRAM/late-write/H2D |
@@ -41,6 +42,10 @@
 
 ## Upstream snapshot
 
+- 2026-11-28 merge `4560d03793482ef367294cfbd86a4df8d5679e72` (v0.2.23) выполнен: main `c54211739bf8998c0c1d5730494f78a0b77c7b7a`, merge-base `2af30ccaa0729177c4725ee2073f72bf550e2f86`; qwen35 diff пуст; N `APPROVED_UPSTREAM_4560D0379_CANDIDATE`; schema/gate PASS; push origin/main rc=0.
+- Runtime: 32k/160k/200k AB/BA exact parity; repeat 3+3 pp-сигнал не повторён; MTP2, quality 16/22, copy_session и cuBLAS fallback exact parity. Performance descriptive, speed progress не заявляется.
+- Backup tag: `upstream-0.2.23-premerge-2026-11-28` на `34bd46b86641d4fe34b3ab523e31b816718347e1`.
+- Generated RU+EN report: `docs/upstream-merges/4560d0379348-c54211739bf8-2026-11-28.*.md`.
 - 2026-11-25 merge `2af30ccaa0729177c4725ee2073f72bf550e2f86` выполнен: main `36e044b045bf18e35e3089a9527fc9c86c57ee88`, merge-base `d46f5f268f8ed797e83a5c63a69bffbd7a581cf6`; qwen35 diff пуст.
 - Performance: 160k Δpp/Δtg -0.22%/-0.91%; 200k order-adjusted Δpp/Δtg +0.02%/-1.58%, raw median tg -2.24%, обратная пара +0.54%; регрессия не подтверждена.
 

@@ -78,3 +78,16 @@ python tools/upstream_merge/upstream_merge.py selftest
 - Performance warning: 200k raw median tg -2.24%, order-adjusted -1.58%, обратная пара +0.54%; регрессия не подтверждена.
 - Not-run: HIP runtime; `tools/check` сохраняет идентичные main/candidate baseline docs-ошибки и отсутствующие cmake/pytest/Node/torch.
 - Raw evidence: `glm/2026-11-25_session/upstream-2af30cca/`; candidate evidence: `docs/workflow/tasks/UPSTREAM-2AF30CCA/`.
+
+## Текущий sync `4560d0379` (v0.2.23)
+
+- ours/base: `34bd46b86641d4fe34b3ab523e31b816718347e1`.
+- upstream: `4560d03793482ef367294cfbd86a4df8d5679e72`; merge-base: `2af30ccaa0729177c4725ee2073f72bf550e2f86`.
+- accepted candidate/main: `c54211739bf8998c0c1d5730494f78a0b77c7b7a`; qwen35 diff пуст; backup tag `upstream-0.2.23-premerge-2026-11-28`.
+- N review: `APPROVED_UPSTREAM_4560D0379_CANDIDATE`; 34 matrix rows; 102 anchor locations; schema и semantic merge-gate `--run-checks` PASS, blockers 0/notRun 0.
+- Build/tests: CUDA rc=0, markers 29/29; targeted unittest Ran 86/skipped 2/failures 0; GPU parity 85 passed, 2 skipped, 1 baseline-identical failure.
+- Runtime: 32k/160k/200k AB/BA exact parity; repeat 3+3; MTP2; quality 16/22 identical; copy_session resume 18000/fresh 2000; cuBLAS fallback `--fa -1` 4/4 rc0 exact parity.
+- Performance descriptive; speed progress не заявляется. HIP/SYCL/Metal/CPU и full engine sanitizer not-run.
+- Push `origin/main` rc=0; main и origin/main равны `c54211739`.
+- Raw evidence: `glm/2026-11-27_session/upstream-4560d0379-FINAL-ACCEPTANCE-2026-11-28.md`; candidate evidence: `docs/workflow/tasks/UPSTREAM-4560D0379/`.
+- Generated RU+EN report: `docs/upstream-merges/4560d0379348-c54211739bf8-2026-11-28.ru.md` и `.en.md`.

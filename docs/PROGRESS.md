@@ -1,6 +1,6 @@
 # Прогресс завершения Strata
 
-Дата: 2026-11-25. Обновляется сразу после каждого подпункта.
+Дата: 2026-11-28. Обновляется сразу после каждого подпункта.
 
 | Этап | Статус | Owner | Зависимости | Acceptance / последнее evidence | Next action |
 |---|---|---|---|---|---|
@@ -27,3 +27,4 @@
 - Каждый переход требует evidence/commit/PR, owner и next action.
 | 12. qwen35 core architecture | done | main | post-merge SHA | 27 классов/237 символов/300 call edges; 659/659 sourceRefs; пять Mermaid sources; master-схема в docs/architecture/qwen35-core | поддерживать sourceRefs при изменениях ядра |
 | 13. Пять ускорений qwen35 | analysis-done | main | architecture audit + порог 5% | ranked shortlist опубликован; #4 (+1–3%) и #5 (+1–4%) исключены; первый candidate #2 adaptive super-chunk | новый TASK_IDEA для #2 и обязательная приёмка ≥5% end-to-end |
+| 14. Upstream merge `4560d0379` | done | A/H/N | upstream v0.2.23 | accepted candidate/main `c54211739`; N `APPROVED_UPSTREAM_4560D0379_CANDIDATE`; schema/gate PASS, blockers 0; 32k/160k/200k, repeat, MTP2, quality, copy_session и cuBLAS fallback exact parity; push origin/main rc=0 | поддерживать refs и generated RU+EN report; speed progress не заявляется |
